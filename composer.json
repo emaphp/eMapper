@@ -1,0 +1,27 @@
+{
+	"name" : "emapper/emapper3",
+	"description" : "The Extensible Mapper Library for PHP",
+	"type" : "library",
+	"authors" : [{
+			"name" : "Emmanuel Antico",
+			"email" : "emmanuel.antico@gmail.com",
+			"role" : "Developer"
+		}
+	],
+	"keywords" : [
+		"emapper mapper mapping mysql mariadb postgresql pgsql sql sqlite plsql"
+	],
+	"license" : [
+		"BSD-2-Clause"
+	],
+	"require" : {
+		"minime/annotations" : "~1.1",
+		"emacros/emacros" : "dev-master"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"eMapper" : "lib"
+		}
+	},
+	"minimum-stability" : "dev"
+}
