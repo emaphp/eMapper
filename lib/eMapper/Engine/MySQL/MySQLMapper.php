@@ -248,8 +248,11 @@ class MySQLMapper extends GenericMapper {
 			}
 			//array mapping type: array, array[], array[column], array[column:type]
 			elseif (preg_match(self::ARRAY_TYPE_REGEX, $mapping_type, $matches)) {
+				//obtain result map
+				$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
+				
 				//generate a new array mapper object
-				$mapping_callback = array(new ArrayTypeMapper($this->typeManager));
+				$mapping_callback = array(new ArrayTypeMapper($this->typeManager, $resultMap));
 			
 				if (!empty($matches[2])) {
 					$mapping_callback[] = 'mapList';

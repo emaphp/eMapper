@@ -1,12 +1,14 @@
 <?php
-namespace eMapper\MySQL;
+namespace eMapper\MySQL\Mapper;
+
+use eMapper\MySQL\MySQLTest;
 
 /**
  * 
  * @author emaphp
  * @group mysql
  */
-class MapperTest extends MySQLTest {
+class ScalarTypeTest extends MySQLTest {
 	public function __construct() {
 		self::setUpBeforeClass();
 	}
@@ -180,7 +182,7 @@ class MapperTest extends MySQLTest {
 		
 		$result = self::$mapper->type('s')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $result);
+		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $result);
 		
 		$result = self::$mapper->type('s')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
@@ -244,7 +246,7 @@ class MapperTest extends MySQLTest {
 		
 		$result = self::$mapper->type('us')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $result);
+		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $result);
 		
 		$result = self::$mapper->type('us')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
@@ -408,7 +410,7 @@ class MapperTest extends MySQLTest {
 		
 		$result = self::$mapper->type('x')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $result);
+		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $result);
 		
 		$result = self::$mapper->type('x')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
@@ -490,6 +492,51 @@ class MapperTest extends MySQLTest {
 	 */
 	public function testDatetimeError4() {
 		$result = self::$mapper->type('DateTime')->query("SELECT price FROM products WHERE product_id = 1");	
+	}
+	
+	public function testCustomType() {
+		$result = self::$mapper->type('Acme\RGBColor')->query("SELECT 'ffFF00'");
+		
+		$this->assertInstanceOf('Acme\RGBColor', $result);
+		$this->assertEquals(255, $result->red);
+		$this->assertEquals(255, $result->green);
+		$this->assertEquals(0, $result->blue);
+		
+		$result = self::$mapper->type('Acme\RGBColor')->query("SELECT color FROM products WHERE product_id = 1");
+		$this->assertInstanceOf('Acme\RGBColor', $result);
+		$this->assertEquals(225, $result->red);
+		$this->assertEquals(26, $result->green);
+		$this->assertEquals(26, $result->blue);
+		
+		$colors = self::$mapper->type('Acme\RGBColor[]')->query("SELECT color FROM products ORDER BY product_id ASC");
+		$this->assertInternalType('array', $colors);
+		$this->assertCount(5, $colors);
+		$this->assertInstanceOf('Acme\RGBColor', $colors[0]);
+		$this->assertEquals(225, $colors[0]->red);
+		$this->assertEquals(26, $colors[0]->green);
+		$this->assertEquals(26, $colors[0]->blue);
+		
+		//usig alias
+		$result = self::$mapper->type('color')->query("SELECT 'ffFF00'");
+		
+		$this->assertInstanceOf('Acme\RGBColor', $result);
+		$this->assertEquals(255, $result->red);
+		$this->assertEquals(255, $result->green);
+		$this->assertEquals(0, $result->blue);
+		
+		$result = self::$mapper->type('color')->query("SELECT color FROM products WHERE product_id = 1");
+		$this->assertInstanceOf('Acme\RGBColor', $result);
+		$this->assertEquals(225, $result->red);
+		$this->assertEquals(26, $result->green);
+		$this->assertEquals(26, $result->blue);
+		
+		$colors = self::$mapper->type('color[]')->query("SELECT color FROM products ORDER BY product_id ASC");
+		$this->assertInternalType('array', $colors);
+		$this->assertCount(5, $colors);
+		$this->assertInstanceOf('Acme\RGBColor', $colors[0]);
+		$this->assertEquals(225, $colors[0]->red);
+		$this->assertEquals(26, $colors[0]->green);
+		$this->assertEquals(26, $colors[0]->blue);
 	}
 }
 ?>

@@ -2,6 +2,7 @@
 namespace eMapper\Type;
 
 use eMapper\Reflection\Profiler;
+use Acme\Type\RGBColorTypeHandler;
 
 /**
  * 
@@ -98,6 +99,18 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		
 		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\NullTypeHandler');
 		$this->assertTrue($profile->has('unquoted'));
+	}
+	
+	public function testCustomType() {
+		$typeManager = new TypeManager();
+		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
+		$typeManager->addAlias('Acme\RGBColor', 'clr');
+		
+		$this->assertArrayHasKey('Acme\RGBColor', $typeManager->typeHandlers);
+		$this->assertInstanceOf('Acme\Type\RGBColorTypeHandler', $typeManager->typeHandlers['Acme\RGBColor']);
+		
+		$this->assertArrayHasKey('clr', $typeManager->aliases);
+		$this->assertEquals('Acme\RGBColor', $typeManager->aliases['clr']);
 	}
 }
 ?>
