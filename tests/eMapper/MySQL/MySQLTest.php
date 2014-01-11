@@ -2,6 +2,7 @@
 namespace eMapper\MySQL;
 
 use eMapper\Engine\MySQL\MySQLMapper;
+use Acme\Type\RGBColorTypeHandler;
 /**
  * 
  * @author emaphp
@@ -32,6 +33,8 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 				self::$config['host'],
 				self::$config['user'],
 				self::$config['password']);
+		
+		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 	}
 	
 	public static function tearDownAfterClass() {

@@ -435,8 +435,6 @@ class MapperTest extends MySQLTest {
 	 * Obtains various types of values as a Datetime instance
 	 */
 	public function testDatetime() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$result = self::$mapper->type('DateTime')->query("SELECT NULL");
 		$this->assertNull($result);
 		
@@ -470,7 +468,6 @@ class MapperTest extends MySQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testDatetimeError1() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
 		$result = self::$mapper->type('DateTime')->query("SELECT user_id FROM users WHERE user_id = 1");
 	}
 	
@@ -478,7 +475,6 @@ class MapperTest extends MySQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testDatetimeError2() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
 		$result = self::$mapper->type('DateTime')->query("SELECT user_name FROM users WHERE user_id = 1");
 	}
 	
@@ -486,7 +482,6 @@ class MapperTest extends MySQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testDatetimeError3() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
 		$result = self::$mapper->type('DateTime')->query("SELECT avatar FROM users WHERE user_id = 1");
 	}
 	
@@ -494,7 +489,6 @@ class MapperTest extends MySQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testDatetimeError4() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
 		$result = self::$mapper->type('DateTime')->query("SELECT price FROM products WHERE product_id = 1");	
 	}
 }

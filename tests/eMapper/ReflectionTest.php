@@ -20,16 +20,16 @@ class ReflectionTest extends \PHPUnit_Framework_TestCase {
 		$profile = Profiler::getClassAnnotations('Acme\\Result\\UserResultMap');
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
-		$this->assertTrue($profile->has('map-to'));
-		$this->assertEquals('Acme\User', $profile->get('map-to'));
+		$this->assertTrue($profile->has('defaultClass'));
+		$this->assertEquals('stdClass', $profile->get('defaultClass'));
 	}
 	
 	public function testResultMapProfile() {
 		list($profile, $properties) = Profiler::getClassProfile('Acme\\Result\\UserResultMap');
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
-		$this->assertTrue($profile->has('map-to'));
-		$this->assertEquals('Acme\\User', $profile->get('map-to'));
+		$this->assertTrue($profile->has('defaultClass'));
+		$this->assertEquals('stdClass', $profile->get('defaultClass'));
 		
 		$this->assertInternalType('array', $properties);
 		

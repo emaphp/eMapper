@@ -8,6 +8,7 @@ use eMapper\Type\Handler\FloatTypeHandler;
 use eMapper\Type\Handler\BooleanTypeHandler;
 use eMapper\Type\Handler\DatetimeTypeHandler;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use Acme\Type\RGBColorTypeHandler;
 
 /**
  * 
@@ -176,6 +177,37 @@ class ScalarResultTest extends MySQLTest {
 		}
 		
 		$this->assertEquals(array('2013-05-22 14:23:32', '2013-03-26 10:01:45', '2013-02-16 20:00:33', '2013-01-06 12:34:10', '2013-08-10 19:57:15'), $values);
+	}
+	
+	public function testCustomType() {
+		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
+		$result = self::$conn->query("SELECT 'FF00ff'");
+		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		
+		$this->assertInstanceOf('Acme\RGBColor', $value);
+		$this->assertEquals(255, $value->red);
+		$this->assertEquals(0, $value->green);
+		$this->assertEquals(255, $value->blue);
+		$result->free();
+		
+		$result = self::$conn->query("SELECT color FROM products WHERE product_id = 1");
+		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		$this->assertInstanceOf('Acme\RGBColor', $value);
+		$this->assertEquals(225, $value->red);
+		$this->assertEquals(26, $value->green);
+		$this->assertEquals(26, $value->blue);
+		$result->free();
+		
+		$result = self::$conn->query("SELECT color FROM products ORDER BY product_id ASC");
+		$values = $mapper->mapList(new MySQLResultInterface($result));
+		$this->assertInternalType('array', $values);
+		$this->assertCount(5, $values);
+		
+		$this->assertInstanceOf('Acme\RGBColor', $values[0]);
+		$this->assertEquals(225, $values[0]->red);
+		$this->assertEquals(26, $values[0]->green);
+		$this->assertEquals(26, $values[0]->blue);
+		$result->free();
 	}
 }
 ?>

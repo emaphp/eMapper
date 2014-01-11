@@ -46,6 +46,38 @@ class TypeManager {
 	}
 	
 	/**
+	 * Associates a type handler to a given type
+	 * @param string $type
+	 * @param TypeHandler $typeHandler
+	 * @throws \InvalidArgumentException
+	 */
+	public function setTypeHandler($type, TypeHandler $typeHandler) {
+		if (!is_string($type) || empty($type)) {
+			throw new \InvalidArgumentException("Type must be defined as a string");
+		}
+		
+		$this->typeHandlers[$type] = $typeHandler;
+	}
+	
+	/**
+	 * Stores a new alias for a given type
+	 * @param string $type
+	 * @param string $alias
+	 * @throws \InvalidArgumentException
+	 */
+	public function addAlias($type, $alias) {
+		if (!is_string($type) || empty($type)) {
+			throw new \InvalidArgumentException("Type must be defined as a string");
+		}
+		
+		if (!is_string($alias) || empty($alias)) {
+			throw new \InvalidArgumentException("Alias must be defined as a string");
+		}
+		
+		$this->aliases[$alias] = $type;
+	}
+	
+	/**
 	 * Obtains the type handler assigned to a type
 	 * @param string $type_or_alias
 	 * @return boolean|TypeHandler

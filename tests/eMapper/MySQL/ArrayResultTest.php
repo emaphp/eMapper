@@ -15,8 +15,6 @@ class ArrayResultTest extends MySQLTest {
 	 * Obtains a row as different types of arrays
 	 */
 	public function testResultType() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new MySQLResultInterface($result));
@@ -176,8 +174,6 @@ class ArrayResultTest extends MySQLTest {
 	 * Obtains a row with all fields declared through a result map
 	 */
 	public function testArrayResultMap() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new MySQLResultInterface($result));
@@ -219,8 +215,6 @@ class ArrayResultTest extends MySQLTest {
 	 * Obtains a list of various types of arrays
 	 */
 	public function testListResultType() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result));
@@ -361,8 +355,6 @@ class ArrayResultTest extends MySQLTest {
 	 * Obtains an indexed list by a integer/string column
 	 */
 	public function testIndexedListResultType() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-	
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
@@ -554,8 +546,6 @@ class ArrayResultTest extends MySQLTest {
 	}
 	
 	public function testIndexedTypeList() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 'string');
@@ -667,8 +657,6 @@ class ArrayResultTest extends MySQLTest {
 	}
 	
 	public function testIndexedGroupList() {
-		date_default_timezone_set('America/Argentina/Buenos_Aires');
-		
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');

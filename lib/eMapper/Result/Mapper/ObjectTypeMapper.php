@@ -4,7 +4,6 @@ namespace eMapper\Result\Mapper;
 use eMapper\Type\TypeManager;
 use eMapper\Result\ResultInterface;
 use eMapper\Reflection\Profiler;
-use eMacros\Runtime\Collection\ArrayMap;
 
 class ObjectTypeMapper extends ComplexTypeMapper {
 	/**
@@ -45,7 +44,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				if ($instance instanceof \stdClass) {
 					$instance->$name = $typeHandler->getValue($row->$column);
 				}
-				elseif ($instance instanceof ArrayMap) {
+				elseif ($instance instanceof \ArrayObject) {
 					$instance['name'] = $typeHandler->getValue($row->$column);
 				}
 				else {
@@ -80,7 +79,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				foreach ($this->columnTypes as $column => $type) {
 					if ($reflectionClass->hasProperty($column)) {
 						//validate property
-						$property = $reflectionClass->getProperty($name);
+						$property = $reflectionClass->getProperty($column);
 						
 						if (!$property->isPublic()) {
 							throw new \UnexpectedValueException(sprintf("Property %s in class %s has not public access", $property->getName(), $this->defaultClass));
@@ -159,7 +158,17 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				}
 				
 				$column = $index;
-				$typeHandler = $this->typeManager->getTypeHandler($this->columnTypes[$index]);
+				
+				if (is_null($type)) {
+					$typeHandler = $this->typeManager->getTypeHandler($this->columnTypes[$index]);
+				}
+				else {
+					$typeHandler = $this->typeManager->getTypeHandler($type);
+					
+					if ($typeHandler === false) {
+						throw new \InvalidArgumentException("No type handler found for type '$type'");
+					}
+				}
 			}
 			else {				
 				if (!array_key_exists($index, $this->propertyList)) {
@@ -167,14 +176,27 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				}
 				
 				$column = $this->propertyList[$index]['column'];
-				$typeHandler = $this->propertyList[$index]['handler'];
+				
+				if (is_null($type)) {
+					$typeHandler = $this->propertyList[$index]['handler'];
+				}
+				else {
+					$typeHandler = $this->typeManager->getTypeHandler($type);
+						
+					if ($typeHandler === false) {
+						throw new \InvalidArgumentException("No type handler found for type '$type'");
+					}
+				}
 			}
 	
 			$indexes = array();
 				
 			while ($result->valid()) {
+				///get row
+				$row = $result->fetchObject();
+
 				//get index value
-				$key = $result->fetchObject()->$column;
+				$key = $row->$column;
 	
 				//check if index value equals null
 				if (is_null($key)) {

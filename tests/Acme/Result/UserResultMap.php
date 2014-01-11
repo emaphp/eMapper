@@ -3,7 +3,7 @@ namespace Acme\Result;
 
 
 /**
- * @map-to Acme\User
+ * @defaultClass stdClass
  */
 class UserResultMap {
 	/**

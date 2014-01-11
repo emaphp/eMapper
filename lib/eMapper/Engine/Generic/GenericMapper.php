@@ -42,19 +42,11 @@ abstract class GenericMapper {
 	 * @param TypeHandler $typeHandler
 	 * @throws \InvalidArgumentException
 	 */
-	public function addType($type, TypeHandler $typeHandler, $alias = null) {
-		if (!is_string($type) || empty($type)) {
-			throw new \InvalidArgumentException("Type must be defined as a string");
-		}
+	public function addType($type, TypeHandler $typeHandler, $alias = null) {	
+		$this->typeManager->setTypeHandler($type, $typeHandler);
 	
-		$this->typeManager->typeHandlers[$type] = $typeHandler;
-	
-		if (!is_null($alias)) {
-			if (!is_string($alias) || empty($alias)) {
-				throw new \InvalidArgumentException("Alias must be defined as a string");
-			}
-				
-			$this->typeManager->aliases[$alias] = $type;
+		if (!is_null($alias)) {				
+			$this->typeManager->addAlias($type, $alias);
 		}
 	}
 	

@@ -79,7 +79,7 @@ class MySQLResultInterface extends ResultInterface {
 	}
 	
 	public function fetchObject($className = null) {
-		return $this->result->fetch_object($className);
+		return $this->result->fetch_object(is_null($className) ? 'stdClass' : $className);
 	}
 }
 ?>

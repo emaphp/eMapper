@@ -73,6 +73,19 @@ abstract class ComplexTypeMapper {
 				
 				$this->propertyList[$name]['handler'] = $typeHandler;
 			}
+			elseif ($field->has('var')) {
+				//as 'var' is a common annotation no error is thrown if no associated type handler is found
+				$type = $field->get('var');
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+					
+				if ($typeHandler !== false) {
+					$this->propertyList[$name]['handler'] = $typeHandler;
+				}
+				else {
+					echo $type;
+					$this->propertyList[$name]['handler'] = $this->columnHandler($column);
+				}
+			}
 			else {
 				$this->propertyList[$name]['handler'] = $this->columnHandler($column);
 			}
@@ -97,7 +110,7 @@ abstract class ComplexTypeMapper {
 			}
 			else {
 				//obtain class from annotation
-				$profile = Profiler::getClassProfile($this->resultMap);
+				$profile = Profiler::getClassAnnotations($this->resultMap);
 				$defaultClass = $profile->has('defaultClass') ? $profile->get('defaultClass') : $this->defaultClass;
 				
 				if ($defaultClass != 'stdClass' && $defaultClass != 'ArrayObject') {
@@ -108,6 +121,8 @@ abstract class ComplexTypeMapper {
 			if (isset($reflectionClass)) {
 				foreach ($this->propertyList as $name => $props) {
 					if (array_key_exists('setter', $props)) {
+						$setter = $props['setter'];
+						
 						//validate setter method
 						if (!$reflectionClass->hasMethod($setter)) {
 							throw new \UnexpectedValueException(sprintf("Setter method $setter not found in class %s", $reflectionClass->getName()));
