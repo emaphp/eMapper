@@ -28,6 +28,12 @@ class CacheKey {
 	 */
 	public $parameterMap;
 	
+	/**
+	 * First argument property list
+	 * @var array
+	 */
+	public $propertyList;
+	
 	public function __construct(TypeManager $typeManager, $parameterMap = null) {
 		$this->typeManager = $typeManager;
 		$this->parameterMap = $parameterMap;
@@ -178,32 +184,172 @@ class CacheKey {
 	}
 	
 	/**
+	 * Validates a parameter map against an array/object instance
+	 * @param string $parameterMap
+	 * @param mixed $instance
+	 * @throws \UnexpectedValueException
+	 */
+	protected function validateParameterMap($instance) {
+		$this->propertyList = array();
+		$properties = Profiler::getClassProperties($this->parameterMap);
+		
+		//get a reflection class from given instance
+		if (is_object($instance) && !($instance instanceof \ArrayObject) && !($instance instanceof \stdClass)) {
+			$reflectionClass = new \ReflectionClass($instance);
+		}
+		else {
+			$reflectionClass = null;
+		}
+		
+		foreach ($properties as $name => $annotations) {
+			//check whether there is a getter method or not
+			if ($annotations->has('getter') && is_object($instance) && !($instance instanceof \ArrayObject)) {
+				$getter = $annotations->get('getter');
+					
+				if (!$reflectionClass->hasMethod($getter)) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' not found in class %s", get_class($instance)));
+				}
+
+				$method = $reflectionClass->getMethod($getter);
+			
+				if (!$method->isPublic()) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' is not accessible in class %s", get_class($instance)));
+				}
+				
+				$this->propertyList[$name]['getter'] = $getter;
+			}
+			else {
+				//get references property
+				$property = $annotations->has('property') ? $annotations->get('property') : $name;
+				
+				//verify property existence
+				if (isset($reflectionClass)) {
+					if (!$reflectionClass->hasProperty($property)) {
+						throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", get_class($instance)));
+					}
+						
+					$rp = $reflectionClass->getProperty($property);
+						
+					if (!$rp->isPublic()) {
+						throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", get_class($instance)));
+					}
+				}
+				else {
+					if (!array_key_exists($property, $instance)) {
+						throw new \UnexpectedValueException("Key '$property' defined in class {$this->parameterMap} was not found on given parameter");
+					}
+				}
+				
+				$this->propertyList[$name]['property'] = $property;
+			}
+			
+			//obtain property type
+			if ($annotations->has('type')) {
+				$type = $annotations->get('type');
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+					
+				if ($typeHandler === false) {
+					throw new \UnexpectedValueException("No type handler associated to type '$type' defined for property $name");
+				}
+				
+				$this->propertyList[$name]['type'] = $type;
+			}
+			elseif ($annotations->has('var')) {
+				$type = $annotations->get('var');
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+					
+				if ($typeHandler !== false) {
+					$this->propertyList[$name]['type'] = $type;
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Obtains a property from a given object
 	 * @param object $instance
 	 * @param string $property
 	 * @throws \InvalidArgumentException
-	 * @return mixed
+	 * @return array
 	 */
 	protected function obtainProperty($instance, $property) {
 		$class = get_class($instance);
+		$rc = new \ReflectionClass($class);
 		
 		if (Profiler::isEntity($class)) {
 			$properties = Profiler::getClassProperties($class);
-			$map = $this->buildParameterMap($instance, $properties, new \ReflectionClass($class));
-		}
-		elseif (isset($this->parameterMap)) {
-			$properties = Profiler::getClassProperties($this->parameterMap);
-			$map = $this->buildParameterMap($instance, $properties, new \ReflectionClass($class));
+			
+			if (!array_key_exists($property, $properties)) {
+				throw new \UnexpectedValueException("Property '$property' not found in class $class");
+			}
+			
+			//obtain property value
+			if ($properties[$property]->has('getter')) {
+				$getter = $properties[$property]->get('getter');
+				
+				if (!$reflectionClass->hasMethod($getter)) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' not found in class %s", $class));
+				}
+				
+				$method = $reflectionClass->getMethod($getter);
+			
+				if (!$method->isPublic()) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' is not accessible in class %s", $class));
+				}
+				
+				$value = $instance->$getter();
+			}
+			else {
+				if (!$rc->hasProperty($property)) {
+					throw new \InvalidArgumentException("Property '$property' was not found in class $class");
+				}
+				
+				$rp = $rc->getProperty($property);
+				
+				if (!$rp->isPublic()) {
+					throw new \InvalidArgumentException("Property '$property' is not accessible in class $class");
+				}
+				
+				$value = $instance->$property;
+			}
+			
+			//obtain property type
+			if ($properties[$property]->has('type')) {
+				$type = $properties[$property]->get('type');
+				
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+				
+				if ($typeHandler === false) {
+					$type = null;
+				}
+			}
+			elseif ($properties[$property]->has('var')) {
+				$type = $annotations->get('var');
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+				
+				if ($typeHandler !== false) {
+					$type = null;
+				}
+			}
+			
+			return array($value, $type);
 		}
 		else {
-			$map = get_object_vars($instance);
+			//validate property
+			if (!($instance instanceof \stdClass)) {
+				if (!$rc->hasProperty($property)) {
+					throw new \InvalidArgumentException("Property '$property' was not found on class $class");
+				}
+				
+				$rp = $rc->getProperty($property);
+				
+				if (!$rp->isPublic()) {
+					throw new \InvalidArgumentException("Property '$property' does not have public accessibility in class $class");
+				}
+			}
+			
+			return array($instance->$property, null);
 		}
-		
-		if (!array_key_exists($property, $map)) {
-			throw new \InvalidArgumentException("Property $property not found in instance of $class");
-		}
-		
-		return $map[$property];
 	}
 	
 	/**
@@ -241,19 +387,60 @@ class CacheKey {
 		
 		//check value type
 		if (is_array($value) || $value instanceof \ArrayObject) {
-			//search for string index
-			if (array_key_exists($subindex, $value)) {
-				return $this->castParameter($value[$subindex], $type);
+			if ($index === 0 && isset($this->parameterMap)) {
+				$key = $this->propertyList[$subindex]['property'];
+				$val = $value[$key];
+				
+				if (is_null($type) && array_key_exists('type', $this->propertyList[$subindex])) {
+					$type = $this->propertyList[$subindex]['type'];
+				}
+				
+				return $this->castParameter($val, $type);
 			}
-			//try numeric index instead
-			elseif (is_numeric($subindex) && array_key_exists((int) $subindex, $value)) {
-				return $this->castParameter($value[(int) $subindex], $type);
+			else {
+				//search for string index
+				if (array_key_exists($subindex, $value)) {
+					return $this->castParameter($value[$subindex], $type);
+				}
+				//try numeric index instead
+				elseif (is_numeric($subindex) && array_key_exists((int) $subindex, $value)) {
+					return $this->castParameter($value[(int) $subindex], $type);
+				}
 			}
 		
 			throw new \UnexpectedValueException("Index '$subindex' does not exists in argument $index");
 		}
 		elseif (is_object($value)) {
-			return $this->castParameter($this->obtainProperty($value, $subindex), $type);
+			if ($index === 0 && isset($this->parameterMap)) {
+				//validate property name
+				if (!array_key_exists($subindex, $this->propertyList)) {
+					throw new \UnexpectedValueException("Property '$subindex' not found on gicen parameter");
+				}
+				
+				//check for getter method
+				if (array_key_exists('getter', $this->propertyList[$subindex])) {
+					$getter = $this->propertyList[$subindex]['getter'];
+					$val = $value->$getter();
+				}
+				else {
+					$property = $this->propertyList[$subindex]['property'];
+					$val = $value->$property;
+				}
+				
+				//obtain declared type
+				if (is_null($type) && array_key_exists('type', $this->propertyList[$subindex])) {
+					$type = $this->propertyList[$subindex]['type'];
+				}
+			}
+			else {
+				list($val, $ptype) = $this->obtainProperty($value, $subindex);
+				
+				if (is_null($type)) {
+					$type = $ptype;
+				}
+			}
+			
+			return $this->castParameter($val, $type);
 		}
 		elseif (($value = $this->toString($value)) !== false) {
 			//check string length against index
@@ -522,6 +709,7 @@ class CacheKey {
 		}
 		
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
+			//validate argument
 			if (empty($args[0])) {
 				throw new \InvalidArgumentException("No valid parameters have been defined for this query");
 			}
@@ -529,55 +717,49 @@ class CacheKey {
 				throw new \InvalidArgumentException("Specified parameter is not an array/object");
 			}
 			
-			$properties = null;
-			
-			//obtain object properties as an array
-			if (is_object($args[0]) && !($args[0] instanceof \ArrayObject)) {
-				$class = get_class($args[0]);
-				
-				if (Profiler::isEntity($class)) {
-					$properties = Profiler::getClassProperties($class);
-					$args[0] = $this->buildParameterMap($args[0], $properties, new \ReflectionClass($class));
-				}
-				elseif (isset($this->parameterMap)) {
-					$properties = Profiler::getClassProperties($this->parameterMap);
-					$args[0] = $this->buildParameterMap($args[0], $properties, new \ReflectionClass($class));
-				}
-				else {
-					$args[0] = get_object_vars($args[0]);
-				}
-			}
-			elseif (isset($this->parameterMap)) {
-				//build argument from parameter class
-				$properties = Profiler::getClassProperties($this->parameterMap);
+			//validate parameter map (if any)
+			if (isset($this->parameterMap)) {
+				$this->validateParameterMap($args[0]);
 				$map = array();
 				
-				foreach ($properties as $k => $v) {
-					$property = $v->has('property') ? $v->get('property') : $k;
-					
-					if (!array_key_exists($property, $args[0])) {
-						throw new \UnexpectedValueException("Unknown field $property defined in parameter map class {$this->parameterMap}");
+				if (is_array($args[0]) || $args[0] instanceof \ArrayObject) {
+					foreach ($this->propertyList as $property => $options) {
+						$name = $options['property'];
+						$map[$property] = $args[0][$name];
 					}
-					
-					$map[$k] = $args[0][$property];
+				}
+				else {
+					foreach ($this->propertyList as $property => $options) {
+						if (array_key_exists('getter', $options)) {
+							$getter = $options['getter'];
+							$map[$property] = $args[0]->$getter();
+						}
+						else {
+							$name = $options['property'];
+							$map[$property] = $args[0]->$name;
+						}
+					}
 				}
 				
 				$args[0] = $map;
+			}
+			elseif (is_object($args[0])) {
+				$args[0] = get_object_vars($args[0]);
 			}
 			
 			/**
 			 * Parameter properties replacing
 			 */
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, 
-					function ($matches) use ($args, $properties) {
+					function ($matches) use ($args) {
 						$total_matches = count($matches);
 			
 						if ($total_matches == 2) { //#{PROPERTY@1}
 							$key = $matches[1];
 							
 							//use type declared in parameter map by default
-							if (isset($properties) && array_key_exists($key, $properties) && $properties[$key]->has('type')) {
-								return $this->getIndex($args[0], $key, null, $properties[$key]->get('type'));
+							if (isset($this->parameterMap) && array_key_exists($key, $this->propertyList) && array_key_exists('type', $this->propertyList[$key])) {
+								return $this->getIndex($args[0], $key, null,  $this->propertyList[$key]['type']);
 							}
 							
 							return $this->getIndex($args[0], $key);
@@ -586,8 +768,8 @@ class CacheKey {
 							$key = $matches[1];
 								
 							//use type declared in parameter map by default
-							if (isset($properties) && array_key_exists($key, $properties) && $properties[$key]->has('type')) {
-								return $this->getIndex($args[0], $key, substr($matches[2], 1, -1), $properties[$key]->get('type'));
+							if (isset($this->parameterMap) && array_key_exists($key, $this->propertyList) && array_key_exists('type', $this->propertyList[$key])) {
+								return $this->getIndex($args[0], $key, substr($matches[2], 1, -1), $this->propertyList[$key]['type']);
 							}
 							
 							return $this->getIndex($args[0], $key, substr($matches[2], 1, -1));
@@ -605,8 +787,8 @@ class CacheKey {
 							$key = $matches[4];
 							
 							//use type declared in parameter map by default
-							if (isset($properties) && array_key_exists($key, $properties) && $properties[$key]->has('type')) {
-								return $this->getRange($args[0], $key, $matches[6], $matches[7], $properties[$key]->get('type'));
+							if (isset($this->parameterMap) && array_key_exists($key, $this->propertyList) && array_key_exists('type', $this->propertyList[$key])) {
+								return $this->getRange($args[0], $key, $matches[6], $matches[7], $this->propertyList[$key]['type']);
 							}
 							
 							return $this->getRange($args[0], $key, $matches[6], $matches[7]);

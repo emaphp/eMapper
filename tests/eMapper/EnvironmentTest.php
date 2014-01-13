@@ -1,7 +1,7 @@
 <?php
 namespace eMapper;
 
-use eMapper\Environment\Provider\EnvironmentProvider;
+use eMapper\Dynamic\Provider\EnvironmentProvider;
 
 /**
  * 
@@ -13,26 +13,29 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testProviderError1() {
-		$environment = EnvironmentProvider::getEnvironment(1);
+		$environment = EnvironmentProvider::getEnvironment(1, 'eMapper\Engine\Generic\GenericMapper', null);
 	}
-	
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testProviderError2() {
-		$environment = EnvironmentProvider::getEnvironment('not_found');
-	}
-	
-	/**
-	 * @expectedException InvalidArgumentException
-	 */
-	public function testProviderError3() {
-		$environment = EnvironmentProvider::getEnvironment('eMapper\Engine\Generic\GenericMapper');
+		$environment = EnvironmentProvider::getEnvironment('fake', 'eMapper\Engine\Generic\GenericMapper', null);
 	}
 	
 	public function testProvider() {
-		$env = EnvironmentProvider::getEnvironment('eMapper\Environment\DynamicSQLEnvironment');
-		$this->assertInstanceOf('eMapper\Environment\DynamicSQLEnvironment', $env);
+		$env = EnvironmentProvider::getEnvironment('default', 'eMapper\Dynamic\Environment\DynamicSQLEnvironment', null);
+		$this->assertTrue(EnvironmentProvider::hasEnvironment('default'));
+		$this->assertInstanceOf('eMapper\Dynamic\Environment\DynamicSQLEnvironment', $env);
+		$this->assertTrue($env->hasPackage('Core'));
+		$this->assertTrue($env->hasPackage('Date'));
+	}
+	
+	public function testProvider2() {
+		$env = EnvironmentProvider::getEnvironment('custom', 'eMacros\Environment\Environment', array('eMacros\Package\CorePackage', 'eMacros\Package\StringPackage'));
+		$this->assertInstanceOf('eMacros\Environment\Environment', $env);
+		$this->assertTrue($env->hasPackage('Core'));
+		$this->assertTrue($env->hasPackage('String'));
 	}
 }
 ?>

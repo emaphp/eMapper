@@ -5,13 +5,14 @@ use eMapper\Cache\Key\CacheKey;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Reflection\Profiler;
-use eMacros\Environment\Environment;
-use eMacros\Program\SimpleProgram;
-use eMapper\Environment\Provider\EnvironmentProvider;
+use eMapper\Dynamic\Provider\EnvironmentProvider;
 
 class MySQLStatement extends CacheKey {
-	//Ex: [[ (null? (@order)) ]]
-	const DYNAMIC_SQL_REGEX = '/@\[\[(.*)\]\]@/';
+	//Ex: [[ (null? (#order)) ]]
+	const UNESCAPED_DYNAMIC_SQL_REGEX = '/@\[\[(.*)\]\]@/';
+	
+	//Ex: {{ (null? (#order)) }}
+	const DYNAMIC_SQL_REGEX = '/@\{\{(.*)\}\}@/';
 	
 	/**
 	 * MySQL connection
@@ -19,8 +20,8 @@ class MySQLStatement extends CacheKey {
 	 */
 	protected $conn;
 
-	public function __construct($conn, TypeManager $typeManager) {
-		parent::__construct($typeManager);
+	public function __construct($conn, TypeManager $typeManager, $parameterMap = null) {
+		parent::__construct($typeManager, $parameterMap);
 		$this->conn = $conn;
 	}
 	
@@ -123,15 +124,44 @@ class MySQLStatement extends CacheKey {
 		return $value;
 	}
 	
+	/**
+	 * Executes a dynamic sql expression
+	 * @param string $expr
+	 * @param array $config
+	 */
+	protected function executeDynamicSQL($expr, $config) {
+		//get environment id
+		$environmentId = $config['environment.id'];
+		
+		//obtain environment
+		if (EnvironmentProvider::hasEnvironment($environmentId)) {
+			$env = EnvironmentProvider::getEnvironment($environmentId);
+		}
+		else {
+			$env = EnvironmentProvider::getEnvironment($environmentId, $config['environment.class'], $config['environment.import']);
+		}
+		
+		//run program
+		$programClass = $config['environment.program'];
+		$program = new $programClass($expr);
+		return $program->execute($env);
+	}
+	
 	public function build($expr, $args, $config) {
+		//replace dynamic sql expressions (unescaped)
+		if (preg_match(self::UNESCAPED_DYNAMIC_SQL_REGEX, $expr)) {
+			$expr = preg_replace_callback(self::UNESCAPED_DYNAMIC_SQL_REGEX,
+					function ($matches) use ($config) {
+						return $this->toString($this->executeDynamicSQL($matches[1], $config));
+					},
+					$expr);
+		}
+		
 		//replace dynamic sql expressions
 		if (preg_match(self::DYNAMIC_SQL_REGEX, $expr)) {
 			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX,
 					function ($matches) use ($config) {
-						$env = EnvironmentProvider::getEnvironment($config['dynamic.environment']);
-						$programClass = $config['dynamic.program'];
-						$program = new $programClass($matches[1]);
-						return $program->execute($env);
+						return $this->castParameter($this->executeDynamicSQL($matches[1], $config), 'string');
 					},
 					$expr);
 		}

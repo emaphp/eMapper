@@ -133,9 +133,9 @@ class MySQLMapper extends GenericMapper {
 	 * @param array $args
 	 * @return mixed
 	 */
-	protected function build_statement($query, $args) {
+	protected function build_statement($query, $args, $parameterMap) {
 		//build statement
-		$stmtBuilder = new MySQLStatement($this->connection, $this->typeManager);
+		$stmtBuilder = new MySQLStatement($this->connection, $this->typeManager, $parameterMap);
 		return $stmtBuilder->build($query, $args, $this->config);
 	}
 	
@@ -154,10 +154,18 @@ class MySQLMapper extends GenericMapper {
 		//get query and parameters
 		$args = func_get_args();
 		$query = array_shift($args);
-		$cacheHandler = null;
+		$cacheHandler = $parameterMap = null;
+		
+		//obtain parameter map
+		if (array_key_exists('map.parameter', $this->config)) {
+			$parameterMap = $this->config['map.parameter'];
+		}
+		elseif (!empty($args) && is_object($args[0]) && Profiler::isEntity(get_class($args[0]))) {
+			$parameterMap = get_class($args[0]);
+		}
 		
 		//build statement
-		$stmt = $this->build_statement($query, $args);
+		$stmt = $this->build_statement($query, $args, $parameterMap);
 		
 		//override query
 		if (array_key_exists('callback.query', $this->config)) {
@@ -174,7 +182,7 @@ class MySQLMapper extends GenericMapper {
 			$cacheProvider = $this->config['cache.provider'];
 
 			//build cache key
-			$cacheKeyBuilder = new CacheKey($this->typeManager);
+			$cacheKeyBuilder = new CacheKey($this->typeManager, $parameterMap);
 			$cacheKey = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
 				
 			//check if key is present

@@ -51,7 +51,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 	 * Tests parameters obtained from an entity object
 	 */
 	public function testEntity() {
-		$cacheKey = new CacheKey(new TypeManager());
+		$cacheKey = new CacheKey(new TypeManager(), 'Acme\Entity\User');
 		
 		$user = new User();
 		$user->id = 4123;

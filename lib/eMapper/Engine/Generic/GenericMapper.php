@@ -20,20 +20,26 @@ abstract class GenericMapper {
 		//database prefix
 		$this->config['db.prefix'] = '';
 		
-		//dinamic sql environment class
-		$this->config['dynamic.enviroment'] = 'eMapper\Environment\DynamicSQLEnvironment';
+		//dynamic sql environment id
+		$this->config['environment.id'] = 'default';
+		
+		//dynamic sql environment class
+		$this->config['enviroment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
+		
+		//dynamic sql packages
+		$this->config['environment.import'] = null;
 		
 		//dynamic sql program class
-		$this->config['dynamic.program'] = 'eMacros\Program\SimpleProgram';
+		$this->config['environment.program'] = 'eMacros\Program\SimpleProgram';
 		
 		//use database prefix for procedure names
 		$this->config['procedure.use_prefix'] = true;
 		
-		//default relation order
-		$this->config['order.current'] = 0;
+		//default relation depth
+		$this->config['depth.current'] = 0;
 		
-		//default relation order limit
-		$this->config['order.limit'] = 1;
+		//default relation depth limit
+		$this->config['depth.limit'] = 1;
 	}
 	
 	/**
@@ -49,6 +55,40 @@ abstract class GenericMapper {
 			$this->typeManager->addAlias($type, $alias);
 		}
 	}
+	
+	/**
+	 * Configures dynamic SQL environment
+	 * @param string $id Environment id
+	 * @param string $class Environment class
+	 * @param string $import Packages to import
+	 * @param string $program Program class
+	 * @throws \InvalidArgumentException
+	 */
+	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment', $import = null, $program = 'eMacros\Program\SimpleProgram') {
+		if (empty($import)) {
+			$import = null;
+		}
+		elseif (is_string($import)) {
+			$import = array($import);
+		}
+		
+		//validate program class
+		if (!class_exists($program)) {
+			throw new \InvalidArgumentException("Program class '$program' not found");
+		}
+		
+		$rc = new \ReflectionClass($program);
+		
+		if (!$rc->isSubclassOf('eMacros\Program\Program')) {
+			throw new \InvalidArgumentException("Class '$program' is not a valid program class");
+		}
+		
+		//apply values
+		$this->config['environment.id'] = $id;
+		$this->config['environment.class'] = $class;
+		$this->config['environment.import'] = $import;
+		$this->config['environment.programs'] = $program;
+	} 
 	
 	/*
 	 * Abstract methods
