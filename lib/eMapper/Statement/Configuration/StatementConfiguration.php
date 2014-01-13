@@ -143,11 +143,17 @@ trait StatementConfiguration {
 		return $this->merge(array('cache.key' => $cache_key, 'cache.ttl' => $cache_ttl));
 	}
 	
-	public function order($order) {
-		if (!is_integer($cache_ttl) || $cache_ttl <= 0) {
-			throw new \InvalidArgumentException("Order limit is not a valid integer.");
+	/**
+	 * Sets relation depth limit
+	 * @param integer $depth
+	 * @throws \InvalidArgumentException
+	 * @return StatementConfiguration
+	 */
+	public function depth($depth) {
+		if (!is_integer($depth) || $depth <= 0) {
+			throw new \InvalidArgumentException("Depth limit must be defined as a valid integer.");
 		}
 		
-		return $this->merge(array('order.limit' => $order));
+		return $this->merge(array('depth.limit' => $depth));
 	}
 }
