@@ -15,6 +15,7 @@ use eMapper\Engine\MySQL\Statement\MySQLStatement;
 use eMapper\Engine\MySQL\Exception\MySQLMapperException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
+use eMapper\Result\Mapper\ComplexTypeMapper;
 
 class MySQLMapper extends GenericMapper {
 	use MySQLMapperConfiguration;
@@ -144,25 +145,43 @@ class MySQLMapper extends GenericMapper {
 	 * @param string $query
 	 */
 	public function query($query) {
+		/**
+		 * INITIALIZE
+		 */
+		
+		//validate query
 		if (!is_string($query) || empty($query)) {
 			throw new MySQLMapperException("Query is not a valid string");
 		}
 		
+		//check current mapper depth
+		if ($this->config['depth.current'] >= $this->config['depth.limit']) {
+			return null;
+		}
+		
 		//open connection
 		$this->connect();
+		
+		/**
+		 * OBTAIN PARAMETERS
+		 */
 		
 		//get query and parameters
 		$args = func_get_args();
 		$query = array_shift($args);
 		$cacheHandler = $parameterMap = null;
 		
-		//obtain parameter map
+		//get parameter map
 		if (array_key_exists('map.parameter', $this->config)) {
 			$parameterMap = $this->config['map.parameter'];
 		}
 		elseif (!empty($args) && is_object($args[0]) && Profiler::isEntity(get_class($args[0]))) {
 			$parameterMap = get_class($args[0]);
 		}
+		
+		/**
+		 * GENERATE QUERY
+		 */
 		
 		//build statement
 		$stmt = $this->build_statement($query, $args, $parameterMap);
@@ -176,6 +195,10 @@ class MySQLMapper extends GenericMapper {
 			}
 		}
 		
+		/**
+		 * CACHE CONTROL
+		 */
+		
 		//check if there is a value stored in cache with the given key
 		if (array_key_exists('cache.key', $this->config)) {
 			//obtain cache provider
@@ -187,10 +210,19 @@ class MySQLMapper extends GenericMapper {
 				
 			//check if key is present
 			if ($cacheProvider->exists($cacheKey)) {
-				//TODO: RelationMapper logic
-				return $cacheProvider->fetch($cacheKey);
+				$cache_value = $cacheProvider->fetch($cacheKey);
+				
+				//TODO: apply relations
+				
+				return $cache_value;
 			}
 		}
+		
+		/**
+		 * PARSE MAPPING EXPRESSION
+		 */
+		
+		$resultMap = null;
 		
 		//build mapping callback
 		if (array_key_exists('map.type', $this->config)) {
@@ -219,11 +251,11 @@ class MySQLMapper extends GenericMapper {
 				}
 			
 				//generate a new object mapper object
-				$mapping_callback = array(new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass));
+				$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass);
 			
 				if (!empty($matches[3])) {
 					//add method
-					$mapping_callback[] = 'mapList';
+					$mapping_callback = array($mapper, 'mapList');
 			
 					//check if index type has been defined
 					if (!empty($matches[6])) {
@@ -251,7 +283,7 @@ class MySQLMapper extends GenericMapper {
 				}
 				else {
 					//add method
-					$mapping_callback[] = 'mapResult';
+					$mapping_callback = array($mapper, 'mapResult');
 				}
 			}
 			//array mapping type: array, array[], array[column], array[column:type]
@@ -260,10 +292,10 @@ class MySQLMapper extends GenericMapper {
 				$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 				
 				//generate a new array mapper object
-				$mapping_callback = array(new ArrayTypeMapper($this->typeManager, $resultMap));
+				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
 			
 				if (!empty($matches[2])) {
-					$mapping_callback[] = 'mapList';
+					$mapping_callback = array($mapper, 'mapList');
 			
 					//check if index type has been defined
 					if (!empty($matches[5])) {
@@ -290,7 +322,7 @@ class MySQLMapper extends GenericMapper {
 					$mapping_params = array($index, $type);
 				}
 				else {
-					$mapping_callback[] = 'mapResult';
+					$mapping_callback = array($mapper, 'mapResult');
 				}
 			}
 			//simple mapping type: integer, string, array, etc
@@ -316,10 +348,20 @@ class MySQLMapper extends GenericMapper {
 			}
 		}
 		else {
+			//obtain result map
+			$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
+			
+			//generate mapper
+			$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
+			
 			//use default mapping type
-			$mapping_callback = array(new ArrayTypeMapper($this->typeManager), 'mapList');
+			$mapping_callback = array($mapper, 'mapList');
 			$mapping_params = array();
 		}
+		
+		/**
+		 * EXECUTE QUERY
+		 */
 		
 		//run query
 		$result = $this->connection->query($stmt);
@@ -338,6 +380,10 @@ class MySQLMapper extends GenericMapper {
 		
 		$cacheable = true;
 		
+		/**
+		 * INVOKE EMPTY RESULT CALLBACK
+		 */
+		
 		//check if result is empty
 		if ($result->num_rows === 0) {
 			if (array_key_exists('callback.no_rows', $this->config)) {
@@ -346,6 +392,10 @@ class MySQLMapper extends GenericMapper {
 		
 			$cacheable = false;
 		}
+		
+		/**
+		 * ADD CUSTOM MAPPING OPTIONS
+		 */
 		
 		//add defined mapping parameters
 		if (array_key_exists('map.params', $this->config)) {
@@ -365,9 +415,18 @@ class MySQLMapper extends GenericMapper {
 			$mapping_params = array(new MySQLResultInterface($result));
 		}
 		
+		/**
+		 * MAP RESULT
+		 */
+		
 		//call mapping callback
 		$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
 		
+		
+		/**
+		 * CACHE STORE
+		 */
+		//check if obtained value can be stored
 		if (isset($cacheProvider) && $cacheable) {
 			//store value
 			if (array_key_exists('cache.ttl', $this->config)) {
@@ -378,15 +437,25 @@ class MySQLMapper extends GenericMapper {
 			}
 		}
 		
-		//default value
-		$each_callback = null;
+		/**
+		 * EVALUATE RELATIONS
+		 */
+		if (isset($resultMap)) {
+			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+				
+			}
+			elseif (!is_null($mapped_result)) {
+				
+			}
+		}
+
+		/**
+		 * INVOKE TRAVERSING CALLBACK
+		 */
 		
-		//check traversing callback
 		if (array_key_exists('callback.each', $this->config)) {
 			$each_callback = $this->config['callback.each'];
-		}
-		
-		if (isset($each_callback)) {
+			
 			//generate a new safe instance
 			$new_instance = $this->safe_copy();
 				
@@ -423,15 +492,14 @@ class MySQLMapper extends GenericMapper {
 			}
 		}
 		
-		$filter_callback = null;
-		
-		//check filter callback
-		if (array_key_exists('callback.filter', $this->config)) {
-			$filter_callback = $this->config['callback.filter'];
-		}
+		/**
+		 * INVOKE FILTER CALLBACK
+		 */
 		
 		//apply filter
-		if (isset($filter_callback)) {
+		if (array_key_exists('callback.filter', $this->config)) {
+			$filter_callback = $this->config['callback.filter'];
+			
 			//check if mapped result is a list
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 				$mapped_result = array_filter($mapped_result, $filter_callback);

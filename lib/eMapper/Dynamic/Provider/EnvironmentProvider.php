@@ -20,58 +20,73 @@ abstract class EnvironmentProvider {
 	}
 	
 	/**
-	 * Obtains a dynamic SQL environment instance
+	 * Obtains a dynamic SQL environment instance by ID
+	 * @param string $id
+	 * @throws \InvalidArgumentException
+	 */
+	public static function getEnvironment($id) {
+		if (!array_key_exists($id, self::$environments)) {
+			throw new \InvalidArgumentException("Environment with ID $id does not exists");
+		}
+		
+		return self::$environments[$id];
+	}
+	
+	/**
+	 * Generates a new environment
 	 * @param string $id
 	 * @param string $classname
 	 * @param mixed $import
 	 * @throws \InvalidArgumentException
+	 * @return boolean
 	 */
-	public static function getEnvironment($id, $classname = null, $import = null) {
-		if (!array_key_exists($id, self::$environments)) {
-			//validate id
-			if (!is_string($id) || empty($id)) {
-				throw new \InvalidArgumentException("Environment id must be defined as a valid string");
-			}
+	public static function buildEnvironment($id, $classname, $import) {
+		//validate id
+		if (!is_string($id) || empty($id)) {
+			throw new \InvalidArgumentException("Environment id must be defined as a valid string");
+		}
+		
+		//validate class name
+		if (!is_string($classname) || empty($classname)) {
+			throw new \InvalidArgumentException("Parameter is not a valid environment class");
+		}
+		elseif (!class_exists($classname, true)) {
+			throw new \InvalidArgumentException("Environment class $classname was not found");
+		}
 			
-			if (!is_string($classname) || empty($classname)) {
-				throw new \InvalidArgumentException("Parameter is not a valid environment class");
-			}
-			elseif (!class_exists($classname, true)) {
-				throw new \InvalidArgumentException("Environment class $classname was not found");
-			}
+		$rc = new \ReflectionClass($classname);
+		
+		//validate if class is a valid environment
+		if (!$rc->isSubclassOf('eMacros\Environment\Environment') && $classname != 'eMacros\Environment\Environment') {
+			throw new \InvalidArgumentException("Class $classname is not a valid environment class");
+		}
 			
-			$rc = new \ReflectionClass($classname);
+		self::$environments[$id] = new $classname();
 			
-			if (!$rc->isSubclassOf('eMacros\Environment\Environment') && $classname != 'eMacros\Environment\Environment') {
-				throw new \InvalidArgumentException("Class $classname is not a valid environment class");
-			}
-			
-			self::$environments[$id] = new $classname();
-			
-			if (is_array($import) && !empty($import)) {
-				for ($i = 0; $i < count($import); $i++) {
-					$package_class = $import[$i];
+		//import auxiliary packages
+		if (is_array($import) && !empty($import)) {
+			for ($i = 0; $i < count($import); $i++) {
+				$package_class = $import[$i];
 					
-					if (!class_exists($package_class, true)) {
-						throw new \InvalidArgumentException("Package class '$package_class' not found");
-					}
+				if (!class_exists($package_class, true)) {
+					throw new \InvalidArgumentException("Package class '$package_class' not found");
+				}
 					
-					$rc = new \ReflectionClass($package_class);
+				$rc = new \ReflectionClass($package_class);
 					
-					if (!$rc->isSubclassOf('eMacros\Package\Package')) {
-						throw new \InvalidArgumentException("Class '$package_class' is not a valid package class");
-					}
+				if (!$rc->isSubclassOf('eMacros\Package\Package')) {
+					throw new \InvalidArgumentException("Class '$package_class' is not a valid package class");
+				}
 					
-					$package = new $package_class;
+				$package = new $package_class;
 					
-					if (!self::$environments[$id]->hasPackage($package->id)) {
-						self::$environments[$id]->import($package);
-					}
+				if (!self::$environments[$id]->hasPackage($package->id)) {
+					self::$environments[$id]->import($package);
 				}
 			}
 		}
 		
-		return self::$environments[$id];
+		return true;
 	}
 }
 ?>

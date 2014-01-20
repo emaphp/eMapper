@@ -198,19 +198,6 @@ class CorePackage extends Package {
 		}
 		
 		/**
-		 * CLASS/OBJECT FUNCTIONS
-		 */
-		$this['property-exists'] = new PHPFunction('property_exists');
-		$this['method-exists'] = new PHPFunction('method_exists');
-		$this['is-subclass-of'] = new PHPFunction('is_subclass_of');
-		$this['get-parent-class'] = new PHPFunction('get_parent_class');
-		$this['get-object-vars'] = new PHPFunction('get_object_vars');
-		$this['get-class'] = new PHPFunction('get_class');
-		$this['get-class-vars'] = new PHPFunction('get_class_vars');
-		$this['get-class-methods'] = new PHPFunction('get_class_methods');
-		$this['class-alias'] = new PHPFunction('class_alias');
-		
-		/**
 		 * BUILDER FUNCTIONS
 		 */
 		$this['array'] = new ArrayBuilder();

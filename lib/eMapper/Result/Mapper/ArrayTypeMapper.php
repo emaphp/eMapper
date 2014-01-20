@@ -65,7 +65,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * @param int $resultType
 	 * @param \UnexpectedValueException
 	 */
-	public function mapList(ResultInterface $result, $index = null, $type = null, $resultType = MYSQLI_BOTH) {
+	public function mapList(ResultInterface $result, $index = null, $type = null, $resultType = ResultInterface::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return array();
@@ -158,6 +158,12 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		}
 	
 		return $list;
+	}
+	
+	public function relate(&$row, $mapper) {
+		foreach ($this->relationList as $property => $relation) {
+			$row[$property] = $relation->evaluate($row, $mapper);
+		}
 	}
 }
 ?>

@@ -134,17 +134,14 @@ class MySQLStatement extends CacheKey {
 		$environmentId = $config['environment.id'];
 		
 		//obtain environment
-		if (EnvironmentProvider::hasEnvironment($environmentId)) {
-			$env = EnvironmentProvider::getEnvironment($environmentId);
-		}
-		else {
-			$env = EnvironmentProvider::getEnvironment($environmentId, $config['environment.class'], $config['environment.import']);
+		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
+			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class'], $config['environment.import']);
 		}
 		
 		//run program
 		$programClass = $config['environment.program'];
 		$program = new $programClass($expr);
-		return $program->execute($env);
+		return $program->execute(EnvironmentProvider::getEnvironment($environmentId));
 	}
 	
 	public function build($expr, $args, $config) {

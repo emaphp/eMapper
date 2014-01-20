@@ -4,6 +4,9 @@ namespace eMapper\Result\Mapper;
 use eMapper\Type\TypeManager;
 use eMapper\Reflection\Profiler;
 use eMapper\Type\TypeHandler;
+use eMapper\Result\Relation\MacroExpression;
+use eMapper\Result\Relation\StatementCallback;
+use eMapper\Result\Relation\QueryCallback;
 
 abstract class ComplexTypeMapper {
 	/**
@@ -30,6 +33,12 @@ abstract class ComplexTypeMapper {
 	 */
 	protected $propertyList;
 	
+	/**
+	 * Relation list
+	 * @var array
+	 */
+	protected $relationList;
+	
 	public function __construct(TypeManager $typeManager, $resultMap = null) {
 		$this->typeManager = $typeManager;
 		$this->resultMap = $resultMap;
@@ -49,8 +58,9 @@ abstract class ComplexTypeMapper {
 	 * @throws \UnexpectedValueException
 	 */
 	protected function validateResultMap() {
+		//obtain property list
 		$fields = Profiler::getClassProperties($this->resultMap);
-		$this->propertyList = array();
+		$this->propertyList = $this->relationList = array();
 		
 		foreach ($fields as $name => $field) {
 			//get column
@@ -95,9 +105,18 @@ abstract class ComplexTypeMapper {
 				$this->propertyList[$name]['setter'] = $field->get('setter');
 			}
 			
-			//get getter method
-			if ($field->has('getter')) {
-				$this->propertyList[$name]['getter'] = $field->get('getter');
+			//parse relation annotations
+			if ($field->has('eval')) {
+				$this->relationList[$name] = new MacroExpression($field);
+			}
+			elseif ($field->has('stmt')) {
+				$this->relationList[$name] = new StatementCallback($field);
+			}
+			elseif ($field->has('query')) {
+				$this->relationList[$name] = new QueryCallback($field);
+			}
+			elseif ($field->has('procedure')) {
+				$this->relationList[$name] = new StatementCallback($field);
 			}
 		}
 		
@@ -150,4 +169,6 @@ abstract class ComplexTypeMapper {
 			}
 		}
 	}
+	
+	public abstract function relate(&$row, $mapper);
 }

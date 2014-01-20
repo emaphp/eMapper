@@ -227,5 +227,17 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	
 		return $list;
 	}
+	
+	public function relate(&$row, $mapper) {
+		foreach ($this->relationList as $property => $relation) {
+			if (array_key_exists('setter', $this->propertyList)) {
+				$setter = $this->propertyList[$property]['setter'];
+				$row->$setter($relation->evaluate($row, $mapper));
+			}
+			else {
+				$row->$property($relation->evaluate($row, $mapper));
+			}
+		}
+	}
 }
 ?>
