@@ -70,8 +70,8 @@ class DynamicAttribute {
 	protected function parseConfig($attribute) {
 		$this->config = array();
 		
-		if ($attribute->has('map-type')) {
-			$this->config['map.type'] = $attribute->get('map-type');
+		if ($attribute->has('type')) {
+			$this->config['map.type'] = $attribute->get('type');
 		}
 		
 		if ($attribute->has('result-map')) {

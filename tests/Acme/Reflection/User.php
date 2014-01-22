@@ -44,8 +44,7 @@ class User {
 	/**
 	 * @query "SELECT last_login FROM login WHERE user_id = %{i}"
 	 * @arg #id
-	 * @option map.type dt
-	 * @option custom 100
+	 * @type dt
 	 */
 	public $lastConnection;
 	
@@ -53,7 +52,7 @@ class User {
 	 * @query "SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}"
 	 * @arg-self
 	 * @arg true
-	 * @option map.type string[]
+	 * @type string[]
 	 */
 	public $favorites;
 }

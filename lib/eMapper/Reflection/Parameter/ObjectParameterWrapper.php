@@ -12,7 +12,7 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		
 		if (isset($parameterMap)) {
 			$properties = Profiler::getClassProperties($parameterMap);
-			$reflectionClass = ($this->classname == $parameterMap) ? Profiler::getReflectionClass($classname) : new \ReflectionClass($value);
+			$reflectionClass = ($this->classname == $parameterMap) ? Profiler::getReflectionClass($this->classname) : new \ReflectionClass($value);
 			
 			foreach ($properties as $name => $annotations) {
 				$this->config[$name] = array();
@@ -66,9 +66,17 @@ class ObjectParameterWrapper extends ParameterWrapper {
 			}
 		}
 		else {
+			$reflectionClass = Profiler::getReflectionClass($this->classname);
 			$properties = Profiler::getClassProperties($this->classname);
 			
 			foreach ($properties as $name => $annotations) {
+				//ignore non-public properties
+				$property = $reflectionClass->getProperty($name);
+				
+				if (!$property->isPublic()) {
+					continue;
+				}
+				
 				$this->config[$name] = array();
 				
 				//obtain property type
@@ -111,7 +119,11 @@ class ObjectParameterWrapper extends ParameterWrapper {
 	public function offsetGet($offset) {
 		if (array_key_exists('getter', $this->config[$offset])) {
 			$getter = $this->config[$offset]['getter'];
-			return $this->instance->$getter();
+			return $this->value->$getter();
+		}
+		elseif (array_key_exists('property', $this->config[$offset])) {
+			$property = $this->config[$offset]['property'];
+			return $this->value->$property;
 		}
 		
 		return $this->value->$offset;

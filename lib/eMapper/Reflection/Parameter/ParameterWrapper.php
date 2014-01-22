@@ -38,9 +38,17 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		elseif ($value instanceof \ArrayObject) {
 			return new ArrayParameterWrapper($value->getArrayCopy(), $parameterMap);
 		}
-		else {
+		elseif (is_object($value)) {
+			$classname = get_class($value);
+			
+			if (is_null($parameterMap) && Profiler::isEntity($classname)) {
+				return new ObjectParameterWrapper($value, $classname);
+			}
+			
 			return new ObjectParameterWrapper($value, $parameterMap);
 		}
+		
+		throw new \InvalidArgumentException("Parameter is nor an object or array");
 	}
 	
 	public function __construct($value, $parameterMap) {

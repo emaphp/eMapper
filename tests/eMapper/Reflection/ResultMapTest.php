@@ -1,5 +1,5 @@
 <?php
-namespace eMapper;
+namespace eMapper\Reflection;
 
 use eMapper\Reflection\Profiler;
 
@@ -8,7 +8,7 @@ use eMapper\Reflection\Profiler;
  * @author emaphp
  * @group reflection
  */
-class ReflectionTest extends \PHPUnit_Framework_TestCase {
+class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	public function testTypeHandlerAnnotations() {
 		$profile = Profiler::getClassAnnotations('Acme\\Type\\DummyTypeHandler');
 		$this->assertNotNull($profile);
@@ -137,12 +137,8 @@ class ReflectionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($lastConnection->has('arg'));
 		$this->assertInternalType('string', $lastConnection->get('arg'));
 		$this->assertEquals('#id', $lastConnection->get('arg'));
-		$this->assertTrue($lastConnection->has('option'));
-		$this->assertInternalType('array', $lastConnection->get('option'));
-		$this->assertInternalType('string', $lastConnection->get('option')[0]);
-		$this->assertInternalType('string', $lastConnection->get('option')[1]);
-		$this->assertEquals('map.type dt', $lastConnection->get('option')[0]);
-		$this->assertEquals('custom 100', $lastConnection->get('option')[1]);
+		$this->assertTrue($lastConnection->has('type'));
+		$this->assertEquals('dt', $lastConnection->get('type'));
 		
 		//favorites
 		$favorites = $properties['favorites'];
@@ -152,10 +148,8 @@ class ReflectionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($favorites->has('arg-self'));
 		$this->assertTrue($favorites->has('arg'));
 		$this->assertInternalType('boolean', $favorites->get('arg'));
-		$this->assertTrue($favorites->has('option'));
-		$this->assertInternalType('string', $favorites->get('option'));
-		$this->assertEquals('map.type string[]', $favorites->get('option'));
+		$this->assertTrue($favorites->has('type'));
+		$this->assertEquals('string[]', $favorites->get('type'));
 	}
-	
 }
 ?>
