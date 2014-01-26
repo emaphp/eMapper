@@ -45,6 +45,7 @@ use eMacros\Runtime\Method\MethodInvoke;
 use eMacros\Runtime\Callback\CallFunction;
 use eMacros\Runtime\Callback\CallFunctionArray;
 use eMapper\Dynamic\Runtime\PropertyGet;
+use eMapper\Dynamic\Runtime\PropertyExists;
 
 class CorePackage extends Package {
 	public function __construct() {
@@ -102,9 +103,14 @@ class CorePackage extends Package {
 		 * PROPERTY FUNCTIONS
 		 */
 		$this['#'] = new PropertyGet();
+		$this['#?'] = new PropertyExists();
 		
 		$this->macro('/^#([\w]+)$/', function ($matches) {
 			return new PropertyGet($matches[1]);
+		});
+		
+		$this->macro('/^#([\w]+)\?$/', function ($matches) {
+			return new PropertyExists($matches[1]);
 		});
 		
 		/**

@@ -6,10 +6,10 @@ use eMacros\Scope;
 use eMacros\GenericList;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
-class PropertyGet implements Applicable {
+class PropertyExists implements Applicable {
 	/**
-	 * Property to obtain
-	 * @var mixed
+	 * Property name
+	 * @var string
 	 */
 	public $property;
 	
@@ -21,16 +21,16 @@ class PropertyGet implements Applicable {
 		//get property and value
 		if (is_null($this->property)) {
 			if (empty($arguments)) {
-				throw new \BadFunctionCallException("PropertyGet: No parameters found.");
+				throw new \BadFunctionCallException("PropertyExists: No parameters found.");
 			}
-			
+				
 			$property = $arguments[0]->evaluate($scope);
-			
+				
 			if (count($arguments) == 1) {
 				if (!array_key_exists(0, $scope->arguments)) {
-					throw new \BadFunctionCallException("PropertyGet: Expected value of type array/object as second parameter but none found.");
+					throw new \BadFunctionCallException("PropertyExists: Expected value of type array/object as second parameter but none found.");
 				}
-				
+		
 				$value = $scope->arguments[0];
 			}
 			else {
@@ -39,12 +39,12 @@ class PropertyGet implements Applicable {
 		}
 		else {
 			$property = $this->property;
-			
+				
 			if (empty($arguments)) {
 				if (!array_key_exists(0, $scope->arguments)) {
-					throw new \BadFunctionCallException("PropertyGet: Expected value of type array/object as first parameter but none found.");
+					throw new \BadFunctionCallException("PropertyExists: Expected value of type array/object as first parameter but none found.");
 				}
-				
+		
 				$value = $scope->arguments[0];
 			}
 			else {
@@ -54,25 +54,16 @@ class PropertyGet implements Applicable {
 		
 		//check value type
 		if (!is_array($value) && !is_array($value)) {
-			throw new \InvalidArgumentException(sprintf("PropertyGet: Expected value of type array/object but %s found instead", gettype($value)));
+			throw new \InvalidArgumentException(sprintf("PropertyExists: Expected value of type array/object but %s found instead", gettype($value)));
 		}
 		
 		//generate wrapper instance if necessary
 		if ($value instanceof ParameterWrapper) {
-			if (!$value->offsetExists($property)) {
-				throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
-			}
-			
-			return $value[$property];
+			return $value->offsetExists($property);
 		}
 		else {
 			$wrapper = ParameterWrapper::wrap($value);
-			
-			if (!$value->offsetExists($property)) {
-				throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
-			}
-			
-			return $value[$property];
+			return $wrapper->offsetExists($property);
 		}
 	}
 }

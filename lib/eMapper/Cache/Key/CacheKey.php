@@ -35,6 +35,10 @@ class CacheKey {
 	 */
 	public $propertyList;
 	
+	/**
+	 * Key arguments
+	 * @var array
+	 */
 	public $args;
 	
 	public function __construct(TypeManager $typeManager, $parameterMap = null) {
@@ -422,12 +426,10 @@ class CacheKey {
 	 */
 	public function build($expr, $args, $config) {
 		$this->args = $args;
+		$counter_start = 0;
 		
 		//replace configuration propeties expressions
 		if (preg_match(self::CONFIG_REGEX, $expr)) {
-			/**
-			 * Configuration properties replacing
-			 */
 			$expr = preg_replace_callback(self::CONFIG_REGEX,
 					function ($matches) use ($config) {
 						$property = $matches[1];
@@ -445,9 +447,7 @@ class CacheKey {
 						return $str;
 					}, $expr);
 		}
-		
-		$counter_start = 0;
-		
+
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
 			if (empty($args[0])) {
@@ -461,70 +461,54 @@ class CacheKey {
 			
 			//wrap first argument
 			$this->args[0] = ParameterWrapper::wrap($args[0], $this->parameterMap);
-			
-			/**
-			 * Parameter properties replacing
-			 */
+
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, 
 					function ($matches) {
 						$total_matches = count($matches);
-			
-						if ($total_matches == 2) { //#{PROPERTY@1}
-							$key = $matches[1];
-							
-							//use type declared in parameter map by default
-							if (isset($this->parameterMap)) {
-								$type = $this->getDefaultType($this->args[0], $key);
-								return $this->getIndex($this->args[0], $key, null,  $type);
-							}
-							
-							return $this->getIndex($this->args[0], $key);
-						}
-						elseif ($total_matches == 3) { //#{PROPERTY@1[INDEX]@2}
-							$key = $matches[1];
+						$type = $subindex = null;
+						
+						switch ($total_matches) {
+							/**
+							 * Property
+							 */
+							case 4: //#{PROPERTY@1[INDEX]@2?:TYPE@3}
+								$type = substr($matches[3], 1);
+							case 3: //#{PROPERTY@1[INDEX]@2}
+								$subindex = empty($matches[2]) ? null : substr($matches[2], 1, -1);
+							case 2: //#{PROPERTY@1}
+								$key = $matches[1];
 								
-							//use type declared in parameter map by default
-							if (isset($this->parameterMap)) {
-								$type = $this->getDefaultType($this->args[0], $key);
-								return $this->getIndex($this->args[0], $key, substr($matches[2], 1, -1), $type);
-							}
-							
-							return $this->getIndex($this->args[0], $key, substr($matches[2], 1, -1));
-						}
-						elseif ($total_matches == 4) { //#{PROPERTY@1[INDEX]@2?:TYPE@3}
-							$type = substr($matches[3], 1);
+								if (is_null($type) && isset($this->parameterMap)) {
+									$type = $this->getDefaultType($this->args[0], $key);
+								}
 								
-							if (empty($matches[2])) {
-								return $this->getIndex($this->args[0], $matches[1], null, $type);
-							}
-								
-							return $this->getIndex($this->args[0], $matches[1], substr($matches[2], 1, -1), $type);
-						}
-						elseif ($total_matches == 8) { //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
-							$key = $matches[4];
+								return $this->getIndex($this->args[0], $key, $subindex, $type);
+								break;
 							
-							//use type declared in parameter map by default
-							if (isset($this->parameterMap)) {
-								$type = $this->getDefaultType($this->args[0], $key);
+							/**
+							 * Interval
+							 */
+							case 9: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}
+								$type = substr($matches[8], 1);
+							case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
+								$key = $matches[4];
+								
+								if (is_null($type) && isset($this->parameterMap)) {
+									$type = $this->getDefaultType($this->args[0], $key);
+								}
+								
 								return $this->getRange($this->args[0], $key, $matches[6], $matches[7], $type);
-							}
-							
-							return $this->getRange($this->args[0], $key, $matches[6], $matches[7]);
+								break;
 						}
-						else { //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}
-							return $this->getRange($this->args[0], $matches[4], $matches[6], $matches[7], substr($matches[8], 1));
-						}
+						
 					}, $expr);
 		}
 		
 		//replace inline parameter
 		if (!empty($args) && preg_match(self::INLINE_PARAM_REGEX, $expr)) {
-			/**
-			 * Inline parameters replacing
-			 */
+			$total_args = count($this->args);
 			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX,
-					function ($matches) use ($counter_start) {
-						$total_args = count($this->args);
+					function ($matches) use ($counter_start, $total_args) {
 						$total_matches = count($matches);
 						
 						if ($total_matches == 2) { //%{TYPE@1 | CLASS@1}
@@ -539,12 +523,15 @@ class CacheKey {
 							$subindex = $type = null;
 							
 							switch ($total_matches) {
+								/**
+								 * Simple index
+								 */
 								case 5: //%{NUMBER@2[INDEX]@3?:TYPE@4}
 									$type = substr($matches[4], 1);
 								case 4: //%{NUMBER@2[INDEX]@3}
 									$subindex = empty($matches[3]) ? null : substr($matches[3], 1, -1);
 								case 3: //%{NUMBER@2}
-									$index = (int) $matches[2];
+									$index = intval($matches[2]);
 									
 									if (!array_key_exists($index, $this->args)) {
 										throw new \InvalidArgumentException("No value found on index $index");
@@ -553,19 +540,20 @@ class CacheKey {
 									return $this->getSubIndex($this->args[$index], $subindex, $type);
 									
 									break;
-									
-								case 10:
+								
+								/**
+								 * Interval
+								 */
+								case 10: //%{NUMBER@5[LEFT@7?..RIGHT@8?]:TYPE@9}
 									$type = substr($matches[9], 1);
-								case 9:
-									$index = (int) $matches[5];
-									$start = $matches[7];
-									$limit = $matches[8];
+								case 9: //%{NUMBER@5[LEFT@7?..RIGHT@8?]}
+									$index = intval($matches[5]);
 									
 									if (!array_key_exists($index, $this->args)) {
 										throw new \InvalidArgumentException("No value found on index $index");
 									}
 									
-									return $this->getSubRange($this->args[$index], $matches[7], $matches[8]);
+									return $this->getSubRange($this->args[$index], $matches[7], $matches[8], $type);
 									break;
 							}
 						}
