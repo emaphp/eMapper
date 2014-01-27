@@ -192,7 +192,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				}
 			}
 	
-			$indexes = array();
+			$this->groupKeys = array();
 				
 			while ($result->valid()) {
 				///get row
@@ -212,16 +212,14 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				if ($group) {
 					if (isset($list[$key])) {
 						$list[$key][] = $this->map($row);
-						$indexes[$key]++;
 					}
 					else {
 						$list[$key] = array($this->map($row));
-						$indexes[$key] = 1;
+						$this->groupKeys[] = $key;
 					}
 				}
 				else {
 					$list[$key] = $this->map($row);
-					$indexes[$key] = 1;
 				}
 				
 				$result->next();

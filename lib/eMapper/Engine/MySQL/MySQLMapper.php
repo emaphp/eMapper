@@ -444,10 +444,19 @@ class MySQLMapper extends GenericMapper {
 		
 		if (isset($resultMap)) {
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-				$keys = array_keys($mapped_result);
-				
-				foreach ($keys as $k) {
-					$mapper->relate($mapped_result[$k], $this);
+				if (!empty($mapper->groupKeys)) {
+					foreach ($mapper->groupKeys as $key) {
+						for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
+							$mapper->relate($mapped_result[$key][$i], $this);
+						}
+					}
+				}
+				else {
+					$keys = array_keys($mapped_result);
+					
+					foreach ($keys as $k) {
+						$mapper->relate($mapped_result[$k], $this);
+					}
 				}
 			}
 			elseif (!is_null($mapped_result)) {
@@ -468,13 +477,22 @@ class MySQLMapper extends GenericMapper {
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-					$keys = array_keys($mapped_result);
+					if (!empty($mapper->groupKeys)) {
+						foreach ($mapper->groupKeys as $key) {
+							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
+								$each_callback->__invoke($mapped_result[$key][$i], $new_instance);
+							}
+						}
+					}
+					else {
+						$keys = array_keys($mapped_result);
 						
-					for ($i = 0, $n = count($keys); $i < $n; $i++) {
-						$each_callback->__invoke($mapped_result[$keys[$i]], $new_instance);
+						for ($i = 0, $n = count($keys); $i < $n; $i++) {
+							$each_callback->__invoke($mapped_result[$keys[$i]], $new_instance);
+						}
 					}
 				}
-				elseif ($mapping_callback[1] == 'mapResult' && !is_null($mapped_result)) {
+				elseif (!is_null($mapped_result)) {
 					$each_callback->__invoke($mapped_result, $new_instance);
 				}
 			}
@@ -486,13 +504,22 @@ class MySQLMapper extends GenericMapper {
 		
 				//call traverse callback
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-					$keys = array_keys($mapped_result);
-		
-					for ($i = 0, $n = count($keys); $i < $n; $i++) {
-						$c->__invoke($mapped_result[$keys[$i]]);
+					if (!empty($mapper->groupKeys)) {
+						foreach ($mapper->groupKeys as $key) {
+							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
+								$c->__invoke($mapped_result[$key][$i]);
+							}
+						}
+					}
+					else {
+						$keys = array_keys($mapped_result);
+						
+						for ($i = 0, $n = count($keys); $i < $n; $i++) {
+							$c->__invoke($mapped_result[$keys[$i]]);
+						}
 					}
 				}
-				elseif ($mapping_callback[1] == 'mapResult' && !is_null($mapped_result)) {
+				elseif (!is_null($mapped_result)) {
 					$c->__invoke($mapped_result);
 				}
 			}

@@ -120,7 +120,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 				$typeHandler = $this->propertyList[$index]['handler'];
 			}
 	
-			$indexes = array();
+			$this->groupKeys = array();
 			
 			while ($result->valid()) {
 				$row = $result->fetchArray($resultType);
@@ -143,16 +143,14 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					if ($group) {
 						if (isset($list[$key])) {
 							$list[$key][] = $this->map($row);
-							$indexes[$key]++;
 						}
 						else {
 							$list[$key] = array($this->map($row));
-							$indexes[$key] = 1;
+							$this->groupKeys[] = $key;
 						}
 					}
 					else {
 						$list[$key] = $this->map($row);
-						$indexes[$key] = 1;
 					}
 				}
 				

@@ -45,6 +45,12 @@ abstract class ComplexTypeMapper {
 	 */
 	protected $relationList;
 	
+	/**
+	 * Group indexes
+	 * @var array
+	 */
+	protected $groupKeys;
+	
 	public function __construct(TypeManager $typeManager, $resultMap = null, $parameterMap = null) {
 		$this->typeManager = $typeManager;
 		$this->resultMap = $resultMap;
