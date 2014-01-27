@@ -16,6 +16,12 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	public static $config = array('host' => 'localhost', 'user' => 'root', 'password' => 'b0ls0d10s', 'database' => 'emapper_testing');
 	
 	/**
+	 * Environment configuration
+	 * @var array
+	 */
+	public static $env_config = ['environment.id' => 'default', 'environment.class' => 'eMapper\Dynamic\Environment\DynamicSQLEnvironment'];
+	
+	/**
 	 * MySQL default connection
 	 * @var \mysqli
 	 */

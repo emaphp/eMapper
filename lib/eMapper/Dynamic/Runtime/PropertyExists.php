@@ -40,7 +40,7 @@ class PropertyExists implements Applicable {
 		else {
 			$property = $this->property;
 				
-			if (empty($arguments)) {
+			if (count($arguments) == 0) {
 				if (!array_key_exists(0, $scope->arguments)) {
 					throw new \BadFunctionCallException("PropertyExists: Expected value of type array/object as first parameter but none found.");
 				}
@@ -53,7 +53,7 @@ class PropertyExists implements Applicable {
 		}
 		
 		//check value type
-		if (!is_array($value) && !is_array($value)) {
+		if (!is_array($value) && !is_object($value)) {
 			throw new \InvalidArgumentException(sprintf("PropertyExists: Expected value of type array/object but %s found instead", gettype($value)));
 		}
 		
