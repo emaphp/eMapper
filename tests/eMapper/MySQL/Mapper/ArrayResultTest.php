@@ -627,11 +627,170 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertArrayHasKey('Smartphones', $products);
 		
 		$this->assertInternalType('array', $products['Clothes']);
-		$this->assertCount(3, $products['Clothes']);
-		$this->assertArrayHasKey(0, $products['Clothes']);
-		$this->assertInternalType('array', $products['Clothes'][0]);
+				
+		////
+		$this->assertArrayHasKey('product_id', $products['Clothes']);
+		$this->assertInternalType('integer', $products['Clothes']['product_id']);
+		$this->assertEquals(3, $products['Clothes']['product_id']);
+		
+		$this->assertArrayHasKey('product_code', $products['Clothes']);
+		$this->assertInternalType('string', $products['Clothes']['product_code']);
+		$this->assertEquals('IND00232', $products['Clothes']['product_code']);
+		
+		$this->assertArrayHasKey('description', $products['Clothes']);
+		$this->assertInternalType('string', $products['Clothes']['description']);
+		$this->assertEquals('Green shirt', $products['Clothes']['description']);
+		
+		$this->assertArrayHasKey('color', $products['Clothes']);
+		$this->assertInternalType('string', $products['Clothes']['color']);
+		$this->assertEquals('707c04', $products['Clothes']['color']);
+		
+		$this->assertArrayHasKey('price', $products['Clothes']);
+		$this->assertInternalType('float', $products['Clothes']['price']);
+		$this->assertEquals(70.9, $products['Clothes']['price']);
+		
+		$this->assertArrayHasKey('category', $products['Clothes']);
+		$this->assertInternalType('string', $products['Clothes']['category']);
+		$this->assertEquals('Clothes', $products['Clothes']['category']);
+		
+		$this->assertArrayHasKey('rating', $products['Clothes']);
+		$this->assertInternalType('float', $products['Clothes']['rating']);
+		$this->assertEquals(4.1, $products['Clothes']['rating']);
+		
+		$this->assertArrayHasKey('refurbished', $products['Clothes']);
+		$this->assertInternalType('integer', $products['Clothes']['refurbished']);
+		$this->assertEquals(0, $products['Clothes']['refurbished']);
+		
+		$this->assertArrayHasKey('manufacture_year', $products['Clothes']);
+		$this->assertInternalType('string', $products['Clothes']['manufacture_year']);
+		$this->assertEquals('2013', $products['Clothes']['manufacture_year']);
 		
 		////
+		$this->assertInternalType('array', $products['Hardware']);
+		$this->assertArrayHasKey('product_id', $products['Hardware']);
+		$this->assertInternalType('integer', $products['Hardware']['product_id']);
+		$this->assertEquals(4, $products['Hardware']['product_id']);
+		
+		$this->assertArrayHasKey('product_code', $products['Hardware']);
+		$this->assertInternalType('string', $products['Hardware']['product_code']);
+		$this->assertEquals('GFX00067', $products['Hardware']['product_code']);
+		
+		$this->assertArrayHasKey('description', $products['Hardware']);
+		$this->assertInternalType('string', $products['Hardware']['description']);
+		$this->assertEquals('ATI HD 9999', $products['Hardware']['description']);
+		
+		$this->assertArrayHasKey('color', $products['Hardware']);
+		$this->assertNull($products['Hardware']['color']);
+		
+		$this->assertArrayHasKey('price', $products['Hardware']);
+		$this->assertInternalType('float', $products['Hardware']['price']);
+		$this->assertEquals(120.75, $products['Hardware']['price']);
+		
+		$this->assertArrayHasKey('category', $products['Hardware']);
+		$this->assertInternalType('string', $products['Hardware']['category']);
+		$this->assertEquals('Hardware', $products['Hardware']['category']);
+		
+		$this->assertArrayHasKey('rating', $products['Hardware']);
+		$this->assertInternalType('float', $products['Hardware']['rating']);
+		$this->assertEquals(3.8, $products['Hardware']['rating']);
+		
+		$this->assertArrayHasKey('refurbished', $products['Hardware']);
+		$this->assertInternalType('integer', $products['Hardware']['refurbished']);
+		$this->assertEquals(0, $products['Hardware']['refurbished']);
+		
+		$this->assertArrayHasKey('manufacture_year', $products['Hardware']);
+		$this->assertInternalType('string', $products['Hardware']['manufacture_year']);
+		$this->assertEquals('2013', $products['Hardware']['manufacture_year']);
+		
+		////
+		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertArrayHasKey('product_id', $products['Smartphones']);
+		$this->assertInternalType('integer', $products['Smartphones']['product_id']);
+		$this->assertEquals(5, $products['Smartphones']['product_id']);
+		
+		$this->assertArrayHasKey('product_code', $products['Smartphones']);
+		$this->assertInternalType('string', $products['Smartphones']['product_code']);
+		$this->assertEquals('PHN00098', $products['Smartphones']['product_code']);
+		
+		$this->assertArrayHasKey('description', $products['Smartphones']);
+		$this->assertInternalType('string', $products['Smartphones']['description']);
+		$this->assertEquals('Android phone', $products['Smartphones']['description']);
+		
+		$this->assertArrayHasKey('color', $products['Smartphones']);
+		$this->assertInternalType('string', $products['Smartphones']['color']);
+		$this->assertEquals('00a7eb', $products['Smartphones']['color']);
+		
+		$this->assertArrayHasKey('price', $products['Smartphones']);
+		$this->assertInternalType('float', $products['Smartphones']['price']);
+		$this->assertEquals(300.3, $products['Smartphones']['price']);
+		
+		$this->assertArrayHasKey('category', $products['Smartphones']);
+		$this->assertInternalType('string', $products['Smartphones']['category']);
+		$this->assertEquals('Smartphones', $products['Smartphones']['category']);
+		
+		$this->assertArrayHasKey('rating', $products['Smartphones']);
+		$this->assertInternalType('float', $products['Smartphones']['rating']);
+		$this->assertEquals(4.8, $products['Smartphones']['rating']);
+		
+		$this->assertArrayHasKey('refurbished', $products['Smartphones']);
+		$this->assertInternalType('integer', $products['Smartphones']['refurbished']);
+		$this->assertEquals(1, $products['Smartphones']['refurbished']);
+		
+		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
+		$this->assertInternalType('string', $products['Smartphones']['manufacture_year']);
+		$this->assertEquals('2011', $products['Smartphones']['manufacture_year']);
+	}
+	
+	public function testArrayResultMapList() {
+		$users = self::$mapper
+		->type('array[user_id:string]')
+		->result_map('Acme\Result\UserResultMap')
+		->query("SELECT * FROM users ORDER BY user_id ASC");
+		
+		$this->assertInternalType('array', $users);
+		
+		$this->assertCount(5, $users);
+		$this->assertArrayHasKey('1', $users);
+		$this->assertArrayHasKey('2', $users);
+		$this->assertArrayHasKey('3', $users);
+		$this->assertArrayHasKey('4', $users);
+		$this->assertArrayHasKey('5', $users);
+		
+		$this->assertArrayHasKey('user_id', $users['1']);
+		$this->assertInternalType('integer', $users['1']['user_id']);
+		$this->assertEquals(1, $users['1']['user_id']);
+		
+		$this->assertArrayHasKey('name', $users['1']);
+		$this->assertInternalType('string', $users['1']['name']);
+		$this->assertEquals('jdoe', $users['1']['name']);
+		
+		$this->assertArrayHasKey('lastLogin', $users['1']);
+		$this->assertInternalType('string', $users['1']['lastLogin']);
+		$this->assertEquals('2013-08-10 19:57:15', $users['1']['lastLogin']);
+		
+		$this->assertArrayNotHasKey('user_name', $users['1']);
+		$this->assertArrayNotHasKey('birth_date', $users['1']);
+		$this->assertArrayNotHasKey('avatar', $users['1']);
+		$this->assertArrayNotHasKey('last_login', $users['1']);
+	}
+	
+	public function testIndexedForcedGroupList() {
+		$products = self::$mapper->type('array[!category]')->query("SELECT * FROM products ORDER BY product_id ASC");
+		$this->assertInternalType('array', $products);
+		$this->assertCount(3, $products);
+		
+		$this->assertArrayHasKey('Clothes', $products);
+		$this->assertArrayHasKey('Hardware', $products);
+		$this->assertArrayHasKey('Smartphones', $products);
+		
+		$this->assertInternalType('array', $products['Clothes']);
+		$this->assertInternalType('array', $products['Hardware']);
+		$this->assertInternalType('array', $products['Smartphones']);
+		
+		$this->assertCount(3, $products['Clothes']);
+		$this->assertCount(1, $products['Hardware']);
+		$this->assertCount(1, $products['Smartphones']);
+		
 		$this->assertArrayHasKey('product_id', $products['Clothes'][0]);
 		$this->assertInternalType('integer', $products['Clothes'][0]['product_id']);
 		$this->assertEquals(1, $products['Clothes'][0]['product_id']);
@@ -779,112 +938,79 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('2013', $products['Clothes'][2]['manufacture_year']);
 		
 		////
-		$this->assertInternalType('array', $products['Hardware']);
-		$this->assertArrayHasKey('product_id', $products['Hardware']);
-		$this->assertInternalType('integer', $products['Hardware']['product_id']);
-		$this->assertEquals(4, $products['Hardware']['product_id']);
+		$this->assertInternalType('array', $products['Hardware'][0]);
+		$this->assertArrayHasKey('product_id', $products['Hardware'][0]);
+		$this->assertInternalType('integer', $products['Hardware'][0]['product_id']);
+		$this->assertEquals(4, $products['Hardware'][0]['product_id']);
 		
-		$this->assertArrayHasKey('product_code', $products['Hardware']);
-		$this->assertInternalType('string', $products['Hardware']['product_code']);
-		$this->assertEquals('GFX00067', $products['Hardware']['product_code']);
+		$this->assertArrayHasKey('product_code', $products['Hardware'][0]);
+		$this->assertInternalType('string', $products['Hardware'][0]['product_code']);
+		$this->assertEquals('GFX00067', $products['Hardware'][0]['product_code']);
 		
-		$this->assertArrayHasKey('description', $products['Hardware']);
-		$this->assertInternalType('string', $products['Hardware']['description']);
-		$this->assertEquals('ATI HD 9999', $products['Hardware']['description']);
+		$this->assertArrayHasKey('description', $products['Hardware'][0]);
+		$this->assertInternalType('string', $products['Hardware'][0]['description']);
+		$this->assertEquals('ATI HD 9999', $products['Hardware'][0]['description']);
 		
-		$this->assertArrayHasKey('color', $products['Hardware']);
-		$this->assertNull($products['Hardware']['color']);
+		$this->assertArrayHasKey('color', $products['Hardware'][0]);
+		$this->assertNull($products['Hardware'][0]['color']);
 		
-		$this->assertArrayHasKey('price', $products['Hardware']);
-		$this->assertInternalType('float', $products['Hardware']['price']);
-		$this->assertEquals(120.75, $products['Hardware']['price']);
+		$this->assertArrayHasKey('price', $products['Hardware'][0]);
+		$this->assertInternalType('float', $products['Hardware'][0]['price']);
+		$this->assertEquals(120.75, $products['Hardware'][0]['price']);
 		
-		$this->assertArrayHasKey('category', $products['Hardware']);
-		$this->assertInternalType('string', $products['Hardware']['category']);
-		$this->assertEquals('Hardware', $products['Hardware']['category']);
+		$this->assertArrayHasKey('category', $products['Hardware'][0]);
+		$this->assertInternalType('string', $products['Hardware'][0]['category']);
+		$this->assertEquals('Hardware', $products['Hardware'][0]['category']);
 		
-		$this->assertArrayHasKey('rating', $products['Hardware']);
-		$this->assertInternalType('float', $products['Hardware']['rating']);
-		$this->assertEquals(3.8, $products['Hardware']['rating']);
+		$this->assertArrayHasKey('rating', $products['Hardware'][0]);
+		$this->assertInternalType('float', $products['Hardware'][0]['rating']);
+		$this->assertEquals(3.8, $products['Hardware'][0]['rating']);
 		
-		$this->assertArrayHasKey('refurbished', $products['Hardware']);
-		$this->assertInternalType('integer', $products['Hardware']['refurbished']);
-		$this->assertEquals(0, $products['Hardware']['refurbished']);
+		$this->assertArrayHasKey('refurbished', $products['Hardware'][0]);
+		$this->assertInternalType('integer', $products['Hardware'][0]['refurbished']);
+		$this->assertEquals(0, $products['Hardware'][0]['refurbished']);
 		
-		$this->assertArrayHasKey('manufacture_year', $products['Hardware']);
-		$this->assertInternalType('string', $products['Hardware']['manufacture_year']);
-		$this->assertEquals('2013', $products['Hardware']['manufacture_year']);
+		$this->assertArrayHasKey('manufacture_year', $products['Hardware'][0]);
+		$this->assertInternalType('string', $products['Hardware'][0]['manufacture_year']);
+		$this->assertEquals('2013', $products['Hardware'][0]['manufacture_year']);
 		
 		////
-		$this->assertInternalType('array', $products['Smartphones']);
-		$this->assertArrayHasKey('product_id', $products['Smartphones']);
-		$this->assertInternalType('integer', $products['Smartphones']['product_id']);
-		$this->assertEquals(5, $products['Smartphones']['product_id']);
+		$this->assertInternalType('array', $products['Smartphones'][0]);
+		$this->assertArrayHasKey('product_id', $products['Smartphones'][0]);
+		$this->assertInternalType('integer', $products['Smartphones'][0]['product_id']);
+		$this->assertEquals(5, $products['Smartphones'][0]['product_id']);
 		
-		$this->assertArrayHasKey('product_code', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['product_code']);
-		$this->assertEquals('PHN00098', $products['Smartphones']['product_code']);
+		$this->assertArrayHasKey('product_code', $products['Smartphones'][0]);
+		$this->assertInternalType('string', $products['Smartphones'][0]['product_code']);
+		$this->assertEquals('PHN00098', $products['Smartphones'][0]['product_code']);
 		
-		$this->assertArrayHasKey('description', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['description']);
-		$this->assertEquals('Android phone', $products['Smartphones']['description']);
+		$this->assertArrayHasKey('description', $products['Smartphones'][0]);
+		$this->assertInternalType('string', $products['Smartphones'][0]['description']);
+		$this->assertEquals('Android phone', $products['Smartphones'][0]['description']);
 		
-		$this->assertArrayHasKey('color', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['color']);
-		$this->assertEquals('00a7eb', $products['Smartphones']['color']);
+		$this->assertArrayHasKey('color', $products['Smartphones'][0]);
+		$this->assertInternalType('string', $products['Smartphones'][0]['color']);
+		$this->assertEquals('00a7eb', $products['Smartphones'][0]['color']);
 		
-		$this->assertArrayHasKey('price', $products['Smartphones']);
-		$this->assertInternalType('float', $products['Smartphones']['price']);
-		$this->assertEquals(300.3, $products['Smartphones']['price']);
+		$this->assertArrayHasKey('price', $products['Smartphones'][0]);
+		$this->assertInternalType('float', $products['Smartphones'][0]['price']);
+		$this->assertEquals(300.3, $products['Smartphones'][0]['price']);
 		
-		$this->assertArrayHasKey('category', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['category']);
-		$this->assertEquals('Smartphones', $products['Smartphones']['category']);
+		$this->assertArrayHasKey('category', $products['Smartphones'][0]);
+		$this->assertInternalType('string', $products['Smartphones'][0]['category']);
+		$this->assertEquals('Smartphones', $products['Smartphones'][0]['category']);
 		
-		$this->assertArrayHasKey('rating', $products['Smartphones']);
-		$this->assertInternalType('float', $products['Smartphones']['rating']);
-		$this->assertEquals(4.8, $products['Smartphones']['rating']);
+		$this->assertArrayHasKey('rating', $products['Smartphones'][0]);
+		$this->assertInternalType('float', $products['Smartphones'][0]['rating']);
+		$this->assertEquals(4.8, $products['Smartphones'][0]['rating']);
 		
-		$this->assertArrayHasKey('refurbished', $products['Smartphones']);
-		$this->assertInternalType('integer', $products['Smartphones']['refurbished']);
-		$this->assertEquals(1, $products['Smartphones']['refurbished']);
+		$this->assertArrayHasKey('refurbished', $products['Smartphones'][0]);
+		$this->assertInternalType('integer', $products['Smartphones'][0]['refurbished']);
+		$this->assertEquals(1, $products['Smartphones'][0]['refurbished']);
 		
-		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['manufacture_year']);
-		$this->assertEquals('2011', $products['Smartphones']['manufacture_year']);
-	}
-	
-	public function testArrayResultMapList() {
-		$users = self::$mapper
-		->type('array[user_id:string]')
-		->result_map('Acme\Result\UserResultMap')
-		->query("SELECT * FROM users ORDER BY user_id ASC");
-		
-		$this->assertInternalType('array', $users);
-		
-		$this->assertCount(5, $users);
-		$this->assertArrayHasKey('1', $users);
-		$this->assertArrayHasKey('2', $users);
-		$this->assertArrayHasKey('3', $users);
-		$this->assertArrayHasKey('4', $users);
-		$this->assertArrayHasKey('5', $users);
-		
-		$this->assertArrayHasKey('user_id', $users['1']);
-		$this->assertInternalType('integer', $users['1']['user_id']);
-		$this->assertEquals(1, $users['1']['user_id']);
-		
-		$this->assertArrayHasKey('name', $users['1']);
-		$this->assertInternalType('string', $users['1']['name']);
-		$this->assertEquals('jdoe', $users['1']['name']);
-		
-		$this->assertArrayHasKey('lastLogin', $users['1']);
-		$this->assertInternalType('string', $users['1']['lastLogin']);
-		$this->assertEquals('2013-08-10 19:57:15', $users['1']['lastLogin']);
-		
-		$this->assertArrayNotHasKey('user_name', $users['1']);
-		$this->assertArrayNotHasKey('birth_date', $users['1']);
-		$this->assertArrayNotHasKey('avatar', $users['1']);
-		$this->assertArrayNotHasKey('last_login', $users['1']);
+		$this->assertArrayHasKey('manufacture_year', $products['Smartphones'][0]);
+		$this->assertInternalType('string', $products['Smartphones'][0]['manufacture_year']);
+		$this->assertEquals('2011', $products['Smartphones'][0]['manufacture_year']);
 	}
 }
 ?>

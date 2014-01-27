@@ -9,8 +9,8 @@ abstract class GenericMapper {
 	use GenericMapperConfiguration;
 	use StatementNamespaceAggregate;
 	
-	const OBJECT_TYPE_REGEX = '@^(object|obj+)(:[A-z]{1}[\w|\\\\]*)?(\[\]|\[(\w+)\]|\[(\w+)(:[A-z]{1}[\w]*)\])?$@';
-	const ARRAY_TYPE_REGEX  = '@^(array|arr+)(\[\]|\[(\w+)\]|\[(\w+)(:[A-z]{1}[\w]*)\])?$@';
+	const OBJECT_TYPE_REGEX = '@^(object|obj+)(:[A-z]{1}[\w|\\\\]*)?(\[\]|\[(!?\w+)\]|\[(!?\w+)(:[A-z]{1}[\w]*)\])?$@';
+	const ARRAY_TYPE_REGEX  = '@^(array|arr+)(\[\]|\[(!?\w+)\]|\[(!?\w+)(:[A-z]{1}[\w]*)\])?$@';
 	const SIMPLE_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)(\[\])?@';
 	
 	/**

@@ -152,6 +152,9 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			}
 		}
 		else {
+			$group = (bool) preg_match('/^!/', $index);
+			$index = $group ? substr($index, 1) : $index;
+			
 			if (is_null($this->resultMap)) {
 				if (!array_key_exists($index, $this->columnTypes)) {
 					throw new \InvalidArgumentException("Index '$index' not found");
@@ -206,19 +209,19 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				//obtain index key
 				$key = $typeHandler->getValue($key);
 					
-				if (in_array($key, array_keys($indexes))) {
-					if ($indexes[$key] === 0) {
-						$value = $list[$key];
-						$list[$key] = array();
-						$list[$key][] = $value;
+				if ($group) {
+					if (isset($list[$key])) {
+						$list[$key][] = $this->map($row);
+						$indexes[$key]++;
 					}
-
-					$list[$key][] = $this->map($row);
-					$indexes[$key]++;
+					else {
+						$list[$key] = array($this->map($row));
+						$indexes[$key] = 1;
+					}
 				}
 				else {
 					$list[$key] = $this->map($row);
-					$indexes[$key] = 0;
+					$indexes[$key] = 1;
 				}
 				
 				$result->next();

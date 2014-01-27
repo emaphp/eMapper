@@ -88,6 +88,9 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 			}
 		}
 		else {
+			$group = (bool) preg_match('/^!/', $index);
+			$index = $group ? substr($index, 1) : $index;
+			
 			if (is_null($this->resultMap)) {
 				if (!array_key_exists($index, $this->columnTypes)) {
 					if (is_numeric($index) && array_key_exists((int) $index, $this->columnTypes)) {
@@ -118,7 +121,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 			}
 	
 			$indexes = array();
-				
+			
 			while ($result->valid()) {
 				$row = $result->fetchArray($resultType);
 				
@@ -136,20 +139,20 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					if (!is_int($key) && !is_string($key)) {
 						throw new \UnexpectedValueException("Obtained index key is neither an integer or string");
 					}
-						
-					if (in_array($key, array_keys($indexes))) {
-						if ($indexes[$key] === 0) {
-							$value = $list[$key];
-							$list[$key] = array();
-							$list[$key][] = $value;
+					
+					if ($group) {
+						if (isset($list[$key])) {
+							$list[$key][] = $this->map($row);
+							$indexes[$key]++;
 						}
-	
-						$list[$key][] = $this->map($row);
-						$indexes[$key]++;
+						else {
+							$list[$key] = array($this->map($row));
+							$indexes[$key] = 1;
+						}
 					}
 					else {
 						$list[$key] = $this->map($row);
-						$indexes[$key] = 0;
+						$indexes[$key] = 1;
 					}
 				}
 				
