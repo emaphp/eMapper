@@ -861,6 +861,7 @@ class ArrayResultTest extends MySQLTest {
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 		
 		$this->assertInternalType('array', $users);
+		
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey('1', $users);
 		$this->assertArrayHasKey('2', $users);

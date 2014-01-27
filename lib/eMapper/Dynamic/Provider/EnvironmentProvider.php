@@ -36,11 +36,10 @@ abstract class EnvironmentProvider {
 	 * Generates a new environment
 	 * @param string $id
 	 * @param string $classname
-	 * @param mixed $import
 	 * @throws \InvalidArgumentException
 	 * @return boolean
 	 */
-	public static function buildEnvironment($id, $classname, $import) {
+	public static function buildEnvironment($id, $classname) {
 		//validate id
 		if (!is_string($id) || empty($id)) {
 			throw new \InvalidArgumentException("Environment id must be defined as a valid string");
@@ -62,29 +61,6 @@ abstract class EnvironmentProvider {
 		}
 			
 		self::$environments[$id] = new $classname();
-			
-		//import auxiliary packages
-		if (is_array($import) && !empty($import)) {
-			for ($i = 0; $i < count($import); $i++) {
-				$package_class = $import[$i];
-					
-				if (!class_exists($package_class, true)) {
-					throw new \InvalidArgumentException("Package class '$package_class' not found");
-				}
-					
-				$rc = new \ReflectionClass($package_class);
-					
-				if (!$rc->isSubclassOf('eMacros\Package\Package')) {
-					throw new \InvalidArgumentException("Class '$package_class' is not a valid package class");
-				}
-					
-				$package = new $package_class;
-					
-				if (!self::$environments[$id]->hasPackage($package->id)) {
-					self::$environments[$id]->import($package);
-				}
-			}
-		}
 		
 		return true;
 	}

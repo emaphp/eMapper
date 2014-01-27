@@ -22,6 +22,12 @@ abstract class ComplexTypeMapper {
 	public $resultMap;
 	
 	/**
+	 * Parameter map
+	 * @var string
+	 */
+	public $parameterMap;
+	
+	/**
 	 * An array containing all column types
 	 * @var array
 	 */
@@ -39,9 +45,10 @@ abstract class ComplexTypeMapper {
 	 */
 	protected $relationList;
 	
-	public function __construct(TypeManager $typeManager, $resultMap = null) {
+	public function __construct(TypeManager $typeManager, $resultMap = null, $parameterMap = null) {
 		$this->typeManager = $typeManager;
 		$this->resultMap = $resultMap;
+		$this->parameterMap = $parameterMap;
 	}
 	
 	/**
@@ -107,7 +114,7 @@ abstract class ComplexTypeMapper {
 			
 			//parse relation annotations
 			if ($field->has('eval')) {
-				$this->relationList[$name] = new MacroExpression($field);
+				$this->relationList[$name] = new MacroExpression($field, $this->parameterMap);
 			}
 			elseif ($field->has('stmt')) {
 				$this->relationList[$name] = new StatementCallback($field);

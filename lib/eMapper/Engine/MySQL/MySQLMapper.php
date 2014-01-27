@@ -251,7 +251,7 @@ class MySQLMapper extends GenericMapper {
 				}
 			
 				//generate a new object mapper object
-				$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass);
+				$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $parameterMap, $defaultClass);
 			
 				if (!empty($matches[3])) {
 					//add method
@@ -292,7 +292,7 @@ class MySQLMapper extends GenericMapper {
 				$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 				
 				//generate a new array mapper object
-				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
+				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap, $parameterMap);
 			
 				if (!empty($matches[2])) {
 					$mapping_callback = array($mapper, 'mapList');
@@ -352,7 +352,7 @@ class MySQLMapper extends GenericMapper {
 			$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 			
 			//generate mapper
-			$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
+			$mapper = new ArrayTypeMapper($this->typeManager, $resultMap, $parameterMap);
 			
 			//use default mapping type
 			$mapping_callback = array($mapper, 'mapList');
@@ -426,6 +426,7 @@ class MySQLMapper extends GenericMapper {
 		/**
 		 * CACHE STORE
 		 */
+		
 		//check if obtained value can be stored
 		if (isset($cacheProvider) && $cacheable) {
 			//store value
@@ -440,12 +441,17 @@ class MySQLMapper extends GenericMapper {
 		/**
 		 * EVALUATE RELATIONS
 		 */
+		
 		if (isset($resultMap)) {
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+				$keys = array_keys($mapped_result);
 				
+				foreach ($keys as $k) {
+					$mapper->relate($mapped_result[$k], $this);
+				}
 			}
 			elseif (!is_null($mapped_result)) {
-				
+				$mapper->relate($mapped_result, $this);
 			}
 		}
 

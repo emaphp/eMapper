@@ -26,12 +26,6 @@ abstract class GenericMapper {
 		//dynamic sql environment class
 		$this->config['enviroment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
 		
-		//dynamic sql packages
-		$this->config['environment.import'] = null;
-		
-		//dynamic sql program class
-		$this->config['environment.program'] = 'eMacros\Program\SimpleProgram';
-		
 		//use database prefix for procedure names
 		$this->config['procedure.use_prefix'] = true;
 		

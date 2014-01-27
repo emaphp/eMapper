@@ -18,8 +18,8 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	 * @param string $resultMap
 	 * @param string $defaultClass
 	 */
-	public function __construct(TypeManager $typeManager, $resultMap = null, $defaultClass = 'stdClass') {
-		parent::__construct($typeManager, $resultMap);
+	public function __construct(TypeManager $typeManager, $resultMap = null, $parameterMap = null, $defaultClass = 'stdClass') {
+		parent::__construct($typeManager, $resultMap, $parameterMap);
 		$this->defaultClass = $defaultClass;
 	}
 	

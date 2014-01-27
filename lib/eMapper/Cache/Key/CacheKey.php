@@ -54,7 +54,7 @@ class CacheKey {
 	 * @param string $escape_string
 	 * @return string
 	 */
-	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',', $escape_string = true) {
+	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
 		$list = array();
 
 		//build expression list
@@ -102,7 +102,7 @@ class CacheKey {
 			}
 				
 			if (is_array($value)) {
-				return $this->castArray($value, $typeHandler, '_', false);
+				return $this->castArray($value, $typeHandler, '_');
 			}
 		}
 		else {
@@ -110,7 +110,7 @@ class CacheKey {
 			$typeHandler = $this->typeManager->getTypeHandler($type);
 				
 			if (is_array($value)) {
-				return $this->castArray($value, $typeHandler, '_', false);
+				return $this->castArray($value, $typeHandler, '_');
 			}
 			else {
 				$value = $typeHandler->castParameter($value);

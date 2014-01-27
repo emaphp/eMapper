@@ -13,6 +13,12 @@ class DynamicAttribute {
 	public $args;
 	
 	/**
+	 * Parameter map
+	 * @var string
+	 */
+	public $parameterMap;
+	
+	/**
 	 * Attribute configuration
 	 * @var array
 	 */
@@ -24,7 +30,8 @@ class DynamicAttribute {
 	 */
 	public $useDefaultArgument;
 	
-	public function __construct($attribute) {
+	public function __construct($attribute, $parameterMap = null) {
+		$this->parameterMap = $parameterMap;
 		$this->parseArguments($attribute);
 		$this->parseConfig($attribute);
 	}
@@ -90,6 +97,7 @@ class DynamicAttribute {
 	 */
 	protected function evaluateArgs($row) {
 		$args = array();
+		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
 		
 		if ($this->useDefaultArgument) {
 			$args = $row;
@@ -97,7 +105,7 @@ class DynamicAttribute {
 		
 		foreach ($this->args as $arg) {
 			if ($arg instanceof PropertyReader) {
-				$args[] = $row[$arg->property];
+				$args[] = $wrapper[$arg->property];
 			}
 			else {
 				$args[] = $arg;
