@@ -47,7 +47,7 @@ trait MySQLMapperConfiguration {
 	
 	public function safe_copy() {
 		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.each', 'callback.no_rows', 'callback.query', 'callback.result', 'callback.filter',
+				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter',
 				'procedure.types',
 				'cache.provider', 'cache.key', 'cache.ttl');
 	}

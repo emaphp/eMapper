@@ -15,6 +15,10 @@ abstract class GenericStatement extends CacheKey {
 	//Ex: {{ (null? (#order)) }}
 	const DYNAMIC_SQL_REGEX = '/\{\{(.*)\}\}/';
 	
+	/**
+	 * Current mapper configuration
+	 * @var array
+	 */
 	public $config;
 	
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
