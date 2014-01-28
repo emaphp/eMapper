@@ -535,9 +535,16 @@ class MySQLMapper extends GenericMapper {
 			
 			//check if mapped result is a list
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-				$mapped_result = array_filter($mapped_result, $filter_callback);
+				if (!empty($mapper->groupKeys)) {
+					foreach ($mapper->groupKeys as $key) {
+						$mapped_result[$key] = array_filter($mapped_result[$key], $filter_callback);
+					}
+				}
+				else {
+					$mapped_result = array_filter($mapped_result, $filter_callback);
+				}
 			}
-			elseif ($mapping_callback[1] == 'mapResult' && !is_null($mapped_result)) {
+			elseif (!is_null($mapped_result)) {
 				if (!call_user_func($filter_callback, $mapped_result)) {
 					$mapped_result = null;
 				}
