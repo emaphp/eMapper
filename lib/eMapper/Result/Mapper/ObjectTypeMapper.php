@@ -63,6 +63,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			
 			if ($this->defaultClass == 'stdClass') {
 				foreach ($this->columnTypes as $column => $type) {
+					if (is_integer($column)) {
+						continue;
+					}
+					
 					$typeHandler = $this->columnHandler($column);
 					$instance->$column = $typeHandler->getValue($row->$column);
 				}

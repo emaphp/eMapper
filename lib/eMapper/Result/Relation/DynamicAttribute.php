@@ -101,7 +101,7 @@ abstract class DynamicAttribute {
 		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
 		
 		if ($this->useDefaultArgument) {
-			$args = $row;
+			$args[] = $row;
 		}
 		
 		foreach ($this->args as $arg) {

@@ -1,9 +1,8 @@
 <?php
-namespace Acme\Result\Dynamic;
+namespace Acme\Result\Attribute;
 
 /**
  * @entity
- * @author emaphp
  */
 class User {
 	public $user_name;

@@ -118,10 +118,10 @@ abstract class GenericMapper {
 		}
 		
 		//check current mapper depth
-		if ($this->config['depth.current'] >= $this->config['depth.limit']) {
+		if ($this->config['depth.current'] > $this->config['depth.limit']) {
 			return null;
 		}
-		
+
 		//open connection
 		$this->connect();
 		
@@ -137,9 +137,6 @@ abstract class GenericMapper {
 		//get parameter map
 		if (array_key_exists('map.parameter', $this->config)) {
 			$parameterMap = $this->config['map.parameter'];
-		}
-		elseif (!empty($args) && is_object($args[0]) && Profiler::isEntity(get_class($args[0]))) {
-			$parameterMap = get_class($args[0]);
 		}
 		
 		/**
@@ -393,11 +390,13 @@ abstract class GenericMapper {
 			 */
 			
 			if (isset($resultMap)) {
+				$instance = $this->safe_copy();
+				
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
 							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$i], $this);
+								$mapper->relate($mapped_result[$key][$i], $instance);
 							}
 						}
 					}
@@ -405,12 +404,12 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 							
 						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $this);
+							$mapper->relate($mapped_result[$k], $instance);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $this);
+					$mapper->relate($mapped_result, $instance);
 				}
 			}
 			

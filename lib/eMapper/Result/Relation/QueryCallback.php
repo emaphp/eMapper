@@ -19,7 +19,7 @@ class QueryCallback extends DynamicAttribute {
 		//build argument list
 		$args = $this->evaluateArgs($row);
 		array_unshift($args, $this->query);
-		
+
 		//merge mapper configuration
 		$this->mergeConfig($mapper->config);
 		
