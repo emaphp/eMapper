@@ -1,6 +1,7 @@
 <?php
-namespace eMapper\MySQL;
+namespace eMapper\MySQL\Result;
 
+use eMapper\MySQL\MySQLTest;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\Handler\IntegerTypeHandler;
 use eMapper\Type\Handler\StringTypeHandler;

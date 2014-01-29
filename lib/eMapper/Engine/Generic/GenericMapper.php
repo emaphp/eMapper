@@ -36,7 +36,7 @@ abstract class GenericMapper {
 		$this->config['environment.id'] = 'default';
 		
 		//dynamic sql environment class
-		$this->config['enviroment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
+		$this->config['environment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
 		
 		//use database prefix for procedure names
 		$this->config['procedure.use_prefix'] = true;
@@ -88,34 +88,12 @@ abstract class GenericMapper {
 	 * Configures dynamic SQL environment
 	 * @param string $id Environment id
 	 * @param string $class Environment class
-	 * @param string $import Packages to import
-	 * @param string $program Program class
 	 * @throws \InvalidArgumentException
 	 */
-	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment', $import = null, $program = 'eMacros\Program\SimpleProgram') {
-		if (empty($import)) {
-			$import = null;
-		}
-		elseif (is_string($import)) {
-			$import = array($import);
-		}
-		
-		//validate program class
-		if (!class_exists($program)) {
-			throw new \InvalidArgumentException("Program class '$program' not found");
-		}
-		
-		$rc = new \ReflectionClass($program);
-		
-		if (!$rc->isSubclassOf('eMacros\Program\Program')) {
-			throw new \InvalidArgumentException("Class '$program' is not a valid program class");
-		}
-		
+	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
 		//apply values
 		$this->config['environment.id'] = $id;
 		$this->config['environment.class'] = $class;
-		$this->config['environment.import'] = $import;
-		$this->config['environment.programs'] = $program;
 	} 
 	
 	/**
@@ -227,7 +205,7 @@ abstract class GenericMapper {
 						$resultMap = null;
 			
 						//get result map
-						if (!array_key_exists('map.result', $this->config)) {
+						if (array_key_exists('map.result', $this->config)) {
 							$resultMap = $this->config['map.result'];
 						}
 						elseif (Profiler::isEntity($defaultClass)) {

@@ -89,6 +89,36 @@ class MySQLMapper extends GenericMapper {
 	 * TODO: Method buildFromConnection
 	 */
 	
+	public static function build($db_config, $additional_config = null) {
+		
+	}
+	
+	public static function buildFromConnection($conn, $additional_config = null) {
+		if (!($conn instanceof \mysqli)) {
+			throw new \InvalidArgumentException("An instance of mysqli was expected");
+		}
+		
+		//get current database name
+		$result = $conn->query("SELECT DATABASE()");
+		$row = $result->fetch_array();
+		$db_name = $row[0];
+		
+		//initialize mapper
+		$mapper = new MySQLMapper($db_name);
+		$mapper->connection = $conn;
+		$mapper->free_result($result);
+		
+		if (!is_null($additional_config)) {
+			if (!is_array($additional_config)) {
+				throw new \InvalidArgumentException("Additional config must be defined as an array");
+			}
+			
+			return $mapper->config = array_merge($mapper->config, $additional_config);
+		}
+		
+		return $mapper;
+	}
+	
 	/**
 	 * Creates a new connection to a MySQL server
 	 * @throws MySQLMapperException

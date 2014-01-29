@@ -38,17 +38,17 @@ class ObjectParameterWrapper extends ParameterWrapper {
 				
 					if (isset($reflectionClass)) {
 						if (!$reflectionClass->hasProperty($property)) {
-							throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", get_class($instance)));
+							throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", get_class($value)));
 						}
 				
 						$rp = $reflectionClass->getProperty($property);
 				
 						if (!$rp->isPublic()) {
-							throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", get_class($instance)));
+							throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", get_class($value)));
 						}
 					}
 					else {
-						if (!array_key_exists($property, $instance)) {
+						if (!array_key_exists($property, $value)) {
 							throw new \UnexpectedValueException("Key '$property' defined in class {$this->parameterMap} was not found on given parameter");
 						}
 					}

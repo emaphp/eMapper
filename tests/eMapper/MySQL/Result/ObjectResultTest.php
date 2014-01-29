@@ -1,6 +1,7 @@
 <?php
-namespace eMapper\MySQL;
+namespace eMapper\MySQL\Result;
 
+use eMapper\MySQL\MySQLTest;
 use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Type\TypeManager;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
@@ -32,7 +33,7 @@ class ObtectResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 		
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $user->avatar);
+		$this->assertEquals(self::$blob, $user->avatar);
 		
 		$result->free();
 	}
@@ -66,7 +67,7 @@ class ObtectResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 		
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $user->avatar);
+		$this->assertEquals(self::$blob, $user->avatar);
 		
 		$result->free();
 	}
@@ -101,7 +102,7 @@ class ObtectResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $user->avatar);
+		$this->assertEquals(self::$blob, $user->avatar);
 	
 		$result->free();
 	}
@@ -136,7 +137,7 @@ class ObtectResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../avatar.gif'), $user->avatar);
+		$this->assertEquals(self::$blob, $user->avatar);
 	
 		$result->free();
 	}

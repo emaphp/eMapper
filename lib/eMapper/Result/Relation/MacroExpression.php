@@ -4,6 +4,7 @@ namespace eMapper\Result\Relation;
 use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Result\Argument\PropertyReader;
 
 class MacroExpression extends DynamicAttribute {
 	/**
@@ -29,7 +30,7 @@ class MacroExpression extends DynamicAttribute {
 		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
 		
 		if ($this->useDefaultArgument) {
-			$args = $wrapper;
+			$args[] = $wrapper;
 		}
 	
 		foreach ($this->args as $arg) {

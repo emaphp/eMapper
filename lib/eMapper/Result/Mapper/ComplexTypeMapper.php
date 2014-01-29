@@ -76,60 +76,61 @@ abstract class ComplexTypeMapper {
 		$this->propertyList = $this->relationList = array();
 		
 		foreach ($fields as $name => $field) {
-			//get column
-			$column = $field->has('column') ? $field->get('column') : $name;
-			
-			if (!array_key_exists($column, $this->columnTypes)) {
-				throw new \UnexpectedValueException("Column '$column' was not found on this result");
-			}
-			
-			$this->propertyList[$name] = array('column' => $column);
-			
-			//get type handler
-			if ($field->has('type')) {
-				$type = $field->get('type');
-				$typeHandler = $this->typeManager->getTypeHandler($type);
-			
-				if ($typeHandler === false) {
-					throw new \UnexpectedValueException("No typehandler assigned to type '$type' defined at property $name");
-				}
-				
-				$this->propertyList[$name]['handler'] = $typeHandler;
-			}
-			elseif ($field->has('var')) {
-				//as 'var' is a common annotation no error is thrown if no associated type handler is found
-				$type = $field->get('var');
-				$typeHandler = $this->typeManager->getTypeHandler($type);
-					
-				if ($typeHandler !== false) {
-					$this->propertyList[$name]['handler'] = $typeHandler;
-				}
-				else {
-					echo $type;
-					$this->propertyList[$name]['handler'] = $this->columnHandler($column);
-				}
-			}
-			else {
-				$this->propertyList[$name]['handler'] = $this->columnHandler($column);
-			}
-			
-			//get setter method
-			if ($field->has('setter')) {
-				$this->propertyList[$name]['setter'] = $field->get('setter');
-			}
-			
 			//parse relation annotations
 			if ($field->has('eval')) {
 				$this->relationList[$name] = new MacroExpression($field, $this->parameterMap);
 			}
 			elseif ($field->has('stmt')) {
-				$this->relationList[$name] = new StatementCallback($field);
+				$this->relationList[$name] = new StatementCallback($field, $this->parameterMap);
 			}
 			elseif ($field->has('query')) {
-				$this->relationList[$name] = new QueryCallback($field);
+				$this->relationList[$name] = new QueryCallback($field, $this->parameterMap);
 			}
 			elseif ($field->has('procedure')) {
-				$this->relationList[$name] = new StatementCallback($field);
+				$this->relationList[$name] = new StatementCallback($field, $this->parameterMap);
+			}
+			else {
+				//get column
+				$column = $field->has('column') ? $field->get('column') : $name;
+					
+				if (!array_key_exists($column, $this->columnTypes)) {
+					throw new \UnexpectedValueException("Column '$column' was not found on this result");
+				}
+					
+				$this->propertyList[$name] = array('column' => $column);
+					
+				//get type handler
+				if ($field->has('type')) {
+					$type = $field->get('type');
+					$typeHandler = $this->typeManager->getTypeHandler($type);
+						
+					if ($typeHandler === false) {
+						throw new \UnexpectedValueException("No typehandler assigned to type '$type' defined at property $name");
+					}
+				
+					$this->propertyList[$name]['handler'] = $typeHandler;
+				}
+				elseif ($field->has('var')) {
+					//as 'var' is a common annotation no error is thrown if no associated type handler is found
+					$type = $field->get('var');
+					$typeHandler = $this->typeManager->getTypeHandler($type);
+						
+					if ($typeHandler !== false) {
+						$this->propertyList[$name]['handler'] = $typeHandler;
+					}
+					else {
+						echo $type;
+						$this->propertyList[$name]['handler'] = $this->columnHandler($column);
+					}
+				}
+				else {
+					$this->propertyList[$name]['handler'] = $this->columnHandler($column);
+				}
+					
+				//get setter method
+				if ($field->has('setter')) {
+					$this->propertyList[$name]['setter'] = $field->get('setter');
+				}
 			}
 		}
 		

@@ -236,7 +236,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				$row->$setter($relation->evaluate($row, $mapper));
 			}
 			else {
-				$row->$property($relation->evaluate($row, $mapper));
+				$row->$property = $relation->evaluate($row, $mapper);
 			}
 		}
 	}

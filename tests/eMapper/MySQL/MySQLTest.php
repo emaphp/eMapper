@@ -27,7 +27,13 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public static $conn;
 	
+	/**
+	 * MySQLMapper instance
+	 * @var MySQLMapper
+	 */
 	public static $mapper;
+	
+	public static $blob;
 	
 	/* (non-PHPdoc)
 	 * @see PHPUnit_Framework_TestCase::setUpBeforeClass()
@@ -41,6 +47,8 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 				self::$config['password']);
 		
 		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
+		
+		self::$blob = file_get_contents(__DIR__ . '/../avatar.gif');
 	}
 	
 	public static function tearDownAfterClass() {

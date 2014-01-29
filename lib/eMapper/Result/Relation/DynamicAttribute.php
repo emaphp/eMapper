@@ -4,7 +4,7 @@ namespace eMapper\Result\Relation;
 use eMapper\Result\Argument\PropertyReader;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
-class DynamicAttribute {
+abstract class DynamicAttribute {
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)$/';
 	
 	/**
