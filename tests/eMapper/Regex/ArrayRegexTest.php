@@ -113,6 +113,24 @@ class ArrayRegexTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('int', $matches[5]);
 	}
 	
+	public function testArrayIndexedList5() {
+		$expr = 'array[0]';
+		$result = preg_match(self::REGEX, $expr, $matches);
+		$this->assertEquals(1, $result);
+		$this->assertCount(5, $matches);
+		$this->assertEquals('[0]', $matches[3]);
+		$this->assertEquals('0', $matches[4]);
+	}
+	
+	public function testArrayIndexedList6() {
+		$expr = 'arr[1]';
+		$result = preg_match(self::REGEX, $expr, $matches);
+		$this->assertEquals(1, $result);
+		$this->assertCount(5, $matches);
+		$this->assertEquals('[1]', $matches[3]);
+		$this->assertEquals('1', $matches[4]);
+	}
+	
 	public function testArrayGroupedIndexedList1() {
 		$expr = 'array<category>[product_id]';
 		$result = preg_match(self::REGEX, $expr, $matches);

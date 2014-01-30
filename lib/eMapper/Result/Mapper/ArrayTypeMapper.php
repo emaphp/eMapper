@@ -61,11 +61,13 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * Returns a list of mapped arrays from a mysqli_result object
 	 * @param ResultInterface $result
 	 * @param string $index
-	 * @param string $type
+	 * @param string $indexType
+	 * @param string $group
+	 * @param string $groupType
 	 * @param int $resultType
 	 * @param \UnexpectedValueException
 	 */
-	public function mapList(ResultInterface $result, $index = null, $type = null, $resultType = ResultInterface::BOTH) {
+	public function mapList(ResultInterface $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ResultInterface::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return array();
@@ -80,84 +82,127 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		}
 		
 		$list = array();
-			
-		//check if an index has been defined
-		if (is_null($index)) {
-			while (($row = $result->fetchArray($resultType)) !== null) {
-				$list[] = $this->map($row);
+		
+		if (isset($index) || isset($group)) {
+			//validate index column
+			if (isset($index)) {
+				list($indexColumn, $indexTypeHandler) = $this->validateIndex($index, $indexType);
 			}
-		}
-		else {
-			$group = (bool) preg_match('/^!/', $index);
-			$index = $group ? substr($index, 1) : $index;
+		
+			//validate group
+			if (isset($group)) {
+				list($groupColumn, $groupTypeHandler) = $this->validateGroup($group, $groupType);
+			}
 			
-			if (is_null($this->resultMap)) {
-				if (!array_key_exists($index, $this->columnTypes)) {
-					if (is_numeric($index) && array_key_exists((int) $index, $this->columnTypes)) {
-						$index = (int) $index;
+			if (isset($index) && isset($group)) {
+				$this->groupKeys = array();
+				
+				while ($result->valid()) {
+					$row = $result->fetchArray($resultType);
+					
+					//validate group value
+					$key = $row[$groupColumn];
+						
+					if (is_null($key)) {
+						throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+					}
+					
+					//obtain group value
+					$key = $groupTypeHandler->getValue($key);
+						
+					if (!is_int($key) && !is_string($key)) {
+						throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
+					}
+					
+					//validate index value
+					$idx = $row[$indexColumn];
+						
+					if (is_null($idx)) {
+						throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
+					}
+						
+					//obtain index value
+					$idx = $indexTypeHandler->getValue($idx);
+						
+					if (!is_int($idx) && !is_string($idx)) {
+						throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
+					}
+					
+					//store value
+					if (isset($list[$key])) {
+						$list[$key][$idx] = $this->map($row);
 					}
 					else {
-						throw new \UnexpectedValueException("Index column '$index' not found");
+						$list[$key] = [$idx => $this->map($row)];
+						$this->groupKeys[] = $key;
 					}
+					
+					$result->next();
 				}
-	
-				$type = is_null($type) ? $this->columnTypes[$index] : $type;
-				$column = $index;
-				
-				//obtain index handler
-				$typeHandler = $this->typeManager->getTypeHandler($type);
-				
-				if ($typeHandler === false) {
-					throw new \UnexpectedValueException("Unknown type '$type' defined for index '$index'");
+			}
+			elseif (isset($index)) {
+				while ($result->valid()) {
+					$row = $result->fetchArray($resultType);
+					
+					//validate index value
+					$key = $row[$indexColumn];
+					
+					if (is_null($key)) {
+						throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
+					}
+					
+					//obtain index value
+					$key = $indexTypeHandler->getValue($key);
+					
+					if (!is_int($key) && !is_string($key)) {
+						throw new \UnexpectedValueException("Obtained index in column '$indexColumn' key is neither an integer or string");
+					}
+					
+					//store value and get next one
+					$list[$key] = $this->map($row);
+					$result->next();
 				}
 			}
 			else {
-				if (!array_key_exists($index, $this->propertyList)) {
-					throw new \UnexpectedValueException("Index property '$index' was not found in result map");
-				}
+				$this->groupKeys = array();
 				
-				$column =  $this->propertyList[$index]['column'];
-				$typeHandler = $this->propertyList[$index]['handler'];
-			}
-	
-			$this->groupKeys = array();
-			
-			while ($result->valid()) {
-				$row = $result->fetchArray($resultType);
-				
-				//get index value
-				$key = $row[$column];
-	
-				//check if index value equals null
-				if (is_null($key)) {
-					throw new \UnexpectedValueException("Null value found when indexing by column '$index'");
-				}
-				else {
-					//obtain index key
-					$key = $typeHandler->getValue($key);
-	
+				while ($result->valid()) {
+					$row = $result->fetchArray($resultType);
+					
+					//validate group value
+					$key = $row[$groupColumn];
+					
+					if (is_null($key)) {
+						throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+					}
+						
+					//obtain group value
+					$key = $groupTypeHandler->getValue($key);
+					
 					if (!is_int($key) && !is_string($key)) {
-						throw new \UnexpectedValueException("Obtained index key is neither an integer or string");
+						throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
 					}
 					
-					if ($group) {
-						if (isset($list[$key])) {
-							$list[$key][] = $this->map($row);
-						}
-						else {
-							$list[$key] = array($this->map($row));
-							$this->groupKeys[] = $key;
-						}
+					//store value
+					if (isset($list[$key])) {
+						$list[$key][] = $this->map($row);
 					}
 					else {
-						$list[$key] = $this->map($row);
+						$list[$key] = [$this->map($row)];
+						$this->groupKeys[] = $key;
 					}
+					
+					$result->next();
 				}
-				
+			}
+		}
+		else {
+			while ($result->valid()) {
+				$list[] = $this->map($result->fetchArray($resultType));
 				$result->next();
 			}
 		}
-	
+		
 		return $list;
 	}
 	

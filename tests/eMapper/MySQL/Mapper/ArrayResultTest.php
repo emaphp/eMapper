@@ -32,7 +32,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user[4]);
 		$this->assertEquals('12:00:00', $user[4]);
 		$this->assertInternalType('string', $user[5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user[5]);
+		$this->assertEquals(self::$blob, $user[5]);
 		
 		$this->assertArrayHasKey('user_id', $user);
 		$this->assertArrayHasKey('user_name', $user);
@@ -52,7 +52,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user['newsletter_time']);
 		$this->assertEquals('12:00:00', $user['newsletter_time']);
 		$this->assertInternalType('string', $user['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user['avatar']);
+		$this->assertEquals(self::$blob, $user['avatar']);
 		
 		//MYSQLI_BOTH
 		$user = self::$mapper->type('array', MYSQLI_BOTH)->query("SELECT * FROM users WHERE user_id = 1");
@@ -76,7 +76,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user[4]);
 		$this->assertEquals('12:00:00', $user[4]);
 		$this->assertInternalType('string', $user[5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user[5]);
+		$this->assertEquals(self::$blob, $user[5]);
 		
 		$this->assertArrayHasKey('user_id', $user);
 		$this->assertArrayHasKey('user_name', $user);
@@ -96,7 +96,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user['newsletter_time']);
 		$this->assertEquals('12:00:00', $user['newsletter_time']);
 		$this->assertInternalType('string', $user['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user['avatar']);
+		$this->assertEquals(self::$blob, $user['avatar']);
 		
 		//MYSQLI_ASSOC
 		$user = self::$mapper->type('array', MYSQLI_ASSOC)->query("SELECT * FROM users WHERE user_id = 1");
@@ -127,7 +127,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user['newsletter_time']);
 		$this->assertEquals('12:00:00', $user['newsletter_time']);
 		$this->assertInternalType('string', $user['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user['avatar']);
+		$this->assertEquals(self::$blob, $user['avatar']);
 		
 		//MYSQLI_NUM
 		$user = self::$mapper->type('array', MYSQLI_NUM)->query("SELECT * FROM users WHERE user_id = 1");
@@ -151,7 +151,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertInternalType('string', $user[4]);
 		$this->assertEquals('12:00:00', $user[4]);
 		$this->assertInternalType('string', $user[5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $user[5]);
+		$this->assertEquals(self::$blob, $user[5]);
 		
 		$this->assertArrayNotHasKey('user_id', $user);
 		$this->assertArrayNotHasKey('user_name', $user);
@@ -225,7 +225,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[0]['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users[0]);
 		$this->assertInternalType('string', $users[0]['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[0]['avatar']);
+		$this->assertEquals(self::$blob, $users[0]['avatar']);
 		
 		$this->assertArrayHasKey(0, $users[0]);
 		$this->assertInternalType('integer', $users[0][0]);
@@ -246,7 +246,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[0][4]);
 		$this->assertArrayHasKey(5, $users[0]);
 		$this->assertInternalType('string', $users[0][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[0][5]);
+		$this->assertEquals(self::$blob, $users[0][5]);
 		
 		//MYSQLI_NUM
 		$users = self::$mapper->type('arr[]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -285,7 +285,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[0][4]);
 		$this->assertArrayHasKey(5, $users[0]);
 		$this->assertInternalType('string', $users[0][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[0][5]);
+		$this->assertEquals(self::$blob, $users[0][5]);
 		
 		//MYSQLI_ASSOC
 		$users = self::$mapper->type('arr[]', MYSQLI_ASSOC)->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -317,7 +317,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[0]['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users[0]);
 		$this->assertInternalType('string', $users[0]['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[0]['avatar']);
+		$this->assertEquals(self::$blob, $users[0]['avatar']);
 		
 		$this->assertArrayNotHasKey(0, $users[0]);
 		$this->assertArrayNotHasKey(1, $users[0]);
@@ -356,7 +356,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[1]['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users[1]);
 		$this->assertInternalType('string', $users[1]['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[1]['avatar']);
+		$this->assertEquals(self::$blob, $users[1]['avatar']);
 		
 		$this->assertArrayHasKey(0, $users[1]);
 		$this->assertInternalType('integer', $users[1][0]);
@@ -377,7 +377,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[1][4]);
 		$this->assertArrayHasKey(5, $users[1]);
 		$this->assertInternalType('string', $users[1][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[1][5]);
+		$this->assertEquals(self::$blob, $users[1][5]);
 		
 		$users = self::$mapper->type('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
@@ -407,7 +407,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[1]['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users[1]);
 		$this->assertInternalType('string', $users[1]['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[1]['avatar']);
+		$this->assertEquals(self::$blob, $users[1]['avatar']);
 		
 		$this->assertArrayNotHasKey(0, $users[1]);
 		$this->assertArrayNotHasKey(1, $users[1]);
@@ -419,12 +419,6 @@ class ArrayResultTest extends MySQLTest {
 		$users = self::$mapper->type('array[0]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
-		$this->assertArrayHasKey(1, $users);
-		$this->assertArrayHasKey(2, $users);
-		$this->assertArrayHasKey(3, $users);
-		$this->assertArrayHasKey(4, $users);
-		$this->assertArrayHasKey(5, $users);
-		
 		$this->assertArrayHasKey(1, $users);
 		$this->assertArrayHasKey(2, $users);
 		$this->assertArrayHasKey(3, $users);
@@ -457,7 +451,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users[1][4]);
 		$this->assertArrayHasKey(5, $users[1]);
 		$this->assertInternalType('string', $users[1][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users[1][5]);
+		$this->assertEquals(self::$blob, $users[1][5]);
 		
 		$users = self::$mapper->type('array[user_name]', MYSQLI_BOTH)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
@@ -487,7 +481,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users['jdoe']['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users['jdoe']);
 		$this->assertInternalType('string', $users['jdoe']['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users['jdoe']['avatar']);
+		$this->assertEquals(self::$blob, $users['jdoe']['avatar']);
 		
 		$this->assertArrayHasKey(0, $users['jdoe']);
 		$this->assertInternalType('integer', $users['jdoe'][0]);
@@ -508,7 +502,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users['jdoe'][4]);
 		$this->assertArrayHasKey(5, $users['jdoe']);
 		$this->assertInternalType('string', $users['jdoe'][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users['jdoe'][5]);
+		$this->assertEquals(self::$blob, $users['jdoe'][5]);
 	}
 	
 	public function testIndexedTypeList() {
@@ -540,7 +534,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users['1']['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users['1']);
 		$this->assertInternalType('string', $users['1']['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users['1']['avatar']);
+		$this->assertEquals(self::$blob, $users['1']['avatar']);
 		
 		$this->assertArrayHasKey(0, $users['1']);
 		$this->assertInternalType('integer', $users['1'][0]);
@@ -561,7 +555,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users['1'][4]);
 		$this->assertArrayHasKey(5, $users['1']);
 		$this->assertInternalType('string', $users['1'][5]);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users['1'][5]);
+		$this->assertEquals(self::$blob, $users['1'][5]);
 		
 		
 		$users = self::$mapper->type('array[user_id:s]')->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -593,7 +587,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $users['1']['newsletter_time']);
 		$this->assertArrayHasKey('avatar', $users['1']);
 		$this->assertInternalType('string', $users['1']['avatar']);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $users['1']['avatar']);
+		$this->assertEquals(self::$blob, $users['1']['avatar']);
 		
 		$this->assertArrayHasKey(0, $users['1']);
 		$this->assertInternalType('integer', $users['1'][0]);
@@ -775,7 +769,7 @@ class ArrayResultTest extends MySQLTest {
 	}
 	
 	public function testIndexedForcedGroupList() {
-		$products = self::$mapper->type('array[!category]')->query("SELECT * FROM products ORDER BY product_id ASC");
+		$products = self::$mapper->type('array<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		
@@ -1011,6 +1005,45 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertArrayHasKey('manufacture_year', $products['Smartphones'][0]);
 		$this->assertInternalType('string', $products['Smartphones'][0]['manufacture_year']);
 		$this->assertEquals('2011', $products['Smartphones'][0]['manufacture_year']);
+	}
+	
+	public function testNumericIndexList() {
+		$users = self::$mapper->type('array[0]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
+		$this->assertInternalType('array', $users);
+		$this->assertCount(5, $users);
+		$this->assertArrayHasKey(1, $users);
+		$this->assertArrayHasKey(2, $users);
+		$this->assertArrayHasKey(3, $users);
+		$this->assertArrayHasKey(4, $users);
+		$this->assertArrayHasKey(5, $users);
+		
+		$this->assertArrayNotHasKey('user_id', $users[1]);
+		$this->assertArrayNotHasKey('user_name', $users[1]);
+		$this->assertArrayNotHasKey('birth_date', $users[1]);
+		$this->assertArrayNotHasKey('last_login', $users[1]);
+		$this->assertArrayNotHasKey('newsletter_time', $users[1]);
+		$this->assertArrayNotHasKey('avatar', $users[1]);
+		
+		$this->assertArrayHasKey(0, $users[1]);
+		$this->assertInternalType('integer', $users[1][0]);
+		$this->assertEquals(1, $users[1][0]);
+		$this->assertArrayHasKey(1, $users[1]);
+		$this->assertInternalType('string', $users[1][1]);
+		$this->assertEquals('jdoe', $users[1][1]);
+		$this->assertArrayHasKey(2, $users[1]);
+		$this->assertInternalType('object', $users[1][2]);
+		$this->assertInstanceOf('DateTime', $users[1][2]);
+		$this->assertEquals('1987-08-10', $users[1][2]->format('Y-m-d'));
+		$this->assertArrayHasKey(3, $users[1]);
+		$this->assertInternalType('object', $users[1][3]);
+		$this->assertInstanceOf('DateTime', $users[1][3]);
+		$this->assertEquals('2013-08-10 19:57:15', $users[1][3]->format('Y-m-d H:i:s'));
+		$this->assertArrayHasKey(4, $users[1]);
+		$this->assertInternalType('string', $users[1][4]);
+		$this->assertEquals('12:00:00', $users[1][4]);
+		$this->assertArrayHasKey(5, $users[1]);
+		$this->assertInternalType('string', $users[1][5]);
+		$this->assertEquals(self::$blob, $users[1][5]);
 	}
 }
 ?>

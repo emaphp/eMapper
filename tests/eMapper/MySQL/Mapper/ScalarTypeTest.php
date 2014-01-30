@@ -182,7 +182,7 @@ class ScalarTypeTest extends MySQLTest {
 		
 		$result = self::$mapper->type('s')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $result);
+		$this->assertEquals(self::$blob, $result);
 		
 		$result = self::$mapper->type('s')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
@@ -410,7 +410,7 @@ class ScalarTypeTest extends MySQLTest {
 		
 		$result = self::$mapper->type('x')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals(file_get_contents(__DIR__ . '/../../avatar.gif'), $result);
+		$this->assertEquals(self::$blob, $result);
 		
 		$result = self::$mapper->type('x')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);

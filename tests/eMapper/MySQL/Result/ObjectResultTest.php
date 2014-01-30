@@ -12,7 +12,7 @@ use Acme\Type\RGBColorTypeHandler;
  * @author emaphp
  * @group mysql
  */
-class ObtectResultTest extends MySQLTest {
+class ObjectResultTest extends MySQLTest {
 	public function testMappingClass() {
 		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
@@ -76,7 +76,7 @@ class ObtectResultTest extends MySQLTest {
 		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
-	
+
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		

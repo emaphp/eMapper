@@ -15,8 +15,8 @@ abstract class GenericMapper {
 	use StatementConfiguration;
 	use StatementNamespaceAggregate;
 	
-	const OBJECT_TYPE_REGEX = '@^(object|obj+)(:[A-z]{1}[\w|\\\\]*)?(\[\]|\[(!?\w+)\]|\[(!?\w+)(:[A-z]{1}[\w]*)\])?$@';
-	const ARRAY_TYPE_REGEX  = '@^(array|arr+)(\[\]|\[(!?\w+)\]|\[(!?\w+)(:[A-z]{1}[\w]*)\])?$@';
+	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
+	const ARRAY_TYPE_REGEX  = '@^(?:array|arr+)(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const SIMPLE_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)(\[\])?@';
 	
 	/**
@@ -192,13 +192,13 @@ abstract class GenericMapper {
 				//object mapping type: object, object:class, object[column], object[column:type], etc
 				if (preg_match(self::OBJECT_TYPE_REGEX, $mapping_type, $matches)) {
 					//get class, if any
-					if (empty($matches[2])) {
+					if (empty($matches[1])) {
 						$defaultClass = 'stdClass';
 						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 					}
 					else {
 						//remove leading ':'
-						$defaultClass = substr($matches[2], 1);
+						$defaultClass = $matches[1];
 						$resultMap = null;
 			
 						//get result map
@@ -212,34 +212,33 @@ abstract class GenericMapper {
 						
 					//generate a new object mapper object
 					$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $parameterMap, $defaultClass);
-						
-					if (!empty($matches[3])) {
-						//add method
-						$mapping_callback = array($mapper, 'mapList');
+					$group = $group_type = $index = $index_type = null;
+					
+					if (count($matches) > 2) {
+						//obtain group
+						if (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
+							$group = $matches[2];
+							$group_type = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
 							
-						//check if index type has been defined
-						if (!empty($matches[6])) {
-							$index = $matches[5];
-							$type = substr($matches[6], 1);
-								
-							//check type specifier
-							if (!in_array($type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized index type '$type'");
+							//check group type
+							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
+								$this->throw_exception("Unrecognized group type '$group_type'");
 							}
 						}
-						//check if index has been specified
-						elseif (!empty($matches[4])) {
-							//get index column
-							$index = $matches[4];
-							$type = null;
+						
+						//obtain index
+						if (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
+							$index = $matches[5];
+							$index_type = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
+								
+							//check index type
+							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
+								$this->throw_exception("Unrecognized index type '$index_type'");
+							}
 						}
-						//no index defined
-						else {
-							$index = $type = null;
-						}
-							
-						//add index to mapper parameters
-						$mapping_params = array($index, $type);
+						
+						//add index and group to mapper parameters
+						$mapping_params = array($index, $index_type, $group, $group_type);
 					}
 					else {
 						//add method
@@ -254,38 +253,40 @@ abstract class GenericMapper {
 					//generate a new array mapper object
 					$mapper = new ArrayTypeMapper($this->typeManager, $resultMap, $parameterMap);
 						
-					if (!empty($matches[2])) {
+					if (count($matches) > 1) {
 						$mapping_callback = array($mapper, 'mapList');
+						$group = $group_type = $index = $index_type = null;
+						
+						//obtain group and group type
+						if (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
+							$group = $matches[1];
+							$group_type = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
 							
-						//check if index type has been defined
-						if (!empty($matches[5])) {
-							$index = $matches[4];
-							$type = substr($matches[5], 1);
-								
-							//check type specifier
-							if (!in_array($type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized index type '$type'");
+							//check group type
+							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
+								$this->throw_exception("Unrecognized group type '$group_type'");
 							}
 						}
-						//check if index has been specified
-						elseif (array_key_exists(3, $matches)) {
-							//get index column
-							$index = $matches[3];
-							$type = null;
-						}
-						//no index defined
-						else {
-							$index = $type = null;
+						
+						//obtain index and index type
+						if (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
+							$index = $matches[4];
+							$index_type = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
+							
+							//check index type
+							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
+								$this->throw_exception("Unrecognized index type '$index_type'");
+							}
 						}
 							
-						//add index to mapper parameters
-						$mapping_params = array($index, $type);
+						//add index and group to mapper parameters
+						$mapping_params = array($index, $index_type, $group, $group_type);
 					}
 					else {
 						$mapping_callback = array($mapper, 'mapResult');
 					}
 				}
-				//simple mapping type: integer, string, array, etc
+				//simple mapping type: integer, string, float, etc
 				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mapping_type, $matches)) {
 					//check type
 					if (!in_array($matches[1], $this->typeManager->getTypesList())) {
@@ -316,7 +317,7 @@ abstract class GenericMapper {
 					
 				//use default mapping type
 				$mapping_callback = array($mapper, 'mapList');
-				$mapping_params = array();
+				$mapping_params = array(null, null, null, null);
 			}
 			
 			/**

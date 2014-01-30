@@ -269,7 +269,7 @@ class ArrayResultTest extends MySQLTest {
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, MYSQLI_NUM);
+		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, null, null, MYSQLI_NUM);
 		$this->assertInternalType('array', $users);
 		
 		$this->assertArrayHasKey(0, $users);
@@ -309,7 +309,7 @@ class ArrayResultTest extends MySQLTest {
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, MYSQLI_ASSOC);
+		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, null, null, MYSQLI_ASSOC);
 		$this->assertInternalType('array', $users);
 		
 		$this->assertArrayHasKey(0, $users);
@@ -409,7 +409,7 @@ class ArrayResultTest extends MySQLTest {
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', null, MYSQL_ASSOC);
+		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', null, null, null, MYSQL_ASSOC);
 		$this->assertInternalType('array', $users);
 		
 		$this->assertArrayHasKey(1, $users);
@@ -449,7 +449,7 @@ class ArrayResultTest extends MySQLTest {
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 0, null, MYSQLI_NUM);
+		$users = $mapper->mapList(new MySQLResultInterface($result), 0, null, null, null, MYSQLI_NUM);
 		$this->assertInternalType('array', $users);
 		
 		$this->assertArrayHasKey(1, $users);
@@ -813,7 +813,7 @@ class ArrayResultTest extends MySQLTest {
 	public function testIndexedForcedGroupList() {
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), '!category');
+		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		$this->assertArrayHasKey('Clothes', $products);
