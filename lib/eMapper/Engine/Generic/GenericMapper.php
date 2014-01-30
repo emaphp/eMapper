@@ -161,6 +161,9 @@ abstract class GenericMapper {
 			}
 		}
 		
+		//current instance copy
+		$safe_copy = null;
+		
 		if (is_null($cached_value)) {
 			/**
 			 * GENERATE QUERY
@@ -391,13 +394,17 @@ abstract class GenericMapper {
 			 */
 			
 			if (isset($resultMap)) {
-				$instance = $this->safe_copy();
+				if (is_null($safe_copy)) {
+					$safe_copy = $this->safe_copy();
+				}
 				
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
-							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$i], $instance);
+							$indexes = array_keys($mapped_result[$key]);
+							
+							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
+								$mapper->relate($mapped_result[$key][$indexes[$i]], $safe_copy);
 							}
 						}
 					}
@@ -405,12 +412,12 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 							
 						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $instance);
+							$mapper->relate($mapped_result[$k], $safe_copy);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $instance);
+					$mapper->relate($mapped_result, $safe_copy);
 				}
 			}
 			
@@ -422,7 +429,7 @@ abstract class GenericMapper {
 			if (isset($cacheProvider) && $cacheable) {
 				//store value
 				if (array_key_exists('cache.ttl', $this->config)) {
-					$cacheProvider->store($cacheKey, $mapped_result, (int) $this->config['cache.ttl']);
+					$cacheProvider->store($cacheKey, $mapped_result, intval($this->config['cache.ttl']));
 				}
 				else {
 					$cacheProvider->store($cacheKey, $mapped_result);
@@ -438,18 +445,22 @@ abstract class GenericMapper {
 		 */
 		
 		if (array_key_exists('callback.each', $this->config)) {
-			$each_callback = $this->config['callback.each'];
-				
 			//generate a new safe instance
-			$new_instance = $this->safe_copy();
-		
+			if (is_null($safe_copy)) {
+				$safe_copy = $this->safe_copy();
+			}
+			
+			$each_callback = $this->config['callback.each'];
+
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
-							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
-								$each_callback->__invoke($mapped_result[$key][$i], $new_instance);
+							$indexes = array_keys($mapped_result[$key]);
+							
+							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
+								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $safe_copy);
 							}
 						}
 					}
@@ -457,26 +468,28 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 		
 						for ($i = 0, $n = count($keys); $i < $n; $i++) {
-							$each_callback->__invoke($mapped_result[$keys[$i]], $new_instance);
+							$each_callback->__invoke($mapped_result[$keys[$i]], $safe_copy);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$each_callback->__invoke($mapped_result, $new_instance);
+					$each_callback->__invoke($mapped_result, $safe_copy);
 				}
 			}
 			else {
 				//this closure avoids getting "expected to be a reference"-style messages
-				$c = function (&$mapped_result) use ($each_callback, $new_instance) {
-					call_user_func($each_callback, $mapped_result, $new_instance);
+				$c = function (&$mapped_result) use ($each_callback, $safe_copy) {
+					call_user_func($each_callback, $mapped_result, $safe_copy);
 				};
 		
 				//call traverse callback
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
-							for ($i = 0, $n = count($mapped_result[$key]); $i < $n; $i++) {
-								$c->__invoke($mapped_result[$key][$i]);
+							$indexes = array_keys($mapped_result[$key]);
+							
+							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
+								$c->__invoke($mapped_result[$key][$indexes[$i]]);
 							}
 						}
 					}
