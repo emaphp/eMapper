@@ -6,6 +6,7 @@ use Acme\Reflection\Parameter\ExampleUser;
 use Acme\Reflection\Parameter\UserEntity;
 
 /**
+ * Tests building a parameter wrapper for various types of values
  * 
  * @author emaphp
  * @group reflection

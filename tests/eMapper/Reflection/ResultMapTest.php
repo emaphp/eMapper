@@ -4,7 +4,8 @@ namespace eMapper\Reflection;
 use eMapper\Reflection\Profiler;
 
 /**
- * 
+ * Tests parsing result map annotations through the Profiler class
+ *  
  * @author emaphp
  * @group reflection
  */

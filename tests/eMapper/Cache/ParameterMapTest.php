@@ -6,6 +6,7 @@ use eMapper\Cache\Key\CacheKey;
 use Acme\Entity\User;
 
 /**
+ * Tests building cache key through the CacheKey class using parameter maps
  * 
  * @author emaphp
  * @group cache

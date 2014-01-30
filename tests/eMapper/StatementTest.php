@@ -7,6 +7,7 @@ use Acme\Parameter\ProductParameterMap;
 use eMapper\Statement\StatementNamespace;
 
 /**
+ * Tests creating Statement and StatementNamespace instances and applying different configuration
  * 
  * @author emaphp
  * @group statement
@@ -111,20 +112,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('callback.query', $config->config);
 		$this->assertInstanceOf('Closure', $config->config['callback.query']);
 	}
-	
-	/**
-	 * @expectedException InvalidArgumentException
-	 */
-	public function testConfigResultCallback0() {
-		$config = Statement::config()->result_callback(0);
-	}
-	
-	public function testConfigResultCallback1() {
-		$config = Statement::config()->result_callback(function() {});
-		$this->assertArrayHasKey('callback.result', $config->config);
-		$this->assertInstanceOf('Closure', $config->config['callback.result']);
-	}
-	
+		
 	/**
 	 * @expectedException InvalidArgumentException
 	 */

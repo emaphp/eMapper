@@ -17,10 +17,10 @@ trait StatementConfiguration {
 	
 		//check if mapping arguments are defined
 		if (empty($args)) {
-			return $this->merge(array('map.type' => $mapping_type));
+			return $this->merge(['map.type' => $mapping_type]);
 		}
 	
-		return $this->merge(array('map.type' => $mapping_type, 'map.params' => $args));
+		return $this->merge(['map.type' => $mapping_type, 'map.params' => $args]);
 	}
 	
 	/**
@@ -38,7 +38,7 @@ trait StatementConfiguration {
 			}
 		}
 		
-		return $this->merge(array('map.result' => $result_map));
+		return $this->merge(['map.result' => $result_map]);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ trait StatementConfiguration {
 			}
 		}
 		
-		return $this->merge(array('map.parameter' => $parameter_map));
+		return $this->merge(['map.parameter' => $parameter_map]);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Method 'each' expects a callable value.");
 		}
 		
-		return $this->merge(array('callback.each' => $callable));
+		return $this->merge(['callback.each' => $callable]);
 	}
 	
 	/**
@@ -82,7 +82,7 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Method 'filter' expects a callable value.");
 		}
 		
-		return $this->merge(array('callback.filter' => $callable));
+		return $this->merge(['callback.filter' => $callable]);
 	}
 
 	/**
@@ -95,7 +95,7 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Method 'no_rows' expects a callable value.");
 		}
 		
-		return $this->merge(array('callback.no_rows' => $callable));
+		return $this->merge(['callback.no_rows' => $callable]);
 	}
 	
 	/**
@@ -109,20 +109,7 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Method 'query_override' expects a callable value.");
 		}
 		
-		return $this->merge(array('callback.query' => $callable));
-	}
-	
-	/**
-	 * Sets a callback which is called with the obtained result
-	 * @param callable $callable
-	 * @return StatementConfiguration
-	 */
-	public function result_callback($callable) {
-		if (!is_callable($callable)) {
-			throw new \InvalidArgumentException("Method 'result_callback' expects a callable value.");
-		}
-		
-		return $this->merge(array('callback.result' => $callable));
+		return $this->merge(['callback.query' => $callable]);
 	}
 	
 	/**
@@ -140,7 +127,7 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Cache TTL is not a valid integer.");
 		}
 	
-		return $this->merge(array('cache.key' => $cache_key, 'cache.ttl' => $cache_ttl));
+		return $this->merge(['cache.key' => $cache_key, 'cache.ttl' => $cache_ttl]);
 	}
 	
 	/**
@@ -154,6 +141,6 @@ trait StatementConfiguration {
 			throw new \InvalidArgumentException("Depth limit must be defined as a valid integer.");
 		}
 		
-		return $this->merge(array('depth.limit' => $depth));
+		return $this->merge(['depth.limit' => $depth]);
 	}
 }

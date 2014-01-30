@@ -4,7 +4,7 @@ namespace eMapper;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 
 /**
- * 
+ * Test setting a environment instance through the EnvironmentProvider class
  * @author emaphp
  * @group environment
  */

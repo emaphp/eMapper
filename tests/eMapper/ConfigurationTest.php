@@ -4,6 +4,7 @@ namespace eMapper;
 use Acme\Configuration\ConfigurationContainer;
 
 /**
+ * Tests setting configuration values through the Configuration trait
  * 
  * @author emaphp
  * @group config

@@ -2,6 +2,7 @@
 namespace eMapper\Regex;
 
 /**
+ * Tests parsing an array mapping expression
  * 
  * @author emaphp
  * @group regex

@@ -5,11 +5,16 @@ use eMapper\Cache\Key\CacheKey;
 use eMapper\Type\TypeManager;
 
 /**
+ * Tests building cache key through the CacheKey class with different type modifiers and ranges
  * 
  * @author emaphp
  * @group cache
  */
 class ArgumentCacheKeyTest extends \PHPUnit_Framework_TestCase {
+	/**
+	 * Cache key generator
+	 * @var CacheKey
+	 */
 	public $cacheKey;
 	
 	public function __construct() {

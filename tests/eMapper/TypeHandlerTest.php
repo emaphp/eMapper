@@ -5,6 +5,7 @@ use Acme\Type\RGBColorTypeHandler;
 use Acme\RGBColor;
 
 /**
+ * Tests a custom type handler class
  * 
  * @author emaphp
  * @group typehandler

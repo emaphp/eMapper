@@ -5,6 +5,7 @@ use Acme\Type\ValueExporter;
 use Acme\Type\ValueCollection;
 
 /**
+ * Tests the ValueExport trait conversion methods
  * 
  * @author emaphp
  * @group value

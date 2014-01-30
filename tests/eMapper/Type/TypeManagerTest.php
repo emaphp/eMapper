@@ -5,6 +5,7 @@ use eMapper\Reflection\Profiler;
 use Acme\Type\RGBColorTypeHandler;
 
 /**
+ * Tests default and custom types defined in TypeManager class
  * 
  * @author emaphp
  * @group type

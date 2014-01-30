@@ -58,7 +58,7 @@ trait Configuration {
 			throw new \InvalidArgumentException("Option name must be a valid string");
 		}
 	
-		return $this->merge(array($name => $value));
+		return $this->merge([$name => $value]);
 	}
 	
 	/**
