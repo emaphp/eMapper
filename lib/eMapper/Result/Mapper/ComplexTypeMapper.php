@@ -7,6 +7,7 @@ use eMapper\Type\TypeHandler;
 use eMapper\Result\Relation\MacroExpression;
 use eMapper\Result\Relation\StatementCallback;
 use eMapper\Result\Relation\QueryCallback;
+use eMapper\Result\Relation\StoredProcedureCallback;
 
 abstract class ComplexTypeMapper {
 	/**
@@ -87,7 +88,7 @@ abstract class ComplexTypeMapper {
 				$this->relationList[$name] = new QueryCallback($field, $this->parameterMap);
 			}
 			elseif ($field->has('procedure')) {
-				$this->relationList[$name] = new StatementCallback($field, $this->parameterMap);
+				$this->relationList[$name] = new StoredProcedureCallback($field, $this->parameterMap);
 			}
 			else {
 				//get column

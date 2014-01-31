@@ -203,7 +203,7 @@ class MySQLMapper extends GenericMapper {
 		array_unshift($args, $query);
 	
 		//call query method
-		return (empty($options)) ? call_user_func_array(array($this, 'query'), $args) : call_user_func_array(array($this->merge($options, true), 'query'), $args);
+		return (empty($options)) ? call_user_func_array(array($this, 'query'), $args) : call_user_func_array(array($this->merge($options->config, true), 'query'), $args);
 	}
 	
 	/**

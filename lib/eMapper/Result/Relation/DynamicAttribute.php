@@ -78,6 +78,7 @@ abstract class DynamicAttribute {
 	protected function parseConfig($attribute) {
 		$this->config = array();
 		
+		//TODO: parse 'var' annotation as well
 		if ($attribute->has('type')) {
 			$this->config['map.type'] = $attribute->get('type');
 		}

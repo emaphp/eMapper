@@ -3,6 +3,7 @@ namespace eMapper\MySQL;
 
 use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Statement\Statement;
 /**
  * 
  * @author emaphp
@@ -46,8 +47,14 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 				self::$config['user'],
 				self::$config['password']);
 		
+		//add 'color' type
 		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 		
+		//add some statements
+		self::$mapper->addStatement(new Statement('getProduct', "SELECT * FROM products WHERE product_id = #{productId}"));		
+		self::$mapper->addStatement(new Statement('getUser', "SELECT * FROM users WHERE user_id = %{int}", Statement::type('array')));
+		
+		//store avatar image
 		self::$blob = file_get_contents(__DIR__ . '/../avatar.gif');
 	}
 	

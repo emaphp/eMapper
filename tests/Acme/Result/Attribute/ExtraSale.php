@@ -3,11 +3,12 @@ namespace Acme\Result\Attribute;
 
 /**
  * @entity
+ * @author emaphp
  */
-class Sale {
+class ExtraSale {
 	/**
 	 * @column product_id
-	 * @var integer
+	 * @type integer
 	 */
 	public $productId;
 	
@@ -18,15 +19,15 @@ class Sale {
 	public $userId;
 	
 	/**
-	 * @query "SELECT * FROM products WHERE product_id = %{i}"
-	 * @arg #productId
-	 * @type obj
+	 * @stmt getProduct
+	 * @type array
 	 */
 	public $product;
 	
 	/**
-	 * @query "SELECT * FROM users WHERE user_id = #{userId}"
-	 * @type obj:Acme\Result\Attribute\User
+	 * @stmt getUser
+	 * @arg #userId
+	 * @type obj
 	 */
 	public $user;
 }
