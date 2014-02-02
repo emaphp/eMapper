@@ -13,8 +13,8 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	public $program;
 	
-	public function __construct($attribute, $parameterMap = null) {
-		parent::__construct($attribute, $parameterMap);
+	public function __construct($name, $attribute) {
+		parent::__construct($name, $attribute);
 		
 		//obtain program source
 		$this->program = new SimpleProgram($attribute->get('eval'));
@@ -22,12 +22,12 @@ class MacroExpression extends DynamicAttribute {
 	
 	/**
 	 * Evaluates all attribute arguments against current instance
-	 * @param ParameterWrapper $row
+	 * @param mixed $row
 	 * @return array
 	 */
-	protected function evaluateArgs($row) {
+	protected function evaluateArgs($row, $parameterMap) {
 		$args = array();
-		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
+		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
 			$args[] = $wrapper;
@@ -45,8 +45,8 @@ class MacroExpression extends DynamicAttribute {
 		return $args;
 	}
 	
-	public function evaluate($row, $mapper) {
-		$args = $this->evaluateArgs($row);
+	public function evaluate($row, $parameterMap, $mapper) {
+		$args = $this->evaluateArgs($row, $parameterMap);
 		$environmentId = $mapper->config['environment.id'];
 		
 		//obtain environment

@@ -11,16 +11,16 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 */
 	public $procedure;
 	
-	public function __construct($attribute) {
-		parent::__construct($attribute);
+	public function __construct($name, $attribute) {
+		parent::__construct($name, $attribute);
 		
 		//obtain procedure name
 		$this->procedure = $attribute->get('procedure');
 	}
 	
-	protected function evaluateArgs($row) {
+	protected function evaluateArgs($row, $parameterMap) {
 		$args = array();
-		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
+		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 	
 		foreach ($this->args as $arg) {
 			if ($arg instanceof PropertyReader) {
@@ -34,9 +34,9 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return $args;
 	}
 	
-	public function evaluate($row, $mapper) {
+	public function evaluate($row, $parameterMap, $mapper) {
 		//build argument list
-		$args = $this->evaluateArgs($row);
+		$args = $this->evaluateArgs($row, $parameterMap);
 		
 		//merge mapper configuration
 		$this->mergeConfig($mapper->config);

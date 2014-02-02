@@ -14,7 +14,7 @@ use Acme\Type\RGBColorTypeHandler;
  */
 class ObjectResultTest extends MySQLTest {
 	public function testMappingClass() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new MySQLResultInterface($result));
 		
@@ -39,7 +39,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testMappingClassList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result));
 		
@@ -73,7 +73,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testMappingClassIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
 
@@ -108,7 +108,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testMappingClassStringIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 'string');
 	
@@ -143,7 +143,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testResultMap() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap', null, null);
+		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new MySQLResultInterface($result));
 		
@@ -165,7 +165,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testResultMapList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap', null, null);
+		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result));
 		
@@ -196,7 +196,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testResultMapIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap', null, null);
+		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
 	
@@ -227,7 +227,7 @@ class ObjectResultTest extends MySQLTest {
 	}
 	
 	public function testResultMapStringIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap', null, null);
+		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 's');
 	
@@ -262,7 +262,7 @@ class ObjectResultTest extends MySQLTest {
 		$typeManager = new TypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', null, null);
+		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
 		$product = $mapper->mapResult(new MySQLResultInterface($result));
 	
@@ -287,7 +287,7 @@ class ObjectResultTest extends MySQLTest {
 		$typeManager = new TypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', null, null);
+		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultInterface($result));
 		
@@ -321,7 +321,7 @@ class ObjectResultTest extends MySQLTest {
 		$typeManager = new TypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', null, null);
+		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultInterface($result), 'code');
 	

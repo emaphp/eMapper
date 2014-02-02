@@ -4,7 +4,6 @@ namespace eMapper\Statement;
 use eMapper\Statement\Configuration\StatementConfigurationContainer;
 use eMapper\Statement\Aggregate\StatementAggregate;
 
-
 class Statement {
 	use StatementAggregate;
 	

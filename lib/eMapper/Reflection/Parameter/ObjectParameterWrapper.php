@@ -4,89 +4,60 @@ namespace eMapper\Reflection\Parameter;
 use eMapper\Reflection\Profiler;
 
 class ObjectParameterWrapper extends ParameterWrapper {
+	/**
+	 * Wrapped value class
+	 * @var string
+	 */
 	public $classname;
 	
 	public function __construct($value, $parameterMap = null) {
 		parent::__construct($value, $parameterMap);
 		$this->classname = get_class($value);
 		
-		if (isset($parameterMap)) {
-			$properties = Profiler::getClassProperties($parameterMap);
-			$reflectionClass = ($this->classname == $parameterMap) ? Profiler::getReflectionClass($this->classname) : new \ReflectionClass($value);
-			
-			foreach ($properties as $name => $annotations) {
-				$this->config[$name] = array();
+		$classname = isset($this->parameterMap) ? $this->parameterMap : $this->classname;
+		$this->config = Profiler::getClassProfile($classname)->propertiesConfig;
+		$reflectionClass = Profiler::getClassProfile($this->classname)->reflectionClass;
+		$filtered = array();
+		
+		foreach ($this->config as $property => $config) {
+			if (isset($config->getter)) {
+				//validate getter method
+				$getter = $config->getter;
 					
-				if ($annotations->has('getter')) {
-					//validate getter method
-					$getter = $annotations->get('getter');
-						
-					if (!$reflectionClass->hasMethod($getter)) {
-						throw new \UnexpectedValueException(sprintf("Getter method '$getter' not found in class %s", get_class($value)));
-					}
-						
-					$method = $reflectionClass->getMethod($getter);
-						
-					if (!$method->isPublic()) {
-						throw new \UnexpectedValueException(sprintf("Getter method '$getter' is not accessible in class %s", get_class($value)));
-					}
-						
-					$this->config[$name]['getter'] = $getter;
-				}
-				else {
-					$property = $annotations->has('property') ? $annotations->get('property') : $name;
-				
-					if (isset($reflectionClass)) {
-						if (!$reflectionClass->hasProperty($property)) {
-							throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", get_class($value)));
-						}
-				
-						$rp = $reflectionClass->getProperty($property);
-				
-						if (!$rp->isPublic()) {
-							throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", get_class($value)));
-						}
-					}
-					else {
-						if (!array_key_exists($property, $value)) {
-							throw new \UnexpectedValueException("Key '$property' defined in class {$this->parameterMap} was not found on given parameter");
-						}
-					}
-				
-					$this->config[$name]['property'] = $property;
+				if (!$reflectionClass->hasMethod($getter)) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' not found in class %s", $classname));
 				}
 					
-				//obtain property type
-				if ($annotations->has('type')) {
-					$this->config[$name]['type'] = $annotations->get('type');
+				$method = $reflectionClass->getMethod($getter);
+					
+				if (!$method->isPublic()) {
+					throw new \UnexpectedValueException(sprintf("Getter method '$getter' is not accessible in class %s", $classname));
 				}
-				elseif ($annotations->has('var')) {
-					$this->config[$name]['var'] = $annotations->get('var');
+			}
+			elseif (is_null($this->parameterMap)) {
+				$rp = $reflectionClass->getProperty($config->property);
+				
+				if (!$rp->isPublic()) {
+					$filtered[$config->property] = 0;
+				}
+			}
+			elseif ($this->classname != $this->parameterMap) {
+				$property = $config->property;
+					
+				if (!$reflectionClass->hasProperty($property)) {
+					throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", $classname));
+				}
+				
+				$rp = $reflectionClass->getProperty($property);
+				
+				if (!$rp->isPublic()) {
+					throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", $classname));
 				}
 			}
 		}
-		else {
-			$reflectionClass = Profiler::getReflectionClass($this->classname);
-			$properties = Profiler::getClassProperties($this->classname);
-			
-			foreach ($properties as $name => $annotations) {
-				//ignore non-public properties
-				$property = $reflectionClass->getProperty($name);
-				
-				if (!$property->isPublic()) {
-					continue;
-				}
-				
-				$this->config[$name] = array();
-				
-				//obtain property type
-				if ($annotations->has('type')) {
-					$this->config[$name]['type'] = $annotations->get('type');
-				}
-				elseif ($annotations->has('var')) {
-					$this->config[$name]['var'] = $annotations->get('var');
-				}
-			}
+		
+		if (!empty($filtered)) {
+			$this->config = array_diff_key($this->config, $filtered);
 		}
 	}
 	
@@ -98,12 +69,12 @@ class ObjectParameterWrapper extends ParameterWrapper {
 			$vars = array();
 				
 			foreach ($this->config as $name => $config) {
-				if (array_key_exists('getter', $config)) {
-					$getter = $config['getter'];
-					$vars[$name] = $this->value->$getter;
+				if (isset($config->getter)) {
+					$getter = $config->getter;
+					$vars[$name] = $this->value->$getter();
 				}
 				else {
-					$property = $config['property'];
+					$property = $config->property;
 					$vars[$name] = $this->value->$property;
 				}
 			}
@@ -117,16 +88,14 @@ class ObjectParameterWrapper extends ParameterWrapper {
 	}
 	
 	public function offsetGet($offset) {
-		if (array_key_exists('getter', $this->config[$offset])) {
-			$getter = $this->config[$offset]['getter'];
+		if (isset($this->config[$offset]->getter)) {
+			$getter = $this->config[$offset]->getter;
 			return $this->value->$getter();
 		}
-		elseif (array_key_exists('property', $this->config[$offset])) {
-			$property = $this->config[$offset]['property'];
+		else {
+			$property = $this->config[$offset]->property;
 			return $this->value->$property;
 		}
-		
-		return $this->value->$offset;
 	}
 }
 ?>

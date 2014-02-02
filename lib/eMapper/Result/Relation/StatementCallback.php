@@ -8,16 +8,16 @@ class StatementCallback extends DynamicAttribute {
 	 */
 	public $statement;
 	
-	public function __construct($attribute) {
-		parent::__construct($attribute);
+	public function __construct($name, $attribute) {
+		parent::__construct($name, $attribute);
 		
 		//obtain statement id
 		$this->statement = $attribute->get('stmt');
 	}
 	
-	public function evaluate($row, $mapper) {
+	public function evaluate($row, $parameterMap, $mapper) {
 		//build argument list
-		$args = $this->evaluateArgs($row);
+		$args = $this->evaluateArgs($row, $parameterMap);
 		array_unshift($args, $this->statement);
 		
 		//merge mapper configuration

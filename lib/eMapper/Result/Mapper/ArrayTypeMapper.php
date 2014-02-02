@@ -6,6 +6,54 @@ use eMapper\Reflection\Profiler;
 
 class ArrayTypeMapper extends ComplexTypeMapper {
 	/**
+	 * Builds a result map property list
+	 * @throws \UnexpectedValueException
+	 */
+	protected function validateResultMap() {
+		//get relations
+		$this->relationList = Profiler::getClassProfile($this->resultMap)->dynamicAttributes;
+	
+		//obtain mapped properties
+		$this->propertyList = Profiler::getClassProfile($this->resultMap)->propertiesConfig;
+	
+		//store type handlers while on it
+		$this->typeHandlers = array();
+	
+		foreach ($this->propertyList as $name => $config) {
+			//validate column reference
+			if (!array_key_exists($config->column, $this->columnTypes)) {
+				throw new \UnexpectedValueException("Column '{$config->column}' was not found on this result");
+			}
+				
+			//obtain type handler
+			if (isset($config->type)) {
+				$typeHandler = $this->typeManager->getTypeHandler($config->type);
+	
+				if ($typeHandler == false) {
+					throw new \UnexpectedValueException("No typehandler assigned to type '{$config->type}' defined at property $name");
+				}
+	
+				$this->typeHandlers[$name] = $typeHandler;
+			}
+			elseif (isset($config->suggestedType)) {
+				$typeHandler = $this->typeManager->getTypeHandler($config->suggestedType);
+	
+				if ($typeHandler == false) {
+					$type = $this->columnTypes[$config->column];
+					$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
+				}
+				else {
+					$this->typeHandlers[$name] = $typeHandler;
+				}
+			}
+			else {
+				$type = $this->columnTypes[$config->column];
+				$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
+			}
+		}
+	}
+	
+	/**
 	 * Returns a mapped row from a fetched array
 	 * @param array $row
 	 * @return array
@@ -16,17 +64,14 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	
 		if (is_null($this->resultMap)) {
 			foreach ($row as $column => $value) {
-				$typeHandler = $this->typeManager->getTypeHandler($this->columnTypes[$column]);
+				$typeHandler = $this->columnHandler($column);
 				$result[$column] = $typeHandler->getValue($value);
 			}
 		}
 		else {
-			//get result map properties
-			$fields = Profiler::getClassProperties($this->resultMap);
-				
-			foreach ($fields as $name => $field) {
-				$column = $this->propertyList[$name]['column'];
-				$typeHandler = $this->propertyList[$name]['handler'];
+			foreach ($this->propertyList as $name => $config) {
+				$column = $config->column;
+				$typeHandler = $this->typeHandlers[$name];
 				$result[$name] = is_null($row[$column]) ? null : $typeHandler->getValue($row[$column]);
 			}
 		}
@@ -206,9 +251,9 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $mapper) {
+	public function relate(&$row, $parameterMap, $mapper) {
 		foreach ($this->relationList as $property => $relation) {
-			$row[$property] = $relation->evaluate($row, $mapper);
+			$row[$property] = $relation->evaluate($row, $parameterMap, $mapper);
 		}
 	}
 }

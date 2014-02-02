@@ -4,7 +4,6 @@ namespace eMapper\Cache\Key;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Type\ValueExport;
-use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
 class CacheKey {
@@ -146,12 +145,12 @@ class CacheKey {
 		$type = null;
 		
 		if (array_key_exists($property, $arg->config)) {
-			if (array_key_exists('type', $arg->config[$property])) {
-				$type = $arg->config[$property]['type'];
+			if (isset($arg->config[$property]->type)) {
+				$type = $arg->config[$property]->type;
 			}
-			elseif (array_key_exists('var', $arg->config[$property])) {
-				$type = $arg->config[$property]['var'];
-			
+			elseif (isset($arg->config[$property]->suggestedType)) {
+				$type = $arg->config[$property]->suggestedType;
+				
 				if ($this->typeManager->getTypeHandler($type) === false) {
 					$type = null;
 				}

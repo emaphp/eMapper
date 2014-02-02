@@ -18,7 +18,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('string', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\StringTypeHandler', $typeManager->typeHandlers['string']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\StringTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\StringTypeHandler')->classAnnotations;
 		$this->assertFalse($profile->has('unquoted'));
 		
 		$this->assertEquals('string', $typeManager->aliases['s']);
@@ -28,7 +28,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('boolean', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\BooleanTypeHandler', $typeManager->typeHandlers['boolean']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\BooleanTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BooleanTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 		
 		$this->assertEquals('boolean', $typeManager->aliases['b']);
@@ -38,7 +38,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('integer', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\IntegerTypeHandler', $typeManager->typeHandlers['integer']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\IntegerTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\IntegerTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 		
 		$this->assertEquals('integer', $typeManager->aliases['i']);
@@ -48,7 +48,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('float', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->typeHandlers['float']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\FloatTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\FloatTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 		
 		$this->assertEquals('float', $typeManager->aliases['f']);
@@ -59,7 +59,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('blob', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\BlobTypeHandler', $typeManager->typeHandlers['blob']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\BlobTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BlobTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 		
 		$this->assertEquals('blob', $typeManager->aliases['x']);
@@ -69,7 +69,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('DateTime', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\DatetimeTypeHandler', $typeManager->typeHandlers['DateTime']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\DatetimeTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DatetimeTypeHandler')->classAnnotations;
 		$this->assertFalse($profile->has('unquoted'));
 		
 		$this->assertEquals('DateTime', $typeManager->aliases['dt']);
@@ -79,7 +79,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('date', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\DateTypeHandler', $typeManager->typeHandlers['date']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\DateTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DateTypeHandler')->classAnnotations;
 		$this->assertFalse($profile->has('unquoted'));
 		
 		$this->assertEquals('date', $typeManager->aliases['d']);
@@ -88,7 +88,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('ustring', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\UnquotedStringTypeHandler', $typeManager->typeHandlers['ustring']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\UnquotedStringTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\UnquotedStringTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 		
 		$this->assertEquals('ustring', $typeManager->aliases['us']);
@@ -98,7 +98,7 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('null', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\NullTypeHandler', $typeManager->typeHandlers['null']);
 		
-		$profile = Profiler::getClassAnnotations('eMapper\Type\Handler\NullTypeHandler');
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\NullTypeHandler')->classAnnotations;
 		$this->assertTrue($profile->has('unquoted'));
 	}
 	

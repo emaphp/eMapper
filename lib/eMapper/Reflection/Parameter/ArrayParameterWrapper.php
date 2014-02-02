@@ -8,28 +8,18 @@ class ArrayParameterWrapper extends ParameterWrapper {
 		parent::__construct($value, $parameterMap);
 		
 		if (isset($parameterMap)) {
-			$properties = Profiler::getClassProperties($parameterMap);
+			$this->config = Profiler::getClassProfile($parameterMap)->propertiesConfig;
 			
-			foreach ($properties as $name => $annotations) {
-				$this->config[$name] = array();
+			foreach ($this->config as $property => $config) {
+				$key = $config->property;
 				
-				//get references key
-				$property = $annotations->has('property') ? $annotations->get('property') : $name;
-				
-				if (!array_key_exists($property, $value)) {
-					throw new \UnexpectedValueException("Key '$property' defined in class $parameterMap was not found on given parameter");
-				}
-				
-				$this->config[$name]['property'] = $property;
-				
-				//obtain property type
-				if ($annotations->has('type')) {
-					$this->config[$name]['type'] = $annotations->get('type');
-				}
-				elseif ($annotations->has('var')) {
-					$this->config[$name]['var'] = $annotations->get('var');
+				if (!array_key_exists($key, $value)) {
+					throw new \UnexpectedValueException("Key '$key' defined in class $parameterMap was not found on given parameter");
 				}
 			}
+		}
+		else {
+			$this->config = array();
 		}
 	}
 	
@@ -41,7 +31,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			$vars = array();
 			
 			foreach ($this->config as $name => $config) {
-				$key = $config['property'];
+				$key = $config->property;
 				$vars[$name] = $this->value[$key];
 			}
 			
@@ -62,7 +52,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			return $this->value[$offset];
 		}
 		
-		$key = $this->config[$offset]['property'];
+		$key = $this->config[$offset]->property;
 		return $this->value[$key];
 	}
 }

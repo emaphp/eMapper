@@ -41,8 +41,8 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
 		
-		$this->assertEquals('str', $wrapper->config['name']['type']);
-		$this->assertEquals('string', $wrapper->config['surname']['var']);
+		$this->assertEquals('str', $wrapper->config['name']->type);
+		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testArrayObject() {
@@ -74,8 +74,8 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
 		
-		$this->assertEquals('str', $wrapper->config['name']['type']);
-		$this->assertEquals('string', $wrapper->config['surname']['var']);
+		$this->assertEquals('str', $wrapper->config['name']->type);
+		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testStdClass() {
@@ -113,8 +113,8 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
 		
-		$this->assertEquals('str', $wrapper->config['name']['type']);
-		$this->assertEquals('string', $wrapper->config['surname']['var']);
+		$this->assertEquals('str', $wrapper->config['name']->type);
+		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testObject() {

@@ -13,48 +13,147 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	protected $defaultClass;
 	
 	/**
+	 * Stores associated type handler for each column
+	 * @var array
+	 */
+	protected $columns;
+	
+	/**
 	 * ObjectMapper constructor
 	 * @param TypeManager $typeManager
 	 * @param string $resultMap
 	 * @param string $defaultClass
 	 */
-	public function __construct(TypeManager $typeManager, $resultMap = null, $parameterMap = null, $defaultClass = 'stdClass') {
-		parent::__construct($typeManager, $resultMap, $parameterMap);
+	public function __construct(TypeManager $typeManager, $resultMap = null, $defaultClass = 'stdClass') {
+		parent::__construct($typeManager, $resultMap);
+		
+		if ($defaultClass == 'stdClass' && isset($this->resultMap)) {
+			$profile = Profiler::getClassProfile($this->resultMap);
+			
+			if ($profile->classAnnotations->has('defaultClass')) {
+				$defaultClass = $profile->classAnnotations->get('defaultClass');
+			}
+		}
+		
 		$this->defaultClass = $defaultClass;
+	}
+	
+	protected function validateResultMap() {
+		//get relations
+		$this->relationList = Profiler::getClassProfile($this->resultMap)->dynamicAttributes;
+		
+		//obtain mapped properties
+		$this->propertyList = Profiler::getClassProfile($this->resultMap)->propertiesConfig;
+		
+		//store type handlers while on it
+		$this->typeHandlers = array();
+		
+		//get reflection class in order to validate setter methods
+		$reflectionClass = ($this->defaultClass != 'stdClass' && $this->defaultClass != 'ArrayObject') ? Profiler::getClassProfile($this->defaultClass)->reflectionClass : null;		
+		
+		foreach ($this->propertyList as $name => $config) {
+			//validate column
+			if (!array_key_exists($config->column, $this->columnTypes)) {
+				throw new \UnexpectedValueException("Column '{$config->column}' was not found on this result");
+			}
+			
+			if (isset($reflectionClass)) {
+				if (isset($config->setter)) {
+					if (!$reflectionClass->hasMethod($config->setter)) {
+						throw new \UnexpectedValueException("Setter method '$config->setter' was not found in class {$this->defaultClass}");
+					}
+				
+					$reflectionMethod = $reflectionClass->getMethod($config->setter);
+				
+					if (!$reflectionMethod->isPublic()) {
+						throw new \UnexpectedValueException("Setter method '$config->setter' is not public in class {$this->defaultClass}");
+					}
+				}
+				elseif ($this->resultMap != $this->defaultClass) {
+					if (!$reflectionClass->hasProperty($name)) {
+						throw new \UnexpectedValueException("Property '$name' was not found in class {$this->defaultClass}");
+					}
+				
+					$reflectionProperty = $reflectionClass->getProperty($name);
+				
+					if (!$reflectionProperty->isPublic()) {
+						throw new \UnexpectedValueException("Property '$name' is not public in class {$this->defaultClass}");
+					}
+				}
+			}
+			
+			//validate type
+			if (isset($config->type)) {
+				$typeHandler = $this->typeManager->getTypeHandler($config->type);
+		
+				if ($typeHandler == false) {
+					throw new \UnexpectedValueException("No typehandler assigned to type '{$config->type}' defined at property $name");
+				}
+		
+				$this->typeHandlers[$name] = $typeHandler;
+			}
+			elseif (isset($config->suggestedType)) {
+				$typeHandler = $this->typeManager->getTypeHandler($config->suggestedType);
+		
+				if ($typeHandler == false) {
+					$type = $this->columnTypes[$config->column];
+					$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
+				}
+				else {
+					$this->typeHandlers[$name] = $typeHandler;
+				}
+			}
+			else {
+				$type = $this->columnTypes[$config->column];
+				$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
+			}
+		}
+	}
+	
+	protected function validateColumns() {
+		//obtain available columns
+		$this->columns = array();
+		$reflectionClass = Profiler::getClassProfile($this->defaultClass)->reflectionClass;
+			
+		//store type handlers while on it
+		foreach (array_keys($this->columnTypes) as $column) {
+			if (!$reflectionClass->hasProperty($column)) {
+				continue;
+			}
+				
+			//validate property
+			$property = $reflectionClass->getProperty($column);
+				
+			if (!$property->isPublic()) {
+				throw new \UnexpectedValueException(sprintf("Property %s in class %s has not public access", $property->getName(), $this->defaultClass));
+			}
+				
+			$this->columns[$column] = $this->columnHandler($column);
+		}
 	}
 	
 	protected function map($row) {
 		if (isset($this->resultMap)) {
-			if (Profiler::isEntity($this->resultMap)) {
-				$reflectionClass = Profiler::getReflectionClass($this->resultMap);
-				$instance = $reflectionClass->newInstance();
-			}
-			else {
-				$profile = Profiler::getClassAnnotations($this->resultMap);
-				$class = $profile->has('defaultClass') ? $profile->get('defaultClass') : 'stdClass';
-				$instance = new $class;
-			}
+			//create instance			
+			$reflectionClass = Profiler::getClassProfile($this->defaultClass)->reflectionClass;
+			$instance = $reflectionClass->newInstance();
 			
-			$fields = Profiler::getClassProperties($this->resultMap);
-			
-			foreach ($this->propertyList as $name => $props) {
-				$column = $props['column'];
-				$typeHandler = $props['handler'];
+			foreach ($this->propertyList as $name => $config) {
+				$column = $config->column;
+				$typeHandler = $this->typeHandlers[$name];
 				
 				if ($instance instanceof \stdClass) {
 					$instance->$name = $typeHandler->getValue($row->$column);
 				}
 				elseif ($instance instanceof \ArrayObject) {
-					$instance['name'] = $typeHandler->getValue($row->$column);
+					$instance[$name] = $typeHandler->getValue($row->$column);
+				}
+				elseif (isset($config->setter)) {
+					$setter = $config->setter;
+					$instance->$setter($typeHandler->getValue($row->$column));
 				}
 				else {
-					if (array_key_exists('setter', $props)) {
-						$setter = $props['setter'];
-						$instance->$setter($typeHandler->getValue($row->$column));
-					}
-					else {
-						$instance->$name = $typeHandler->getValue($row->$column);
-					}
+					$instance->$name = $typeHandler->getValue($row->$column);
 				}
 			}
 		}
@@ -77,22 +176,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					$instance[$column] = $typeHandler->getValue($row->$column);
 				}
 			}
-			else {
-				$reflectionClass = Profiler::getReflectionClass($this->defaultClass);
-				
-				foreach ($this->columnTypes as $column => $type) {
-					if ($reflectionClass->hasProperty($column)) {
-						//validate property
-						$property = $reflectionClass->getProperty($column);
-						
-						if (!$property->isPublic()) {
-							throw new \UnexpectedValueException(sprintf("Property %s in class %s has not public access", $property->getName(), $this->defaultClass));
-						}
-						
-						//set values
-						$typeHandler = $this->columnHandler($column);
-						$instance->$column = $typeHandler->getValue($row->$column);
-					}
+			else {				
+				foreach ($this->columns as $column => $typeHandler) {
+					//set values
+					$instance->$column = $typeHandler->getValue($row->$column);
 				}
 			}
 		}
@@ -117,6 +204,9 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
 			$this->validateResultMap();
+		}
+		else {
+			$this->validateColumns();
 		}
 		
 		//get row as an object and map using its model
@@ -145,6 +235,9 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
 			$this->validateResultMap();
+		}
+		else {
+			$this->validateColumns();
 		}
 		
 		$list = array();
@@ -277,14 +370,14 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $mapper) {
+	public function relate(&$row, $parameterMap, $mapper) {
 		foreach ($this->relationList as $property => $relation) {
-			if (array_key_exists('setter', $this->propertyList)) {
-				$setter = $this->propertyList[$property]['setter'];
-				$row->$setter($relation->evaluate($row, $mapper));
+			if ($relation->setter) {
+				$setter = $relation->setter;
+				$row->$setter($relation->evaluate($row, $parameterMap, $mapper));
 			}
 			else {
-				$row->$property = $relation->evaluate($row, $mapper);
+				$row->$property = $relation->evaluate($row, $parameterMap, $mapper);
 			}
 		}
 	}

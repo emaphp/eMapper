@@ -41,9 +41,7 @@ abstract class GenericStatement extends CacheKey {
 					$new_elem = strval($new_elem);
 				}
 				else {
-					$profile = Profiler::getClassAnnotations(get_class($typeHandler));
-						
-					if (!$profile->has('unquoted')) {
+					if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
 						$new_elem = $this->escapeString($val);
 					}
 				}
@@ -110,10 +108,8 @@ abstract class GenericStatement extends CacheKey {
 		}
 		//escape string if necessary
 		else {
-			$profile = Profiler::getClassAnnotations(get_class($typeHandler));
-				
-			if (!$profile->has('unquoted')) {
-				$value =$this->escapeString($value);
+			if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
+				$value = $this->escapeString($value);
 			}
 		}
 	

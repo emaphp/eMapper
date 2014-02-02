@@ -3,8 +3,9 @@ namespace eMapper\Result\Relation;
 
 use eMapper\Result\Argument\PropertyReader;
 use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Reflection\Profile\PropertyProfile;
 
-abstract class DynamicAttribute {
+abstract class DynamicAttribute extends PropertyProfile {
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)$/';
 	
 	/**
@@ -12,13 +13,7 @@ abstract class DynamicAttribute {
 	 * @var array
 	 */
 	public $args;
-	
-	/**
-	 * Parameter map
-	 * @var string
-	 */
-	public $parameterMap;
-	
+		
 	/**
 	 * Attribute configuration
 	 * @var array
@@ -31,8 +26,8 @@ abstract class DynamicAttribute {
 	 */
 	public $useDefaultArgument;
 	
-	public function __construct($attribute, $parameterMap = null) {
-		$this->parameterMap = $parameterMap;
+	public function __construct($name, $attribute) {
+		parent::__construct($name, $attribute);
 		$this->parseArguments($attribute);
 		$this->parseConfig($attribute);
 	}
@@ -94,12 +89,12 @@ abstract class DynamicAttribute {
 	
 	/**
 	 * Evaluates all attribute arguments against current instance
-	 * @param ParameterWrapper $row
+	 * @param mixed $row
 	 * @return array
 	 */
-	protected function evaluateArgs($row) {
+	protected function evaluateArgs($row, $parameterMap) {
 		$args = array();
-		$wrapper = ParameterWrapper::wrap($row, $this->parameterMap);
+		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
 			$args[] = $row;
@@ -125,7 +120,7 @@ abstract class DynamicAttribute {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
 	}
 	
-	public abstract function evaluate($row, $mapper);
+	public abstract function evaluate($row, $parameterMap, $mapper);
 }
 
 ?>

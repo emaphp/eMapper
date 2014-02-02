@@ -18,9 +18,9 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	
 	/**
 	 * Parameter map configuration
-	 * @var string
+	 * @var array
 	 */
-	public $config = array();
+	public $config;
 	
 	/**
 	 * Generates a new wrapper instance for the given value
@@ -41,8 +41,8 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		elseif (is_object($value)) {
 			$classname = get_class($value);
 			
-			if (is_null($parameterMap) && Profiler::isEntity($classname)) {
-				return new ObjectParameterWrapper($value, $classname);
+			if (is_null($parameterMap) && Profiler::getClassProfile($classname)->isEntity()) {
+				$parameterMap = $classname;
 			}
 			
 			return new ObjectParameterWrapper($value, $parameterMap);

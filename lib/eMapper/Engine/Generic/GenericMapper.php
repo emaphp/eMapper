@@ -208,13 +208,13 @@ abstract class GenericMapper {
 						if (array_key_exists('map.result', $this->config)) {
 							$resultMap = $this->config['map.result'];
 						}
-						elseif (Profiler::isEntity($defaultClass)) {
+						elseif (Profiler::getClassProfile($defaultClass)->isEntity()) {
 							$resultMap = $defaultClass;
 						}
 					}
 						
 					//generate a new object mapper object
-					$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $parameterMap, $defaultClass);
+					$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass);
 					$group = $group_type = $index = $index_type = null;
 					
 					if (count($matches) > 2) {
@@ -254,7 +254,7 @@ abstract class GenericMapper {
 					$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 			
 					//generate a new array mapper object
-					$mapper = new ArrayTypeMapper($this->typeManager, $resultMap, $parameterMap);
+					$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
 						
 					if (count($matches) > 1) {
 						$mapping_callback = array($mapper, 'mapList');
@@ -316,7 +316,7 @@ abstract class GenericMapper {
 				$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 					
 				//generate mapper
-				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap, $parameterMap);
+				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
 					
 				//use default mapping type
 				$mapping_callback = array($mapper, 'mapList');
@@ -404,7 +404,7 @@ abstract class GenericMapper {
 							$indexes = array_keys($mapped_result[$key]);
 							
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$indexes[$i]], $safe_copy);
+								$mapper->relate($mapped_result[$key][$indexes[$i]], $parameterMap, $safe_copy);
 							}
 						}
 					}
@@ -412,12 +412,12 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 							
 						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $safe_copy);
+							$mapper->relate($mapped_result[$k], $parameterMap, $safe_copy);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $safe_copy);
+					$mapper->relate($mapped_result, $parameterMap, $safe_copy);
 				}
 			}
 			

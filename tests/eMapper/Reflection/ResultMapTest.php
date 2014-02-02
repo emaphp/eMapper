@@ -11,22 +11,24 @@ use eMapper\Reflection\Profiler;
  */
 class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	public function testTypeHandlerAnnotations() {
-		$profile = Profiler::getClassAnnotations('Acme\\Type\\DummyTypeHandler');
+		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->classAnnotations;
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
 		$this->assertTrue($profile->has('unquoted'));
 	}
 	
 	public function testResultMapAnnotations() {
-		$profile = Profiler::getClassAnnotations('Acme\\Result\\UserResultMap');
+		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->classAnnotations;
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
 		$this->assertTrue($profile->has('defaultClass'));
 		$this->assertEquals('stdClass', $profile->get('defaultClass'));
 	}
 	
-	public function testResultMapProfile() {
-		list($profile, $properties) = Profiler::getClassProfile('Acme\\Result\\UserResultMap');
+	public function testResultMapProfile() {		
+		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->classAnnotations;
+		$properties = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->propertiesAnnotations;
+		
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
 		$this->assertTrue($profile->has('defaultClass'));
@@ -53,10 +55,10 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testEntityAnnotations() {
-		$profile = Profiler::getClassAnnotations('Acme\\Entity\\Product');
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->classAnnotations;
 		$this->assertTrue($profile->has('entity'));
 		
-		$properties = Profiler::getClassProperties('Acme\\Entity\\Product');
+		$properties = Profiler::getClassProfile('Acme\\Entity\\Product')->propertiesAnnotations;
 		
 		$this->assertArrayHasKey('code', $properties);
 		$this->assertArrayHasKey('category', $properties);
@@ -75,14 +77,14 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSubclass() {
-		$profile = Profiler::getClassAnnotations('Acme\\Entity\\Car');
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Car')->classAnnotations;
 		$this->assertFalse($profile->has('moves'));
 		$this->assertTrue($profile->has('color'));
 		$this->assertEquals('red', $profile->get('color'));
 		$this->assertTrue($profile->has('speed'));
 		$this->assertEquals('fast', $profile->get('speed'));
 		
-		$properties = Profiler::getClassProperties('Acme\\Entity\\Car');
+		$properties = Profiler::getClassProfile('Acme\\Entity\\Car')->propertiesAnnotations;
 		$this->assertArrayHasKey('capacity', $properties);
 		$this->assertArrayHasKey('wheels', $properties);
 		$this->assertArrayHasKey('engine', $properties);
@@ -96,7 +98,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testRelationAnnotations() {
-		$properties = Profiler::getClassProperties('Acme\Reflection\User');
+		$properties = Profiler::getClassProfile('Acme\Reflection\User')->propertiesAnnotations;
 		
 		//full name
 		$fullName = $properties['fullName'];

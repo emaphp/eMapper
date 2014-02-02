@@ -2,20 +2,13 @@
 namespace eMapper\Engine\MySQL;
 
 use eMapper\Type\TypeManager;
-use eMapper\Cache\CacheProvider;
-use eMapper\Cache\Key\CacheKey;
 use eMapper\Engine\Generic\GenericMapper;
-use eMapper\Result\Mapper\ScalarTypeMapper;
-use eMapper\Result\Mapper\ArrayTypeMapper;
-use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Reflection\Profiler;
 use eMapper\Engine\MySQL\Configuration\MySQLMapperConfiguration;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 use eMapper\Engine\MySQL\Statement\MySQLStatement;
 use eMapper\Engine\MySQL\Exception\MySQLMapperException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
-use eMapper\Result\Mapper\ComplexTypeMapper;
 
 class MySQLMapper extends GenericMapper {
 	use MySQLMapperConfiguration;
@@ -149,7 +142,7 @@ class MySQLMapper extends GenericMapper {
 		$mysqli->autocommit($this->config['db.autocommit']);
 	
 		//store open connection
-		return $this->connection = $this->config['db.conn'] = $mysqli;
+		return $this->connection = $mysqli;
 	}
 	
 	/**
