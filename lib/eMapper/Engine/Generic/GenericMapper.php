@@ -219,7 +219,11 @@ abstract class GenericMapper {
 					
 					if (count($matches) > 2) {
 						//obtain group
-						if (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
+						if (array_key_exists('callback.group', $this->config)) {
+							$group = $this->config['callback.group'];
+							$group_type = 'callable';
+						}
+						elseif (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
 							$group = $matches[2];
 							$group_type = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
 							
@@ -230,7 +234,11 @@ abstract class GenericMapper {
 						}
 						
 						//obtain index
-						if (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
+						if (array_key_exists('callback.index', $this->index)) {
+							$index = $this->config['callback.index'];
+							$index_type = 'callable';
+						}
+						elseif (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
 							$index = $matches[5];
 							$index_type = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
 								
@@ -261,7 +269,11 @@ abstract class GenericMapper {
 						$group = $group_type = $index = $index_type = null;
 						
 						//obtain group and group type
-						if (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
+						if (array_key_exists('callback.group', $this->config)) {
+							$group = $this->config['callback.group'];
+							$group_type = 'callable';
+						}
+						elseif (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
 							$group = $matches[1];
 							$group_type = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
 							
@@ -272,7 +284,11 @@ abstract class GenericMapper {
 						}
 						
 						//obtain index and index type
-						if (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
+						if (array_key_exists('callback.index', $this->config)) {
+							$index = $this->config['callback.index'];
+							$index_type = 'callable';
+						}
+						elseif (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
 							$index = $matches[4];
 							$index_type = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
 							
@@ -320,7 +336,26 @@ abstract class GenericMapper {
 					
 				//use default mapping type
 				$mapping_callback = array($mapper, 'mapList');
-				$mapping_params = array(null, null, null, null);
+				
+				//check for group callback
+				if (array_key_exists('callback.group', $this->config)) {
+					$group = $this->config['callback.group'];
+					$group_type = 'callable';
+				}
+				else {
+					$group = $group_type = null;
+				}
+				
+				//check for index callback
+				if (array_key_exists('callback.index', $this->index)) {
+					$index = $this->config['callback.index'];
+					$index_type = 'callable';
+				}
+				else {
+					$index = $index_type = null;
+				}
+				
+				$mapping_params = array($index, $index_type, $group, $group_type);
 			}
 			
 			/**

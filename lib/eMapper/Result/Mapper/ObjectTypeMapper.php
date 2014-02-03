@@ -244,12 +244,12 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		
 		if (isset($index) || isset($group)) {
 			//validate index column
-			if (isset($index)) {
+			if (isset($index) && $indexType != 'callable') {
 				list($indexColumn, $indexTypeHandler) = $this->validateIndex($index, $indexType);
 			}
 			
 			//validate group
-			if (isset($group)) {
+			if (isset($group) && $groupType != 'callable') {
 				list($groupColumn, $groupTypeHandler) = $this->validateGroup($group, $groupType);
 			}
 			
@@ -260,32 +260,56 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					///get row
 					$row = $result->fetchObject();
 					
-					//validate group value
-					$key = $row->$groupColumn;
-					
-					if (is_null($key)) {
-						throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+					if ($groupType == 'callable') {
+						$key = call_user_func($group, $row);
+						
+						if (is_null($key)) {
+							throw new \UnexpectedValueException("Group callback returned a NULL value");
+						}
+						elseif (!is_int($key) && !is_string($key)) {
+							throw new \UnexpectedValueException("Group callback returned a value that is neither an integer or string");
+						}
+					}
+					else {
+						//validate group value
+						$key = $row[$groupColumn];
+						
+						if (is_null($key)) {
+							throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+						}
+							
+						//obtain group value
+						$key = $groupTypeHandler->getValue($key);
+						
+						if (!is_int($key) && !is_string($key)) {
+							throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
+						}
 					}
 						
-					//obtain group value
-					$key = $groupTypeHandler->getValue($key);
-					
-					if (!is_int($key) && !is_string($key)) {
-						throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
-					}
+					if ($indexType == 'callable') {
+						$idx = call_user_func($index, $row);
 						
-					//validate index value
-					$idx = $row->$indexColumn;
-					
-					if (is_null($idx)) {
-						throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
+						if (is_null($idx)) {
+							throw new \UnexpectedValueException("Index callback returned a NULL value");
+						}
+						elseif (!is_int($idx) && !is_string($idx)) {
+							throw new \UnexpectedValueException("Index callback returned a value that is neither an integer or string");
+						}
 					}
-					
-					//obtain index value
-					$idx = $indexTypeHandler->getValue($idx);
-					
-					if (!is_int($idx) && !is_string($idx)) {
-						throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
+					else {
+						//validate index value
+						$idx = $row[$indexColumn];
+						
+						if (is_null($idx)) {
+							throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
+						}
+						
+						//obtain index value
+						$idx = $indexTypeHandler->getValue($idx);
+						
+						if (!is_int($idx) && !is_string($idx)) {
+							throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
+						}
 					}
 						
 					//store value
@@ -305,23 +329,34 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					///get row
 					$row = $result->fetchObject();
 					
-					//get index value
-					$key = $row->$indexColumn;
-					
-					//check if index value equals null
-					if (is_null($key)) {
-						throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
-					}
-					
-					//obtain index value
-					$key = $indexTypeHandler->getValue($key);
+					if ($indexType == 'callable') {
+						$idx = call_user_func($index, $row);
 						
-					if (!is_int($key) && !is_string($key)) {
-						throw new \UnexpectedValueException("Obtained index in column '$indexColumn' key is neither an integer or string");
+						if (is_null($idx)) {
+							throw new \UnexpectedValueException("Index callback returned a NULL value");
+						}
+						elseif (!is_int($idx) && !is_string($idx)) {
+							throw new \UnexpectedValueException("Index callback returned a value that is neither an integer or string");
+						}
+					}
+					else {
+						//validate index value
+						$idx = $row->$indexColumn;
+						
+						if (is_null($idx)) {
+							throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");
+						}
+						
+						//obtain index value
+						$idx = $indexTypeHandler->getValue($idx);
+						
+						if (!is_int($idx) && !is_string($idx)) {
+							throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
+						}
 					}
 						
 					//store value and get next one
-					$list[$key] = $this->map($row);
+					$list[$idx] = $this->map($row);
 					
 					$result->next();
 				}
@@ -333,18 +368,30 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					///get row
 					$row = $result->fetchObject();
 					
-					//validate group value
-					$key = $row->$groupColumn;
+					if ($groupType == 'callable') {
+						$key = call_user_func($group, $row);
 						
-					if (is_null($key)) {
-						throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+						if (is_null($key)) {
+							throw new \UnexpectedValueException("Group callback returned a NULL value");
+						}
+						elseif (!is_int($key) && !is_string($key)) {
+							throw new \UnexpectedValueException("Group callback returned a value that is neither an integer or string");
+						}
 					}
-					
-					//obtain group value
-					$key = $groupTypeHandler->getValue($key);
+					else {
+						//validate group value
+						$key = $row->$groupColumn;
 						
-					if (!is_int($key) && !is_string($key)) {
-						throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
+						if (is_null($key)) {
+							throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
+						}
+							
+						//obtain group value
+						$key = $groupTypeHandler->getValue($key);
+						
+						if (!is_int($key) && !is_string($key)) {
+							throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
+						}
 					}
 						
 					//store value

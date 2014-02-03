@@ -143,4 +143,31 @@ trait StatementConfiguration {
 		
 		return $this->merge(['depth.limit' => $depth]);
 	}
+	
+	/**
+	 * Sets index callback
+	 * @param callable $callable
+	 * @throws \InvalidArgumentException
+	 */
+	public function index($callable) {
+		if (!is_callable($name)) {
+			throw new \InvalidArgumentException("Method index expects a callable value");
+		}
+		
+		return $this->merge(['callbak.index' => $callable]);
+	}
+	
+	/**
+	 * Sets group callback
+	 * @param callback $callable
+	 * @throws \InvalidArgumentException
+	 * @return Ambigous <\eMapper\Configuration\Configuration, \eMapper\Statement\Configuration\StatementConfiguration>
+	 */
+	public function group($callable) {
+		if (!is_callable($name)) {
+			throw new \InvalidArgumentException("Method group expects a callable value");
+		}
+		
+		return $this->merge(['callbak.group' => $callable]);
+	}
 }
