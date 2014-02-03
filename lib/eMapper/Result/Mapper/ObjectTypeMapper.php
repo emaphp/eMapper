@@ -259,9 +259,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				while ($result->valid()) {
 					///get row
 					$row = $result->fetchObject();
+					$mappedRow = $this->map($row);
 					
 					if ($groupType == 'callable') {
-						$key = call_user_func($group, $row);
+						$key = call_user_func($group, $mappedRow);
 						
 						if (is_null($key)) {
 							throw new \UnexpectedValueException("Group callback returned a NULL value");
@@ -287,7 +288,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					}
 						
 					if ($indexType == 'callable') {
-						$idx = call_user_func($index, $row);
+						$idx = call_user_func($index, $mappedRow);
 						
 						if (is_null($idx)) {
 							throw new \UnexpectedValueException("Index callback returned a NULL value");
@@ -314,10 +315,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 						
 					//store value
 					if (isset($list[$key])) {
-						$list[$key][$idx] = $this->map($row);
+						$list[$key][$idx] = $mappedRow;
 					}
 					else {
-						$list[$key] = [$idx => $this->map($row)];
+						$list[$key] = [$idx => $mappedRow];
 						$this->groupKeys[] = $key;
 					}
 					
@@ -328,9 +329,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				while ($result->valid()) {
 					///get row
 					$row = $result->fetchObject();
+					$mappedRow = $this->map($row);
 					
 					if ($indexType == 'callable') {
-						$idx = call_user_func($index, $row);
+						$idx = call_user_func($index, $mappedRow);
 						
 						if (is_null($idx)) {
 							throw new \UnexpectedValueException("Index callback returned a NULL value");
@@ -354,10 +356,9 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 							throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
 						}
 					}
-						
-					//store value and get next one
-					$list[$idx] = $this->map($row);
 					
+					//store value and get next one
+					$list[$idx] = $mappedRow;
 					$result->next();
 				}
 			}
@@ -367,15 +368,25 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				while ($result->valid()) {
 					///get row
 					$row = $result->fetchObject();
+					$mappedRow = $this->map($row);
 					
 					if ($groupType == 'callable') {
-						$key = call_user_func($group, $row);
+						$key = call_user_func($group, $mappedRow);
 						
 						if (is_null($key)) {
 							throw new \UnexpectedValueException("Group callback returned a NULL value");
 						}
 						elseif (!is_int($key) && !is_string($key)) {
 							throw new \UnexpectedValueException("Group callback returned a value that is neither an integer or string");
+						}
+						
+						//store value
+						if (isset($list[$key])) {
+							$list[$key][] = $row;
+						}
+						else {
+							$list[$key] = [$row];
+							$this->groupKeys[] = $key;
 						}
 					}
 					else {
@@ -392,15 +403,15 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 						if (!is_int($key) && !is_string($key)) {
 							throw new \UnexpectedValueException("Obtained group key in column '$groupColumn' is neither an integer or string");
 						}
-					}
 						
-					//store value
-					if (isset($list[$key])) {
-						$list[$key][] = $this->map($row);
-					}
-					else {
-						$list[$key] = [$this->map($row)];
-						$this->groupKeys[] = $key;
+						//store value
+						if (isset($list[$key])) {
+							$list[$key][] = $this->map($row);
+						}
+						else {
+							$list[$key] = [$this->map($row)];
+							$this->groupKeys[] = $key;
+						}
 					}
 					
 					$result->next();

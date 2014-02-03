@@ -150,11 +150,11 @@ trait StatementConfiguration {
 	 * @throws \InvalidArgumentException
 	 */
 	public function index($callable) {
-		if (!is_callable($name)) {
+		if (!is_callable($callable)) {
 			throw new \InvalidArgumentException("Method index expects a callable value");
 		}
 		
-		return $this->merge(['callbak.index' => $callable]);
+		return $this->merge(['callback.index' => $callable]);
 	}
 	
 	/**
@@ -164,10 +164,10 @@ trait StatementConfiguration {
 	 * @return Ambigous <\eMapper\Configuration\Configuration, \eMapper\Statement\Configuration\StatementConfiguration>
 	 */
 	public function group($callable) {
-		if (!is_callable($name)) {
+		if (!is_callable($callable)) {
 			throw new \InvalidArgumentException("Method group expects a callable value");
 		}
 		
-		return $this->merge(['callbak.group' => $callable]);
+		return $this->merge(['callback.group' => $callable]);
 	}
 }

@@ -218,6 +218,8 @@ abstract class GenericMapper {
 					$group = $group_type = $index = $index_type = null;
 					
 					if (count($matches) > 2) {
+						$mapping_callback = array($mapper, 'mapList');
+						
 						//obtain group
 						if (array_key_exists('callback.group', $this->config)) {
 							$group = $this->config['callback.group'];
@@ -234,7 +236,7 @@ abstract class GenericMapper {
 						}
 						
 						//obtain index
-						if (array_key_exists('callback.index', $this->index)) {
+						if (array_key_exists('callback.index', $this->config)) {
 							$index = $this->config['callback.index'];
 							$index_type = 'callable';
 						}

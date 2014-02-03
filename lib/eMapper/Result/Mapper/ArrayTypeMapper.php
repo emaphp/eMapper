@@ -144,9 +144,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 				
 				while ($result->valid()) {
 					$row = $result->fetchArray($resultType);
+					$mappedRow = $this->map($row);
 					
 					if ($groupType == 'callable') {
-						$key = call_user_func($group, $row);
+						$key = call_user_func($group, $mappedRow);
 						
 						if (is_null($key)) {
 							throw new \UnexpectedValueException("Group callback returned a NULL value");
@@ -172,7 +173,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					}
 					
 					if ($indexType == 'callable') {
-						$idx = call_user_func($index, $row);
+						$idx = call_user_func($index, $mappedRow);
 						
 						if (is_null($idx)) {
 							throw new \UnexpectedValueException("Index callback returned a NULL value");
@@ -199,10 +200,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					
 					//store value
 					if (isset($list[$key])) {
-						$list[$key][$idx] = $this->map($row);
+						$list[$key][$idx] = $mappedRow;
 					}
 					else {
-						$list[$key] = [$idx => $this->map($row)];
+						$list[$key] = [$idx => $mappedRow];
 						$this->groupKeys[] = $key;
 					}
 					
@@ -212,9 +213,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 			elseif (isset($index)) {
 				while ($result->valid()) {
 					$row = $result->fetchArray($resultType);
+					$mappedRow = $this->map($row);
 					
 					if ($indexType == 'callable') {
-						$idx = call_user_func($index, $row);
+						$idx = call_user_func($index, $mappedRow);
 						
 						if (is_null($idx)) {
 							throw new \UnexpectedValueException("Index callback returned a NULL value");
@@ -240,7 +242,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					}
 					
 					//store value and get next one
-					$list[$idx] = $this->map($row);
+					$list[$idx] = $mappedRow;
 					$result->next();
 				}
 			}
@@ -249,9 +251,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 				
 				while ($result->valid()) {
 					$row = $result->fetchArray($resultType);
+					$mappedRow = $this->map($row);
 					
 					if ($groupType == 'callable') {
-						$key = call_user_func($group, $row);
+						$key = call_user_func($group, $mappedRow);
 						
 						if (is_null($key)) {
 							throw new \UnexpectedValueException("Group callback returned a NULL value");
@@ -278,10 +281,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 					
 					//store value
 					if (isset($list[$key])) {
-						$list[$key][] = $this->map($row);
+						$list[$key][] = $mappedRow;
 					}
 					else {
-						$list[$key] = [$this->map($row)];
+						$list[$key] = [$mappedRow];
 						$this->groupKeys[] = $key;
 					}
 					
