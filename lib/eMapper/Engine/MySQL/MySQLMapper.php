@@ -79,7 +79,6 @@ class MySQLMapper extends GenericMapper {
 	
 	/**
 	 * TODO: Method build
-	 * TODO: Method buildFromConnection
 	 */
 	
 	public static function build($db_config, $additional_config = null) {
@@ -145,17 +144,7 @@ class MySQLMapper extends GenericMapper {
 		return $this->connection = $mysqli;
 	}
 	
-	/**
-	 * Builds an statement with the given parameters
-	 * @param string $query
-	 * @param array $args
-	 * @return mixed
-	 */
-	protected function build_statement($query, $args, $parameterMap) {
-		//build statement
-		$stmtBuilder = new MySQLStatement($this->connection, $this->typeManager, $parameterMap);
-		return $stmtBuilder->build($query, $args, $this->config);
-	}
+	
 	
 	/**
 	 * Runs a query ans returns the result
@@ -164,39 +153,6 @@ class MySQLMapper extends GenericMapper {
 	 */
 	public function run_query($query) {
 		return $this->connection->query($query);
-	}
-	
-	/**
-	 * Executes a previously declared statement
-	 * @param string $statementId
-	 * @throws MySQLMapperException
-	 * @return mixed
-	 */
-	public function execute($statementId) {
-		//obtain parameters
-		$args = func_get_args();
-		$statementId = array_shift($args);
-	
-		if (!is_string($statementId) || empty($statementId)) {
-			throw new MySQLMapperException("Statement id must be a valid string");
-		}
-	
-		//obtain statement
-		$stmt = $this->getStatement($statementId);
-	
-		if ($stmt === false) {
-			throw new MySQLMapperException("Statement '$statementId' could not be found");
-		}
-	
-		//get statement config
-		$query = $stmt->query;
-		$options = $stmt->options;
-	
-		//add query to method parameters
-		array_unshift($args, $query);
-	
-		//call query method
-		return (empty($options)) ? call_user_func_array(array($this, 'query'), $args) : call_user_func_array(array($this->merge($options->config, true), 'query'), $args);
 	}
 	
 	/**
@@ -246,40 +202,7 @@ class MySQLMapper extends GenericMapper {
 		//call query
 		return call_user_func_array(array($this, 'query'), $args);
 	}
-	
-	/**
-	 * Runs a query and returns the mysqli_result object
-	 * @param string $query
-	 * @throws eMapper\Exception\MySQL\MySQLMapperException
-	 * @throws eMapper\Exception\NoRowsException
-	 * @return \mysqli_result
-	 */
-	public function sql($query) {
-		if (!is_string($query) || empty($query)) {
-			throw new MySQLMapperException("Query is not a valid string");
-		}
-	
-		//open connection
-		$this->connect();
-	
-		//get query and parameters
-		$args = func_get_args();
-		$query = array_shift($args);
-	
-		//build statement
-		$stmt = $this->build_statement($query, $args);
-	
-		//run query
-		$result = $this->connection->query($stmt);
-	
-		//check query execution
-		if ($result === false) {
-			throw new MySQLMapperException(sprintf("MySQL query failed: \"%s\"", mysqli_error($this->connection)));
-		}
-	
-		return $result;
-	}
-	
+		
 	/**
 	 * Commits current transaction
 	 * @return boolean
@@ -335,9 +258,19 @@ class MySQLMapper extends GenericMapper {
 		}
 	}
 	
-	public function build_result_interface($result) {
+	protected function build_result_interface($result) {
 		return new MySQLResultInterface($result);
 	}
+	
+	protected function build_statement($query, $args, $parameterMap) {
+		//build statement
+		$stmt = new MySQLStatement($this->connection, $this->typeManager, $parameterMap);
+		return $stmt->build($query, $args, $this->config);
+	}
+	
+	/**
+	 * EXCEPTION METHODS
+	 */
 	
 	public function throw_exception($message) {
 		throw new MySQLMapperException($message);

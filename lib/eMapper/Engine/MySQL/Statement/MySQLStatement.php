@@ -17,6 +17,6 @@ class MySQLStatement extends GenericStatement {
 	}
 	
 	public function escapeString($string) {
-		return "'" . $this->conn->real_escape_string($string) . "'";
+		return $this->conn->real_escape_string($string);
 	}
 }

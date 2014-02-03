@@ -42,7 +42,7 @@ abstract class GenericStatement extends CacheKey {
 				}
 				else {
 					if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
-						$new_elem = $this->escapeString($val);
+						$new_elem = "'" . $this->escapeString($val) . "'";
 					}
 				}
 			}
@@ -109,7 +109,7 @@ abstract class GenericStatement extends CacheKey {
 		//escape string if necessary
 		else {
 			if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
-				$value = $this->escapeString($value);
+				$value = "'" . $this->escapeString($value) . "'";
 			}
 		}
 	

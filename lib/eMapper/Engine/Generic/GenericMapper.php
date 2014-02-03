@@ -105,8 +105,11 @@ abstract class GenericMapper {
 				'cache.provider', 'cache.key', 'cache.ttl');
 	}
 	
-	
-	
+	/**
+	 * Executes a query
+	 * @param string $query
+	 * @return mixed
+	 */
 	public function query($query) {
 		/**
 		 * INITIALIZE
@@ -573,16 +576,82 @@ abstract class GenericMapper {
 		return $mapped_result;
 	}
 	
+	/**
+	 * Runs a statement with the given id and returns a result
+	 * @param string $statementId
+	 * @return mixed
+	 */
+	public function execute($statementId) {
+		//obtain parameters
+		$args = func_get_args();
+		$statementId = array_shift($args);
+	
+		if (!is_string($statementId) || empty($statementId)) {
+			$this->throw_exception("Statement id must be a valid string");
+		}
+	
+		//obtain statement
+		$stmt = $this->getStatement($statementId);
+	
+		if ($stmt === false) {
+			$this->throw_exception("Statement '$statementId' could not be found");
+		}
+	
+		//get statement config
+		$query = $stmt->query;
+		$options = $stmt->options;
+	
+		//add query to method parameters
+		array_unshift($args, $query);
+	
+		//call query method
+		return (empty($options)) ? call_user_func_array(array($this, 'query'), $args) : call_user_func_array(array($this->merge($options->config, true), 'query'), $args);
+	}
+	
+	/**
+	 * Runs a query and returns a result instance
+	 * @param string $query
+	 * @return mixed
+	 */
+	public function sql($query) {
+		if (!is_string($query) || empty($query)) {
+			$this->throw_exception("Query is not a valid string");
+		}
+	
+		//open connection
+		$this->connect();
+	
+		//get query and parameters
+		$args = func_get_args();
+		$query = array_shift($args);
+	
+		//build statement
+		$stmt = $this->build_statement($query, $args);
+	
+		//run query
+		$result = $this->run_query($stmt);
+	
+		//check query execution
+		if ($result === false) {
+			$this->throw_query_exception($stmt);
+		}
+	
+		return $result;
+	}
+	
 	/*
 	 * Abstract methods
 	*/
+	
 	public abstract function run_query($query);
-	public abstract function execute($statementId);
-	public abstract function sql($query);
 	public abstract function free_result($result);
 	public abstract function commit();
-	public abstract function rollback();
-	public abstract function build_result_interface($result);
+	public abstract function rollback();	
+	public abstract function close();
+	
+	//internal methods
+	protected abstract function build_statement($query, $args, $parameterMap);
+	protected abstract function build_result_interface($result);
 	
 	/**
 	 * Exception abstract methods
