@@ -9,7 +9,7 @@ use eMapper\Result\Argument\PropertyReader;
 class MacroExpression extends DynamicAttribute {
 	/**
 	 * Attribute program
-	 * @var string
+	 * @var Progra
 	 */
 	public $program;
 	
@@ -46,6 +46,21 @@ class MacroExpression extends DynamicAttribute {
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {
+		//evaluate condition
+		if (isset($this->condition)) {
+			$environmentId = $mapper->config['environment.id'];
+				
+			if (!EnvironmentProvider::hasEnvironment($environmentId)) {
+				EnvironmentProvider::buildEnvironment($environmentId, $mapper->config['environment.class']);
+			}
+				
+			$cond = $this->condition->execute(EnvironmentProvider::getEnvironment($environmentId), ParameterWrapper::wrap($row, $parameterMap));
+				
+			if ((bool) $cond === false) {
+				return null;
+			}
+		}
+		
 		$args = $this->evaluateArgs($row, $parameterMap);
 		$environmentId = $mapper->config['environment.id'];
 		

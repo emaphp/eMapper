@@ -4,6 +4,9 @@ namespace eMapper\Result\Relation;
 use eMapper\Result\Argument\PropertyReader;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profile\PropertyProfile;
+use eMacros\Program\Program;
+use eMacros\Program\SimpleProgram;
+use eMapper\Dynamic\Provider\EnvironmentProvider;
 
 abstract class DynamicAttribute extends PropertyProfile {
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)$/';
@@ -25,6 +28,12 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * @var boolean
 	 */
 	public $useDefaultArgument;
+	
+	/**
+	 * Pre-condition macro
+	 * @var Program
+	 */
+	public $condition;
 	
 	public function __construct($name, $attribute) {
 		parent::__construct($name, $attribute);
@@ -84,6 +93,10 @@ abstract class DynamicAttribute extends PropertyProfile {
 		
 		if ($attribute->has('parameter-map')) {
 			$this->config['map.parameter'] = $attribute->get('parameter-map');
+		}
+		
+		if ($attribute->has('cond')) {
+			$this->condition = new SimpleProgram($attribute->get('cond'));
 		}
 	}
 	
