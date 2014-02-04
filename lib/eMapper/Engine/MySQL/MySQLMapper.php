@@ -82,7 +82,6 @@ class MySQLMapper extends GenericMapper {
 	 */
 	
 	public static function build($db_config, $additional_config = null) {
-		
 	}
 	
 	public static function buildFromConnection($conn, $additional_config = null) {
@@ -116,7 +115,7 @@ class MySQLMapper extends GenericMapper {
 	 * @throws MySQLMapperException
 	 * @return \mysqli
 	 */
-	protected function connect() {
+	public function connect() {
 		//check if connection is already opened
 		if ($this->connection instanceof \mysqli) {
 			return $this->connection;
@@ -143,8 +142,6 @@ class MySQLMapper extends GenericMapper {
 		//store open connection
 		return $this->connection = $mysqli;
 	}
-	
-	
 	
 	/**
 	 * Runs a query ans returns the result

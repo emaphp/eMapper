@@ -1,7 +1,7 @@
 <?php
-namespace eMapper\Engine\SQLite\Exception;
+namespace eMapper\Engine\PostgreSQL\Exception;
 
-class SQLiteQueryException extends SQLiteMapperException {
+class PostgreSQLQueryException extends PostgreSQLMapperException {
 	/**
 	 * Query string
 	 * @var string

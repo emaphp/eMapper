@@ -15,6 +15,7 @@ abstract class GenericMapper {
 	use StatementConfiguration;
 	use StatementNamespaceAggregate;
 	
+	//mapping expression regex
 	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const ARRAY_TYPE_REGEX  = '@^(?:array|arr+)(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const SIMPLE_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)(\[\])?@';
@@ -90,7 +91,7 @@ abstract class GenericMapper {
 	 * @param string $class Environment class
 	 * @throws \InvalidArgumentException
 	 */
-	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
+	public function setEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
 		//apply values
 		$this->config['environment.id'] = $id;
 		$this->config['environment.class'] = $class;
@@ -101,7 +102,7 @@ abstract class GenericMapper {
 	 */
 	public function safe_copy() {
 		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter',
+				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
 				'cache.provider', 'cache.key', 'cache.ttl');
 	}
 	
@@ -643,6 +644,7 @@ abstract class GenericMapper {
 	 * Abstract methods
 	*/
 	
+	public abstract function connect();
 	public abstract function run_query($query);
 	public abstract function free_result($result);
 	public abstract function commit();

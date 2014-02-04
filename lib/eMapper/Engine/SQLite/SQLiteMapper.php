@@ -6,6 +6,7 @@ use eMapper\Engine\SQLite\Exception\SQLiteMapperException;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
+use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
 
 class SQLiteMapper extends GenericMapper {
 	//transaction type constants
@@ -20,18 +21,33 @@ class SQLiteMapper extends GenericMapper {
 	public $db;
 	
 	public function __construct($filename, $flags = 0, $encription_key = null) {
+		if (!is_string($filename) || empty($filename)) {
+			throw new SQLiteMapperException("Filename is not a valid string");
+		}
+		
+		$this->config['db.filename'] = $filename;
+		
 		if (empty($flags)) {
 			$flags = QLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
 		}
 		
+		$this->config['db.flags'] = $flags;
+		$this->config['db.encription_key'] = $encription_key;
+	}
+	
+	public function connect() {
+		if ($this->db instanceof \SQLite3) {
+			return $this->db;
+		}
+		
 		try {
-			$this->db = empty($encription_key) ? new \SQLite3($filename, $flags) : new \SQLite3($filename, $flags, $encryption_key);
+			$this->db = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
 		}
 		catch (\Exception $e) {
-			throw new SQLiteMapperException($e->getMessage());
+			throw new SQLiteConnectionException($e->getMessage());
 		}
 	}
-		
+	
 	public function run_query($query) {
 		return $this->db->query($query);
 	}
@@ -65,7 +81,7 @@ class SQLiteMapper extends GenericMapper {
 	 * TRANSACTION METHODS
 	 */
 	
-	public function begin($txType = self::TX_DEFERRED) {
+	public function beginTransaction($txType = self::TX_DEFERRED) {
 		switch ($txType) {
 			case self::TX_IMMEDIATE:
 				$type = 'IMMEDIATE';
