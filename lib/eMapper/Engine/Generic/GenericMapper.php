@@ -641,24 +641,24 @@ abstract class GenericMapper {
 	}
 	
 	/*
-	 * Abstract methods
-	*/
+	 * ABSTRACT METHODS
+	 */
 	
 	public abstract function connect();
 	public abstract function run_query($query);
 	public abstract function free_result($result);
-	public abstract function commit();
-	public abstract function rollback();	
 	public abstract function close();
+	
+	//transaction methods
+	public abstract function begin_transaction();
+	public abstract function commit();
+	public abstract function rollback();
 	
 	//internal methods
 	protected abstract function build_statement($query, $args, $parameterMap);
 	protected abstract function build_result_interface($result);
 	
-	/**
-	 * Exception abstract methods
-	 */
-	
+	//exception methods
 	public abstract function throw_exception($message);
 	public abstract function throw_query_exception($query); 
 }

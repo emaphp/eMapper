@@ -19,6 +19,17 @@ class MySQLMapper extends GenericMapper {
 	 */
 	public $connection;
 	
+	/**
+	 * Initializes a MySQLMapper instance
+	 * @param string $database
+	 * @param string $host
+	 * @param string $user
+	 * @param string $password
+	 * @param string $port
+	 * @param string $socket
+	 * @param string $autocommit
+	 * @throws MySQLMapperException
+	 */
 	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $autocommit = true) {
 		if (!is_string($database) || empty($database)) {
 			throw new MySQLMapperException("Invalid database specified");
@@ -56,7 +67,7 @@ class MySQLMapper extends GenericMapper {
 				throw new MySQLMapperException("Invalid port specified");
 			}
 	
-			$this->config['db.port'] = (string) $port;
+			$this->config['db.port'] = strval($port);
 		}
 	
 		if (isset($socket)) {
@@ -111,8 +122,8 @@ class MySQLMapper extends GenericMapper {
 	}
 	
 	/**
-	 * Creates a new connection to a MySQL server
-	 * @throws MySQLMapperException
+	 * Initializes a MySQL database connection
+	 * @throws MySQLConnectionException
 	 * @return \mysqli
 	 */
 	public function connect() {
@@ -145,10 +156,13 @@ class MySQLMapper extends GenericMapper {
 	
 	/**
 	 * Runs a query ans returns the result
-	 * (non-PHPdoc)
-	 * @see \eMapper\Engine\Generic\GenericMapper::run_query()
+	 * @return \mysqli_result | boolean
 	 */
 	public function run_query($query) {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+		
 		return $this->connection->query($query);
 	}
 	
@@ -199,35 +213,9 @@ class MySQLMapper extends GenericMapper {
 		//call query
 		return call_user_func_array(array($this, 'query'), $args);
 	}
-		
-	/**
-	 * Commits current transaction
-	 * @return boolean
-	 * @throws \eMapper\Exception\MySQL\MySQLMapperException
-	 */
-	public function commit() {
-		if (!($this->connection instanceof \mysqli)) {
-			throw new MySQLMapperException("No valid MySQL connection available");
-		}
-	
-		return $this->connection->commit();
-	}
 	
 	/**
-	 * Rollbacks current transaction
-	 * @return boolean
-	 * @throws \eMapper\Exception\MySQL\MySQLMapperException
-	 */
-	public function rollback() {
-		if (!($this->connection instanceof \mysqli)) {
-			throw new MySQLMapperException("No valid MySQL connection available");
-		}
-	
-		return $this->connection->rollback();
-	}
-	
-	/**
-	 * Frees a result
+	 * Frees a MySQL result instance
 	 * @param \mysqli_result $result
 	 */
 	public function free_result($result) {
@@ -247,7 +235,7 @@ class MySQLMapper extends GenericMapper {
 	}
 	
 	/**
-	 * Closes connection to a MySQL server
+	 * Closes a SQLite database connection
 	 */
 	public function close() {
 		if ($this->connection instanceof \mysqli) {
@@ -255,10 +243,66 @@ class MySQLMapper extends GenericMapper {
 		}
 	}
 	
+	/**
+	 * TRANSACTION METHODS
+	 */
+	
+	/**
+	 * Begins a transaction
+	 * @return boolean
+	 * @throws MySQLMapperException
+	 */
+	public function begin_transaction() {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+	
+		//warning: PHP 5.5 required
+		return $this->connection->begin_transaction();
+	}
+	
+	/**
+	 * Commits current transaction
+	 * @return boolean
+	 * @throws MySQLMapperException
+	 */
+	public function commit() {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+	
+		return $this->connection->commit();
+	}
+	
+	/**
+	 * Rollbacks current transaction
+	 * @return boolean
+	 * @throws MySQLMapperException
+	 */
+	public function rollback() {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+	
+		return $this->connection->rollback();
+	}
+	
+	/**
+	 * INTERNAL METHODS
+	 */
+	
+	/**
+	 * Wraps a MySQL result using a common interface
+	 * @return MySQLResultInterface
+	 */
 	protected function build_result_interface($result) {
 		return new MySQLResultInterface($result);
 	}
 	
+	/**
+	 * Builds a statement string compatible with MySQL
+	 * @return string
+	 */
 	protected function build_statement($query, $args, $parameterMap) {
 		//build statement
 		$stmt = new MySQLStatement($this->connection, $this->typeManager, $parameterMap);
@@ -269,10 +313,16 @@ class MySQLMapper extends GenericMapper {
 	 * EXCEPTION METHODS
 	 */
 	
+	/**
+	 * Throws a MySQL generic exception
+	 */
 	public function throw_exception($message) {
 		throw new MySQLMapperException($message);
 	}
 	
+	/**
+	 * Throws a MySQL query exception
+	 */
 	public function throw_query_exception($query) {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
 	}
