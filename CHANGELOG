@@ -1,0 +1,88 @@
+2014-??-?? - Version 3.0.0
+
+  Added: Support for SQLite and PostgreSQL
+  Deprecated: Models are now replaced for ResultMaps and Entities
+  Added: Entity classes allow to obtain customized objects through annotations
+  Added: Support for dynamic SQL clauses through eMacros
+  Added: Dynamic attributes
+  Added: Grouping
+  Added: Index (and group) callbacks
+  Fixed: Lots of bugs from previous version
+
+2013-10-12 - Version 2.3.0
+
+  Modified: Method 'filter' in Configuration class renamed to 'discard'.
+  Added: Dynamic SQL expression allows to define a default value when no callback is defined. Value is sent to the defined callback as a second parameter.
+  Added: A 'filter' callback has been added to mapper configuration through the 'filter' method. Provides the same functionality as 'array_filter'. 
+  Added: ResultIterator interface. This interface allows the use of the 'each' method in Models.
+  Added: ResultFilter interface. This interface allows the use of the 'filter' method in Models.
+  Added: Dynamic interface. This interface allows the use of dynamic sql callbacks within a Model.
+  Added: Method 'addNamespace' in MySQLMapperClass. This method allows to declare custom namespaces and add them to a mapper instance.
+  Added: Model class now defines a default constructor.
+  Added: Magic method __isset in Model class.
+  Added: Method __instance in Model class allows to override the logic to generate a new instance of a given class.
+  Fixed: Indexing by a Model field.
+
+2013-10-02 - Version 2.2.1
+
+  Fixed: column_types override in MySQLArrayTypeMapper.
+
+2013-10-01 - Version 2.2.0
+
+  Added: Model types. A model type determines if default fields are added to the mapped result.
+  Added: 'Strict Mode' in Models.
+  Added: Support for the 'setter' property in model fields. This property defines if a value is initialized through a method invocation.
+  Added: Dynamic SQL. Mappers can now invoke a user-defined callback to inject a custom string into a query. Custom callbacks are defined through the 'dynamic' method.
+  Added: Method 'escape' in MySQLMapper class.
+  Modified: Inline expressions can now specify a subindex and a range (%{0[3]:int}, #{user[name]:str}, #{list[1..3]:i}, etc.). Indexes are only compatible with array and string types.
+  Modified: Inline expression parameter counter now starts from zero. The expression %{1} refers to the query second argument.
+  Modified: An exception is thrown if a model field references an non existent column (only on strict mode).
+  Removed: Type hinting in Model class methods.
+  Fixed: Failed association when setting a class model though its alias.
+  Added: Appendix 'Extra Features'.
+
+2013-09-13 - Version 2.1.0
+
+  Added: New type handler -> UndescapedStringTypeHandler class.
+
+2013-09-03 - Version 2.0.2
+
+  Fixed: Wrong check for valid result before invoking an 'each' callback.
+
+2013-08-30 - Version 2.0.1
+
+  Fixed: Wrong check for active connections in connect method in MySQLMapper class.
+
+2013-08-16 - Version 2.0.0
+
+Changes introduced since version 1.1.3
+
+  General:
+    Library is now distributed using the PSR-0 conventions through Packagist.
+    Unit tests have been implemented and added to the main branch.
+  Mapper:
+    It is now possible to define class aliases for shorter mapping expressions through the setClassAlias method.
+    Deprecated: Key cache.type.
+    Added: Method setProvider. This methods assigns a cache provider to a mapper. Cache providers are stored using the cache.provider key.
+    Modified: Method cache now receives only 2 parameters: key and ttl.
+    Deprecated: Key throws. Number of exception have been reduced.
+    Deprecated: throwable and throws methods.
+    Modified: Method each now supports Closures.
+    Modified: addModel renamed to setClassModel.
+    Added: Key callback.no_rows added. This key stores a Closure that is called if the executed query returns an empty result. Configurable through no_rows. Callback can return a default value.
+    Added: Key callback.result. This key stores a Closure which receives the obtained result. Configurable through result_callback.
+    Added: Key callback.query. This key stores a Closure which receives the generated query, which can override by returning a value. Configurable through method query_callback.
+  Types:
+    Types are now case-sensitive.
+    Deprecated: Type datetime is now an alias of DateTime.
+    Modified: Method addType. This method now receives the type class and also supports an additional alias parameter.
+  Statements:
+    Statement and namespaces creation has been modified to use a different and more friendly syntax.
+    Statement configuration is generated through the Statement::map(map_type) and Statement::config() methods.
+  Cache:
+    Cache classes don´t depend strictly on mapper object configuration.
+    Deprecated: Method __configure.
+  Documentation:
+    More examples, less text.
+    Deprecated: CodeIgniter installation guide.
+    Updated: Appendix I - Configuration keys.
