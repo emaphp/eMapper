@@ -640,6 +640,8 @@ abstract class GenericMapper {
 	public abstract function connect();
 	public abstract function free_result($result);
 	public abstract function close();
+	public abstract function lastError();
+	public abstract function getLastId();
 	
 	//transaction methods
 	public abstract function beginTransaction();

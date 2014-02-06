@@ -82,6 +82,28 @@ class SQLiteMapper extends GenericMapper {
 	}
 	
 	/**
+	 * Obtains last generataded error message
+	 */
+	public function lastError() {
+		if (!($this->db instanceof \SQLite3)) {
+			throw new SQLiteMapperException("No valid SQLite database connection available");
+		}
+		
+		return $this->db->lastErrorMsg();
+	}
+	
+	/**
+	 * Obtains the last generated ID from a query
+	 */
+	public function getLastId() {
+		if (!($this->db instanceof \SQLite3)) {
+			throw new SQLiteMapperException("No valid SQLite database connection available");
+		}
+		
+		return $this->db->lastInsertRowID();
+	}
+	
+	/**
 	 * TRANSACTION METHODS
 	 */
 	

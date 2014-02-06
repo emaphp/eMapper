@@ -14,7 +14,13 @@ class PostgreSQLMapper extends GenericMapper {
 	 * PostgreSQL connection
 	 * @var resource
 	 */
-	protected $connection;
+	public $connection;
+	
+	/**
+	 * Last obtained ID
+	 * @var string
+	 */
+	public $last_id;
 	
 	/**
 	 * Initializes a PostgreSQLMapper instance
@@ -75,6 +81,24 @@ class PostgreSQLMapper extends GenericMapper {
 		if (is_resource($this->connection)) {
 			pg_close($this->connection);
 		}
+	}
+	
+	/**
+	 * Obtains last generataded error message
+	 */
+	public function lastError() {
+		if (!is_resource($this->connection)) {
+			throw new PostgreSQLMapperException("No valid PostgreSQL connection available");
+		}
+		
+		return pg_last_error($this->connection);
+	}
+	
+	/**
+	 * Obtains the last generated ID from a query
+	 */
+	public function getLastId() {
+		return $this->last_id;
 	}
 	
 	/**
@@ -146,9 +170,14 @@ class PostgreSQLMapper extends GenericMapper {
 	 * @return resource | boolean
 	 */
 	public function run_query($query) {
-		return pg_query($this->connection, $query);
+		$result = pg_query($this->connection, $query);
+		
+		if (is_resource($result)) {
+			$this->last_id = pg_last_oid($result);
+		}
+		
+		return $result;
 	}
-	
 	
 	/**
 	 * EXCEPTION METHODS

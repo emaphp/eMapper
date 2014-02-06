@@ -232,6 +232,28 @@ class MySQLMapper extends GenericMapper {
 	}
 	
 	/**
+	 * Obtains last generataded error message
+	 */
+	public function lastError() {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+		
+		return mysqli_error($this->connection);
+	}
+	
+	/**
+	 * Obtains the last generated ID from a query
+	 */
+	public function getLastId() {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+		
+		return $this->connection->insert_id;
+	}
+	
+	/**
 	 * TRANSACTION METHODS
 	 */
 	
