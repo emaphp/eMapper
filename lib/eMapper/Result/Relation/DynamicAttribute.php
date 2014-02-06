@@ -83,9 +83,8 @@ abstract class DynamicAttribute extends PropertyProfile {
 	protected function parseConfig($attribute) {
 		$this->config = array();
 		
-		//TODO: parse 'var' annotation as well
-		if ($attribute->has('type')) {
-			$this->config['map.type'] = $attribute->get('type');
+		if (isset($this->type)) {
+			$this->config['map.type'] = $this->type;
 		}
 		
 		if ($attribute->has('result-map')) {

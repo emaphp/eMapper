@@ -8,6 +8,7 @@ use Acme\Entity\Product;
 /**
  * 
  * @author emaphp
+ * @group dynamic
  * @group mysql
  */
 class DynamicSQLTest extends MySQLTest {
@@ -32,6 +33,9 @@ class DynamicSQLTest extends MySQLTest {
 		$result = $this->statement->build('{{ 10 }}', array(), self::$env_config);
 		$this->assertEquals("'10'", $result);
 		
+		$result = $this->statement->build('{{:int 10 }}', array(), self::$env_config);
+		$this->assertEquals(10, $result);
+		
 		$result = $this->statement->build('[[ "test" ]]', array(), self::$env_config);
 		$this->assertEquals('test', $result);
 		
@@ -49,6 +53,9 @@ class DynamicSQLTest extends MySQLTest {
 		
 		$result = $this->statement->build('{{ (%0) }}', array("test"), self::$env_config);
 		$this->assertEquals("'test'", $result);
+		
+		$result = $this->statement->build('{{:int (%0) }}', array("test"), self::$env_config);
+		$this->assertEquals(0, $result);
 	}
 	
 	public function testSimpleArgument() {

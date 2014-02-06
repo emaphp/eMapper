@@ -12,8 +12,8 @@ abstract class GenericStatement extends CacheKey {
 	//Ex: [[ (null? (#order)) ]]
 	const UNESCAPED_DYNAMIC_SQL_REGEX = '/\[\[(.*)\]\]/';
 	
-	//Ex: {{ (null? (#order)) }}
-	const DYNAMIC_SQL_REGEX = '/\{\{(.*)\}\}/';
+	//Ex: {{ (null? (#order)) }} {{:int (#limit)) }}
+	const DYNAMIC_SQL_REGEX = '/\{\{(?::([\w|\\\\]+)\s+)?(.*)\}\}/';
 	
 	/**
 	 * Current mapper configuration
@@ -152,7 +152,9 @@ abstract class GenericStatement extends CacheKey {
 		if (preg_match(self::DYNAMIC_SQL_REGEX, $expr)) {
 			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX,
 					function ($matches) {
-						return $this->castParameter($this->executeDynamicSQL($matches[1]), 'string');
+						$value = $this->executeDynamicSQL($matches[2]);
+						$type = !empty($matches[1]) ? $matches[1] : 'string';
+						return $this->castParameter($value, $type);
 					},
 					$expr);
 		}
