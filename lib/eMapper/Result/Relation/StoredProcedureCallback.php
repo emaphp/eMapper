@@ -1,9 +1,8 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Result\Argument\PropertyReader;
-use eMapper\Dynamic\Provider\EnvironmentProvider;
+use eMapper\Reflection\Parameter\ParameterWrapper;
 
 class StoredProcedureCallback extends DynamicAttribute {
 	/**
@@ -37,18 +36,8 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	public function evaluate($row, $parameterMap, $mapper) {
 		//evaluate condition
-		if (isset($this->condition)) {
-			$environmentId = $mapper->config['environment.id'];
-		
-			if (!EnvironmentProvider::hasEnvironment($environmentId)) {
-				EnvironmentProvider::buildEnvironment($environmentId, $mapper->config['environment.class']);
-			}
-		
-			$cond = $this->condition->execute(EnvironmentProvider::getEnvironment($environmentId), ParameterWrapper::wrap($row, $parameterMap));
-		
-			if ((bool) $cond === false) {
-				return null;
-			}
+		if ($this->checkCondition($row, $parameterMap, $mapper->config) === false) {
+			return null;
 		}
 		
 		//build argument list

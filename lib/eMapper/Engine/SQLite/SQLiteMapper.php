@@ -63,18 +63,6 @@ class SQLiteMapper extends GenericMapper {
 	}
 	
 	/**
-	 * Sends a query to current SQLite database
-	 * @return \SQLite3Result | boolean
-	 */
-	public function run_query($query) {
-		if (!($this->db instanceof \SQLite3)) {
-			throw new SQLiteMapperException("No valid database instance found");
-		}
-		
-		return $this->db->query($query);
-	}
-	
-	/**
 	 * Frees a SQLite3Result instance
 	 * @param \SQLite3Result $result
 	 */
@@ -103,7 +91,7 @@ class SQLiteMapper extends GenericMapper {
 	 * @return boolean
 	 * @throws SQLiteMapperException
 	 */
-	public function begin_transaction($txType = self::TX_DEFERRED) {
+	public function beginTransaction($txType = self::TX_DEFERRED) {
 		if (!($this->db instanceof \SQLite3)) {
 			throw new SQLiteMapperException("No valid SQLite database connection available");
 		}
@@ -165,6 +153,14 @@ class SQLiteMapper extends GenericMapper {
 	protected function build_statement($query, $args, $parameterMap) {
 		$stmt = new SQLiteStatement($this->db, $this->typeManager, $parameterMap);
 		return $stmt->build($query, $args, $this->config);
+	}
+	
+	/**
+	 * Sends a query to current SQLite database
+	 * @return \SQLite3Result | boolean
+	 */
+	protected function run_query($query) {
+		return $this->db->query($query);
 	}
 	
 	/**

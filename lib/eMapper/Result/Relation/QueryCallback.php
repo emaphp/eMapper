@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use eMapper\Dynamic\Provider\EnvironmentProvider;
 class QueryCallback extends DynamicAttribute {
 	/**
 	 * Raw query
@@ -18,18 +17,8 @@ class QueryCallback extends DynamicAttribute {
 	
 	public function evaluate($row, $parameterMap, $mapper) {
 		//evaluate condition
-		if (isset($this->condition)) {
-			$environmentId = $mapper->config['environment.id'];
-		
-			if (!EnvironmentProvider::hasEnvironment($environmentId)) {
-				EnvironmentProvider::buildEnvironment($environmentId, $mapper->config['environment.class']);
-			}
-		
-			$cond = $this->condition->execute(EnvironmentProvider::getEnvironment($environmentId), ParameterWrapper::wrap($row, $parameterMap));
-		
-			if ((bool) $cond === false) {
-				return null;
-			}
+		if ($this->checkCondition($row, $parameterMap, $mapper->config) === false) {
+			return null;
 		}
 		
 		//build argument list

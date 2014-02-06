@@ -44,11 +44,4 @@ trait MySQLMapperConfiguration {
 	public function sp_prefix($use_prefix) {
 		return $this->merge(array('procedure.use_prefix' => (boolean) $use_prefix));
 	}
-	
-	public function safe_copy() {
-		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter',
-				'procedure.types',
-				'cache.provider', 'cache.key', 'cache.ttl');
-	}
 }

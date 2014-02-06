@@ -57,13 +57,6 @@ class PostgreSQLMapper extends GenericMapper {
 		return $this->connection;
 	}
 	
-	/**
-	 * Runs a query ans returns the result
-	 * @return resource | boolean
-	 */
-	public function run_query($query) {
-		return pg_query($this->connection, $query);
-	}
 	
 	/**
 	 * Frees a PostgreSQL result instance
@@ -93,7 +86,7 @@ class PostgreSQLMapper extends GenericMapper {
 	 * @return boolean
 	 * @throws PostgreSQLMapperException
 	 */
-	public function begin_transaction() {
+	public function beginTransaction() {
 		if (!is_resource($this->connection)) {
 			throw new PostgreSQLMapperException("No valid PostgreSQL connection available");
 		}
@@ -147,6 +140,15 @@ class PostgreSQLMapper extends GenericMapper {
 	protected function build_result_interface($result) {
 		return new PostgreSQLResultInterface($result);
 	}
+	
+	/**
+	 * Runs a query ans returns the result
+	 * @return resource | boolean
+	 */
+	public function run_query($query) {
+		return pg_query($this->connection, $query);
+	}
+	
 	
 	/**
 	 * EXCEPTION METHODS

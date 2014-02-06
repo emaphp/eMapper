@@ -155,18 +155,6 @@ class MySQLMapper extends GenericMapper {
 	}
 	
 	/**
-	 * Runs a query ans returns the result
-	 * @return \mysqli_result | boolean
-	 */
-	public function run_query($query) {
-		if (!($this->connection instanceof \mysqli)) {
-			throw new MySQLMapperException("No valid MySQL connection available");
-		}
-		
-		return $this->connection->query($query);
-	}
-	
-	/**
 	 * Invokes a stored procedure
 	 * @param string $method
 	 * @param array $args
@@ -252,7 +240,7 @@ class MySQLMapper extends GenericMapper {
 	 * @return boolean
 	 * @throws MySQLMapperException
 	 */
-	public function begin_transaction() {
+	public function beginTransaction() {
 		if (!($this->connection instanceof \mysqli)) {
 			throw new MySQLMapperException("No valid MySQL connection available");
 		}
@@ -307,6 +295,18 @@ class MySQLMapper extends GenericMapper {
 		//build statement
 		$stmt = new MySQLStatement($this->connection, $this->typeManager, $parameterMap);
 		return $stmt->build($query, $args, $this->config);
+	}
+	
+	/**
+	 * Runs a query ans returns the result
+	 * @return \mysqli_result | boolean
+	 */
+	protected function run_query($query) {
+		if (!($this->connection instanceof \mysqli)) {
+			throw new MySQLMapperException("No valid MySQL connection available");
+		}
+	
+		return $this->connection->query($query);
 	}
 	
 	/**

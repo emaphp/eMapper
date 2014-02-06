@@ -97,14 +97,7 @@ abstract class GenericMapper {
 		$this->config['environment.class'] = $class;
 	} 
 	
-	/**
-	 * Obtains a clone of current instance without sensible configuration options
-	 */
-	public function safe_copy() {
-		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
-				'cache.provider', 'cache.key', 'cache.ttl');
-	}
+	
 	
 	/**
 	 * Executes a query
@@ -166,7 +159,7 @@ abstract class GenericMapper {
 		}
 		
 		//current instance copy
-		$safe_copy = null;
+		$safe_clone = null;
 		
 		if (is_null($cached_value)) {
 			/**
@@ -435,8 +428,8 @@ abstract class GenericMapper {
 			 */
 			
 			if (isset($resultMap)) {
-				if (is_null($safe_copy)) {
-					$safe_copy = $this->safe_copy();
+				if (is_null($safe_clone)) {
+					$safe_clone = $this->safe_clone();
 				}
 				
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
@@ -445,7 +438,7 @@ abstract class GenericMapper {
 							$indexes = array_keys($mapped_result[$key]);
 							
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$indexes[$i]], $parameterMap, $safe_copy);
+								$mapper->relate($mapped_result[$key][$indexes[$i]], $parameterMap, $safe_clone);
 							}
 						}
 					}
@@ -453,12 +446,12 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 							
 						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $parameterMap, $safe_copy);
+							$mapper->relate($mapped_result[$k], $parameterMap, $safe_clone);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $parameterMap, $safe_copy);
+					$mapper->relate($mapped_result, $parameterMap, $safe_clone);
 				}
 			}
 			
@@ -487,8 +480,8 @@ abstract class GenericMapper {
 		
 		if (array_key_exists('callback.each', $this->config)) {
 			//generate a new safe instance
-			if (is_null($safe_copy)) {
-				$safe_copy = $this->safe_copy();
+			if (is_null($safe_clone)) {
+				$safe_clone = $this->safe_clone();
 			}
 			
 			$each_callback = $this->config['callback.each'];
@@ -501,7 +494,7 @@ abstract class GenericMapper {
 							$indexes = array_keys($mapped_result[$key]);
 							
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $safe_copy);
+								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $safe_clone);
 							}
 						}
 					}
@@ -509,18 +502,18 @@ abstract class GenericMapper {
 						$keys = array_keys($mapped_result);
 		
 						for ($i = 0, $n = count($keys); $i < $n; $i++) {
-							$each_callback->__invoke($mapped_result[$keys[$i]], $safe_copy);
+							$each_callback->__invoke($mapped_result[$keys[$i]], $safe_clone);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$each_callback->__invoke($mapped_result, $safe_copy);
+					$each_callback->__invoke($mapped_result, $safe_clone);
 				}
 			}
 			else {
 				//this closure avoids getting "expected to be a reference"-style messages
-				$c = function (&$mapped_result) use ($each_callback, $safe_copy) {
-					call_user_func($each_callback, $mapped_result, $safe_copy);
+				$c = function (&$mapped_result) use ($each_callback, $safe_clone) {
+					call_user_func($each_callback, $mapped_result, $safe_clone);
 				};
 		
 				//call traverse callback
@@ -645,18 +638,29 @@ abstract class GenericMapper {
 	 */
 	
 	public abstract function connect();
-	public abstract function run_query($query);
 	public abstract function free_result($result);
 	public abstract function close();
 	
 	//transaction methods
-	public abstract function begin_transaction();
+	public abstract function beginTransaction();
 	public abstract function commit();
 	public abstract function rollback();
 	
 	//internal methods
+	
+	/**
+	 * Obtains a clone of current instance without sensible configuration options
+	 */
+	protected function safe_clone() {
+		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
+				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
+				'cache.provider', 'cache.key', 'cache.ttl',
+				'procedure.types');
+	}
+	
 	protected abstract function build_statement($query, $args, $parameterMap);
 	protected abstract function build_result_interface($result);
+	protected abstract function run_query($query);
 	
 	//exception methods
 	public abstract function throw_exception($message);

@@ -7,6 +7,7 @@ use eMapper\Reflection\Profile\PropertyProfile;
 use eMacros\Program\Program;
 use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
+use eMacros\Environment\Environment;
 
 abstract class DynamicAttribute extends PropertyProfile {
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)$/';
@@ -123,6 +124,36 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		return $args;
+	}
+	
+	/**
+	 * Obtains a macro environment for given configuration
+	 * @param array $config
+	 * @return Environment
+	 */
+	protected function buildEnvironment($config) {
+		$environmentId = $config['environment.id'];
+		
+		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
+			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class']);
+		}
+		
+		return EnvironmentProvider::getEnvironment($environmentId);
+	}
+	
+	/**
+	 * Checks current condition with the given values
+	 * @param mixed $row
+	 * @param string $parameterMap
+	 * @param array $config
+	 * @return boolean
+	 */
+	protected function checkCondition($row, $parameterMap, $config) {
+		if (isset($this->condition)) {
+			return (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrap($row, $parameterMap));
+		}
+		
+		return true;
 	}
 	
 	/**
