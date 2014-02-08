@@ -4,38 +4,39 @@ eMapper
 **The Extensible Mapper Package for PHP**
 
 <br/>
-**Author**: Emmanuel Antico
+**Autor**: Emmanuel Antico
 <br/>
-**Version**: 3.0.0
+**Versión**: 3.0.0
 
 <br/>
-Latest modifications
+Ultimas modificaciones
 ------------------
 <br/>
-2014-??-?? - Version 3.0.0
+2014-??-?? - Versión 3.0.0
 
-  * Added: Support for SQLite and PostgreSQL
-  * Deprecated: Models are now replaced for ResultMaps and Entities
-  * Added: Entity classes allow to obtain customized objects through annotations
-  * Added: Support for dynamic SQL clauses through eMacros
-  * Added: Dynamic attributes
-  * Added: Grouping
-  * Added: Index (and group) callbacks
-  * Fixed: Lots of bugs from previous version
+  * Obsoleto: Models.
+  * Agregado: Resultmaps (Un resultmap permite definir que elementos mapear desde una fila).
+  * Agregado: Entities (Las clases Entity permiten mapear objetos a través de annotations).
+  * Agregado: Soporte para bases de datos SQLite y PostgreSQL.
+  * Agregado: SQL dinámico (Permite anidar expresiones-S dentro de una consulta través de la librería eMacros).
+  * Agregado: Atributos dinámicos.
+  * Agregado: Agrupamiento.
+  * Agregado: Funciones de indexado y agrupamiento.
+  * Corregido: Varios bugs de la versión anterior.
 
 <br/>
-Dependencies
+Dependencias
 --------------
 <br/>
 - PHP >= 5.4
-- Marcio Almada's [annotations](https://github.com/marcioAlmada/annotations "") package
+- Paquete [annotations](https://github.com/marcioAlmada/annotations "")
 - [eMacros](https://github.com/emaphp/eMacros "")
  
 <br/>
-Installation
+Instalación
 --------------
 <br/>
-**Installation through Composer**
+**Instalación a través de Composer**
 <br/>
 ```javascript
 {
@@ -46,489 +47,306 @@ Installation
 ```
 
 <br/>
-Introduction
+Introducción
 ------------
 
 <br/>
-***eMapper*** is a PHP library aimed to provide a simple, powerful and highly customizable data mapping tool. It comes with some interesting features like:
+***eMapper*** es una librería PHP que apunta a proveer una herramienta de mapeo de datos simple, poderosa y altamente customizable. Viene con algunas características interasantes no incluidas en otros frameworks:
 
-- **Customized mapping**: Results can be mapped to a desired type through mapping expressions.
-- **Indexation and Grouping**: Lists can be indexed or grouped together by a column value.
-- **Custom types**: Developers can design their own types and custom type handlers.
-- **Cache providers**: Obtained data can be stored in cache using APC or Memcache.
-- **Dynamic SQL**: Queries can contain Dynamic SQL clauses writted in eMacros.
+- **Mapeo customizado**: Los resultados pueden mapearse a un tipo particular a través de una *expresión de mapeo*.
+- **Indexado y Agrupamiento**: Los elementos dentro de una lista pueden ser indexados y/o agrupados por una valor de columna.
+- **Tipos customizados**: Los desarrolladores pueden diseñar sus propios tipos de datos y manejadores de tipo.
+- **Caché**: Los datos mapeados pueden almacenarse en caché utilizando APC o Memcache.
+- **SQL Dinámico**: Las consultas pueden contener expresiones escritas en el lenguaje eMacros.
 
 
 <br/>
-First steps
+Primeros pasos
 -----------
 <br/>
-***Note***: Most of these examples use the *MySQLMapper* class. This is because the main difference between mapper classes is only their name. Check the appendix *Database Providers* for details of how to work with other databases.
+***Nota***: La mayor parte de los ejemplos en esta documentación utiliza la clase para conexión a bases de datos MySQL/MariaDB. Puede consultar el apéndice *Bases de Datos* para detalles de como conectarse a otros tipos de bases de datos.
 
 <br/>
-We'll begin by creating a new *MySQLMapper* instance. This class constructor receives the database name, host name, and user credentials.
+Para comenzar crearemos una instancia de la clase *MySQLMapper*, la cual se encuetra declarada dentro del paquete *eMapper\Engine\MySQL*. Esta clase realiza conexiones a bases de datos MySQL y MariaDB. El constructor de la misma recibe el nombre de la base de datos, nombre de host y credenciales de usuario.
 ```php
-<?php
-//composer autoloader
+//incluir autoloader
 require __DIR__ . "/vendor/autoload.php";
 
 use eMapper\Engine\MySQL\MySQLMapper;
 
-//mysql mapper class
+//instanciar clase
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-?>
 ```
 
 <br/>
-Arrays
+Arreglos
 -------
 
 <br/>
-**Get a list of rows as an array**
+**Obtener una lista de filas como arreglo**
 
 <br/>
-This example illustrates how to to execute a SQL query through the *query* method. The obtained result is returned as an array of arrays with both numeric and associative indexes.
+Este ejemplo muestra como a través del método *query* enviamos una consulta al servidor MySQL/MariaDB. El resultado obtenido es luego mapeado al tipo por defecto: lista de arreglos. Cada arreglo dentro de la lista posee claves numéricas y asociativas.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//obtener lista de usuarios como lista de arreglos
+$usuarios = $mapper->query("SELECT * FROM usuarios");
 
-use eMapper\Engine\MySQL\MySQLMapper;
+//...
 
-//mysql mapper class
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user list
-$users = $mapper->query("SELECT * FROM users");
-
-//do something with users
-
+//cerrar conexión
 $mapper->close();
-?>
 ```
 
 <br/>
-**Obtain a row as an associative array**
+**Obtener una fila como un arreglo asociativo**
 
 <br/>
-To indicate which type is expected from a query we declare a mapping expression through the *type* method. This example specifies the desired type to *array*. The array mapper supports an additional parameter which tells the type of array to return. The obtained valued will be an associative array containing all values from that row.
+Para indicar el tipo de dato a devolver por una consulta se utiliza el método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). eMapper se caracteriza para hacer un uso exhaustivo del encadenamiento de métodos (*method chaining*) para configurar la manera en que un resultado es mapeado. Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user by id as associative array
-$user = $mapper->type('array', MYSQLI_ASSOC)->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+//obtener datos de usuario por id como arreglo asociativo
+$usuario = $mapper
+->type('array', MYSQLI_ASSOC)
+->query("SELECT * FROM usuarios WHERE id_usuario = 1");
 ```
 
 <br/>
 
-Objects
+Objetos
 -------
 
 <br/>
-**Obtain a row as an object**
+**Obtener una fila como objeto**
 
 <br/>
-To obtain a *stdClass* instance from a row we simply set the desired type to *object* (or *obj*).
+Para obtener una instancia de *stdClass* de una fila declaramos el tipo a devolver como *object* (o también *obj*).
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user as object (stdClass)
-$user = $mapper->type('object')->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+//obtener usuario por id como objeto (stdClass)
+$usuario = $mapper->type('object')->query("SELECT * FROM usuarios WHERE id_usuario = 1");
 ```
 
 <br/>
-**Obtain a row as a custom class object**
+**Obtener una fila como una instancia de clase**
 
 <br/>
-It is possible to define the object class through the mapping expression. For this purpose we have designed a *User* class within the *Acme* namespace.
+Es posible también indicar la clase del objeto a devolver dentro de la expresión de mapeo. Para demostrar este funcionalidad, hemos diseñado una clase *Usuario* dentro del paquete *Acme*.
 ```php
 <?php
 namespace Acme;
 
-class User {
-    public $user_id;
-    public $name;
+class Usuario {
+    public $id_usuario;
+    public $nombre;
     public $password;
     public $email;
 }
 ```
-An object class must be specified right after the desired type adding a ':' between them.
+La clase de un objeto debe indicarse inmediatamente despues del tipo separado por el caracter ':'.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user by id as an instance of Acme\User
-$user = $mapper->type('obj:Acme\User')->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+//obtener usuario por id instancia de Acme\User
+$usuario = $mapper
+->type('obj:Acme\User')
+->query("SELECT * FROM usuarios WHERE id_usuario = 1");
 ```
 <br/>
-Scalars
+Escalares
 -------
 
 <br/>
-**Obtain a column value as a string**
+**Obtener valor de columna como cadena de texto**
 
 <br/>
-Mapping expressions also support simple data types.
+Las expresiones de mapeo también soportan tipos de dato simples.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get username of user with id = 1
-$username = $mapper->type('string')->query("SELECT name FROM users WHERE user_id = 1");
-
-$mapper->close();
-?>
+//obtener nombre de usuario con id 1
+$nombre = $mapper
+->type('string')
+->query("SELECT nombre FROM usuarios WHERE id_usuario = 1");
 ```
 <br/>
-**Obtain a custom column value as an integer**
+**Obtener valor de columna como entero**
 
 <br/>
-By default, scalars are obtained reading from the first column. We can change this behaviour by specifying the column name as a second parameter.
+Por defecto, los datos de tipo escalar se obtienen leyendo desde la primera columna. Este comportamiento puede modificarse especificando el nombre de la columna desde donde obtener el valor como segundo parámetro.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user id of user with username = 'jdoe'
-$username = $mapper->type('int', 'user_id')->query("SELECT * FROM users WHERE username = 'jdoe'");
-
-$mapper->close();
-?>
+//obtener id de usuario con nombre 'jperez'
+$id = $mapper
+->type('int', 'id_usuario')
+->query("SELECT * FROM usuarios WHERE nombre = 'jperez'");
 ```
 <br/>
-Dates
+Fechas
 -----
 
 <br/>
-**Obtain a column value as a DateTime instance**
+**Obtener valor de columna como DateTime**
 
 <br/>
-Columns of type *DATETIME*, *TIMESTAMP*, etc. are mapped by default to instances of **DateTime**.
+El tipo *DateTime* (cuyo alias es *dt*) nos permite obtener instancias de la clase *DateTime* desde una columna.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//obtener fecha de venta
+$fecha_venta = $mapper->type('dt')->query("SELECT fecha_venta FROM ventas WHERE id_venta = 324");
+```
+Columnas de tipo DATETIME y TIMESTAMP son convertidas a instancias de *DateTime* automaticamente.
 
-use eMapper\Engine\MySQL\MySQLMapper;
+```php
+//obtener datos de usuario
+$usuario = $mapper->type('arr')->query("SELECT * FROM usuarios WHERE id_usuario = 2");
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get sale date as a DateTime object
-$date = $mapper->type('dt', 'sale_date')->query("SELECT * FROM sales WHERE sale_id = 324");
-
-$mapper->close();
-?>
+//mostrar ultimo login
+echo $usuario['ultimo_login']->format('d/m/Y H:i:s');
 ```
 
+
 <br/>
-Lists
+Listas
 -----
 
 <br/>
-**Obtain a list of objects**
+**Obtener un listado de objetos**
 
-We can also get lists of a given type by adding brackets at the end of the mapping expression.
+Podemos también obtener listas de un determinado tipo agregando corchetes al final de la expresión de mapeo.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as a list of objects
-$users = $mapper->type('object[]')->query("SELECT * FROM users ORDER BY user_id ASC");
-
-//do something with users
-
-$mapper->close();
-?>
+//obtener usuarios como listado de objetos
+$usuarios = $mapper
+->type('object[]')
+->query("SELECT * FROM usuarios ORDER BY id_usuario ASC");
 ```
 
 <br/>
-**Obtain a list of integers**
+**Obtener una lista de enteros**
 
 <br/>
-This syntax is also supported when mapping to scalar types. For example, *integer[]* will return a list of integers.
+Esta sintaxis también es soportada al mapear a tipos de dato simples. Por ejemplo, *integer[]* devuelve un listado de enteros.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users ids as a list
-$user_ids = $mapper->type('integer[]')->query("SELECT user_id FROM users");
-
-$mapper->close();
-?>
+//obtener ids de usuario como lista
+$ids = $mapper->type('integer[]')->query("SELECT id_usuario FROM usuarios");
 ```
 
 <br/>
-**Obtain a list of strings from a column**
+**Obtener un listado de cadenas**
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users names as a list
-$usernames = $mapper->type('str[]', 'username')->query("SELECT * FROM users");
-
-$mapper->close();
-?>
+//obtener nombre de usuario como lista
+$nombre = $mapper->type('str[]', 'nombre')->query("SELECT * FROM usuarios");
 ```
 
 <br/>
-Indexed lists
+Indexado
 -------------
 
 <br/>
-**Obtain a list of objects indexed by column**
+**Obtener uns lista de objetos indexada por una columna**
 
 <br/>
-Lists of arrays/objects can be indexed by a given column by specifying that column name between brackets in the mapping expression. The following code returns an array of objects where each key is the corresponding *user_id* for that row.
+Las listas de arreglos y objetos pueden ser indexadas por una columna especificando el nombre de la misma entre corchetes en la expresión de mapeo. El siguiente ejemplo obtiene una lista donde cada índice es el valor correspondiente a la columna *id_usuario* para esa fila.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user list as an array of objects indexed by user id
-$users = $mapper->type('object[user_id]')->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//obtener un listado de objetos indexado por id_usuario
+$usuarios = $mapper
+->type('object[id_usuario]')
+->query("SELECT * FROM usuarios");
 ```
 <br/>
-**Obtain a list of arrays indexed by column**
+**Obtener un listado de arreglos indexados por una columna**
 
-This syntax is supported by the array mapper as well.
+Esta sintaxis es también soportada al mapear a arreglos.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of associative arrays indexed by user id
-$users = $mapper->type('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//obtener un listado de arreglos asociativos indexados por id_usuario
+$usuarios = $mapper
+->type('array[id_usuario]', MYSQLI_ASSOC)
+->query("SELECT * FROM usuarios");
 ```
-Remember that you can use only columns which are present on the result set. If we want a list of numeric arrays the index column must be specified as an integer.
+Resulta útil recordar que solo es posible indexar por columnas presentes en el set de columnas devueltas por el resultado. Esto implica que al mapear a un arreglo con índices numéricos debemos expresar la columna como un entero.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of numeric arrays indexed by the first column
-$users = $mapper->type('array[0]', MYSQLI_NUM)->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//obtener un listado de arreglos numéricos indexados por la primera columna
+$usuarios = $mapper
+->type('array[0]', MYSQLI_NUM)
+->query("SELECT * FROM usuarios");
 ```
 
 <br/>
-**Obtain a list of objects indexed by column with a custom type**
+**Obtener un listado de objetos indexados por una columna con un tipo customizado**
 
 <br/>
-Index type can be declared by adding a type specifier right after its name. If no type is specified then the one associated with the column is used.
+Es posible especificar el tipo de dato por el cual indexar a continuación del nombre de la columna agregando el caracter ':' en medio.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of stdClass instances indexed by user id casted to string
-$users = $mapper->type('object[user_id:string]')->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//obtener listado de usuarios indexados por id convertido a cadena de texto
+$usuarios = $mapper
+->type('object[id_usuario:string]')
+->query("SELECT * FROM usuarios");
 ```
 
 
 <br/>
-**Custom indexation**
+**Función de indexado**
 
-Indexes can be customized by applying an *index callback* through the *index* method. This callback will receive each mapped row obtained from the result.
+Podemos generar un índice por cada valor devuelto por una consulta aplicando una *función de indexado* a través del método *index*. Este función será invocada con cada fila devuelta.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//create an index from user's email
-$users = $mapper->type('object[]')->index(function ($user) {
-    //set email as index
-    return strstr($user->email, '@', true);
-})->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//generar índice con email de usuario
+$usuarios = $mapper->type('object[]')->index(function ($usuario) {
+    return strstr($usuario->email, '@', true);
+})->query("SELECT * FROM usuarios");
 ```
 
 <br/>
-Grouping
+Agrupado
 -------
 
 <br/>
-**Grouping by a given column**
+**Agrupar por columna**
 
 <br/>
-Grouping allows to nest all rows into a distinct set of arrays. The required syntax is pretty similar to the one used for indexation. This example shows how to obtain a list of objects grouped by *category*.
+El agrupamiendo permite organizar un listado de resultados con una característica en común entre varios arreglos. La sintaxis utilizada es muy similar a la vista para indexado de datos. El siguiente ejemplo muestra como agrupar un conjunto de resultados por la columna *categoria*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//obtener un listado de productos agrupados por categoría
+$productos = $mapper
+->type('obj<categoria:string>')
+->query("SELECT * FROM productos");
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//obtain products grouped by category
-$products = $mapper->type('obj<category:int>')->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
+//print_r($productos['software']);
+//print_r($productos['hardware']);
+//...
 ```
 
 <br/>
-**Indexation + Grouping**
+**Indexado + Agrupamiento**
 
 <br/>
-Indexation and grouping can be combined to obtain more precise lists.
+El indexado y agrupamiento puede ser combinados para obtener listados de mayor precisión.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //obtain products grouped by category and indexed by id
-$products = $mapper->type('array<category>[product_id]')->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
+$products = $mapper
+->type('array<categoria>[id_producto:int]')
+->query("SELECT * FROM productos");
 ```
 
 
 <br/>
-**Custom grouping**
+**Función de agrupamiento**
 
-We can also define a *group callback* through the *group* method.
+Podemos también definir la lógica de agrupamiento de una determinada fila a través de una *función de agrupamiento*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//obtain products grouped by code
-$products = $mapper->type('obj[product_id]')->group(function ($product) {
-    //obtain first 3 letters
-    return substr($product->code, 0, 3);
-})->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
+//obtener productos agrupados por código
+$productos = $mapper->type('obj[id_producto]')->group(function ($producto) {
+    //obtener las primeras 3 letras
+    return substr($producto->codigo, 0, 3);
+})->query("SELECT * FROM productos");
 ```
 
 <br/>
-Queries
+Consultas
 -------
 
 <br/>
