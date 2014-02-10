@@ -27,10 +27,11 @@ class MySQLMapper extends GenericMapper {
 	 * @param string $password
 	 * @param string $port
 	 * @param string $socket
-	 * @param string $autocommit
+	 * @param string charset
+	 * @param boolean $autocommit
 	 * @throws MySQLMapperException
 	 */
-	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $autocommit = true) {
+	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = null, $autocommit = true) {
 		if (!is_string($database) || empty($database)) {
 			throw new MySQLMapperException("Invalid database specified");
 		}
@@ -77,6 +78,14 @@ class MySQLMapper extends GenericMapper {
 	
 			$this->config['db.socket'] = $socket;
 		}
+		
+		if (isset($charset)) {
+			if (!is_string($charset) || empty($charset)) {
+				throw new MySQLMapperException("Invalid charset specified");
+			}
+			
+			$this->config['db.charset'] = $charset;
+		}
 	
 		//aet autocommit option
 		$this->config['db.autocommit'] = (bool) $autocommit;
@@ -87,40 +96,48 @@ class MySQLMapper extends GenericMapper {
 		//set default options
 		$this->applyDefaultConfig();
 	}
-	
+
 	/**
-	 * TODO: Method build
+	 * Builds a MySQLMapper instance from a configuration array
+	 * @param array $config
+	 * @param array $additional_config
+	 * @throws \InvalidArgumentException
+	 * @return \eMapper\Engine\MySQL\MySQLMapper
 	 */
-	
-	public static function build($db_config, $additional_config = null) {
-	}
-	
-	public static function buildFromConnection($conn, $additional_config = null) {
-		if (!($conn instanceof \mysqli)) {
-			throw new \InvalidArgumentException("An instance of mysqli was expected");
+	public static function build($config, $additional_config = null) {
+		if (!is_array($config)) {
+			throw new \InvalidArgumentException("Static method 'build' expects an array as first argument");
 		}
 		
-		//get current database name
-		$result = $conn->query("SELECT DATABASE()");
-		$row = $result->fetch_array();
-		$db_name = $row[0];
+		//validate database filename
+		if (!array_key_exists('database', $config)) {
+			throw new \InvalidArgumentException("Configuration value 'database' not found");
+		}
 		
-		//initialize mapper
-		$mapper = new MySQLMapper($db_name);
-		$mapper->connection = $conn;
-		$mapper->free_result($result);
+		$database = $config['database'];
+		$host = array_key_exists('host', $config) ? $config['host'] : null;
+		$username = array_key_exists('username', $config) ? $config['username'] : null;
+		$password = array_key_exists('password', $config) ? $config['password'] : null;
+		$port = array_key_exists('port', $config) ? $config['port'] : null;
+		$socket = array_key_exists('socket', $config) ? $config['socket'] : null;
+		$charset = array_key_exists('charset', $config) ? $config['charset'] : null;
+		$autocommit = array_key_exists('autocommit', $config) ? $config['autocommit'] : null;
 		
-		if (!is_null($additional_config)) {
-			if (!is_array($additional_config)) {
-				throw new \InvalidArgumentException("Additional config must be defined as an array");
-			}
-			
-			return $mapper->config = array_merge($mapper->config, $additional_config);
+		$mapper = new MySQLMapper($database, $host, $username, $password, $port, $socket, $charset, $autocommit);
+		
+		//set database prefix (when available)
+		if (array_key_exists('prefix', $config)) {
+			$mapper->config['db.prefix'] = $config['prefix'];
+		}
+		
+		//merge additional configuration values
+		if (is_array($additional_config) && !empty($additional_config)) {
+			$mapper->config = array_merge($mapper->config, $additional_config);
 		}
 		
 		return $mapper;
 	}
-	
+		
 	/**
 	 * Initializes a MySQL database connection
 	 * @throws MySQLConnectionException
@@ -149,6 +166,11 @@ class MySQLMapper extends GenericMapper {
 	
 		//set autocommit
 		$mysqli->autocommit($this->config['db.autocommit']);
+		
+		//set charset
+		if (array_key_exists('db.charset', $this->config)) {
+			$mysqli->set_charset($this->config['db.charset']);
+		}
 	
 		//store open connection
 		return $this->connection = $mysqli;

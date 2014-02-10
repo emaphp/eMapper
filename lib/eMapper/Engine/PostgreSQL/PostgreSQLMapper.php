@@ -39,10 +39,80 @@ class PostgreSQLMapper extends GenericMapper {
 			$this->config['db.connect_type'] = $connect_type;
 		}
 		
+		//type manager
 		$this->typeManager = new TypeManager();
 		
+		//set default configuration
 		$this->applyDefaultConfig();
 	}
+	
+	/**
+	 * Builds a PostgreSQLMapper instance from a configuration array
+	 * @param array $config
+	 * @param array $additional_config
+	 * @throws \InvalidArgumentException
+	 * @return \eMapper\Engine\PostgreSQL\PostgreSQLMapper
+	 */
+	public static function build($config, $additional_config = null) {
+		if (!is_array($config)) {
+			throw new \InvalidArgumentException("Static method 'build' expects an array as first argument");
+		}
+		
+		$conn_string = '';
+		
+		//validate database name
+		if (!array_key_exists('database', $config) && !empty($config['host'])) {
+			throw new \InvalidArgumentException("Configuration value 'database' not found");
+		}
+		
+		$conn_string .= sprintf('dbname=%s ', $config['database']);
+		
+		//add host name
+		if (array_key_exists('host', $config) && !empty($config['host'])) {
+			$conn_string .= sprintf('host=%s ', $config['host']);
+		}
+		
+		//add port
+		if (array_key_exists('port', $config) && !empty($config['port'])) {
+			$conn_string .= sprintf('port=%s ', $config['port']);
+		}
+		
+		//add user
+		if (array_key_exists('username', $config) && !empty($config['username'])) {
+			$conn_string .= sprintf('user=%s ', $config['username']);
+		}
+		
+		//add password
+		if (array_key_exists('password', $config)) {
+			$conn_string .= sprintf('password=%s ', $config['password']);
+		}
+		
+		//add timeout
+		if (array_key_exists('timeout', $config) && !empty($config['timeout'])) {
+			$conn_string .= sprintf('connection_timeout=%s ', $config['timeout']);
+		}
+		
+		//add charset
+		if (array_key_exists('charset', $config) && !empty($config['charset'])) {
+			$conn_string .= sprintf("options='--client_encoding=%s' ", strtoupper(addcslashes($config['charset'], "'\\")));
+		}
+		
+		$conn_string = trim($conn_string);
+		
+		//build instance
+		$mapper = new PostgreSQLMapper($conn_string);
+		
+		//set database prefix (when available)
+		if (array_key_exists('prefix', $config)) {
+			$mapper->config['db.prefix'] = $config['prefix'];
+		}
+		
+		if (is_array($additional_config) && !empty($additional_config)) {
+			$mapper->config = array_merge($mapper->config, $additional_config);
+		}
+		
+		return $mapper;
+	} 
 	
 	/**
 	 * Initializes a PostgreSQL database connection

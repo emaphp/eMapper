@@ -7,6 +7,7 @@ use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
+use eMapper\Type\TypeManager;
 
 class SQLiteMapper extends GenericMapper {
 	//transaction type constants
@@ -32,7 +33,7 @@ class SQLiteMapper extends GenericMapper {
 			throw new SQLiteMapperException("Filename is not a valid string");
 		}
 		
-		$this->config['db.filename'] = $filename;
+		$this->config['db.database'] = $filename;
 		
 		if (empty($flags)) {
 			$flags = QLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
@@ -40,6 +41,50 @@ class SQLiteMapper extends GenericMapper {
 		
 		$this->config['db.flags'] = $flags;
 		$this->config['db.encription_key'] = $encription_key;
+		
+		//type managet
+		$this->typeManager = new TypeManager();
+	
+		// set default options
+		$this->applyDefaultConfig();
+	}
+	
+	/**
+	 * Builds a SQLiteMapper instance from a configuration array
+	 * @param array $config
+	 * @param array $additional_config
+	 * @throws \InvalidArgumentException
+	 * @return \eMapper\Engine\SQLite\SQLiteMapper
+	 */
+	public static function build($config, $additional_config = null) {
+		if (!is_array($config)) {
+			throw new \InvalidArgumentException("Static method 'build' expects an array as first argument");
+		}
+		
+		//validate database filename
+		if (!array_key_exists('database', $config)) {
+			throw new \InvalidArgumentException("Configuration value 'database' not found");
+		}
+		
+		//get configuration values
+		$database = $config['database'];
+		$flags = array_key_exists('flags', $config) ? $config['flags'] : 0;
+		$encription_key = array_key_exists('encription_key', $config) ? $config['encription_key'] : null;
+		
+		//create instance
+		$mapper = new SQLiteMapper($database, $flags, $encription_key);
+		
+		//set database prefix (when available)
+		if (array_key_exists('prefix', $config)) {
+			$mapper->config['db.prefix'] = $config['prefix'];
+		}
+		
+		//merge additional configuration values
+		if (is_array($additional_config) && !empty($additional_config)) {
+			$mapper->config = array_merge($mapper->config, $additional_config);
+		}
+		
+		return $mapper;
 	}
 	
 	/**
@@ -53,7 +98,7 @@ class SQLiteMapper extends GenericMapper {
 		}
 		
 		try {
-			$this->db = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
+			$this->db = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.database'], $this->config['db.flags']) : new \SQLite3($this->config['db.database'], $this->config['db.flags'], $this->config['db.encription_key']);
 		}
 		catch (\Exception $e) {
 			throw new SQLiteConnectionException($e->getMessage());
