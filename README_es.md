@@ -51,7 +51,7 @@ Introducción
 ------------
 
 <br/>
-***eMapper*** es una librería PHP que apunta a proveer una herramienta de mapeo de datos simple, poderosa y altamente customizable. Viene con algunas características interasantes no incluidas en otros frameworks:
+***eMapper*** es una librería PHP que apunta a proveer una herramienta de mapeo de datos simple, poderosa y altamente customizable. Viene con algunas características interesantes no incluidas en otros frameworks:
 
 - **Mapeo customizado**: Los resultados pueden mapearse a un tipo particular a través de una *expresión de mapeo*.
 - **Indexado y Agrupamiento**: Los elementos dentro de una lista pueden ser indexados y/o agrupados por una valor de columna.
@@ -65,17 +65,19 @@ Primeros pasos
 -----------
 
 <br/>
+Para comenzar a trabajar con **eMapper** deberemos primero crear una instancia de alguna de las clases de mapeo disponibles en la librería. La clase a instanciar dependerá del servidor de base de datos que estemos utilizando.
+
+<br/>
 **MySQL**
 
 <br/>
-Para comenzar crearemos una instancia de la clase *MySQLMapper*, la cual se encuetra declarada dentro del paquete *eMapper\Engine\MySQL*. Esta clase realiza conexiones a bases de datos MySQL y MariaDB. El constructor de la misma recibe el nombre de la base de datos, nombre de host y credenciales de usuario.
 ```php
 //incluir autoloader
 require __DIR__ . "/vendor/autoload.php";
 
 use eMapper\Engine\MySQL\MySQLMapper;
 
-//instanciar clase
+//mapper MySQL/MariaDB
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 ```
 
@@ -83,8 +85,32 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 **SQLite**
 
 <br/>
+```php
+//incluir autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Engine\SQLite\SQLiteMapper;
+
+//mapper SQLite
+$mapper = new SQLiteMapper('company.db');
+```
+
+<br/>
 **PostgreSQL**
 
+<br/>
+```php
+//incluir autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
+
+//mapper PostgreSQL
+$mapper = new PostgreSQLMapper('dbname=company user=test password=test');
+```
+<br/>
+
+Al instanciar una clase mapper estaremos creando una instancia del objeto con los valores de configuración que hayamos suministrado. La conexión a la correspondiente base de datos se realizará recién al momento de enviar una consulta. Alternativamente, podemos utilizar el metodo *connect* para verificar la correcta conexión al servidor.
 
 <br/>
 Arreglos
@@ -109,11 +135,13 @@ $mapper->close();
 **Obtener una fila como un arreglo asociativo**
 
 <br/>
-Para indicar el tipo de dato a devolver por una consulta se utiliza el método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). eMapper se caracteriza para hacer un uso exhaustivo del encadenamiento de métodos (*method chaining*) para configurar la manera en que un resultado es mapeado. Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
+Para indicar el tipo de dato a devolver por una consulta se utiliza el método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). **eMapper** se caracteriza para hacer un uso exhaustivo del encadenamiento de métodos (*method chaining*) para configurar la manera en que un resultado es mapeado. Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
 ```php
+use eMapper\Result\ResultInterface;
+
 //obtener datos de usuario por id como arreglo asociativo
 $usuario = $mapper
-->type('array', MYSQLI_ASSOC)
+->type('array', ResultInterface::ASSOC)
 ->query("SELECT * FROM usuarios WHERE id_usuario = 1");
 ```
 
@@ -263,22 +291,28 @@ $usuarios = $mapper
 ->type('object[id_usuario]')
 ->query("SELECT * FROM usuarios");
 ```
+
 <br/>
 **Obtener un listado de arreglos indexados por una columna**
 
+<br/>
 Esta sintaxis es también soportada al mapear a arreglos.
 
 ```php
+use eMapper\Result\ResultInterface;
+
 //obtener un listado de arreglos asociativos indexados por id_usuario
 $usuarios = $mapper
-->type('array[id_usuario]', MYSQLI_ASSOC)
+->type('array[id_usuario]', ResultInterface::ASSOC)
 ->query("SELECT * FROM usuarios");
 ```
 Resulta útil recordar que solo es posible indexar por columnas presentes en el set de columnas devueltas por el resultado. Esto implica que al mapear a un arreglo con índices numéricos debemos expresar la columna como un entero.
 ```php
+use eMapper\Result\ResultInterface;
+
 //obtener un listado de arreglos numéricos indexados por la primera columna
 $usuarios = $mapper
-->type('array[0]', MYSQLI_NUM)
+->type('array[0]', ResultInterface::NUM)
 ->query("SELECT * FROM usuarios");
 ```
 
@@ -336,8 +370,8 @@ $productos = $mapper
 El indexado y agrupamiento puede ser combinados para obtener listados de mayor precisión.
 
 ```php
-//obtain products grouped by category and indexed by id
-$products = $mapper
+//obtener productos agrupados por categoria e indexados por id
+$productos = $mapper
 ->type('array<categoria>[id_producto:int]')
 ->query("SELECT * FROM productos");
 ```
@@ -447,7 +481,7 @@ $user = $mapper
 ```
 
 <br/>
-**Objetos y argumentos como argumento**
+**Objetos y arreglos como argumento**
 
 <br/>
 Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento.
@@ -617,36 +651,29 @@ $mapper->close();
 ```
 
 <br/>
-Raw results
+Resultados
 -----------
 
 <br/>
-**Obtaining results as resources**
+**Obtener resultados sin procesar**
 
 <br/>
-Using the ***sql*** method we can obtain ***mysqli_result*** objects directly from queries. This method ignores all configuration methods appended before it.
+A través del método **sql** podemos realizar consultas a la base de datos obteniendo el resultado sin procesamiento adicional. El tipo del resultado dependerá de la clase mapper que estemos utilizando
+
+<br/>
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+$resultado = $mapper->sql("SELECT id_usuario, nombre FROM usuarios WHERE id_usuario = %{i}", 5);
 
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper->sql("SELECT user_id, username FROM users WHERE user_id = %{i}", 5);
-
-while (($row = $result->fetch_array()) != null) {
+//mysql
+while (($row = $resultado->fetch_array()) != null) {
     //...
 }
 
-//avoid 'synchronized' bug in older mysqli
-$mapper->free_result($result);
-$mapper->close();
-?>
+$mapper->free_result($resultado);
 ```
 
 <br/>
-Stored procedures
+Rutinas almacenadas
 -----------------
 
 <br/>
@@ -715,61 +742,12 @@ $mapper->close();
 
 
 <br/>
-Dynamic SQL
+SQL Dinámico
 -----------
 
-<br/>
-**Calling a custom callback from within a query**
 
 <br/>
-It is possible to define custom callbacks in order to populate a SQL query with a custom string. These callbacks are defined by invoking the *dynamic* method with a callback id (as string) and a Closure object. Callbacks are called from within the query by inserting the callback id between double brackets. These callbacks receive one array containing all query arguments.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper
-->map('obj')
-->dynamic('condition', function ($args) {
-    //put condition according with argument type
-    if (is_int($args[0])) {
-        return 'user_id = %{i}';
-    }
-    else {
-        return 'user_name = %{s}';
-    }
-})->query("SELECT * FROM user_id WHERE [[condition]]", 1);
-
-```
-You can add an arbitrary number of callbacks. These are stored inside the mapper configuration array using their callback id with the prefix 'dynamic.' as key. You could also provide a default value in case a callback happens to be undefined. Default values are inserted right after the callback id and a double pipe (||). If the callback is defined then the default value is sent as a second parameter.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-//define order column
-$order_column = 'user_name';
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper
-->map('obj')
-->dynamic('order', function ($args, $default) use ($order_column) {
-    //return user_name ASC
-    return isset($order_column) ? $order_column . ' ASC' : $default;
-})
-//order by id by default
-->query("SELECT * FROM users ORDER BY [[order||user_id ASC]]");
-
-```
-<br/>
-Cache
+Caché
 -----
 
 <br/>
@@ -828,7 +806,7 @@ $mapper->close();
 ```
 
 <br/>
-Configuration
+Configuración
 --------------
 <br/>
 In order to accomplish its functionality, a mapper class generates copies of itself dynamically whenever certain methods are invoked. This means that when calling methods like ***cache***, ***map***, etc. the object clones itself and applies a new configuration. These configuration values are transient, which means that they don't apply to the main instance from they were created. For example, the ***map*** method sets the option *'map.type'* to the requested value type. Alternatively, we can declare transient values using the ***option*** method.
@@ -876,7 +854,7 @@ $user = $mapper->map('obj')->query("SELECT * FROM @{my_table} WHERE user_id = 2"
 If a given configuration value cannot be converted to string the expression is left blank.
 
 <br/>
-The 'each' method
+El método each
 -----------------
 
 <br/>
@@ -903,7 +881,7 @@ $mapper->close();
 ?>
 ```
 <br/>
-Filters
+Filtros
 -------
 
 <br/>
@@ -936,7 +914,7 @@ $mapper->close();
 If a filter is applied to a non-list and the filter evaluates to false then NULL is returned.
 
 <br/>
-Custom type handlers
+Tipos de usuario
 --------------------
 
 <br/>
@@ -1089,7 +1067,7 @@ $red = $mapper->map('color')->query("SELECT rgb FROM palette WHERE name = 'red'"
 ```
 
 <br/>
-Exceptions
+Excepciones
 ----------
 
 <br/>
