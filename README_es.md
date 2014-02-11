@@ -15,8 +15,8 @@ Ultimas modificaciones
 2014-??-?? - Versión 3.0.0
 
   * Obsoleto: Models.
-  * Agregado: Resultmaps (Un resultmap permite definir que elementos mapear desde una fila).
-  * Agregado: Entities (Las clases Entity permiten mapear objetos a través de annotations).
+  * Agregado: Result maps (Un result map permite definir que columnas mapear desde una fila).
+  * Agregado: Entities (Las Entities permiten mapear objetos a través de annotations).
   * Agregado: Soporte para bases de datos SQLite y PostgreSQL.
   * Agregado: SQL dinámico (Permite anidar expresiones-S dentro de una consulta través de la librería eMacros).
   * Agregado: Atributos dinámicos.
@@ -55,7 +55,7 @@ Introducción
 
 - **Mapeo customizado**: Los resultados pueden mapearse a un tipo particular a través de una *expresión de mapeo*.
 - **Indexado y Agrupamiento**: Los elementos dentro de una lista pueden ser indexados y/o agrupados por una valor de columna.
-- **Tipos customizados**: Los desarrolladores pueden diseñar sus propios tipos de datos y manejadores de tipo.
+- **Tipos customizados**: Es posible definir tipos de datos de usuario y manejadores de tipo.
 - **Caché**: Los datos mapeados pueden almacenarse en caché utilizando APC o Memcache.
 - **SQL Dinámico**: Las consultas pueden contener expresiones escritas en el lenguaje eMacros.
 
@@ -63,8 +63,9 @@ Introducción
 <br/>
 Primeros pasos
 -----------
+
 <br/>
-***Nota***: La mayor parte de los ejemplos en esta documentación utiliza la clase para conexión a bases de datos MySQL/MariaDB. Puede consultar el apéndice *Bases de Datos* para detalles de como conectarse a otros tipos de bases de datos.
+**MySQL**
 
 <br/>
 Para comenzar crearemos una instancia de la clase *MySQLMapper*, la cual se encuetra declarada dentro del paquete *eMapper\Engine\MySQL*. Esta clase realiza conexiones a bases de datos MySQL y MariaDB. El constructor de la misma recibe el nombre de la base de datos, nombre de host y credenciales de usuario.
@@ -79,6 +80,13 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 ```
 
 <br/>
+**SQLite**
+
+<br/>
+**PostgreSQL**
+
+
+<br/>
 Arreglos
 -------
 
@@ -86,7 +94,7 @@ Arreglos
 **Obtener una lista de filas como arreglo**
 
 <br/>
-Este ejemplo muestra como a través del método *query* enviamos una consulta al servidor MySQL/MariaDB. El resultado obtenido es luego mapeado al tipo por defecto: lista de arreglos. Cada arreglo dentro de la lista posee claves numéricas y asociativas.
+Este primer ejemplo muestra como a través del método *query* enviamos una consulta al servidor de base de datos. El resultado obtenido es luego mapeado al tipo por defecto: una lista de arreglos. Cada arreglo dentro de la lista posee claves numéricas y asociativas.
 ```php
 //obtener lista de usuarios como lista de arreglos
 $usuarios = $mapper->query("SELECT * FROM usuarios");
@@ -129,7 +137,7 @@ $usuario = $mapper->type('object')->query("SELECT * FROM usuarios WHERE id_usuar
 **Obtener una fila como una instancia de clase**
 
 <br/>
-Es posible también indicar la clase del objeto a devolver dentro de la expresión de mapeo. Para demostrar este funcionalidad, hemos diseñado una clase *Usuario* dentro del paquete *Acme*.
+Es posible también indicar la clase del objeto a devolver dentro de la expresión de mapeo. Para demostrar esta funcionalidad, hemos diseñado una clase *Usuario* dentro del paquete *Acme*.
 ```php
 <?php
 namespace Acme;
@@ -141,7 +149,7 @@ class Usuario {
     public $email;
 }
 ```
-La clase de un objeto debe indicarse inmediatamente despues del tipo separado por el caracter ':'.
+La clase de un objeto debe indicarse inmediatamente despues del tipo de la siguiente manera.
 
 ```php
 //obtener usuario por id instancia de Acme\User
@@ -231,6 +239,9 @@ $ids = $mapper->type('integer[]')->query("SELECT id_usuario FROM usuarios");
 <br/>
 **Obtener un listado de cadenas**
 
+<br/>
+También es posible definir la columna desde la cual obtener los valores.
+
 ```php
 //obtener nombre de usuario como lista
 $nombre = $mapper->type('str[]', 'nombre')->query("SELECT * FROM usuarios");
@@ -275,7 +286,7 @@ $usuarios = $mapper
 **Obtener un listado de objetos indexados por una columna con un tipo customizado**
 
 <br/>
-Es posible especificar el tipo de dato por el cual indexar a continuación del nombre de la columna agregando el caracter ':' en medio.
+Es posible especificar el tipo de dato por el cual indexar a continuación del nombre de la columna.
 
 ```php
 //obtener listado de usuarios indexados por id convertido a cadena de texto
@@ -288,7 +299,7 @@ $usuarios = $mapper
 <br/>
 **Función de indexado**
 
-Podemos generar un índice por cada valor devuelto por una consulta aplicando una *función de indexado* a través del método *index*. Este función será invocada con cada fila devuelta.
+Podemos generar un índice por cada elemento en la lista aplicando una *función de indexado* a través del método *index*. La función recibirá como argumento cada una de las filas devueltas por la consulta.
 
 ```php
 //generar índice con email de usuario
@@ -305,7 +316,7 @@ Agrupado
 **Agrupar por columna**
 
 <br/>
-El agrupamiendo permite organizar un listado de resultados con una característica en común entre varios arreglos. La sintaxis utilizada es muy similar a la vista para indexado de datos. El siguiente ejemplo muestra como agrupar un conjunto de resultados por la columna *categoria*.
+El agrupamiendo permite organizar un listado de resultados con una característica en común entre varios arreglos. La sintaxis utilizada es muy similar a la vista para indexado de filas. El siguiente ejemplo muestra como agrupar un conjunto de resultados por la columna *categoria*.
 
 ```php
 //obtener un listado de productos agrupados por categoría
@@ -350,164 +361,107 @@ Consultas
 -------
 
 <br/>
-**Passing parameters to a query**
+**Enviando parámetros a una consulta**
 
 <br/>
-When calling the ***query*** method we can specify an arbitrary number of parameters. Each of these parameters are referenced within the query string with an expression that contains a leading ***%*** character followed by a type specifier between braces.
+Al invocar a la función ***query*** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **especificador de tipo** entre llaves.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //obtain user with id = 1
-$user = $mapper->type('obj')->query("SELECT * FROM users WHERE user_id = %{int}", 1);
-
-$mapper->close();
-?>
+$user = $mapper->type('obj')->query("SELECT * FROM usuarios WHERE id_usuario = %{int}", 1);
 ```
-The next example shows how to use type specifiers to generate an insertion query.
+Este ejemplo muestra como utilizar este tipo de expresiones para generar una consulta de inserción de datos.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//valores a insertar
+$nombre = 'jperez';
+$password = sha1('qwerty321');
+$admin = false;
+$imagen = file_get_contents('foto.jpg');
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//user values
-$username = 'jdoe';
-$password = sha1('jhon123');
-$is_admin = false;
-$image = file_get_contents('photo.jpg');
-
-//insert data ('x' is short for 'blob')
-$mapper->query("INSERT INTO users (username, password, is_admin, image) VALUES (%{s}, %{s}, %{b}, %{x})", $username, $password, $is_admin, $image);
-
-$mapper->close();
-?>
+//insertar datos ('s' => 'string', 'b' => 'boolean', 'x' => 'blob')
+$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (%{s}, %{s}, %{b}, %{x})", $nombre, $password, $admin, $imagen);
 ```
 
 <br/>
-**Passing arrays as parameters to a query**
+**Arreglos como parámetros**
 
 <br/>
-When passing an array, all values are converted to the specified type and then joined together. This is useful when doing a search using the **IN** clause.
+En caso de que el argumento sea una arreglo, los valores del mismo son convertidos al tipo especificado y luego concatenados. Esto resulta útil al realizar búsquedas con el operador **IN**.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//execute query: SELECT * FROM products WHERE code IN ('MXP412', 'TRY235', 'OFR255')
-$products = $mapper->query("SELECT * FROM products WHERE code IN (%{s})", array('MXP412', 'TRY235', 'OFR255'));
-
-$mapper->close();
-?>
-```
-<br/>
-**Specifying parameters by order of appearance**
-
-<br/>
-There's an additional syntax that allow us to refer to a parameter by its order of appearance. Instead of the desired type we use a number which identifies the parameter in the list and (optionally) a type specifier.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//first parameter is %{0}
-$products = $mapper->type('obj[product_id]')->query("SELECT * FROM products WHERE product_id = %{1} OR product_code = %{0:s}", 'PHN00098', 3);
-
-//do something with products
-
-$mapper->close();
-?>
-```
-We can also tell from which subindex must be obtained a value. A subindex must be appended right after the parameter index and placed between brackets.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$param_list = array('id' => 1, 'jdoe', 'david');
-
-$users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
-
-//do something with users
-
-$mapper->close();
-?>
+//ejecutar consulta: SELECT * FROM productos WHERE codigo IN ('MXP412', 'TRY235', 'OFR255')
+$products = $mapper->query("SELECT * FROM productos WHERE codigo IN (%{s})", array('MXP412', 'TRY235','OFR255'));
 ```
 
 <br/>
-**Ranges**
+**Especificando parámetros por orden de aparición**
 
-Ranges allow to use a subset of a list passed as argument. The obtained expression is similar to use the function [array_slice](http://www.php.net/manual/en/function.array-slice.php "") on the specified array. The left value represents the offset and the right one the length.
+<br/>
+También es posible referenciar a un argumento por su orden de aparición. En lugar de especificar solo el tipo, utilizamos el número de argumento a insertar y (opcionalmente) un identificador de tipo.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//primer argumento: %{0}
+$products = $mapper
+->type('obj[product_id]')
+->query("SELECT * FROM productos WHERE id_producto = %{1} OR codigo = %{0:s}", 'PHN00098', 3);
+```
+Podemos también decir desde que subíndice obtener el valor a insertar. Un subíndice debe especificarse inmediatamente despues del número de argumento y colocarse entre corchetes.
 
-use eMapper\Engine\MySQL\MySQLMapper;
+```php
+$args = array('id' => 1, 'jdoe', 'david');
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$users = $mapper
+->type('obj[]')
+->query("SELECT * FROM usuarios WHERE id_usuario = %{0[id]} OR nombre = %{0[1]:str} OR nombre = %{0[2]:str}", $args);
+```
+
+<br/>
+**Rangos**
+
+Un rango nos permite insertar un subconjunto de elementos de una lista. Para especificar un rango utilizamos 2 valores: el índice desde donde empezar a insertar y el largo total del subconjunto (de manera similar a la función [array_slice](http://www.php.net/manual/en/function.array-slice.php "")).
+
+```php
 $list = array(45, 23, '43', '164', 43);
 
-//obtain a sublist with '43' and '164'
-$users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE user_id IN (%{0[2..2]:i})", $list);
-
-$mapper->close();
-?>
+//obtener una sublista con los elementos '43' y '164'
+$users = $mapper
+->type('obj[]')
+->query("SELECT * FROM usuarios WHERE id_usuario IN (%{0[2..2]:i})", $list);
 ```
 
-If one value is omitted then the corresponding limit is used:
+En caso de que uno de los valores del rango no sea especificado esto tendrá distintos significados:
 
-* [..3] Obtains the first 3 elements.
-* [1..] Obtains all elements except the first one.
-* [..] Obtains the whole list.
-
-<br/>
-**Using objects and arrays as parameter**
+* [..3] Obtiene los primeros 3 elementos.
+* [1..] Obtiene todos los elementos excepto el primero.
+* [..] Obtiene la lista completa.
 
 <br/>
-Queries also supports a syntax which obtains values from object properties (and array keys). We can refer to an object property with the '#' symbol and the object property between braces. Just like previous mapping expressions, it is also possible to specify the property type, subindex and range.
+Este tipo de expresiones también puede utilizarse con cadenas de texto.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+$nombre = "XXXjperezXXX";
 
-use eMapper\Engine\MySQL\MySQLMapper;
+//obtener usuario con nombre 'jperez'
+$user = $mapper
+->type('obj')
+->query("SELECT * FROM usuarios WHERE nombre = %{0[3..6]}", $nombre);
+```
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+<br/>
+**Objetos y argumentos como argumento**
 
-//user values
-$user = new stdClass();
-$user->username = 'jdoe';
-$user->password = sha1('jhon123');
-$user->is_admin = false;
-$user->image = file_get_contents('photo.jpg');
+<br/>
+Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento.
+
+```php
+//datos de usuario
+$usuario = new stdClass();
+$usuario->nombre = 'jperez';
+$usuario->password = sha1('jperez321');
+$usuario->admin = false;
+$usuario->imagen = file_get_contents('foto.jpg');
 
 //insert data
-$mapper->query("INSERT INTO users (username, password, is_admin, image) VALUES (#{username}, #{password:s}, #{is_admin}, #{image:blob})", $user);
-
-$mapper->close();
-?>
+$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (#{nombre}, #{password:s}, #{admin}, #{imagen:blob})", $user);
 ```
 
 <br/>
@@ -1220,94 +1174,76 @@ catch (MySQLMapperException $me) {
 ```
 
 <br/>
-Appendix I - Extra features
+Apéndice I - Features adicionales
 ---------------------------
 
 <br/>
-**Query overriding**
+**Overriding de consulta**
 
-It is possible to override current query by chaining a call to the *query_callback* method. This method expects a Closure object which receives the query that will be executed right after.
+El método *query_callback* permite reescribir la consulta que es enviada al servidor de base de datos de acuerdo a una determinada lógica. Este método recibe una función cuyo primer argumento es la consulta a realizar. Al retornar un valor podemos sobreescribir la consulta que será enviada finalmente.
 
 ```php
-<?php
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $order = 'user_name ASC';
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//get users
-$users = $mapper->map('obj[]')
+//ordenar usuarios
+$usuarios = $mapper->type('obj[]')
 ->query_callback(function ($query) {
-    //apply custom order
+    //aplicar orden
     return $query . ' ORDER BY ' . $order;
 })
-->query("SELECT * FROM users");
-?>
+->query("SELECT * FROM usuarios");
+
 ```
 
 <br/>
-**Empty results**
+**Resultado vacío**
 
-Through the *no_rows* method we can assign the execution of an auxiliary callback whenever an empty result is retrieved from the database. The obtained result is sent as a parameter.
+A través del método *no_rows* podemos asociar la ejecución de una función auxiliar en los casos donde un resultado no devuelva ninguna fila. Esta función recibe como argumento el resultado obtenido.
 
 ```php
-<?php
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//get users
-$users = $mapper->map('obj[]')
+//obtener usuarios
+$usuarios = $mapper->type('obj[]')
 ->no_rows(function ($result) {
-    die('No users have been found :(');
+    throw new \UnexpectedValueException('No users have been found :(');
 })
 ->query("SELECT * FROM users");
-?>
 ```
 
 <br/>
-**Non-escaped strings**
+**Cadenas no escapadas**
 
-Type *ustring* can be used to insert non-escaped strings into a query.
+El tipo *ustring* (con alias *ustr* y *us*) permite insertar cadenas de texto sin escapar dentro de la consulta. Cabe señalar que esta feature requiere especial cuidado dado que es posible sufrir ataques de *inyección SQL* si no se la usa adecuadamente.
 
 ```php
-<?php
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //get users ordered by id
-$users = $mapper->map('obj[]')->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'user_id', 'ASC');
-?>
+$users = $mapper
+->type('obj[]')
+->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'user_id', 'ASC');
 ```
-If certain string needs to be escaped before being inserted, then we can use the *escape* method available in the MySQLMapper class.
 
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$search = 'doe';
-
-//find users
-$users = $mapper->map('obj[]')->query("SELECT * FROM users WHERE user_name LIKE '%%{us}%'", $mapper->escape($search));
-?>
-```
 
 <br/>
-Appendix II - Configuration options
+Appendix II - Valores de configuración
 ----------------------------------
 
 <br/>
@@ -1623,7 +1559,7 @@ Configuration options are values that manage a mapper object behavior during a q
     </tbody>
 </table>
 <br/>
-License
+Licencia
 --------------
 <br/>
-This code is licensed under the BSD 2-Clause license.
+Esta librería se distribuye bajo la licencia BSD 2-Clause.

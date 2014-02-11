@@ -33,7 +33,7 @@ class SQLiteMapper extends GenericMapper {
 			throw new SQLiteMapperException("Filename is not a valid string");
 		}
 		
-		$this->config['db.database'] = $filename;
+		$this->config['db.filename'] = $filename;
 		
 		if (empty($flags)) {
 			$flags = QLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
@@ -98,7 +98,7 @@ class SQLiteMapper extends GenericMapper {
 		}
 		
 		try {
-			$this->db = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.database'], $this->config['db.flags']) : new \SQLite3($this->config['db.database'], $this->config['db.flags'], $this->config['db.encription_key']);
+			$this->db = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
 		}
 		catch (\Exception $e) {
 			throw new SQLiteConnectionException($e->getMessage());
