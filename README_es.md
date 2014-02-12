@@ -484,7 +484,7 @@ $user = $mapper
 **Objetos y arreglos como argumento**
 
 <br/>
-Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento.
+Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento de la consulta.
 
 ```php
 //datos de usuario
@@ -532,7 +532,7 @@ class UserResultMap {
 }
 ```
 
-Para aplicar un result map a la lógica de mapeo debemos incluir una invocación al método **result_map** pasando como argumento el nombre completo de la clase result map.
+Para aplicar un result map a la lógica de mapeo debemos incluir una invocación al método **result_map** pasando como argumento el nombre completo de la clase.
 
 ```php
 $usuario = $mapper
@@ -544,61 +544,124 @@ $usuario = $mapper
 El valor devuelto será una instancia de *stdClass* con las propiedades *id*, *nombre*, *clave* y *avatar*.
 
 <br/>
-Entities
+Entidades
 ----------
+
+<br/>
+Una entidad es una clase que, de la misma manera que un result map, define cuales propiedades deben ser mapeadas y que tipo les corresponde, pero que también puede utilizarse para mapear un resultado directamente. Las entidades deben ser declaradas utilizando la annotation *entity*.
+
+```php
+namespace Amce\Entity;
+
+/**
+ * @entity
+ */
+class Producto {
+    /**
+     * @column id_producto
+     */
+    public $id;
+    
+    /**
+     * @type str
+     */
+    public $codigo;
+    
+    /**
+     * @column fecha_modificacion
+     * @type string
+     */
+    public $fechaModificacion;
+}
+```
+
+La entidad *Producto* define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* y así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportarlo a JSON. Mapear a una entidad no requiere mayor esfuerzo.
+
+```php
+$productos = $mapper
+->type('obj:Acme\Entity\Producto[id]')
+->query("SELECT * FROM productos");
+```
+Es necesario notar que al utilizar result maps o entidades en listas indexadas debemos utilizar el nombre de la propiedad a utilizar como índice y no el nombre de la columna.
 
 <br/>
 Statements
 ----------
 
 <br/>
-**Executing statements**
+**Creación de statements**
 
 <br/>
-A statement object represents a query which can be identified by a string ID. Statements are created by calling the *stmt* method and are invoked through the *execute* method.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//add statement
-$mapper->stmt('findAllUsers', "SELECT * FROM users");
-
-//execute statement
-$users = $mapper->map('obj[]')->execute('findAllUsers');
-
-$mapper->close();
-?>
-```
-<br/>
-It is possible to provide a default set of options by adding a third parameter. Statement options are generated through 2 static methods available in the *eMapper\Statement\Statement* class.
+Una statement es una consulta a la cual se le asocia un identificador de tipo cadena y que se almacena dentro de un objeto mapper. Existen 2 métodos para creación de statements. El primero consiste en generar una instancia de la clase *eMapper\Statement\Statement* y luego invocar al método *addStatement* del objeto mapper. Al instanciar una statement debemos suministrar el identificador de la misma y la consulta propiamente dicha.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
 use eMapper\Statement\Statement;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+//crear statement
+$stmt = new Statement('findAllUsers', "SELECT * FROM usuarios");
 
-//add statements
-$mapper->stmt('findAllUsers', "SELECT * FROM users", Statement::config()->map('obj[user_id]'));
-$mapper->stmt('findUserByPK', "SELECT * FROM users WHERE user_id = %{i}", Statement::map('obj'));
-
-//execute statements
-$users = $mapper->execute('findAllUsers');
-$user = $mapper->execute('findUserByPK', 3);
-
-$mapper->close();
-?>
+//guardar statement
+$mapper->addStatement($stmt);
 ```
-The main difference between these two methods is that *config* accepts an array containing a list of options as a parameter. Check the *Appendix II - Configuration options* for a complete list of available options.
+El otro método de creación consiste en invocar al método *stmt* del objeto mapper con los mismos parámetros utilizados previamente.
+
+```php
+//crear statement
+$mapper->stmt('findAllUsers', "SELECT * FROM usuarios");
+```
+El método *stmt* retorna una referencia al objeto donde se almacena la statement, por lo que pueden encadenarse varias llamadas al mismo método.
+
+```php
+//crear statements
+$mapper
+->stmt('findAllUsers', "SELECT * FROM usuarios")
+->stmt('findAllProducts', "SELECT * FROM productos")
+->stmt('findAllSales', "SELECT * FROM ventas");
+```
+
+<br/>
+**Ejecutar statements**
+
+<br/>
+La ejecución de una statement se realiza invocando al método *execute* con el identificador de la statement a ejecutar. Al igual que el método *query*, este método recibe un número arbitrario de argumentos.
+
+```php
+//agregar statement
+$mapper->stmt('findUserByPK', "SELECT * FROM usuarios WHERE id_usuario = %{i}");
+
+//ejecutar statement
+$usuario = $mapper->type('obj')->execute('findUserByPK', 5);
+```
+
+<br/>
+**Configuración**
+
+<br/>
+Tanto el constructor de la clase *Statement* como el método *stmt* soportan un tercer parámetro para definir las opciones por defecto de una statement. Podemos generar una instancia de configuración a través de los métodos estáticos *config* y *type* de la clase *Statement*. 
+
+
+```php
+use eMapper\Statement\Statement;
+
+//definir tipo por defecto a lista de objetos
+$stmt = new Statement('findAllProducts', "SELECT * FROM productos", Statement::type('obj[]'));
+$mapper->addStatement($stmt);
+
+//setear result map y tipo por defecto
+$mapper->stmt('findAllUsers', "SELECT * FROM users",
+Statement::config()->result_map('Acme\Result\UserResultMap')->type('obj[id]'));
+
+//invocar statements
+$productos = $mapper->execute('findAllProducts'):
+//...
+$usuarios = $mapper->execute('findAllUsers');
+```
+El método *type* es una forma simplificada de definir el tipo por defecto de una consulta, mientras que *config* puede recibir como parámetro un arreglo de opciones soportadas por la librería. La configuración de la statement *findAllUsers* puede también definirse de la siguiente manera.
+
+```php
+Statement::config(['map.result' => 'Acme\Result\UserResultMap', 'map.type' => 'obj[id]']);
+```
+El listado de opciones de configuración puede verse en el Apéndice II - Opciones de configuración.
 
 <br/>
 Namespaces
@@ -1212,7 +1275,7 @@ $users = $mapper
 
 
 <br/>
-Appendix II - Valores de configuración
+Appendix II - Opciones de configuración
 ----------------------------------
 
 <br/>
