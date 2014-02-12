@@ -503,6 +503,47 @@ Result maps
 ----------
 
 <br/>
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations *type* y *column* se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se utilizará el nombre de la propiedad como reemplazo. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+
+```php
+namespace Acme\Result;
+
+class UserResultMap {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+    public $nombre;
+    
+    /**
+     * @column password
+     */
+    public $clave;
+    
+    /**
+     * @type blob
+     * @column imagen
+     */
+    public $avatar;
+}
+```
+
+Para aplicar un result map a la lógica de mapeo debemos incluir una invocación al método **result_map** pasando como argumento el nombre completo de la clase result map.
+
+```php
+$usuario = $mapper
+->type('obj')
+->result_map('Acme\Result\UserResultMap')
+->query("SELECT * FROM usuarios WHERE id_usuario = 1");
+```
+
+El valor devuelto será una instancia de *stdClass* con las propiedades *id*, *nombre*, *clave* y *avatar*.
+
+<br/>
 Entities
 ----------
 
@@ -808,110 +849,60 @@ $mapper->close();
 <br/>
 Configuración
 --------------
-<br/>
-In order to accomplish its functionality, a mapper class generates copies of itself dynamically whenever certain methods are invoked. This means that when calling methods like ***cache***, ***map***, etc. the object clones itself and applies a new configuration. These configuration values are transient, which means that they don't apply to the main instance from they were created. For example, the ***map*** method sets the option *'map.type'* to the requested value type. Alternatively, we can declare transient values using the ***option*** method.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$four = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
-?>
-```
-<br/>
-An mapper instance can also store customized configuration values of any type. To store a configuration value within an object we call the ***set*** method specifying both name and value.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('my_value', 'foo');
-?>
-```
-Values defined with the ***set*** method are permanent. This means that all instances generated from that object will keep those values. Additionally, values generated with this method can be obtained by calling ***get*** with the configuration key name.
 
 <br/>
-Configuration values can also be used within queries. We do this by surrounding the configuration key between braces after a leading *'@'* character.
+Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**cache**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el Apéndice II - Opciones de configuración.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('my_table', 'users');
-$user = $mapper->map('obj')->query("SELECT * FROM @{my_table} WHERE user_id = 2");
-?>
+$cuatro = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
 ```
-If a given configuration value cannot be converted to string the expression is left blank.
+<br/>
+Para almacenar valores en la instancia original debe utilizarse el método **set**. Este método recibe el nombre de la opción a setear y su correspondiente valor. Los valores almacenados pueden ser recuperados a través del método **get**.
+```php
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('mi_valor', 'foo');
+$foo = $mapper->get('mi_valor');
+```
+<br/>
+Los valores de configuración también pueden ser referenciados desde adentro de una consulta. Este tipo de expresiones van encabezadas con el símbolo **@** seguido por el nombre de la opción entre llaves.
+
+```php
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('tabla', 'usuarios');
+$usuario = $mapper->type('obj')->query("SELECT * FROM @{tabla} WHERE user_id = 2");
+```
+En caso de que el valor de configuración no exista entonces se deja ese espacio en blanco.
 
 <br/>
 El método each
 -----------------
 
 <br/>
-The ***each*** method allow us to apply a user defined function to every row returned from a query. This method sets the configuration property 'callback.each', which must be assigned to a valid callback. The user function receives the row obtained and the mapper instance. This example illustrates how to use this method in order to dynamically generate 2 extra attributes on an obtained row.
+El método **each** nos permite aplicar una función de usuario a cada una de las filas devueltas por una consulta. La función definida recibirá 2 argumentos: el valor correspondiente a la fila actual y una instancia del objeto mapper. El ejemplo a continuación calcula de la edad de cada usuario devuelto por la consulta y la almacena en la propiedad *edad*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//traer usuarios
+$usuarios = $mapper->each(function (&$usuario, $mapper) {
+    $usuario->edad = (int) $usuario->fecha_nacimiento->diff(new \DateTime())->format('%y');
+})->query("SELECT id_usuario, nombre, fecha_nacimiento FROM usuarios LIMIT 10");
 
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//find user
-$user = $mapper
-->each(function (&$user, $mapper) {
-    $user->age = (int) $user->birth_date->diff(new \DateTime())->format('%y');
-    $user->profile = $mapper->execute('profiles.findByUserId', $user->user_id);
-})
-->execute('users.findByPK', 3);
-
-$mapper->close();
-?>
 ```
 <br/>
 Filtros
 -------
 
 <br/>
-The ***filter*** method sets a callback that determines which objects are removed from an obtained list. Using filters is pretty similar to apply a user-defined function to an array through the [array_filter](http://www.php.net/manual/en/function.array-filter.php "") function.
+El método **filter** permite filtrar aquellas filas que no cumplan con determinada condición. El funcionamiento de los filtros es similar a aplicar una función de usuario a través de [array_filter](http://www.php.net/manual/en/function.array-filter.php "").
+
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//find users according to a filter
-$users = $mapper
-->each(function (&$user, $mapper) {
-    $user->age = (int) $user->birth_date->diff(new \DateTime())->format('%y');
-    $user->profile = $mapper->execute('profiles.findByUserId', $user->user_id);
-})
-->filter(function ($user) {
-    //filter users that are 60 years old (or older)
-    return $user->age < 60;
-})
-->execute('users.findAll');
-
-$mapper->close();
-?>
+//filtrar usuarios sin foto
+$usuarios = $mapper->filter(function ($usuario) {
+    return isset($usuario->imagen);
+})->execute('users.findAll');
 ```
-If a filter is applied to a non-list and the filter evaluates to false then NULL is returned.
+En caso de aplicarse a un solo elemento (que no vengo dentro de una lista) y la condición se evalue a falso entonces el valor devuelto será NULL.
 
 <br/>
 Tipos de usuario
@@ -1180,7 +1171,7 @@ $usuarios = $mapper->type('obj[]')
 ```
 
 <br/>
-**Resultado vacío**
+**Funciones de manejo de resultado**
 
 A través del método *no_rows* podemos asociar la ejecución de una función auxiliar en los casos donde un resultado no devuelva ninguna fila. Esta función recibe como argumento el resultado obtenido.
 
