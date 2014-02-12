@@ -1,7 +1,7 @@
 <?php
-namespace eMapper\Statement\Aggregate;
+namespace eMapper\SQL\Aggregate;
 
-use eMapper\Statement\Statement;
+use eMapper\SQL\Statement;
 
 trait StatementAggregate {
 	/**

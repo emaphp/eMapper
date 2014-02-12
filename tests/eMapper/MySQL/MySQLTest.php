@@ -3,7 +3,7 @@ namespace eMapper\MySQL;
 
 use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Statement\Statement;
+use eMapper\SQL\Statement;
 /**
  * 
  * @author emaphp

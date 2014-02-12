@@ -1,7 +1,7 @@
 <?php
-namespace eMapper\Statement;
+namespace eMapper\SQL;
 
-use eMapper\Statement\Aggregate\StatementNamespaceAggregate;
+use eMapper\SQL\Aggregate\StatementNamespaceAggregate;
 
 class StatementNamespace {
 	use StatementNamespaceAggregate;

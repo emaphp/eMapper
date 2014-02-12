@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\Statement\Configuration;
+namespace eMapper\SQL\Configuration;
 
 use eMapper\Configuration\Configuration;
 
@@ -161,7 +161,7 @@ trait StatementConfiguration {
 	 * Sets group callback
 	 * @param callback $callable
 	 * @throws \InvalidArgumentException
-	 * @return Ambigous <\eMapper\Configuration\Configuration, \eMapper\Statement\Configuration\StatementConfiguration>
+	 * @return StatementConfiguration
 	 */
 	public function group($callable) {
 		if (!is_callable($callable)) {

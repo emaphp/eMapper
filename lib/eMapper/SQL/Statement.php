@@ -1,8 +1,8 @@
 <?php
-namespace eMapper\Statement;
+namespace eMapper\SQL;
 
-use eMapper\Statement\Configuration\StatementConfigurationContainer;
-use eMapper\Statement\Aggregate\StatementAggregate;
+use eMapper\SQL\Configuration\StatementConfigurationContainer;
+use eMapper\SQL\Aggregate\StatementAggregate;
 
 class Statement {
 	use StatementAggregate;

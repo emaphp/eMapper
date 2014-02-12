@@ -1,10 +1,10 @@
 <?php
-namespace eMapper\Statement\Aggregate;
+namespace eMapper\SQL\Aggregate;
 
-use eMapper\Statement\StatementNamespace;
-use eMapper\Statement\Statement;
-use eMapper\Statement\Configuration\StatementConfigurationContainer;
-use eMapper\Statement\Aggregate\StatementAggregate;
+use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\Statement;
+use eMapper\SQL\Configuration\StatementConfigurationContainer;
+use eMapper\SQL\Aggregate\StatementAggregate;
 
 trait StatementNamespaceAggregate {
 	use StatementAggregate;

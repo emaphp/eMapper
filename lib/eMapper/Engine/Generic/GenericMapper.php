@@ -1,8 +1,8 @@
 <?php
 namespace eMapper\Engine\Generic;
 
-use eMapper\Statement\Configuration\StatementConfiguration;
-use eMapper\Statement\Aggregate\StatementNamespaceAggregate;
+use eMapper\SQL\Configuration\StatementConfiguration;
+use eMapper\SQL\Aggregate\StatementNamespaceAggregate;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\CacheProvider;
 use eMapper\Cache\Key\CacheKey;
