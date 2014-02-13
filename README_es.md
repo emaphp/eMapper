@@ -16,7 +16,7 @@ Ultimas modificaciones
 
   * Obsoleto: Models.
   * Agregado: Result maps (Un result map permite definir que columnas mapear desde una fila).
-  * Agregado: Entities (Las Entities permiten mapear objetos a través de annotations).
+  * Agregado: Entidades (Las entidades son clases de mapeo configurables).
   * Agregado: Soporte para bases de datos SQLite y PostgreSQL.
   * Agregado: SQL dinámico (Permite anidar expresiones-S dentro de una consulta través de la librería eMacros).
   * Agregado: Atributos dinámicos.
@@ -551,7 +551,7 @@ Entidades
 Una entidad es una clase que, de la misma manera que un result map, define cuales propiedades deben ser mapeadas de acuerdo a la estructura de una clase. A diferencia de un result map, una entidad puede utilizarse dentro de una expresión de mapeo directamente. 
 
 ```php
-namespace Amce\Entity;
+namespace Acme\Entity;
 
 /**
  * @entity
@@ -574,14 +574,14 @@ class Producto {
     public $fechaModificacion;
 }
 ```
-Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation *entity*. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* y así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
+Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation *entity*. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
 
 ```php
 $productos = $mapper
 ->type('obj:Acme\Entity\Producto[id]')
 ->query("SELECT * FROM productos");
 ```
-Es necesario notar que al utilizar result maps o entidades en listas indexadas debemos utilizar el nombre de la propiedad a utilizar como índice y no el nombre de la columna.
+Es necesario notar que al mapear a listas de entidades el índice a especificar debe ser la propiedad y no la columna asociada. Lo mismo ocurre en los casos donde se utilice un result map.
 
 <br/>
 En caso de declarar las propiedades de una entidad como privadas/protegidas debemos configurar los métodos setter y getter de cada una.
@@ -648,7 +648,7 @@ Statements
 **Creación de statements**
 
 <br/>
-Una statement es una consulta a la cual se le asocia un identificador de tipo cadena y que se almacena dentro de un objeto mapper. Existen 2 métodos para creación de statements. El primero consiste en generar una instancia de la clase *eMapper\SQL\Statement* y luego invocar al método *addStatement* del objeto mapper. Al instanciar una statement debemos suministrar el identificador de la misma y la consulta propiamente dicha.
+Una statement es una consulta a la cual se le asocia un identificador de tipo cadena y que se almacena dentro de un objeto mapper. Existen 2 métodos para creación de statements. El primero consiste en generar una instancia de la clase *eMapper\SQL\Statement* y luego agregarla utilizando el método *addStatement*. Al instanciar una statement debemos suministrar el identificador de la misma y la consulta propiamente dicha.
 
 ```php
 use eMapper\SQL\Statement;
@@ -679,7 +679,7 @@ $mapper
 **Ejecutar statements**
 
 <br/>
-La ejecución de una statement se realiza invocando al método *execute* con el identificador de la statement a ejecutar. Al igual que el método *query*, este método recibe un número arbitrario de argumentos.
+La ejecución de una statement se realiza invocando al método *execute* con el identificador de la statement como parámetro. Al igual que el método *query*, podemos agregar un número arbitrario de argumentos.
 
 ```php
 //agregar statement
@@ -724,91 +724,102 @@ Namespaces
 ----------
 
 <br/>
-**Creating namespaces**
+**Organización de statements**
 
 <br/>
-A namespace is an object that contains statements. The main purpose of working with namespaces is allowing the programmer to manage statements trees separately. This can be helpful is mid-sized projects where a lot of queries are created and we need a way to organize them.
+Los *namespaces* son objetos destinados a poder organizar con mayor facilidad un listado de statements. Estos resultan de mucha utilidad en proyectos medianos y grandes, donde se crean un gran número de consultas. Para declarar un namespace debemos crear una instancia de la clase *eMapper\SQL\StatementNamespace*. El constructor de esta clase require que especifiquemos una cadena de texto destinado a identificar univocamente a ese namespace. Una vez creado podemos agregar un número arbitrario de statements utilizando la misma metodología vista anteriormente con las clases mapper. Para agregar un namespace a un objeto mapper utilizamos el método *addNamespace*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\SQL\Statement;
+use eMapper\SQL\StatementNamespace;
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Statement\Statement;
+//declarar namespace
+$ns = new StatementNamespace('usuarios');
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+//agregar statement
+$stmt = new Statement('findAll', "SELECT * FROM usuarios");
+$ns->addStatement($stmt);
 
-//create 'users' namespace
-$usersNamespace = $mapper->ns('users');
+//método alternativo
+$ns->stmt('findByPK', "SELECT * FROM usuarios WHERE id_usuario = %{i}");
 
-//method ns returns a reference to the new namespace
-$usersNamespace
-->stmt('findAll', "SELECT * FROM users", Statement::map('obj[user_id]'))
-//calls to the stmt method can be chained
-->stmt('findByPK', "SELECT * FROM users WHERE user_id = %{i}", Statement::map('obj'))
-//this creates an inner namespace within 'users'
-->ns('admin')
-->stmt("delete", "DELETE FROM users WHERE user_id = %{i}");
+//agregar namespace
+$mapper->addNamespace($ns);
+```
+Para ejecutar una statement dentro de un namespace debemos especificar el identificador del namespace junto con el de la statement. Para señalar el comienzo y el final de un identificador utilizamos el caracter '.'.
 
-//execute statements
-$users = $mapper->execute('users.findAll');
-$user = $mapper->execute('users.findByPK', 3);
-$mapper->execute('users.admin.delete', 0);
+```php
+$usuarios = $mapper->type('arr[]')->execute('usuarios.findAll');
+//...
+$usuario = $mapper->type('obj')->execute('usuarios.findByPK', 7);
+```
 
-$mapper->close();
-?>
+
+<br/>
+**Anidamiento**
+
+<br/>
+Un namespace puede contener otros namespaces en caso de que la complejidad del proyecto así lo requiera. Ademas del método *addNamespace* contamos también con *ns*. Este método retorna una referencia al namespace generado, lo cual resulta útil para encadenar invocaciones al método *stmt* y definir un grupo de statements rapidamente.
+
+```php
+use eMapper\SQL\Statement;
+use eMapper\SQL\StatementNamespace;
+
+//declarar namespace
+$usersNamespace = new StatementNamespace('usuarios');
+
+//namespace anidado
+$profilesNamespace = new StatementNamespace('perfiles');
+$profilesNamespace->stmt('findByUserId',
+                         "SELECT * FROM perfiles WHERE id_usuario = %{i}",
+                         Statement::type('obj[]'));
+
+//anidar namespace
+$usersNamespace->addNamespace($profilesNamespace);
+
+//método alternativo
+$usersNamespace->ns('admin')
+->stmt('delete', "DELETE FROM usuarios WHERE id_usuario = %{i}")
+->stmt('ban', "UPDATE usuarios SET estado = 'baneado' WHERE id_usuario = %{i}");
+
+$mapper->addNamespace($usersNamespace);
+
+//...
+$perfil = $mapper->execute('usuarios.perfiles.findByUserId', 4);
+//...
+$mapper->execute('users.admin.ban', 7);
 ```
 
 <br/>
-**Custom namespaces**
+**Namespace customizados**
 
 <br/>
-Another way to organize statements is creating custom namespaces classes to avoid keeping all of them on the same file. Custom namespaces must extend the *eMapper\Statement\StatementNamespace* class.
+Otra forma de organizar statements es crear nuestras propias clases de anidamiento. De esta forma evitamos declarar varias statements en el mismo archivo. Los namespaces customizados deben extender de la clase *eMapper\SQL\StatementNamespace*.
 
 ```php
-<?php
-namespace Acme;
+namespace Acme\SQL;
 
-use eMapper\Statement\StatementNamespace;
-use eMapper\Statement\Statement;
+use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\Statement;
 
 class UsersNamespace extends StatementNamespace {
 	public function __construct() {
-		parent::__construct('users');
+		parent::__construct('usuarios');
 		
 		$this->stmt('findByUsername',
-		            "SELECT * FROM users WHERE user_name = %{s}");
+		            "SELECT * FROM usuarios WHERE nombre = %{s}");
 		            
 		$this->stmt('findByPK',
-		            "SELECT * FROM users WHERE user_id = %{i}",
-		            Statement::map('obj'));
+		            "SELECT * FROM usuarios WHERE id_usuario = %{i}",
+		            Statement::type('obj'));
 		            
 		$this->stmt('findAll',
-		            "SELECT * FROM users",
-		            Statement::config()->map('obj[user_id]'));
+		            "SELECT * FROM usuarios",
+		            Statement::type('obj[id_usuario]'));
 	}
 }
-?>
 ```
-Namespaces are added through the *addNamespace* method.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
-use Acme\UsersNamespace;
-
-//create mapper
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->addNamespace(new UsersNamespace());
-
-//get user
-$user = $mapper->execute('users.findByPK', 4);
-
-$mapper->close();
-```
 
 <br/>
 Rutinas almacenadas
@@ -993,7 +1004,7 @@ class RGBColor {
 **La clase RGBColorTypeHandler**
 
 <br/>
-Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador es la siguiente.
+Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador queda de la siguiente manera.
 
 ```php
 namespace Acme\Type;
@@ -1021,7 +1032,7 @@ class RGBColorTypeHandler extends TypeHandler {
     	    $hexgreen = dechex($parameter->green % 256);
 	    }
 	    
-        //traducir compnente azul
+        //traducir componente azul
 	    if ($parameter->blue < 16) {
 	        $hexblue = '0' . dechex($parameter->blue);
 	    }
@@ -1055,13 +1066,13 @@ use Acme\RGBColorTypeHandler;
 $mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 ```
 <br/>
-Al haber definido un alias ahora podemos utilizar *color* como identificador de tipo.
+Al haber definido un alias podemos utilizar *color* como identificador de tipo.
 
 ```php
 use Acme\Type\RGBColor;
 
 $color = new \stdClass;
-$color->nombre = 'red';
+$color->nombre = 'rojo';
 $color->rgb = new RGBColor(255, 0, 0);
 
 $mapper->query("INSERT INTO paleta (nombre, rgb) VALUES (#{nombre}, #{rgb:color})", $color);
