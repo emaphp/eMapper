@@ -503,7 +503,7 @@ Result maps
 ----------
 
 <br/>
-Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations *type* y *column* se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se utilizará el nombre de la propiedad como reemplazo. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations *type* y *column* se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico a la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
 
 ```php
 namespace Acme\Result;
@@ -548,7 +548,7 @@ Entidades
 ----------
 
 <br/>
-Una entidad es una clase que, de la misma manera que un result map, define cuales propiedades deben ser mapeadas y que tipo les corresponde, pero que también puede utilizarse para mapear un resultado directamente. Las entidades deben ser declaradas utilizando la annotation *entity*.
+Una entidad es una clase que, de la misma manera que un result map, define cuales propiedades deben ser mapeadas de acuerdo a la estructura de una clase. A diferencia de un result map, una entidad puede utilizarse dentro de una expresión de mapeo directamente. 
 
 ```php
 namespace Amce\Entity;
@@ -574,8 +574,7 @@ class Producto {
     public $fechaModificacion;
 }
 ```
-
-La entidad *Producto* define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* y así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportarlo a JSON. Mapear a una entidad no requiere mayor esfuerzo.
+Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation *entity*. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* y así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
 
 ```php
 $productos = $mapper
@@ -585,6 +584,63 @@ $productos = $mapper
 Es necesario notar que al utilizar result maps o entidades en listas indexadas debemos utilizar el nombre de la propiedad a utilizar como índice y no el nombre de la columna.
 
 <br/>
+En caso de declarar las propiedades de una entidad como privadas/protegidas debemos configurar los métodos setter y getter de cada una.
+
+```php
+namespace Amce\Entity;
+
+/**
+ * @entity
+ */
+class Perfil {
+    /**
+     * @column id_perfil
+     * @setter setIdPerfil
+     * @getter getIdPerfil
+     */
+    private $idPerfil;
+
+    /**
+     * @column id_usuario
+     * @setter setIdUsuario
+     * @getter getIdUsuario
+     */
+    private $idUsuario;
+    
+    /**
+     * @type string
+     * @setter setTipo
+     * @getter getTipo
+     */
+    private $tipo;
+    
+    public function setIdPerfil($idPerfil) {
+        $this->idPerfil = $idPerfil;
+    }
+    
+    public function getIdPerfil() {
+        return $this->idPerfil;
+    }
+    
+    public function setIdUsuario($idUsuario) {
+        $this->idUsuario = $idUsuario;
+    }
+    
+    public function getIdUsuario() {
+        return $this->idUsuario;
+    }
+    
+    public function setTipo($tipo) {
+        $this->tipo = $tipo;
+    }
+    
+    public function getTipo() {
+        return $this->tipo;
+    }
+}
+```
+
+<br/>
 Statements
 ----------
 
@@ -592,10 +648,10 @@ Statements
 **Creación de statements**
 
 <br/>
-Una statement es una consulta a la cual se le asocia un identificador de tipo cadena y que se almacena dentro de un objeto mapper. Existen 2 métodos para creación de statements. El primero consiste en generar una instancia de la clase *eMapper\Statement\Statement* y luego invocar al método *addStatement* del objeto mapper. Al instanciar una statement debemos suministrar el identificador de la misma y la consulta propiamente dicha.
+Una statement es una consulta a la cual se le asocia un identificador de tipo cadena y que se almacena dentro de un objeto mapper. Existen 2 métodos para creación de statements. El primero consiste en generar una instancia de la clase *eMapper\SQL\Statement* y luego invocar al método *addStatement* del objeto mapper. Al instanciar una statement debemos suministrar el identificador de la misma y la consulta propiamente dicha.
 
 ```php
-use eMapper\Statement\Statement;
+use eMapper\SQL\Statement;
 
 //crear statement
 $stmt = new Statement('findAllUsers', "SELECT * FROM usuarios");
@@ -641,7 +697,7 @@ Tanto el constructor de la clase *Statement* como el método *stmt* soportan un 
 
 
 ```php
-use eMapper\Statement\Statement;
+use eMapper\SQL\Statement;
 
 //definir tipo por defecto a lista de objetos
 $stmt = new Statement('findAllProducts', "SELECT * FROM productos", Statement::type('obj[]'));
@@ -755,28 +811,6 @@ $mapper->close();
 ```
 
 <br/>
-Resultados
------------
-
-<br/>
-**Obtener resultados sin procesar**
-
-<br/>
-A través del método **sql** podemos realizar consultas a la base de datos obteniendo el resultado sin procesamiento adicional. El tipo del resultado dependerá de la clase mapper que estemos utilizando
-
-<br/>
-```php
-$resultado = $mapper->sql("SELECT id_usuario, nombre FROM usuarios WHERE id_usuario = %{i}", 5);
-
-//mysql
-while (($row = $resultado->fetch_array()) != null) {
-    //...
-}
-
-$mapper->free_result($resultado);
-```
-
-<br/>
 Rutinas almacenadas
 -----------------
 
@@ -855,58 +889,51 @@ Caché
 -----
 
 <br/>
-**Using cache providers**
+**Almacenando valores en caché**
 
 <br/>
-Cache providers provide a generic way to store and retrieve values using libraries like **APC**, **Memcache** and **Memcached**. The first step consist in defining the cache provider to use through the *setProvider* method. Then, we append an invocation to the ***cache*** method before running a query/statement/procedure. This method expects the *cache identification key* and its *expiration time* (TTL: time to live).
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+Para gestionar el acceso a memoria caché, *eMapper* utiliza un tipo de clases conocido como *cache providers*. Un *cache provider* realiza la inserción y recuperación de valores utilizando las librerías *APC*, *Memcache* y *Memcached*. Para poder hacer uso de las funciones de almacenamiento en caché es necesario primero definir el *provider* de la instancia mapper. Esto se realiza a través del método *setCacheProvider* . El siguiente ejemplo inicializa una instancia de *MySQLMapper* y luego le asocia un objeto de clase *APCProvider*.
 
-use eMapper\MySQL\MySQLMapper;
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
 use eMapper\Cache\APCProvider;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//set provider
-$mapper->setProvider(new APCProvider());
-
-//store user list in apc cache for 5 minutes
-$users = $mapper->cache('USERS_ALL', 300)->query("SELECT * FROM users");
-
-$mapper->close();
-?>
+//setear provider
+$mapper->setCacheProvider(new APCProvider());
 ```
-When using the cache extension the behaviour of the mapper object is modified in the following way:
-
- - If a value with the given key is found in cache then that value is returned.
- - If no value is found, ***query*** is executed as usual. If the query returns 1 or more rows then the result is mapped and then stored in cache. That value is then returned.
-
-<br/>
-This example uses Memcache instead of APC and also illustrates how to create a **dynamic cache key**. The parameters used to run the query are also used to build the cache key. As a result, the returned value will be stored using the key *USER_6*.
+La inserción y recuperación de valores hacia y desde caché se realiza encadenando una llamada al método **cache**. Este método recibe una cadena de texto que identificará al valor almacenado. Opcionalmente, podemos también definir durante cuantos segundos se preservará el valor en la memoria. 
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//almacenar lista de usuarios en cache con clave 'USERS_ALL' por 5 minutos
+$usuarios = $mapper
+->cache('USERS_ALL', 300)
+->query("SELECT * FROM usuarios");
+```
+Al utilizar un *cache provider* durante una consulta el comportamiento del objeto mapper se modifica de la siguiente manera:
 
-use eMapper\MySQL\MySQLMapper;
+ - Si un valor con la clave ingresada es encontrado entonces ese valor es devuelto por la consulta.
+ - Si ningún valor con esa clave es encontrado entonces la consulta se realiza como de costumbre. En caso de que el valor devuelto sea distinto de NULL y no sea una lista vacia, el valor es almacenado en caché utilizando la configuración ingresada. Ese valor es luego devuelto.
+
+
+<br/>
+El siguiente ejemplo utiliza como *cache provider* una instancia de *MemcacheProvider*. Esta clase requiere setear la dirección y puerto del servidor durante su construcción. En el ejemplo también puede verse el uso de una clave de caché dinámica. Esta clave toma el primer argumento de la consulta para definir el identificador del valor a almacenar. El ejemplo producirá un valor con la clave *USER_6*.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
 use eMapper\Cache\MemcacheProvider;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//set provider
-$mapper->setProvider(new MemcacheProvider('65.132.12.4', 13412));
+//setear provider
+$mapper->setCacheProvider(new MemcacheProvider('65.132.12.4', 13412));
 
-//get user and store in cache
-$user = $mapper
+//obtener usuario y almacenar con memcache
+$usuario = $mapper
 ->cache('USER_%{i}', 120)
-->map('array')
-->query("SELECT * FROM users where user_id = %{i}", 6);
-
-$mapper->close();
-?>
+->type('array')
+->query("SELECT * FROM usuarios WHERE id_usuario = %{i}", 6);
 ```
 
 <br/>
@@ -937,55 +964,17 @@ $usuario = $mapper->type('obj')->query("SELECT * FROM @{tabla} WHERE user_id = 2
 ```
 En caso de que el valor de configuración no exista entonces se deja ese espacio en blanco.
 
-<br/>
-El método each
------------------
 
 <br/>
-El método **each** nos permite aplicar una función de usuario a cada una de las filas devueltas por una consulta. La función definida recibirá 2 argumentos: el valor correspondiente a la fila actual y una instancia del objeto mapper. El ejemplo a continuación calcula de la edad de cada usuario devuelto por la consulta y la almacena en la propiedad *edad*.
-
-```php
-//traer usuarios
-$usuarios = $mapper->each(function (&$usuario, $mapper) {
-    $usuario->edad = (int) $usuario->fecha_nacimiento->diff(new \DateTime())->format('%y');
-})->query("SELECT id_usuario, nombre, fecha_nacimiento FROM usuarios LIMIT 10");
-
-```
-<br/>
-Filtros
--------
-
-<br/>
-El método **filter** permite filtrar aquellas filas que no cumplan con determinada condición. El funcionamiento de los filtros es similar a aplicar una función de usuario a través de [array_filter](http://www.php.net/manual/en/function.array-filter.php "").
-
-
-```php
-//filtrar usuarios sin foto
-$usuarios = $mapper->filter(function ($usuario) {
-    return isset($usuario->imagen);
-})->execute('users.findAll');
-```
-En caso de aplicarse a un solo elemento (que no vengo dentro de una lista) y la condición se evalue a falso entonces el valor devuelto será NULL.
-
-<br/>
-Tipos de usuario
+Tipos definidos por usuario
 --------------------
 
 <br/>
-Custom type handlers provide the logic to store and retrieve user defined types to/from a column. These classes must extend the *eMapper\Type\Typehandler* class and implement these functionalities:
-
- - Read a value from a column and obtain a valid class instance.
- - Generate a valid expression from an instance to put inside a query.
-
-<br/>
-The next examples will illustrate the implementation of a custom type class named *Acme\RGBColor*. Instances of this class will be stored in a column defined as CHAR(6). The column will hold the hexadecimal representation of a color, that is, the proper string which describes its red, green and blue components.
-
-<br/>
-**Custom type: the RGBColor class**
+**eMapper** permite asociar el valor de una determinada columna a un manejador de tipo creado por usuario. Para agregar un tipo definido por usuario es necesario implementar un manejador de tipo que extienda de la clase *eMapper\Type\TypeHandler*. Nuestro manejador deberá entonces implementar los métodos *setParameter* y *getValue* para insertar valores en una consulta y leerlos desde una columna. En los próximos ejemplos se ilustra la implementación de un manejador de tipos destinado a gestionar instancias de la clase *Acme\RGBColor*. Esta clase representa un color RGB con los componentes rojo, verde y azul. 
 
 ```php
 <?php
-namespace Acme;
+namespace Acme\Type;
 
 class RGBColor {
 	public $red;
@@ -1001,21 +990,22 @@ class RGBColor {
 ```
 
 <br/>
-**Type handler: the RGBColorTypeHandler class**
+**La clase RGBColorTypeHandler**
+
+<br/>
+Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador es la siguiente.
 
 ```php
-<?php
-namespace Acme;
+namespace Acme\Type;
 
 use eMapper\Type\TypeHandler;
-use Acme\RGBColor;
 
 class RGBColorTypeHandler extends TypeHandler {
 	/**
-	 * Translates a RGBColor instance to a valid string expression
+	 * Convierte una instancia de RGBColor a su correspondiente representación en hexadecimal
 	 */
 	public function setParameter($parameter) {
-	    //get red component
+	    //traducir componente rojo
 	    if ($parameter->red < 16) {
 	        $hexred = '0' . dechex($parameter->red);
 	    }
@@ -1023,7 +1013,7 @@ class RGBColorTypeHandler extends TypeHandler {
     	    $hexred = dechex($parameter->red % 256);
 	    }
 	    
-        //get green component
+        //traducir componente verde
 	    if ($parameter->green < 16) {
 	        $hexgreen = '0' . dechex($parameter->green);
 	    }
@@ -1031,7 +1021,7 @@ class RGBColorTypeHandler extends TypeHandler {
     	    $hexgreen = dechex($parameter->green % 256);
 	    }
 	    
-        //get blue component
+        //traducir compnente azul
 	    if ($parameter->blue < 16) {
 	        $hexblue = '0' . dechex($parameter->blue);
 	    }
@@ -1043,81 +1033,45 @@ class RGBColorTypeHandler extends TypeHandler {
 	}
 
 	/**
-	 * Generates a new RGBColor instance from a string
+	 * Genera una instancia de RGBColor a partir de la representación en hexadecimal
 	 */
 	public function getValue($value) {
 		return new RGBColor(hexdec(substr($value, 0, 2)),
 		                    hexdec(substr($value, 2, 2)),
 		                    hexdec(substr($value, 4, 2)));
 	}
-
-	/**
-	 * Tries to convert a value to a RGBColor instance
-	 */
-	public function castParameter($parameter) {
-		if (!($parameter instanceof RGBColor)) {
-			return null;
-		}
-
-		return $parameter;
-	}
 }
 ```
-<br/>
-Some things to notice about type handlers:
-
-- The method *setParameter* receives a RGBColor instance and builds a string expression that is then inserted on a query string.
-- The method *getValue* obtains a column content and is responsible of generating a new RGBColor instance from it.
-- Additionally, we can convert an incoming query parameter to a RGBColor instance. The method *castParameter* is called whenever a query parameter uses *Acme\RGBColor* as a type specifier. The actual implementation chooses to avoid any parameter that is not a valid RGBColor instance and returning null as a replacement.
 
 <br/>
-**Declaring a custom type**
+**Declarar un tipo definido por usuario**
 
 <br/>
-Customs types are declared through the *addType* method. This methods expects the custom type full name, its type handler and an optional alias.
+Los tipos definidos por usuario se agregan a través del método *addType*. Este método espera el nombre completo de la clase que representa al tipo y una instancia del manejador asociado. Opcionalmente, podemos agregar un tercer parámetro con el alias del tipo agregado.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
 use Acme\RGBColorTypeHandler;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
-?>
+```
+<br/>
+Al haber definido un alias ahora podemos utilizar *color* como identificador de tipo.
+
+```php
+use Acme\Type\RGBColor;
+
+$color = new \stdClass;
+$color->nombre = 'red';
+$color->rgb = new RGBColor(255, 0, 0);
+
+$mapper->query("INSERT INTO paleta (nombre, rgb) VALUES (#{nombre}, #{rgb:color})", $color);
 ```
 
 <br/>
-By creating an alias we can now use 'color' as a type specifier. This is in fact not necessary as we already define a type handler for the class itself.
+Tanto *Acme\RGBColor* como *color* pueden ahora utilizarse como expresiones de mapeo.
 
 ```php
-<?php
-$red = new \stdClass;
-$red->name = 'red';
-$red->rgb = new RGBColor(255, 0, 0);
-
-$mapper->query("INSERT INTO palette (name, rgb) VALUES (#{name}, #{rgb:color})", $red);
-?>
-```
-
-<br/>
-The real advantage comes when used as a mapping expression.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-use Acme\RGBColorTypeHandler;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
-
-$red = $mapper->map('color')->query("SELECT rgb FROM palette WHERE name = 'red'");
-?>
+$rojo = $mapper->type('color')->query("SELECT rgb FROM paleta WHERE nombre = 'rojo'");
 ```
 
 <br/>
@@ -1210,6 +1164,25 @@ Apéndice I - Features adicionales
 ---------------------------
 
 <br/>
+**Obtener resultados sin procesar**
+
+<br/>
+A través del método **sql** podemos realizar consultas a la base de datos obteniendo el resultado sin procesamiento adicional. El tipo del resultado dependerá de la clase mapper que estemos utilizando
+
+```php
+//invocar método sql
+$resultado = $mapper->sql("SELECT id_usuario, nombre FROM usuarios WHERE id_usuario = %{i}", 5);
+
+//mysql
+while (($row = $resultado->fetch_array()) != null) {
+    //...
+}
+
+//liberar resultado
+$mapper->free_result($resultado);
+```
+
+<br/>
 **Overriding de consulta**
 
 El método *query_callback* permite reescribir la consulta que es enviada al servidor de base de datos de acuerdo a una determinada lógica. Este método recibe una función cuyo primer argumento es la consulta a realizar. Al retornar un valor podemos sobreescribir la consulta que será enviada finalmente.
@@ -1224,13 +1197,13 @@ $order = 'user_name ASC';
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //ordenar usuarios
-$usuarios = $mapper->type('obj[]')
+$usuarios = $mapper
+->type('obj[]')
 ->query_callback(function ($query) {
     //aplicar orden
     return $query . ' ORDER BY ' . $order;
 })
 ->query("SELECT * FROM usuarios");
-
 ```
 
 <br/>
@@ -1239,9 +1212,6 @@ $usuarios = $mapper->type('obj[]')
 A través del método *no_rows* podemos asociar la ejecución de una función auxiliar en los casos donde un resultado no devuelva ninguna fila. Esta función recibe como argumento el resultado obtenido.
 
 ```php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
 use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
@@ -1249,10 +1219,39 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 //obtener usuarios
 $usuarios = $mapper->type('obj[]')
 ->no_rows(function ($result) {
-    throw new \UnexpectedValueException('No users have been found :(');
+    throw new \UnexpectedValueException('No se encontraron usuarios :(');
 })
 ->query("SELECT * FROM users");
 ```
+
+<br/>
+**El método each**
+
+<br/>
+El método **each** nos permite aplicar una función de usuario a cada una de las filas devueltas por una consulta. La función definida recibirá 2 argumentos: el valor correspondiente a la fila actual y una instancia del objeto mapper. El ejemplo a continuación calcula de la edad de cada usuario devuelto por la consulta y la almacena en la propiedad *edad*.
+
+```php
+//traer usuarios
+$usuarios = $mapper->each(function (&$usuario, $mapper) {
+    $usuario->edad = (int) $usuario->fecha_nacimiento->diff(new \DateTime())->format('%y');
+})->query("SELECT id_usuario, nombre, fecha_nacimiento FROM usuarios LIMIT 10");
+
+```
+<br/>
+**Filtros**
+
+<br/>
+El método **filter** permite filtrar aquellas filas que no cumplan con determinada condición. El funcionamiento de los filtros es similar a aplicar una función de usuario a través de [array_filter](http://www.php.net/manual/en/function.array-filter.php "").
+
+
+```php
+//filtrar usuarios sin foto
+$usuarios = $mapper->filter(function ($usuario) {
+    return isset($usuario->imagen);
+})->execute('users.findAll');
+```
+En caso de aplicarse a un solo elemento (que no vengo dentro de una lista) y la condición se evalue a falso entonces el valor devuelto será NULL.
+
 
 <br/>
 **Cadenas no escapadas**
@@ -1267,10 +1266,10 @@ use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//get users ordered by id
+//obtener usuarios ordenados por id
 $users = $mapper
 ->type('obj[]')
-->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'user_id', 'ASC');
+->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'id_usuario', 'ASC');
 ```
 
 
