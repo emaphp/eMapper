@@ -15,6 +15,8 @@ class CacheKey {
 	const INLINE_PARAM_REGEX = '@%{([A-z]{1}[\w|\\\\]*)}|%{(\d+)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|%{(\d+)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
 	//Ex: #{property}, #{property:type}
 	const PROPERTY_PARAM_REGEX = '@#{([A-z|_]{1}[\w|\\\\]*)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|#{([A-z|_]{1}[\w|\\\\]*)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
+	//Ex: @@users
+	const SHORT_PREFIX = '@@';
 	
 	/**
 	 * Type manager
@@ -447,6 +449,12 @@ class CacheKey {
 					}, $expr);
 		}
 
+		//replace database prefix (short form)
+		if (array_key_exists('db.prefix', $config)) {
+			$expr = str_replace(self::SHORT_PREFIX, $config['db.prefix'], $expr);
+		}
+		
+		//replace properties references
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
 			if (empty($args[0])) {

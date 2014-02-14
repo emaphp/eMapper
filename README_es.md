@@ -499,11 +499,29 @@ $mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (#
 ```
 
 <br/>
+**Prefijo de base de datos**
+
+<br/>
+Por lo general, las tablas dentro de una base de datos son creadas utilizando un prefijo. Para definir el prefijo de una base de datos utilizamos el método *setPrefix*. La expresión **@@** puede utilizarse luego para insertar el prefijo previamente definido y así evitar tener que ingresar el mismo por cada tabla dentro de una consulta.
+
+```php
+use eMapper\Engine\MySQL\MySQLEngine;
+
+$mapper = new MySQLMapper('proyecto');
+
+//setear prefijo
+$mapper->setPrefix('PRJ_');
+
+//SQL: SELECT * FROM PRJ_items WHERE activo = TRUE
+$items = $mapper->query("SELECT * FROM @@items WHERE activo = TRUE");
+```
+
+<br/>
 Result maps
 ----------
 
 <br/>
-Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations *type* y *column* se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico a la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico a la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
 
 ```php
 namespace Acme\Result;
@@ -574,7 +592,7 @@ class Producto {
     public $fechaModificacion;
 }
 ```
-Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation *entity*. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
+Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation **@entity**. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
 
 ```php
 $productos = $mapper
@@ -826,67 +844,39 @@ Rutinas almacenadas
 -----------------
 
 <br/>
-**Calling stored procedures**
+**Invocando rutinas almacenadas**
 
 <br/>
-Stored procedures are routines available in MySQL that manage persistence logic. These routines can be invoked directly from a mapper instance thanks to a feature that automatically translates a non-declared method invocation to a query through *overloading* ([http://php.net/manual/en/language.oop5.overloading.php](http://php.net/manual/en/language.oop5.overloading.php "")). The generated query will contain the procedure name and all parameters provided.
+Las rutinas almacenadas son procedimientos del lado de la base de datos destinados a manejar lógica de persistencia. Estas rutinas pueden ser invocadas desde un objeto mapper gracias a una feature especial que traduce la invocación de un método no declarado en una invocación a una rutina. Esta feature logra esto a través de la sobrecarga de métodos de clase, también llamado [overloading](http://php.net/manual/en/language.oop5.overloading.php "").
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//SQL: CALL FindUserByUsername('jdoe')
-$user = $mapper->map('object')->FindUserByUsername('jdoe');
-
-$mapper->close();
-?>
+//SQL: CALL FindUserByUsername('jperez')
+$usuario = $mapper->type('object')->FindUserByUsername('jperez');
 ```
-We can specify parameter types through the ***ptypes*** method if necessary. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean). The result will then be mapped to an integer.
+En ocasiones será necesario especificar el tipo correspondiente a cada parámetro. Para definir el tipo de cada argumento debemos encadenar una llamada al método **sptypes**. Este método recibe un listado de parámetros que corresponde a los identificadores de tipo a utilizar por cada argumento.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//SQL: CALL InsertNewUser('anndoe', 'pass123', TRUE)
-$user_id = $mapper
-->map('int')
-->ptypes('s', 's', 'b')
-->InsertNewUser('anndoe', 'pass123', 1);
-
-$mapper->close();
-?>
+//SQL: CALL InsertNewUser('juana', 'clave123', TRUE)
+$id_usuario = $mapper
+->type('int')
+->sptypes('s', 's', 'b')
+->InsertNewUser('juana', 'clave123', 1);
 ```
-In most cases, stored procedures are declared using the database prefix. In order to avoid specifying the stored procedure prefix for every call, we can set the option *db.prefix* to store the current database prefix. Whenever we try to execute a stored procedure this prefix will be automatically appended in front of it.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+Es muy probable que las rutinas almacenadas se hayan declarado utilizando el prefijo de la base de datos. Por defecto, siempre que se invoca una stored procedure se agregar al principio de la misma el prefijo de la base de datos que haya sido definido. Podemos controlar este comportamiento a través del método *usePrefix*.
 
+```php
 use eMapper\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//set database prefix
+//setear prefijo de base de datos
 $mapper->setPrefix('EMP_');
-//OR $mapper->set('db.prefix', 'EMP_');
 
 //SQL: CALL EMP_InsertImage('My Image', x...);
-$image_id = $mapper
-->map('integer')
-->ptypes('string', 'blob')
+$id_imagen = $mapper
+->type('integer')
+->sptypes('string', 'blob')
 ->InsertImage('My Image', file_get_contents('image.png'));
-
-$mapper->close();
-?>
 ```
 
 
@@ -894,6 +884,83 @@ $mapper->close();
 SQL Dinámico
 -----------
 
+<br/>
+SQL Dinámico es una feature especial que nos permite agregar lógica en una consulta para que su estructura se modifique de acuerdo al listado de argumentos suministrados. Esta capacidad de automodificación se logra utilizando un lenguaje basado en eMacros. El siguiente ejemplo ilustra una consulta que utiliza una de estas expresiones para definir la condición de búsqueda.
+
+```php
+$usuario = $mapper
+->type('obj')
+->query("SELECT * FROM usuarios WHERE [[ (if (int? (%0)) 'id_usuario = %{i}' 'nombre = %{s}') ]]", 5);
+```
+Las expresiones dinámicas son incluidas dentro de corchetes dobles. El ejemplo incluye un pequeño programa que inserta la condición de búsqueda según el tipo del primer argumento.
+
+```lisp
+(if (int? (%0)) 'id_usuario = %{i}' 'nombre = %{s}')
+```
+La función *if* evalua una condición y devuelve uno de los 2 argumentos de acuerdo a si esta es verdadera o falsa. La macro *int?* verifica si el argumento dado es de tipo entero. En este caso, el argumento pasado es el valor retornado por la macro *%0*, es decir, el primer argumento de la consulta. En caso de que el argumento sea de tipo entero entonces la condición contendrá el string *'id_usuario = %{i}'*. Caso contrario, la búsqueda se realizará por nombre (*'nombre = %{s}'*). La ejecución de la consulta, entonces, realizará la búsqueda de un usuario con ID igual a 5. Otro sería el caso utilizando otro argumento.
+
+```php
+$usuario = $mapper
+->type('obj')
+->query("SELECT * FROM usuarios WHERE [[ (if (int? (%0)) 'id_usuario = %{i}' 'nombre = %{s}') ]]", 'jperez');
+```
+
+<br/>
+**Diferencias con eMacros**
+
+<br/>
+El dialecto utilizado para expresiones dinámicas es ligeramente distinto al definido por eMacros. Las diferencias son menores aunque importantes.
+
+ - Funciones de clave/propiedad: Estas funciones no son encabezadas por el caracter **@** sino por **#**. El operador de asignación de propiedad no se incluye.
+
+```php
+//orden como objeto
+$orden = new \stdClass();
+$orden->columna = 'id_usuario';
+
+//SQL: SELECT * FROM usuarios ORDER BY id_usuario ASC
+$usuarios = $mapper->
+->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
+
+//orden como arreglo
+$orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
+
+//SQL: SELECT * FROM usuarios ORDER BY nombre DESC
+$usuarios = $mapper->
+->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
+```
+ - Invocación de funciones: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc.
+
+
+<br/>
+**Expresiones dinámicas tipificadas**
+
+<br/>
+En ocasiones resulta util que el valor devuelto por una expresión dinámica sea convertido a un tipo en particular. Esto es posible utilizando expresiones tipificadas. Estas expresiones van incluidas dentro de llaves dobles. El siguiente ejemplo muestra un caso de uso de una expresión tipificada para introducir una cadena como criterio de búsqueda.
+
+```php
+$usuario = $mapper
+->type('obj')
+->query("SELECT * FROM usuarios WHERE nombre LIKE {{ (. '%' (%0) '%') }}", 'perez');
+```
+El tipo a utilizar para la conversión debe ser definido al principio de la expresión, justo despues de las llaves. En caso de no declarar el tipo se asumirá que el valor sea convertido a *string*.
+
+```php
+$productos = $mapper
+->query("SELECT * FROM productos WHERE precio > {{:int (/ (%0) 2) }}", 45);
+```
+
+<br/>
+**Entornos de ejecución**
+
+<br/>
+Los entornos de ejecución de un objeto mapper se identifican por ID. Por defecto, el entorno a utilizar tiene el nombre *default*. Es posible definir el entorno de un objeto mapper a través del método *setEnvironment*.
+
+<br/>
+**Entornos personalizados**
+
+<br/>
+El método *setEnvironment* acepta un segundo argumento con la clase del entorno de ejecución a utilizar (por defecto *eMapper\Dynamic\Enviroment\DynamicEnvironment*). Para construir un entorno de ejecución personalizado podemos extender de esta clase o directamente desde *eMapper\Environment\Environment*.
 
 <br/>
 Caché

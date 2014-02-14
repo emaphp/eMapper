@@ -179,6 +179,11 @@ abstract class GenericStatement extends CacheKey {
 					}, $expr);
 		}
 		
+		//replace database prefix (short form)
+		if (array_key_exists('db.prefix', $config)) {
+			$expr = str_replace(self::SHORT_PREFIX, $config['db.prefix'], $expr);
+		}
+		
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
 			if (empty($args[0])) {

@@ -77,6 +77,15 @@ abstract class GenericMapper {
 	}
 	
 	/**
+	 * Sets whether using the database prefix in stored procedure calls
+	 * @param boolean $use_prefix
+	 */
+	public function usePrefix($use_prefix = true) {
+		$use_prefix = (bool) $use_prefix;
+		return $this->set('procedure.use_prefix', $use_prefix);
+	}
+	
+	/**
 	 * Assigns a cache provider
 	 * @param CacheProvider $provider
 	 * @return MapperConfiguration
@@ -96,8 +105,6 @@ abstract class GenericMapper {
 		$this->config['environment.id'] = $id;
 		$this->config['environment.class'] = $class;
 	} 
-	
-	
 	
 	/**
 	 * Executes a query
