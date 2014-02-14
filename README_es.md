@@ -885,7 +885,7 @@ SQL Dinámico
 -----------
 
 <br/>
-SQL Dinámico es una feature especial que nos permite agregar lógica en una consulta para que su estructura se modifique de acuerdo al listado de argumentos suministrados. Esta capacidad de automodificación se logra utilizando un lenguaje basado en eMacros. El siguiente ejemplo ilustra una consulta que utiliza una de estas expresiones para definir la condición de búsqueda.
+SQL Dinámico es una feature especial que nos permite agregar lógica en una consulta para que su estructura se modifique de acuerdo al listado de argumentos suministrados. Esta capacidad de automodificación se logra utilizando un lenguaje basado en [eMacros](https://github.com/emaphp/eMacros ""). El siguiente ejemplo ilustra una consulta que utiliza una de estas expresiones para definir la condición de búsqueda.
 
 ```php
 $usuario = $mapper
@@ -895,9 +895,9 @@ $usuario = $mapper
 Las expresiones dinámicas son incluidas dentro de corchetes dobles. El ejemplo incluye un pequeño programa que inserta la condición de búsqueda según el tipo del primer argumento.
 
 ```lisp
-(if (int? (%0)) 'id_usuario = %{i}' 'nombre = %{s}')
+(if (int? (%0)) "id_usuario = %{i}" "nombre = %{s}")
 ```
-La función *if* evalua una condición y devuelve uno de los 2 argumentos de acuerdo a si esta es verdadera o falsa. La macro *int?* verifica si el argumento dado es de tipo entero. En este caso, el argumento pasado es el valor retornado por la macro *%0*, es decir, el primer argumento de la consulta. En caso de que el argumento sea de tipo entero entonces la condición contendrá el string *'id_usuario = %{i}'*. Caso contrario, la búsqueda se realizará por nombre (*'nombre = %{s}'*). La ejecución de la consulta, entonces, realizará la búsqueda de un usuario con ID igual a 5. Otro sería el caso utilizando otro argumento.
+La función *if* evalua una condición y devuelve uno de los 2 argumentos de acuerdo a si esta es verdadera o falsa. La macro *int?* verifica si el argumento dado es de tipo entero. En este caso, el argumento pasado es el valor retornado por la macro *%0*, es decir, el primer argumento de la consulta. En caso de que el argumento sea de tipo entero entonces la condición contendrá el string *'id_usuario = %{i}'*. Caso contrario, la búsqueda se realizará por nombre (*'nombre = %{s}'*). La ejecución de la consulta, entonces, realizará la búsqueda de un usuario con ID igual a 5. Otro sería el caso utilizando un argumento de tipo cadena.
 
 ```php
 $usuario = $mapper
@@ -911,7 +911,7 @@ $usuario = $mapper
 <br/>
 El dialecto utilizado para expresiones dinámicas es ligeramente distinto al definido por eMacros. Las diferencias son menores aunque importantes.
 
- - Funciones de clave/propiedad: Estas funciones no son encabezadas por el caracter **@** sino por **#**. El operador de asignación de propiedad no se incluye.
+ - **Funciones de clave/propiedad**: Estas funciones no son encabezadas por el caracter **@** sino por **#**. El operador de asignación de propiedad no se incluye.
 
 ```php
 //orden como objeto
@@ -929,7 +929,8 @@ $orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
 $usuarios = $mapper->
 ->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 ```
- - Invocación de funciones: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc.
+ - **Funciones no incluidas**: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc. Las funciones de clases/objetos no se encuentran incluidas por defecto. Tampoco las de importado de funciones y paquetes. Las funciones de salida **echo**, **var-dump** y **print-r** no se incluyen.
+ - **Paquetes incluidos**: El ambiente de ejecución incluye solamente los paquetes **DatePackage** y **RegexPackage**. Incluir más paquetes requerira declarar un entorno personalizado.
 
 
 <br/>
@@ -943,7 +944,7 @@ $usuario = $mapper
 ->type('obj')
 ->query("SELECT * FROM usuarios WHERE nombre LIKE {{ (. '%' (%0) '%') }}", 'perez');
 ```
-El tipo a utilizar para la conversión debe ser definido al principio de la expresión, justo despues de las llaves. En caso de no declarar el tipo se asumirá que el valor sea convertido a *string*.
+El tipo a utilizar para la conversión debe ser definido al principio de la expresión, justo despues de las llaves. En caso de no declarar el tipo se asumirá que el valor debe ser convertido a *string*.
 
 ```php
 $productos = $mapper
@@ -954,13 +955,55 @@ $productos = $mapper
 **Entornos de ejecución**
 
 <br/>
-Los entornos de ejecución de un objeto mapper se identifican por ID. Por defecto, el entorno a utilizar tiene el nombre *default*. Es posible definir el entorno de un objeto mapper a través del método *setEnvironment*.
+Un entorno de ejecución es una clase que define que funciones pueden ser invocadas dentro de una expresión dinámica. Estos entornos tienen asociado un ID de tipo cadena. El entorno por defecto tiene por ID *default*. Es posible definir el entorno de un objeto mapper a través del método *setEnvironment*. En el ejemplo a continuación se muestra la creación de 2 objetos mapper con entornos independientes.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\SQLite\SQLiteMapper;
+
+$mysql = new MySQLMapper('database');
+$mysql->setEnvironment('mysql_env');
+
+//...
+
+$sqlite = new SQLiteMapper('database.db');
+$sqlite->setEnvironment('sqlite_env);
+```
 
 <br/>
 **Entornos personalizados**
 
 <br/>
-El método *setEnvironment* acepta un segundo argumento con la clase del entorno de ejecución a utilizar (por defecto *eMapper\Dynamic\Enviroment\DynamicEnvironment*). Para construir un entorno de ejecución personalizado podemos extender de esta clase o directamente desde *eMapper\Environment\Environment*.
+El método *setEnvironment* acepta un segundo argumento con la clase del entorno de ejecución a utilizar (por defecto *eMapper\Dynamic\Enviroment\DynamicSQLEnvironment*). Para construir un entorno de ejecución personalizado podemos extender de esta clase o directamente desde *eMapper\Environment\Environment*. El siguiente ejemplo muestra un entorno personalizado que incluye los paquetes **StringPackage** y **ArrayPackage**.
+
+```php
+namespace Acme\SQL\Environment;
+
+use eMacros\Environment\Environment;
+use eMacros\Package\RegexPackage;
+use eMacros\Package\DatePackage;
+use eMacros\Package\ArrayPackagePackage;
+use eMacros\Package\StringPackage;
+use eMapper\Dynamic\Package\CorePackage;
+
+class CustomSQLEnvironment extends Environment {
+    public function __construct() {
+		$this->import(new RegexPackage());
+		$this->import(new DatePackage());
+		$this->import(new ArrayPackage());
+		$this->import(new StringPackage());
+		$this->import(new CorePackage());
+	}
+}
+```
+Es interesante notar que la clase **CorePackage** no es la incluida en *eMacros*. De no incluir la incluida en *eMapper* las funciones de obtención de propiedades no funcionarian adecuadamente con clases entidades. Ahora solo resta asociar nuestra clase mapper con el entorno creado.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mysql = new MySQLMapper('database');
+$mysql->setEnvironment('mysql_env', 'Acme\SQL\Environment\CustomSQLEnvironment');
+```
 
 <br/>
 Caché
@@ -1151,6 +1194,44 @@ Tanto *Acme\RGBColor* como *color* pueden ahora utilizarse como expresiones de m
 ```php
 $rojo = $mapper->type('color')->query("SELECT rgb FROM paleta WHERE nombre = 'rojo'");
 ```
+
+<br/>
+**Inserción de valor en consulta**
+
+<br/>
+Por defecto, si el método *setParameter* de un manejador de tipo retorna una cadena entonces el valor será escapado e insertado entre comillas. En ocasiones este valor no debe pasar por este proceso sino insertarse directamente, Este es el caso de la clase *BlobTypeHandler*, que retorna una cadena 'TRUE' o 'FALSE' de acuerdo al valor pasado. Para estos casos existe la annotation de configuración **@unquoted**. Esta annotation determina que el valor retornado por *setParameter* no será incluido entre comillas.
+
+```php
+namespace eMapper\Type\Handler;
+
+use eMapper\Type\TypeHandler;
+
+/**
+ * @unquoted
+ */
+class BooleanTypeHandler extends TypeHandler {
+	protected function isTrue($value) {
+		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
+			return false;
+		}
+	
+		return (bool) $value;
+	}
+	
+	public function getValue($value) {
+		return $this->isTrue($value);
+	}
+	
+	public function castParameter($parameter) {
+		return $this->isTrue($parameter);
+	}
+	
+	public function setParameter($parameter) {
+		return ($parameter) ? 'TRUE' : 'FALSE';
+	}
+}
+```
+El método *castParameter* es un método interno que se invoca con el objetivo de chequear el tipo del parámetro previamente a ser insertado. Este método puede ser utilizado para notificar que determinado valor no es válido o directamente convertirlo a una expresión válida.
 
 <br/>
 Excepciones

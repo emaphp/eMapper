@@ -7,20 +7,20 @@ use eMapper\Type\TypeHandler;
  * @unquoted
  */
 class BooleanTypeHandler extends TypeHandler {
-	public function getValue($value) {
+	protected function isTrue($value) {
 		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
 			return false;
 		}
-		
+	
 		return (bool) $value;
 	}
 	
+	public function getValue($value) {
+		return $this->isTrue($value);
+	}
+	
 	public function castParameter($parameter) {
-		if (is_string($parameter) && (strtolower($parameter) == 'f' || strtolower($parameter) == 'false')) {
-			return false;
-		}
-		
-		return (bool) $parameter;
+		return $this->isTrue($parameter);
 	}
 	
 	public function setParameter($parameter) {
