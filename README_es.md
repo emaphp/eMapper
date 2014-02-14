@@ -1433,208 +1433,211 @@ $users = $mapper
 
 
 <br/>
-Appendix II - Opciones de configuración
+Apéndice II - Opciones de configuración
 ----------------------------------
 
 <br/>
-Configuration options are values that manage a mapper object behavior during a query/statement/procedure execution. They can be configured through class methods like *map*, *cache*, etc. or can be manipulated directly with ***set***. This is the list of all predefined keys available with their respective descriptions.
+Los valores de configuración son datos que manejan el funcionamiento interno de un objeto mapper durante la ejecución de una consulta. Estos pueden ser modificados invocando métodos como **type** y **cache** o seteados de antemano con **set**. Las siguientes tablas muestran la lista completa de opciones soportadas por la libreria.
 
 <br/>
-**Database properties**
+**MySQL**
+
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>db.name</td>
-            <td>string</td>
-            <td>Database name.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Nombre de la base de datos</td>
         </tr>
         <tr>
             <td>db.host</td>
-            <td>string</td>
-            <td>Database host.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Nombre/Dirección de host</td>
         </tr>
         <tr>
             <td>db.user</td>
-            <td>string</td>
-            <td>Database user</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Nombre de usuario</td>
         </tr>
         <tr>
             <td>db.password</td>
-            <td>string</td>
-            <td>Database user password.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Contraseña de usuario</td>
         </tr>
         <tr>
             <td>db.port</td>
-            <td>string</td>
-            <td>Database port.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>
-            </td>
+            <td>Cadena</td>
+            <td>Puerto de conexión a base de datos</td>
         </tr>
         <tr>
             <td>db.socket</td>
-            <td>string</td>
-            <td>Database socket.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Socket de base de datos</td>
+        </tr>
+        <tr>
+            <td>db.charset</td>
+            <td>Cadena</td>
+            <td>Charset de base de datos (seteado utilizando mysqli::set_charset)</td>
         </tr>
         <tr>
             <td>db.autocommit</td>
-            <td>boolean</td>
-            <td>Database autocommit feature.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>true</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>db.prefix</td>
-            <td>string</td>
-            <td>Database prefix.</td>
-            <td>
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Booleano</td>
+            <td>Opción de auto commit de base de datos (seteado utilizando mysqli::autocommit)</td>
         </tr>
     </tbody>
 </table>
+
 <br/>
-**Mapping**
+**SQLite**
+
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.filename</td>
+            <td>Cadena</td>
+            <td>Ruta de archivo de base de datos</td>
+        </tr>
+        <tr>
+            <td>db.flags</td>
+            <td>Entero</td>
+            <td>Flags de conexión (por defecto SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE)</td>
+        </tr>
+            <td>db.encription_key</td>
+            <td>Cadena</td>
+            <td>Clave de encriptación</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<br/>
+**PostgreSQL**
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.connection_string</td>
+            <td>Cadena</td>
+            <td>Cadena de coneción a base de datos</td>
+        </tr>
+        <tr>
+            <td>db.connection_type</td>
+            <td>Entero</td>
+            <td>Tipo de conexión</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Genericas**
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.prefix</td>
+            <td>Cadena</td>
+            <td>Prefijo de base de datos</td>
+            <td><em>Cadena vacia</em></td>
+        </tr>
+    <tbody>
+</table>
+
+<br/>
+**Mapeo de datos**
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>map.type</td>
-            <td>string</td>
-            <td>Mapping expression.</td>
-            <td>
-            Initialized with <em>map</em> method.
-            <br/>
-            Default value: <em>array[]</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>map.model</td>
-            <td>eMapper\Model\Model</td>
-            <td>Mapping model to use.</td>
-            <td>
-            Initialized with <em>model</em> method .
-            <br/>
-            Evaluated during array/object result mapping.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Expresión de mapeo</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
             <td>map.params</td>
-            <td>array</td>
-            <td>Mapping parameters.</td>
-            <td>
-            Initialized with <em>map</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Array</td>
+            <td>Parámetros auxiliares de mapeo (utilizados para mapeo a arreglos)</td>
+            <td><em>Ninguno</em></td>
         </tr>
-    </tbody>
+        <tr>
+            <td>map.result</td>
+            <td>Cadena</td>
+            <td>Ruta completa a clase de configuración mapeo</td>
+            <td><em>Ninguno</em></td>
+        </tr>
+        <tr>
+            <td>map.parameter</td>
+            <td>Cadena</td>
+            <td>Ruta completa a clase de parametrización</td>
+            <td><em>Ninguno</em></td>
+        </tr>
+    <tbody>
 </table>
+
 <br/>
 **Cache**
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>cache.provider</td>
             <td>eMapper\Cache\CacheProvider</td>
-            <td>Cache provider to use.</td>
-            <td>
-            Initialized with <em>setProvider</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Objeto de tipo cache provider</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
             <td>cache.key</td>
-            <td>string</td>
-            <td>Cache key to use.</td>
-            <td>
-            Initialized with <em>cache</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cadena</td>
+            <td>Identificador de valor en caché</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
             <td>cache.ttl</td>
-            <td>integer</td>
-            <td>Cache TTL (time to live).</td>
-            <td>
-            Numerical.
-            <br/>
-            Initialized with <em>cache</em> method.
-            <br/>
-            Default value: 0.
-            </td>
+            <td>Entero</td>
+            <td>Tiempo de vida de valor en caché</td>
+            <td><em>Ninguno</em> (se utiliza 0 en caso de no especificarse)</td>
         </tr>
     </tbody>
 </table>
@@ -1643,108 +1646,129 @@ Configuration options are values that manage a mapper object behavior during a q
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
         </tr>
     </thead>
     <tbody>
-     <tr>
+        <tr>
             <td>callback.each</td>
-            <td>callable</td>
-            <td>Defines a callback which receives all mapped elements from a query.</td>
-            <td>
-            Initialized with <em>each</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Callable</td>
+            <td>Callback de iteración de elementos</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
             <td>callback.filter</td>
-            <td>callable</td>
-            <td>Sets a callback which defines a filter to apply to all elements on a list.</td>
-            <td>
-            Similar to apply <em>array_filter</em> to a list of rows.
-            <br/>
-            Initialized with <em>filter</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Callable</td>
+            <td>Callback de filtrado de elementos</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
             <td>callback.no_rows</td>
-            <td>Closure</td>
-            <td>Defines a callback which is called if the given query returns an empty result.</td>
-            <td>
-            Initialized with <em>no_rows</em> method.
-            <br/>
-            Can override return value.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Callable</td>
+            <td>Callback de manejo de resultado vacío</td>
+            <td><em>Ninguno</em></td>
         </tr>
          <tr>
             <td>callback.query</td>
-            <td>Closure</td>
-            <td>Defines a callback which receives the generated query.</td>
-            <td>
-            Initialized with <em>query_callback</em> method.
-            <br/>
-            Can override query to run by returning a value.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Callable</td>
+            <td>Callback de overriding de consulta</td>
+            <td><em>Ninguno</em></td>
         </tr>
         <tr>
-            <td>callback.result</td>
-            <td>Closure</td>
-            <td>Defines a callback which receives the obtained result.</td>
-            <td>
-            Initialized with <em>result_callback</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>callback.index</td>
+            <td>Callback</td>
+            <td>Callback de indexado de elementos</td>
+            <td><em>Ninguno</em></td>
          </tr>
          <tr>
-            <td>dynamic.*</td>
-            <td>Closure</td>
-            <td>Defines a Dynamic SQL callback.</td>
-            <td>
-            These callbacks are invoked from within the query by adding their callback id between double brackets.
-            <br/>
-            Default value: <em>none</em>
-            </td>
+            <td>callback.group</td>
+            <td>Callable</td>
+            <td>Callback de agrupado de elementos</td>
+            <td><em>Ninguno</em></td>
         </tr>
     </tbody>
 </table>
 
 <br/>
-**Stored procedure properties**
+**Rutinas almacenadas**
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>procedure.use_prefix</td>
-            <td>boolean</td>
-            <td>Determines whether the procedure name uses the database prefix.</td>
-            <td>
-            Default value: <em>false</em>.
-            </td>
+            <td>Booleano</td>
+            <td>Determina si el prefijo de base de datos debe utilizarse en invocaciones a stored procedures</td>
+            <td>TRUE</td>
         </tr>
         <tr>
             <td>procedure.types</td>
-            <td>array</td>
-            <td>Sets procedure parameter types.</td>
-            <td>
-            Initialized through the <em>ptypes</em> method.
+            <td>Arreglo</td>
+            <td>Define el tipo asociado de cada argumento en una invocación a stored procedure</td>
+            <td><em>Ninguno</em></td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Entornos de ejecución**
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>environment.id</td>
+            <td>Cadena</td>
+            <td>Identificador de entorno de ejecución</td>
+            <td>default</td>
+        </tr>
+        <tr>
+            <td>environment.class</td>
+            <td>Cadena</td>
+            <td>Nombre completo de clase entorno</td>
+            <td>eMapper\Dynamic\Environment\DynamicSQLEnvironment</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Internas**
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>depth.limit</td>
+            <td>Entero</td>
+            <td>Límite de anidamiento de relación</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>depth.current</td>
+            <td>Entero</td>
+            <td>Nivel de anidamiento de instancia actual</td>
+            <td>0</td>
         </tr>
     </tbody>
 </table>

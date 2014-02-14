@@ -36,7 +36,7 @@ class SQLiteMapper extends GenericMapper {
 		$this->config['db.filename'] = $filename;
 		
 		if (empty($flags)) {
-			$flags = QLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
+			$flags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
 		}
 		
 		$this->config['db.flags'] = $flags;
