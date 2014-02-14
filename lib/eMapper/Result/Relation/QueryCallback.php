@@ -8,8 +8,8 @@ class QueryCallback extends DynamicAttribute {
 	 */
 	public $query;
 	
-	public function __construct($name, $attribute) {
-		parent::__construct($name, $attribute);
+	public function __construct($classname, $name, $attribute) {
+		parent::__construct($classname, $name, $attribute);
 		
 		//obtain query
 		$this->query = $attribute->get('query');

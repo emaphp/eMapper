@@ -8,8 +8,8 @@ class StatementCallback extends DynamicAttribute {
 	 */
 	public $statement;
 	
-	public function __construct($name, $attribute) {
-		parent::__construct($name, $attribute);
+	public function __construct($classname, $name, $attribute) {
+		parent::__construct($classname, $name, $attribute);
 		
 		//obtain statement id
 		$this->statement = $attribute->get('stmt');

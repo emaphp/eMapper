@@ -8,8 +8,15 @@ class PropertyReader {
 	 */
 	public $property;
 	
-	public function __construct($property) {
+	/**
+	 * Property type
+	 * @var string | NULL
+	 */
+	public $type;
+	
+	public function __construct($property, $type = null) {
 		$this->property = $property;
+		$this->type = $type;
 	}
 }
 ?>

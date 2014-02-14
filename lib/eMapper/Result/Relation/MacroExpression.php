@@ -12,8 +12,8 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	public $program;
 	
-	public function __construct($name, $attribute) {
-		parent::__construct($name, $attribute);
+	public function __construct($classname, $name, $attribute) {
+		parent::__construct($classname, $name, $attribute);
 		
 		//obtain program source
 		$this->program = new SimpleProgram($attribute->get('eval'));

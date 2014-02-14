@@ -10,7 +10,13 @@ use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
 
 abstract class DynamicAttribute extends PropertyProfile {
-	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)$/';
+	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)(?::([A-z]{1}[\w|\\\\]*))?$/';
+	
+	/**
+	 * Class which declares this attribute
+	 * @var string
+	 */
+	public $classname;
 	
 	/**
 	 * Attribute arguments
@@ -36,8 +42,9 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	public $condition;
 	
-	public function __construct($name, $attribute) {
+	public function __construct($classname, $name, $attribute) {
 		parent::__construct($name, $attribute);
+		$this->classname = $classname;
 		$this->parseArguments($attribute);
 		$this->parseConfig($attribute);
 	}
@@ -59,7 +66,12 @@ abstract class DynamicAttribute extends PropertyProfile {
 			if (is_string($arg)) {
 				//check if argument is a reference to a instance property
 				if (preg_match(self::PROPERTY_REGEX, $arg, $matches)) {
-					$this->args[] = new PropertyReader($matches[1]);
+					if (isset($matches[2])) {
+						$this->args[] = new PropertyReader($matches[1], $matches[2]);
+					}
+					else {
+						$this->args[] = new PropertyReader($matches[1]);
+					}
 				}
 				else {
 					$this->args[] = str_replace('\\#', '#', $arg);
