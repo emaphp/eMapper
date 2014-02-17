@@ -155,7 +155,7 @@ class MySQLMapper extends GenericMapper {
 		$user     = array_key_exists('db.user', $this->config) ? $this->config['db.user'] : ini_get("mysqli.default_user");
 		$password = array_key_exists('db.password', $this->config) ? $this->config['db.password'] : ini_get("mysqli.default_pw");
 		$port     = array_key_exists('db.port', $this->config) ? $this->config['db.port'] : ini_get("mysqli.default_port");
-		$socket   = array_key_exists('db.socket', $this->config) ? $this->config['db.socket'] : ini_get("mmysqli.default_socket");
+		$socket   = array_key_exists('db.socket', $this->config) ? $this->config['db.socket'] : ini_get("mysqli.default_socket");
 	
 		//open connection
 		$mysqli = @mysqli_connect($host, $user, $password, $database, $port, $socket);

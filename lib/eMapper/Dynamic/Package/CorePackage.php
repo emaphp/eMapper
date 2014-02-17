@@ -46,6 +46,8 @@ use eMacros\Runtime\Callback\CallFunction;
 use eMacros\Runtime\Callback\CallFunctionArray;
 use eMapper\Dynamic\Runtime\PropertyGet;
 use eMapper\Dynamic\Runtime\PropertyExists;
+use eMapper\Dynamic\Runtime\ConfigurationGet;
+use eMapper\Dynamic\Runtime\ConfigurationExists;
 
 class CorePackage extends Package {
 	public function __construct() {
@@ -111,6 +113,20 @@ class CorePackage extends Package {
 		
 		$this->macro('/^#([\w]+)\?$/', function ($matches) {
 			return new PropertyExists($matches[1]);
+		});
+		
+		/**
+		 * CONFIGURATION FUNCTIONS
+		 */
+		$this['@'] = new ConfigurationGet();
+		$this['@?'] = new ConfigurationExists();
+		
+		$this->macro('/^@([\w|\.]+)$/', function ($matches) {
+			return new ConfigurationGet($matches[1]);
+		});
+		
+		$this->macro('/^@([\w|\.]+)\?$/', function ($matches) {
+			return new ConfigurationExists($matches[1]);
 		});
 		
 		/**

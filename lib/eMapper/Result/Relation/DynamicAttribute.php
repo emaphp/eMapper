@@ -8,8 +8,11 @@ use eMacros\Program\Program;
 use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
+use eMapper\Dynamic\Builder\EnvironmentBuilder;
 
 abstract class DynamicAttribute extends PropertyProfile {
+	use EnvironmentBuilder;
+	
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)(?::([A-z]{1}[\w|\\\\]*))?$/';
 	
 	/**
@@ -136,22 +139,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 		
 		return $args;
 	}
-	
-	/**
-	 * Obtains a macro environment for given configuration
-	 * @param array $config
-	 * @return Environment
-	 */
-	protected function buildEnvironment($config) {
-		$environmentId = $config['environment.id'];
 		
-		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
-			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class']);
-		}
-		
-		return EnvironmentProvider::getEnvironment($environmentId);
-	}
-	
 	/**
 	 * Checks current condition with the given values
 	 * @param mixed $row

@@ -20,7 +20,7 @@ class PropertyExists implements Applicable {
 	public function apply(Scope $scope, GenericList $arguments) {
 		//get property and value
 		if (is_null($this->property)) {
-			if (empty($arguments)) {
+			if (count($arguments) == 0) {
 				throw new \BadFunctionCallException("PropertyExists: No parameters found.");
 			}
 				

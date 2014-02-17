@@ -80,6 +80,60 @@ use eMapper\Engine\MySQL\MySQLMapper;
 //mapper MySQL/MariaDB
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 ```
+<table width="90%">
+    <thead>
+        <tr>
+            <th colspan="3">Parámetros de clase MySQLMapper</th>
+        </tr>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>database</td>
+            <td>Cadena</td>
+            <td><em>ninguno</em></td>
+        </tr>
+        <tr>
+            <td>host</td>
+            <td>Cadena</td>
+            <td>mysqli.default_host (php.ini)</td>
+        </tr>
+        <tr>
+            <td>user</td>
+            <td>Cadena</td>
+            <td>mysqli.default_user (php.ini)</td>
+        </tr>
+        <tr>
+            <td>password</td>
+            <td>Cadena</td>
+            <td>mysqli.default_pw (php.ini)</td>
+        </tr>
+        <tr>
+            <td>port</td>
+            <td>Cadena</td>
+            <td>mysqli.default_port (php.ini)</td>
+        </tr>
+        <tr>
+            <td>socket</td>
+            <td>Cadena</td>
+            <td>mysqli.default_socket (php.ini)</td>
+        </tr>
+        <tr>
+            <td>charset</td>
+            <td>Cadena</td>
+            <td><em>NULL</em></td>
+        </tr>
+        <tr>
+            <td>autocommit</td>
+            <td>Booleano</td>
+            <td>TRUE</td>
+        </tr>
+    </tbody>
+</table>
 
 <br/>
 **SQLite**
@@ -135,7 +189,7 @@ $mapper->close();
 **Obtener una fila como un arreglo asociativo**
 
 <br/>
-Para indicar el tipo de dato a devolver por una consulta se utiliza el método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). **eMapper** se caracteriza para hacer un uso exhaustivo del encadenamiento de métodos (*method chaining*) para configurar la manera en que un resultado es mapeado. Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
+El tipo de dato a devolver por una consulta se define a través del método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Configurar la manera de convertir un resultado a un tipo dado requiere hacer uso del encadenamiento de métodos (*method chaining*). Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
 ```php
 use eMapper\Result\ResultInterface;
 
@@ -398,11 +452,11 @@ Consultas
 **Enviando parámetros a una consulta**
 
 <br/>
-Al invocar a la función ***query*** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **especificador de tipo** entre llaves.
+Al invocar a la función ***query*** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **identificador de tipo** entre llaves.
 
 ```php
-//obtain user with id = 1
-$user = $mapper->type('obj')->query("SELECT * FROM usuarios WHERE id_usuario = %{int}", 1);
+//obtener usuario con id 1
+$usuario = $mapper->type('obj')->query("SELECT * FROM usuarios WHERE id_usuario = %{int}", 1);
 ```
 Este ejemplo muestra como utilizar este tipo de expresiones para generar una consulta de inserción de datos.
 
@@ -414,7 +468,8 @@ $admin = false;
 $imagen = file_get_contents('foto.jpg');
 
 //insertar datos ('s' => 'string', 'b' => 'boolean', 'x' => 'blob')
-$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (%{s}, %{s}, %{b}, %{x})", $nombre, $password, $admin, $imagen);
+$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen)
+VALUES (%{s}, %{s}, %{b}, %{x})", $nombre, $password, $admin, $imagen);
 ```
 
 <br/>
@@ -423,8 +478,9 @@ $mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (%
 <br/>
 En caso de que el argumento sea una arreglo, los valores del mismo son convertidos al tipo especificado y luego concatenados. Esto resulta útil al realizar búsquedas con el operador **IN**.
 ```php
+$valores = ['MXP412', 'TRY235','OFR255'];
 //ejecutar consulta: SELECT * FROM productos WHERE codigo IN ('MXP412', 'TRY235', 'OFR255')
-$products = $mapper->query("SELECT * FROM productos WHERE codigo IN (%{s})", array('MXP412', 'TRY235','OFR255'));
+$products = $mapper->query("SELECT * FROM productos WHERE codigo IN (%{s})", $valores);
 ```
 
 <br/>
@@ -495,7 +551,8 @@ $usuario->admin = false;
 $usuario->imagen = file_get_contents('foto.jpg');
 
 //insert data
-$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen) VALUES (#{nombre}, #{password:s}, #{admin}, #{imagen:blob})", $user);
+$mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen)
+VALUES (#{nombre}, #{password:s}, #{admin}, #{imagen:blob})", $user);
 ```
 
 <br/>
@@ -521,7 +578,7 @@ Result maps
 ----------
 
 <br/>
-Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico a la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico al de la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
 
 ```php
 namespace Acme\Result;
@@ -550,7 +607,7 @@ class UserResultMap {
 }
 ```
 
-Para aplicar un result map a la lógica de mapeo debemos incluir una invocación al método **result_map** pasando como argumento el nombre completo de la clase.
+Para aplicar un result map a la lógica de mapeo debemos encadenar una invocación al método **result_map** pasando como argumento el nombre completo de la clase.
 
 ```php
 $usuario = $mapper
@@ -805,7 +862,7 @@ $mapper->addNamespace($usersNamespace);
 //...
 $perfil = $mapper->execute('usuarios.perfiles.findByUserId', 4);
 //...
-$mapper->execute('users.admin.ban', 7);
+$mapper->execute('usuarios.admin.ban', 7);
 ```
 
 <br/>
@@ -862,7 +919,7 @@ $id_usuario = $mapper
 ->sptypes('s', 's', 'b')
 ->InsertNewUser('juana', 'clave123', 1);
 ```
-Es muy probable que las rutinas almacenadas se hayan declarado utilizando el prefijo de la base de datos. Por defecto, siempre que se invoca una stored procedure se agregar al principio de la misma el prefijo de la base de datos que haya sido definido. Podemos controlar este comportamiento a través del método *usePrefix*.
+Es muy probable que las rutinas almacenadas se hayan declarado utilizando el prefijo de la base de datos. Por defecto, siempre que se invoca una stored procedure se agrega al principio de la misma el prefijo de la base de datos que haya sido definido. Podemos controlar este comportamiento a través del método *usePrefix*.
 
 ```php
 use eMapper\MySQL\MySQLMapper;
@@ -930,7 +987,7 @@ $usuarios = $mapper->
 ->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 ```
  - **Funciones no incluidas**: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc. Las funciones de clases/objetos no se encuentran incluidas por defecto. Tampoco las de importado de funciones y paquetes. Las funciones de salida **echo**, **var-dump** y **print-r** no se incluyen.
- - **Paquetes incluidos**: El ambiente de ejecución incluye solamente los paquetes **DatePackage** y **RegexPackage**. Incluir más paquetes requerira declarar un entorno personalizado.
+ - **Paquetes incluidos**: El ambiente de ejecución incluye solamente los paquetes **DatePackage** y **RegexPackage**. Incluir más paquetes requerirá declarar un entorno personalizado.
 
 
 <br/>
@@ -1091,7 +1148,7 @@ Tipos definidos por usuario
 --------------------
 
 <br/>
-**eMapper** permite asociar el valor de una determinada columna a un manejador de tipo creado por usuario. Para agregar un tipo definido por usuario es necesario implementar un manejador de tipo que extienda de la clase *eMapper\Type\TypeHandler*. Nuestro manejador deberá entonces implementar los métodos *setParameter* y *getValue* para insertar valores en una consulta y leerlos desde una columna. En los próximos ejemplos se ilustra la implementación de un manejador de tipos destinado a gestionar instancias de la clase *Acme\RGBColor*. Esta clase representa un color RGB con los componentes rojo, verde y azul. 
+**eMapper** permite asociar el valor de una determinada columna a un manejador de tipo creado por el usuario. Para agregar un tipo definido por usuario es necesario implementar un manejador de tipo que extienda de la clase *eMapper\Type\TypeHandler*. Nuestro manejador deberá entonces implementar los métodos *setParameter* y *getValue* para insertar valores en una consulta y leerlos desde una columna. En los próximos ejemplos se ilustra la implementación de un manejador de tipos destinado a gestionar instancias de la clase *Acme\RGBColor*. Esta clase representa un color RGB con los componentes rojo, verde y azul. 
 
 ```php
 <?php
@@ -1232,6 +1289,125 @@ class BooleanTypeHandler extends TypeHandler {
 }
 ```
 El método *castParameter* es un método interno que se invoca con el objetivo de chequear el tipo del parámetro previamente a ser insertado. Este método puede ser utilizado para notificar que determinado valor no es válido o directamente convertirlo a una expresión válida.
+
+
+<br/>
+Atributos dinámicos
+----------
+
+<br/>
+Un atributo dinámico es una propiedad de un entidad o result map al cual se le asocia el valor retornado por una consulta. Existen varios tipos de atributos dinámicos
+
+**Definir atributo dinámico**
+
+<br/>
+
+```php
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} ORDER BY tipo"
+     * @type obj[]
+     */
+    public $perfiles;
+}
+```
+La entidad *Usuario* además de las propiedades *id* y *nombre* define una llamada *perfiles* y le asocia la ejecución de una consulta a través de la annotation **@query**. Esta consulta recibe la instancia de *Usuario* y utiliza el valor de la propiedad *id* para realizar una búsqueda de los perfiles de usuario. El tipo a retornar de esta consulta se establece con la annotation **@type**.
+
+<br/>
+**Parametrización**
+
+<br/>
+**Procedures**
+
+<br/>
+**Macros**
+
+<br/>
+La annotation **@eval** permite asociar una propiedad al valor devuelto por una macro de usuario. Esta annotation define una expresion similar a las utilizadas en las consultas dinámicas. Las macros de usuario no definen argumentos auxiliares y siempre son invocadas con el arreglo o instancia actual como único argumento. Este ejemplo utiliza una macro de usuario para calcular la edad de un usuario basandose en la fecha de nacimiento.
+
+```php
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @column fecha_nacimiento
+     * @type dt
+     */
+    public $fechaNacimiento;
+    
+    /**
+     * Edad de usuario
+     * @eval (as-int (->format (->diff (#fechaNacimiento) (now)) "%y"))
+     */
+    public $edad;
+}
+```
+
+<br/>
+**Condiciones**
+
+<br/>
+También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. En este ejemplo verificamos la edad de un usuario para saber si debemos cargar un mensaje publicitario o no. De tratarse de un mayor de edad se invocará a la procedure *GetAdvertiserMessage* suministrando el id de usuario.
+```php
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @column fecha_nacimiento
+     * @type dt
+     */
+    public $fechaNacimiento;
+    
+    /**
+     * Edad de usuario
+     * @eval (as-int (->format (->diff (#fechaNacimiento) (now)) "%y"))
+     */
+    public $edad;
+    
+    /**
+     * @cond (>= (#edad) 18)
+     * @procedure GetAdvertiserMessage
+     * @arg #id
+     * @type string
+     */
+    public $publicidad;
+}
+```
 
 <br/>
 Excepciones

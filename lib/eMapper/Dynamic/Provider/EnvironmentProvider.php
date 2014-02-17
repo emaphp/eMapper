@@ -2,6 +2,7 @@
 namespace eMapper\Dynamic\Provider;
 
 use eMacros\Package\Package;
+use eMapper\Dynamic\Environment\ConfigurableEnvironment;
 
 abstract class EnvironmentProvider {
 	/**
@@ -61,6 +62,11 @@ abstract class EnvironmentProvider {
 		}
 			
 		self::$environments[$id] = new $classname();
+		
+		//apply configuration values
+		if (self::$environments[$id] instanceof ConfigurableEnvironment) {
+			self::$environments[$id]->setConfiguration($config);
+		}
 		
 		return true;
 	}

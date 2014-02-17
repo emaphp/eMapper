@@ -2,6 +2,7 @@
 namespace eMapper\Engine\Generic\Statement;
 
 use eMapper\Cache\Key\CacheKey;
+use eMapper\Dynamic\Builder\EnvironmentBuilder;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMapper\Reflection\Profiler;
@@ -9,6 +10,8 @@ use eMapper\Type\TypeHandler;
 use eMacros\Program\SimpleProgram;
 
 abstract class GenericStatement extends CacheKey {
+	use EnvironmentBuilder;
+	
 	//Ex: [[ (null? (#order)) ]]
 	const UNESCAPED_DYNAMIC_SQL_REGEX = '/\[\[(.*)\]\]/';
 	
@@ -116,18 +119,10 @@ abstract class GenericStatement extends CacheKey {
 		return $value;
 	}
 	
-	protected function executeDynamicSQL($expr) {
-		//get environment id
-		$environmentId = $this->config['environment.id'];
-	
-		//obtain environment
-		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
-			EnvironmentProvider::buildEnvironment($environmentId, $this->config['environment.class']);
-		}
-	
+	protected function executeDynamicSQL($expr) {	
 		//run program
 		$program = new SimpleProgram($expr);
-		return $program->executeWith(EnvironmentProvider::getEnvironment($environmentId), $this->args);
+		return $program->executeWith($this->buildEnvironment($this->config), $this->args);
 	}
 	
 	public function build($expr, $args, $config, $parameterMap = null) {
