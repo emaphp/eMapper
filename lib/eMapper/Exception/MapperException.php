@@ -2,8 +2,8 @@
 namespace eMapper\Exception;
 
 abstract class MapperException extends \Exception {
-	public function __construct($message) {
-		parent::__construct($message);
+	public function __construct($message, \Exception $previous = null) {
+		parent::__construct($message, 0, $previous);
 	}
 }
 ?>

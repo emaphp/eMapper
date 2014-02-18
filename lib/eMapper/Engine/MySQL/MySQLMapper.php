@@ -360,8 +360,8 @@ class MySQLMapper extends GenericMapper {
 	/**
 	 * Throws a MySQL generic exception
 	 */
-	public function throw_exception($message) {
-		throw new MySQLMapperException($message);
+	public function throw_exception($message, \Exception $previous = null) {
+		throw new MySQLMapperException($message, $previous);
 	}
 	
 	/**

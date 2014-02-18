@@ -467,28 +467,28 @@ class ScalarTypeTest extends MySQLTest {
 	}
 	
 	/**
-	 * @expectedException UnexpectedValueException
+	 * @expectedException \eMapper\Exception\MapperException
 	 */
 	public function testDatetimeError1() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_id FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException UnexpectedValueException
+	 * @expectedException \eMapper\Exception\MapperException
 	 */
 	public function testDatetimeError2() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_name FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException UnexpectedValueException
+	 * @expectedException \eMapper\Exception\MapperException
 	 */
 	public function testDatetimeError3() {
 		$result = self::$mapper->type('DateTime')->query("SELECT avatar FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException UnexpectedValueException
+	 * @expectedException \eMapper\Exception\MapperException
 	 */
 	public function testDatetimeError4() {
 		$result = self::$mapper->type('DateTime')->query("SELECT price FROM products WHERE product_id = 1");	

@@ -80,7 +80,7 @@ use eMapper\Engine\MySQL\MySQLMapper;
 //mapper MySQL/MariaDB
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 ```
-<table width="90%">
+<table width="95%">
     <thead>
         <tr>
             <th colspan="4">Parámetros de clase MySQLMapper</th>
@@ -133,7 +133,7 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
             <td>charset</td>
             <td>Cadena</td>
             <td>Set de caracteres (seteado con mysqli::set_charset)</td>
-            <td>UTF-8</td>
+            <td>'UTF-8'</td>
         </tr>
         <tr>
             <td>autocommit</td>
@@ -158,7 +158,7 @@ use eMapper\Engine\SQLite\SQLiteMapper;
 $mapper = new SQLiteMapper('company.db');
 ```
 
-<table width="90%">
+<table width="95%">
     <thead>
         <tr>
             <th colspan="4">Parámetros de clase SQLiteMapper</th>
@@ -205,7 +205,7 @@ use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
 //mapper PostgreSQL
 $mapper = new PostgreSQLMapper('dbname=company user=test password=test');
 ```
-<table width="90%">
+<table width="95%">
     <thead>
         <tr>
             <th colspan="4">Parámetros de clase SQLiteMapper</th>
@@ -1607,84 +1607,112 @@ Excepciones
 ----------
 
 <br/>
-All library exceptions extend the ***MySQLMapperException*** class.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+Si bien *eMapper* hace uso de las excepciones ya incluidas en SPL, existen algunos escenarios donde se utilizan excepciones propias de la libreria. Estos escenarios son los siguientes:
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
+ - Error en la consulta realizada
+ - Error de conexión a servidor
+ - Error durante el procesamiento de la consulta/resultado
 
-try {
-    //ERROR: empty user
-	$mapper = new MySQLMapper('my_db', 'localhost', '', 'my_pass');
-	
-	//run query
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-	
-	$mapper->close();
-}
-catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
-}
-?>
-```
 <br/>
-If the connection failed due to a wrong configuration value, then a ***MySQLConnectionException*** is thrown.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+La clase asociada a cada uno de estos escenarios depende del servidor de base de datos que estemos utilizando aunque todas ellas tienen en común que extienden de *eMapper\Exception\MapperException*.
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
-use eMapper\Exception\MySQL\MySQLConnectionException;
-
-try {
-    //ERROR: fake_user does not exists!
-	$mapper = new MySQLMapper('my_db', 'localhost', 'fake_user', 'my_pass');
-	
-	//run query
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-	
-	$mapper->close();
-}
-catch (MySQLConnectionException $ce) {
-	echo "Connection error: " . $me->getMessage();
-}
-catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
-}
-?>
-```
-
-The ***MySQLQueryException*** is thrown only when a query syntax error is found.
+<br/>
+**MySQL**
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\Exception\MySQLMapperException;
+use eMapper\Engine\MySQL\Exception\MySQLQueryException;
+use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
-use eMapper\Exception\MySQL\MySQLQueryException;
+$mapper = new MySQLMapper('db');
 
 try {
-	$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-	
-	//ERROR: no columns
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT FROM users");
-	
-	$mapper->close();
+    $mapper->query($query);
 }
 catch (MySQLQueryException $qe) {
-	echo "SQL query error: " . $qe->getMessage();
+    echo 'Error en consulta! ' . $qe->getMessage();
+    echo '<br/>Al intentar correr ' . $qe->getQuery();
+}
+catch (MySQLConnectionException $ce) {
+    echo 'Fallo de conexión! ' . $ce->getMessage();
 }
 catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
 }
-?>
+```
+
+<br/>
+**SQLite**
+
+```php
+use eMapper\Engine\SQLite\SQLiteMapper;
+use eMapper\Engine\SQLite\Exception\SQLiteMapperException;
+use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
+use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
+
+$mapper = new SQLiteMapper('filename.db');
+
+try {
+    $mapper->query($query);
+}
+catch (SQLiteQueryException $qe) {
+    echo 'Error en consulta! ' . $qe->getMessage();
+    echo '<br/>Al intentar correr ' . $qe->getQuery();
+}
+catch (SQLiteConnectionException $ce) {
+    echo 'Fallo de conexión! ' . $ce->getMessage();
+}
+catch (SQLiteMapperException $me) {
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
+}
+```
+
+<br/>
+**PostgreSQL**
+
+```php
+use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLMapperException;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
+
+$mapper = new PostgreSQLMapper('dbname=test');
+
+try {
+    $mapper->query($query);
+}
+catch (PostgreSQLQueryException $qe) {
+    echo 'Error en consulta! ' . $qe->getMessage();
+    echo '<br/>Al intentar correr ' . $qe->getQuery();
+}
+catch (PostgreSQLConnectionException $ce) {
+    echo 'Fallo de conexión! ' . $ce->getMessage();
+}
+catch (PostgreSQLMapperException $me) {
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
+}
 ```
 
 <br/>
@@ -1811,7 +1839,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 <br/>
 **MySQL**
 
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -1866,7 +1894,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 <br/>
 **SQLite**
 
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -1895,7 +1923,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **PostgreSQL**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -1919,7 +1947,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **Genericas**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -1941,7 +1969,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 <br/>
 **Mapeo de datos**
 
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -1980,7 +2008,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **Cache**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -2012,7 +2040,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 </table>
 <br/>
 **Callbacks**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -2063,7 +2091,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **Rutinas almacenadas**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -2090,7 +2118,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **Entornos de ejecución**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>
@@ -2117,7 +2145,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 
 <br/>
 **Internas**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Nombre</th>

@@ -157,7 +157,13 @@ abstract class GenericMapper {
 		
 			//build cache key
 			$cacheKeyBuilder = new CacheKey($this->typeManager, $parameterMap);
-			$cacheKey = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
+			
+			try {
+				$cacheKey = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
+			}
+			catch (\Exception $e) {
+				$this->throw_exception($e->getMessage());
+			}
 		
 			//check if key is present
 			if ($cacheProvider->exists($cacheKey)) {
@@ -174,7 +180,12 @@ abstract class GenericMapper {
 			 */
 			
 			//build statement
-			$stmt = $this->build_statement($query, $args, $parameterMap);
+			try {
+				$stmt = $this->build_statement($query, $args, $parameterMap);
+			}
+			catch (\Exception $e) {
+				$this->throw_exception($e->getMessage());
+			}
 			
 			//override query
 			if (array_key_exists('callback.query', $this->config)) {
@@ -425,7 +436,12 @@ abstract class GenericMapper {
 			 */
 			
 			//call mapping callback
-			$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
+			try {
+				$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
+			}
+			catch (\Exception $e) {
+				$this->throw_exception($e->getMessage());
+			}
 			
 			//free result
 			$this->free_result($result);
@@ -672,7 +688,7 @@ abstract class GenericMapper {
 	protected abstract function run_query($query);
 	
 	//exception methods
-	public abstract function throw_exception($message);
+	public abstract function throw_exception($message, \Exception $previous = null);
 	public abstract function throw_query_exception($query); 
 }
 ?>

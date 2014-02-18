@@ -256,8 +256,8 @@ class PostgreSQLMapper extends GenericMapper {
 	/**
 	 * Throws a PostgreSQL generic exception
 	 */
-	public function throw_exception($message) {
-		throw new PostgreSQLMapperException($message);
+	public function throw_exception($message, \Exception $previous = null) {
+		throw new PostgreSQLMapperException($message, $previous);
 	}
 	
 	/**

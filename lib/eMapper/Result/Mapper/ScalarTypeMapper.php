@@ -20,7 +20,7 @@ class ScalarTypeMapper {
 			return null;
 		}
 		
-		if (is_null($column) || empty($column)) {
+		if (empty($column)) {
 			$column = 0;
 		}
 		elseif (!is_integer($column) && !is_string($column)) {
