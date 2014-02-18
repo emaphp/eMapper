@@ -83,11 +83,12 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 <table width="90%">
     <thead>
         <tr>
-            <th colspan="3">Parámetros de clase MySQLMapper</th>
+            <th colspan="4">Parámetros de clase MySQLMapper</th>
         </tr>
         <tr>
             <th>Nombre</th>
             <th>Tipo</th>
+            <th>Descripción</th>
             <th>Valor por defecto</th>
         </tr>
     </thead>
@@ -95,41 +96,49 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
         <tr>
             <td>database</td>
             <td>Cadena</td>
+            <td>Nombre de la base de datos</td>
             <td><em>ninguno</em></td>
         </tr>
         <tr>
             <td>host</td>
             <td>Cadena</td>
+            <td>Nombre/Dirección del host</td>
             <td>mysqli.default_host (php.ini)</td>
         </tr>
         <tr>
             <td>user</td>
             <td>Cadena</td>
+            <td>Nombre de usuario</td>
             <td>mysqli.default_user (php.ini)</td>
         </tr>
         <tr>
             <td>password</td>
             <td>Cadena</td>
+            <td>Contraseña de usuario
             <td>mysqli.default_pw (php.ini)</td>
         </tr>
         <tr>
             <td>port</td>
             <td>Cadena</td>
+            <td>Puerto de conexión</td>
             <td>mysqli.default_port (php.ini)</td>
         </tr>
         <tr>
             <td>socket</td>
             <td>Cadena</td>
+            <td>Socket de conexión</td>
             <td>mysqli.default_socket (php.ini)</td>
         </tr>
         <tr>
             <td>charset</td>
             <td>Cadena</td>
-            <td><em>NULL</em></td>
+            <td>Set de caracteres (seteado con mysqli::set_charset)</td>
+            <td>UTF-8</td>
         </tr>
         <tr>
             <td>autocommit</td>
             <td>Booleano</td>
+            <td>Autocommit de consultas</td>
             <td>TRUE</td>
         </tr>
     </tbody>
@@ -149,6 +158,40 @@ use eMapper\Engine\SQLite\SQLiteMapper;
 $mapper = new SQLiteMapper('company.db');
 ```
 
+<table width="90%">
+    <thead>
+        <tr>
+            <th colspan="4">Parámetros de clase SQLiteMapper</th>
+        </tr>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>filename</td>
+            <td>Cadena</td>
+            <td>Archivo de base de datos</td>
+            <td><em>ninguno</em></td>
+        </tr>
+        <tr>
+            <td>flags</td>
+            <td>Entero</td>
+            <td>Flags de conexión</td>
+            <td>SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE</td>
+        </tr>
+        <tr>
+            <td>encription_key</td>
+            <td>Cadena</td>
+            <td>Clave de encriptado</td>
+            <td><em>null</em></td>
+        </tr>
+    </tbody>
+</table>
+
 <br/>
 **PostgreSQL**
 
@@ -162,6 +205,34 @@ use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
 //mapper PostgreSQL
 $mapper = new PostgreSQLMapper('dbname=company user=test password=test');
 ```
+<table width="90%">
+    <thead>
+        <tr>
+            <th colspan="4">Parámetros de clase SQLiteMapper</th>
+        </tr>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Valor por defecto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>connection_string</td>
+            <td>Cadena</td>
+            <td>String de conexión</td>
+            <td><em>ninguno</em></td>
+        </tr>
+        <tr>
+            <td>connect_type</td>
+            <td>Entero</td>
+            <td>Tipo de conexión</td>
+            <td><em>ninguno</em></td>
+        </tr>
+    </tbody>
+</table>
+
 <br/>
 
 Al instanciar una clase mapper estaremos creando una instancia del objeto con los valores de configuración que hayamos suministrado. La conexión a la correspondiente base de datos se realizará recién al momento de enviar una consulta. Alternativamente, podemos utilizar el metodo *connect* para verificar la correcta conexión al servidor.
@@ -936,6 +1007,33 @@ $id_imagen = $mapper
 ->InsertImage('My Image', file_get_contents('image.png'));
 ```
 
+<br/>
+Configuración
+--------------
+
+<br/>
+Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**result_map**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el Apéndice II - Opciones de configuración.
+
+```php
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$cuatro = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
+```
+<br/>
+Para almacenar valores en la instancia original debe utilizarse el método **set**. Este método recibe el nombre de la opción a setear y su correspondiente valor. Los valores almacenados pueden ser recuperados a través del método **get**.
+```php
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('mi_valor', 'foo');
+$foo = $mapper->get('mi_valor');
+```
+<br/>
+Los valores de configuración también pueden ser referenciados desde adentro de una consulta. Este tipo de expresiones van encabezadas con el símbolo **@** seguido por el nombre de la opción entre llaves.
+
+```php
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('tabla', 'usuarios');
+$usuario = $mapper->type('obj')->query("SELECT * FROM @{tabla} WHERE user_id = 2");
+```
+En caso de que el valor de configuración no exista entonces se deja ese espacio en blanco.
 
 <br/>
 SQL Dinámico
@@ -976,6 +1074,8 @@ $orden = new \stdClass();
 $orden->columna = 'id_usuario';
 
 //SQL: SELECT * FROM usuarios ORDER BY id_usuario ASC
+//(#columna) => 'id_usuario'
+//(#tipo?) => false
 $usuarios = $mapper->
 ->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 
@@ -983,8 +1083,21 @@ $usuarios = $mapper->
 $orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
 
 //SQL: SELECT * FROM usuarios ORDER BY nombre DESC
+//(#columna) => 'nombre'
+//(#tipo?) => true
 $usuarios = $mapper->
 ->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
+```
+ - **Valores de configuración**: Las funciones encabezadas por el caracter **@** permiten acceder a valores de configuración previamente definidos para determinar su existencia y valor.
+
+```php
+//setear columna de ordenamiento
+$mapper->set('orden.columna', 'id_producto');
+
+//(@orden.columna) => 'id_producto'
+//(@orden.tipo?) => false
+$productos = $mapper->type('obj[]')
+->query("SELECT * FROM productos ORDER BY [[ (@orden.columna) ]] [[ (if (@orden.tipo?) (@orden.tipo) 'DESC') ]]");
 ```
  - **Funciones no incluidas**: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc. Las funciones de clases/objetos no se encuentran incluidas por defecto. Tampoco las de importado de funciones y paquetes. Las funciones de salida **echo**, **var-dump** y **print-r** no se incluyen.
  - **Paquetes incluidos**: El ambiente de ejecución incluye solamente los paquetes **DatePackage** y **RegexPackage**. Incluir más paquetes requerirá declarar un entorno personalizado.
@@ -1001,7 +1114,7 @@ $usuario = $mapper
 ->type('obj')
 ->query("SELECT * FROM usuarios WHERE nombre LIKE {{ (. '%' (%0) '%') }}", 'perez');
 ```
-El tipo a utilizar para la conversión debe ser definido al principio de la expresión, justo despues de las llaves. En caso de no declarar el tipo se asumirá que el valor debe ser convertido a *string*.
+El tipo a utilizar para la conversión debe ser definido al principio de la expresión, justo despues de las llaves de apertura. En caso de no declarar el tipo se asumirá que el valor debe ser convertido a *string*.
 
 ```php
 $productos = $mapper
@@ -1037,6 +1150,7 @@ El método *setEnvironment* acepta un segundo argumento con la clase del entorno
 namespace Acme\SQL\Environment;
 
 use eMacros\Environment\Environment;
+use eMapper\Dynamic\Environment\ConfigurableEnvironment;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMacros\Package\ArrayPackagePackage;
@@ -1044,6 +1158,8 @@ use eMacros\Package\StringPackage;
 use eMapper\Dynamic\Package\CorePackage;
 
 class CustomSQLEnvironment extends Environment {
+    use ConfigurableEnvironment;
+    
     public function __construct() {
 		$this->import(new RegexPackage());
 		$this->import(new DatePackage());
@@ -1053,7 +1169,7 @@ class CustomSQLEnvironment extends Environment {
 	}
 }
 ```
-Es interesante notar que la clase **CorePackage** no es la incluida en *eMacros*. De no incluir la incluida en *eMapper* las funciones de obtención de propiedades no funcionarian adecuadamente con clases entidades. Ahora solo resta asociar nuestra clase mapper con el entorno creado.
+El trait *ConfigurableEnvironment* permite que el ambiente almacene las opciones de configuración definidos para esa instancia. Es interesante notar que la clase **CorePackage** no es la incluida en *eMacros*. Es importante incluir este paquete en reemplazo del otro dado que de otra forma las funciones de acceso a propiedades no funcionarán del todo bien con entidades.
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -1115,35 +1231,6 @@ $usuario = $mapper
 ```
 
 <br/>
-Configuración
---------------
-
-<br/>
-Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**cache**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el Apéndice II - Opciones de configuración.
-
-```php
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$cuatro = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
-```
-<br/>
-Para almacenar valores en la instancia original debe utilizarse el método **set**. Este método recibe el nombre de la opción a setear y su correspondiente valor. Los valores almacenados pueden ser recuperados a través del método **get**.
-```php
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('mi_valor', 'foo');
-$foo = $mapper->get('mi_valor');
-```
-<br/>
-Los valores de configuración también pueden ser referenciados desde adentro de una consulta. Este tipo de expresiones van encabezadas con el símbolo **@** seguido por el nombre de la opción entre llaves.
-
-```php
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('tabla', 'usuarios');
-$usuario = $mapper->type('obj')->query("SELECT * FROM @{tabla} WHERE user_id = 2");
-```
-En caso de que el valor de configuración no exista entonces se deja ese espacio en blanco.
-
-
-<br/>
 Tipos definidos por usuario
 --------------------
 
@@ -1151,7 +1238,6 @@ Tipos definidos por usuario
 **eMapper** permite asociar el valor de una determinada columna a un manejador de tipo creado por el usuario. Para agregar un tipo definido por usuario es necesario implementar un manejador de tipo que extienda de la clase *eMapper\Type\TypeHandler*. Nuestro manejador deberá entonces implementar los métodos *setParameter* y *getValue* para insertar valores en una consulta y leerlos desde una columna. En los próximos ejemplos se ilustra la implementación de un manejador de tipos destinado a gestionar instancias de la clase *Acme\RGBColor*. Esta clase representa un color RGB con los componentes rojo, verde y azul. 
 
 ```php
-<?php
 namespace Acme\Type;
 
 class RGBColor {
@@ -1171,7 +1257,7 @@ class RGBColor {
 **La clase RGBColorTypeHandler**
 
 <br/>
-Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador queda de la siguiente manera.
+Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación desde la bae de datos y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador queda de la siguiente manera.
 
 ```php
 namespace Acme\Type;
@@ -1296,13 +1382,15 @@ Atributos dinámicos
 ----------
 
 <br/>
-Un atributo dinámico es una propiedad de un entidad o result map al cual se le asocia el valor retornado por una consulta. Existen varios tipos de atributos dinámicos
+Un atributo dinámico es una propiedad de un entidad o result map al cual se le asocia el valor retornado por una consulta. Estos atributos deben definirse con un grupo especial de annotations y pueden definir la expresión de mapeo asociada con **@type**.
 
-**Definir atributo dinámico**
+**Definir un atributo dinámico**
 
 <br/>
-
+Para asociar una propiedad con la ejecución de una consulta utilizamos la annotation **@query**. Esta annotation espera una cadena de texto con la consulta propiamente dicha.
 ```php
+namespace Acme\Entity;
+
 /**
  * @entity
  */
@@ -1324,13 +1412,123 @@ class Usuario {
     public $perfiles;
 }
 ```
-La entidad *Usuario* además de las propiedades *id* y *nombre* define una llamada *perfiles* y le asocia la ejecución de una consulta a través de la annotation **@query**. Esta consulta recibe la instancia de *Usuario* y utiliza el valor de la propiedad *id* para realizar una búsqueda de los perfiles de usuario. El tipo a retornar de esta consulta se establece con la annotation **@type**.
+La consulta especificada recibe la instancia actual de *Usuario* y utiliza el valor de la propiedad *id* para realizar una búsqueda de los perfiles asociados. El resultado de esta consulta es mapeado luego a un arreglo de objetos.
 
 <br/>
 **Parametrización**
 
 <br/>
-**Procedures**
+Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles  deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos agregar también una annotation especial para decir que la instancia sea utilizada como argumento.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{i}"
+     * @arg-self
+     * @arg 1
+     * @type obj[]
+     */
+    public $perfiles;
+}
+```
+La annotation **@arg-self** especifica que la instancia actual de *Usuario* sea utilizada como argumento. Cuando no se están agregando argumentos auxiliares (como en el primer ejemplo) no es necesario agregarla. La instancia actual siempre se pasa como primer argumento. Ahora esta consulta agrega un entero para de este modo realizar el filtrado de resultados.
+
+<br/>
+**Propiedades como parámetros**
+
+<br/>
+Lo más seguro es que la consulta para obtener los perfiles de un determinado usuario haya sido agregada como statement. La declaración de la misma sería algo similar a lo siguiente. 
+
+```php
+use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\Statement;
+
+$profilesNamespace = new StatementNamespace('profiles');
+$profilesNamespace->stmt('findByUserIdAndType',
+                         "SELECT * FROM perfiles WHERE id_usuario = #{i} AND tipo = %{i}",
+                         Statement::type('obj[id_perfil]'));
+                         
+$mapper->addNamespace($profilesNamespace);
+```
+Para invocar statements se utiliza la annotation **stmt**. Esta annotation espera una cadena de texto con el nombre completo de la statement a ejecutar. En este caso, la statement a invocar no espera una instancia de *Usuario* como primer argumento sino un entero. Para enviar el valor de una propiedad como argumento hacemos uso de una expresión especial.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @stmt 'profiles.findByUserIdAndType'
+     * @arg #id
+     * @arg 1
+     */
+    public $perfiles;
+}
+```
+El envio de una propiedad como argumento se realiza agregando una annotation **@arg** con el valor de la propiedad a enviar encabezada por el símbolo **#**.
+
+<br/>
+**Rutinas almacenadas**
+
+<br/>
+La invocación a una rutina almacenada se realiza utilizando la annotation **@procedure**. A diferencia de **@query** y **@stmt**, las invocaciones a rutinas no utilizan la instancia actual de mapeo como argumento.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class Usuario {
+    /**
+     * @column id_usuario
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $nombre;
+    
+    /**
+     * @procedure Profiles_FindByUserIdType
+     * @arg #id:int
+     * @arg 1
+     * @type obj[]
+     * @result-map Acme\Result\ProfileResultMap
+     */
+    public $perfiles;
+}
+```
+
+La propiedad *perfiles* agrega una annotation extra para setear el result map a utilizar para esa consulta. **@result-map** espera una cadena de texto con el nombre completo de la clase a usar para el mapeo de datos. También hemos agregado un identificadorr de tipo al primer argumento de la consulta. En este caso la propiedad *id* ya esta asociada al tipo entero, pero puede llegar a resultar de utilidad como reemplazo del seteo de tipos a través de **sptypes**.
 
 <br/>
 **Macros**
@@ -1371,8 +1569,10 @@ class Usuario {
 **Condiciones**
 
 <br/>
-También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. En este ejemplo verificamos la edad de un usuario para saber si debemos cargar un mensaje publicitario o no. De tratarse de un mayor de edad se invocará a la procedure *GetAdvertiserMessage* suministrando el id de usuario.
+También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. En este ejemplo verificamos el campo *karma* de un usuario para determinar si debemos traer su historial de conducta.
 ```php
+namespace Acme\Entity;
+
 /**
  * @entity
  */
@@ -1388,24 +1588,17 @@ class Usuario {
      public $nombre;
     
     /**
-     * @column fecha_nacimiento
-     * @type dt
+     * @type int
      */
-    public $fechaNacimiento;
+    public $karma;
     
     /**
-     * Edad de usuario
-     * @eval (as-int (->format (->diff (#fechaNacimiento) (now)) "%y"))
-     */
-    public $edad;
-    
-    /**
-     * @cond (>= (#edad) 18)
-     * @procedure GetAdvertiserMessage
+     * @cond (< (#karma) 30)
+     * @stmt 'users.getBanHistory'
      * @arg #id
-     * @type string
+     * @type obj[]
      */
-    public $publicidad;
+    public $banHistory;
 }
 ```
 

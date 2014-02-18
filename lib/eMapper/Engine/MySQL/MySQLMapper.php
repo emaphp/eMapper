@@ -31,7 +31,7 @@ class MySQLMapper extends GenericMapper {
 	 * @param boolean $autocommit
 	 * @throws MySQLMapperException
 	 */
-	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = null, $autocommit = true) {
+	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = 'UTF-8', $autocommit = true) {
 		if (!is_string($database) || empty($database)) {
 			throw new MySQLMapperException("Invalid database specified");
 		}
