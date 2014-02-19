@@ -4,7 +4,6 @@ namespace eMapper\Dynamic\Runtime;
 use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
-use eMapper\Dynamic\Environment\ConfigurableEnvironment;
 
 class ConfigurationGet implements Applicable {
 	/**
@@ -17,12 +16,7 @@ class ConfigurationGet implements Applicable {
 		$this->option = $option;
 	}
 	
-	public function apply(Scope $scope, GenericList $arguments) {
-		//validate environment
-		if (!($scope instanceof ConfigurableEnvironment)) {
-			throw new \RuntimeException("ConfigurationGet: Scope is not a valir configurable environment");
-		}
-		
+	public function apply(Scope $scope, GenericList $arguments) {		
 		//obtain option name
 		if (is_null($this->option)) {
 			if (count($arguments) == 0) {
@@ -36,7 +30,7 @@ class ConfigurationGet implements Applicable {
 		}
 
 		//check option
-		if (array_key_exists($option, $scope->config)) {
+		if (!array_key_exists($option, $scope->config)) {
 			throw new \InvalidArgumentException(sprintf("ConfigurationGet: Configuration key '%s' not found", $option));
 		}
 		

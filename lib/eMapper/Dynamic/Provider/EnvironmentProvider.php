@@ -63,11 +63,6 @@ abstract class EnvironmentProvider {
 			
 		self::$environments[$id] = new $classname();
 		
-		//apply configuration values
-		if (self::$environments[$id] instanceof ConfigurableEnvironment) {
-			self::$environments[$id]->setConfiguration($config);
-		}
-		
 		return true;
 	}
 }

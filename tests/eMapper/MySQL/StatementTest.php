@@ -7,6 +7,7 @@ use eMapper\Type\TypeManager;
  * 
  * @author emaphp
  * @group mysql
+ * @group statement
  */
 class StatementTest extends MySQLTest {
 	public $statement;

@@ -13,10 +13,10 @@ abstract class GenericStatement extends CacheKey {
 	use EnvironmentBuilder;
 	
 	//Ex: [[ (null? (#order)) ]]
-	const UNESCAPED_DYNAMIC_SQL_REGEX = '/\[\[(.*)\]\]/';
+	const UNESCAPED_DYNAMIC_SQL_REGEX = '/\[\[(.+?)\]\]/';
 	
 	//Ex: {{ (null? (#order)) }} {{:int (#limit)) }}
-	const DYNAMIC_SQL_REGEX = '/\{\{(?::([\w|\\\\]+)\s+)?(.*)\}\}/';
+	const DYNAMIC_SQL_REGEX = '/\{\{(?::([\w|\\\\]+)\s+)?(.+?)\}\}/';
 	
 	/**
 	 * Current mapper configuration
@@ -119,10 +119,10 @@ abstract class GenericStatement extends CacheKey {
 		return $value;
 	}
 	
-	protected function executeDynamicSQL($expr) {	
+	protected function executeDynamicSQL($env, $expr) {	
 		//run program
 		$program = new SimpleProgram($expr);
-		return $program->executeWith($this->buildEnvironment($this->config), $this->args);
+		return $program->executeWith($env, $this->args);
 	}
 	
 	public function build($expr, $args, $config, $parameterMap = null) {
@@ -130,24 +130,31 @@ abstract class GenericStatement extends CacheKey {
 		$this->config = $config;
 		$counter_start = 0;
 		
+		//wrap first parameter
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
 			$this->args[0] = ParameterWrapper::wrap($args[0], $parameterMap);
 		}
 		
 		//replace dynamic sql expressions (unescaped)
 		if (preg_match(self::UNESCAPED_DYNAMIC_SQL_REGEX, $expr)) {
+			//set environment config
+			$env = $this->buildEnvironment($config);
+			
 			$expr = preg_replace_callback(self::UNESCAPED_DYNAMIC_SQL_REGEX,
-					function ($matches) {
-						return $this->toString($this->executeDynamicSQL($matches[1]));
+					function ($matches) use ($env) {
+						return $this->toString($this->executeDynamicSQL($env, $matches[1]));
 					},
 					$expr);
 		}
 		
 		//replace dynamic sql expressions
 		if (preg_match(self::DYNAMIC_SQL_REGEX, $expr)) {
+			//set environment config
+			$env = $this->buildEnvironment($config);
+			
 			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX,
-					function ($matches) {
-						$value = $this->executeDynamicSQL($matches[2]);
+					function ($matches) use ($env) {
+						$value = $this->executeDynamicSQL($env, $matches[2]);
 						$type = !empty($matches[1]) ? $matches[1] : 'string';
 						return $this->castParameter($value, $type);
 					},

@@ -14,10 +14,12 @@ trait EnvironmentBuilder {
 		$environmentId = $config['environment.id'];
 		
 		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
-			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class'], $config);
+			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class']);
 		}
 		
-		return EnvironmentProvider::getEnvironment($environmentId);
+		$env = EnvironmentProvider::getEnvironment($environmentId);
+		$env->setConfiguration($config);
+		return $env;
 	}
 }
 ?>

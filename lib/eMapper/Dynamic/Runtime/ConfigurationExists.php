@@ -4,7 +4,6 @@ namespace eMapper\Dynamic\Runtime;
 use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
-use eMapper\Dynamic\Environment\ConfigurableEnvironment;
 
 class ConfigurationExists implements Applicable {
 	/**
@@ -18,11 +17,6 @@ class ConfigurationExists implements Applicable {
 	}
 	
 	public function apply(Scope $scope, GenericList $arguments) {
-		//validate environment
-		if (!($scope instanceof ConfigurableEnvironment)) {
-			throw new \RuntimeException("ConfigurationExists: Scope is not a valir configurable environment");
-		}
-		
 		//obtain option name
 		if (is_null($this->option)) {
 			if (count($arguments) == 0) {

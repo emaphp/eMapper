@@ -189,7 +189,7 @@ abstract class GenericMapper {
 			
 			//override query
 			if (array_key_exists('callback.query', $this->config)) {
-				$query = call_user_func($callback, $stmt);
+				$query = call_user_func($this->config['callback.query'], $stmt);
 			
 				if (!is_null($query)) {
 					$stmt = $query;
