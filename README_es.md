@@ -15,10 +15,10 @@ Ultimas modificaciones
 2014-??-?? - Versión 3.0.0
 
   * Obsoleto: Models.
-  * Agregado: Result maps (Un result map permite definir que columnas mapear desde una fila).
-  * Agregado: Entidades (Las entidades son clases de mapeo configurables).
+  * Agregado: Result maps.
+  * Agregado: Entidades.
   * Agregado: Soporte para bases de datos SQLite y PostgreSQL.
-  * Agregado: SQL dinámico (Permite anidar expresiones-S dentro de una consulta través de la librería eMacros).
+  * Agregado: SQL dinámico.
   * Agregado: Atributos dinámicos.
   * Agregado: Agrupamiento.
   * Agregado: Funciones de indexado y agrupamiento.
@@ -30,7 +30,7 @@ Dependencias
 <br/>
 - PHP >= 5.4
 - Paquete [annotations](https://github.com/marcioAlmada/annotations "")
-- [eMacros](https://github.com/emaphp/eMacros "")
+- Paquete [eMacros](https://github.com/emaphp/eMacros "")
  
 <br/>
 Instalación
@@ -41,7 +41,7 @@ Instalación
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.*"
+        "emapper/emapper" : "dev-master"
     }
 }
 ```
@@ -51,11 +51,11 @@ Introducción
 ------------
 
 <br/>
-***eMapper*** es una librería PHP que apunta a proveer una herramienta de mapeo de datos simple, poderosa y altamente customizable. Viene con algunas características interesantes no incluidas en otros frameworks:
+*eMapper* es una librería PHP que apunta a proveer una herramienta de mapeo de datos simple, poderosa y altamente customizable. Viene con algunas características interesantes no incluidas en otros frameworks:
 
 - **Mapeo customizado**: Los resultados pueden mapearse a un tipo particular a través de una *expresión de mapeo*.
 - **Indexado y Agrupamiento**: Los elementos dentro de una lista pueden ser indexados y/o agrupados por una valor de columna.
-- **Tipos customizados**: Es posible definir tipos de datos de usuario y manejadores de tipo.
+- **Tipos customizados**: Es posible definir tipos y manejadores de tipo customizados.
 - **Caché**: Los datos mapeados pueden almacenarse en caché utilizando APC o Memcache.
 - **SQL Dinámico**: Las consultas pueden contener expresiones escritas en el lenguaje eMacros.
 
@@ -65,7 +65,7 @@ Primeros pasos
 -----------
 
 <br/>
-Para comenzar a trabajar con **eMapper** deberemos primero crear una instancia de alguna de las clases de mapeo disponibles en la librería. La clase a instanciar dependerá del servidor de base de datos que estemos utilizando.
+Para comenzar a trabajar con *eMapper* deberemos primero crear una instancia de alguna de las clases de mapeo disponibles en la librería. La clase a instanciar dependerá del servidor de base de datos que estemos utilizando.
 
 <br/>
 **MySQL**
@@ -292,7 +292,6 @@ $usuario = $mapper->type('object')->query("SELECT * FROM usuarios WHERE id_usuar
 <br/>
 Es posible también indicar la clase del objeto a devolver dentro de la expresión de mapeo. Para demostrar esta funcionalidad, hemos diseñado una clase *Usuario* dentro del paquete *Acme*.
 ```php
-<?php
 namespace Acme;
 
 class Usuario {
@@ -540,7 +539,7 @@ $imagen = file_get_contents('foto.jpg');
 
 //insertar datos ('s' => 'string', 'b' => 'boolean', 'x' => 'blob')
 $mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen)
-VALUES (%{s}, %{s}, %{b}, %{x})", $nombre, $password, $admin, $imagen);
+                VALUES (%{s}, %{s}, %{b}, %{x})", $nombre, $password, $admin, $imagen);
 ```
 
 <br/>
@@ -572,7 +571,8 @@ $args = array('id' => 1, 'jdoe', 'david');
 
 $users = $mapper
 ->type('obj[]')
-->query("SELECT * FROM usuarios WHERE id_usuario = %{0[id]} OR nombre = %{0[1]:str} OR nombre = %{0[2]:str}", $args);
+->query("SELECT * FROM usuarios
+         WHERE id_usuario = %{0[id]} OR nombre = %{0[1]:str} OR nombre = %{0[2]:str}", $args);
 ```
 
 <br/>
@@ -611,7 +611,7 @@ $user = $mapper
 **Objetos y arreglos como argumento**
 
 <br/>
-Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento de la consulta.
+Las consultas también soportan una sintaxis especial que les permite obtener valores desde arreglos y objetos especificando el nombre de propiedad/clave. Las expresiones de este tipo deben encabezarse con un símbolo ***#*** e ir seguidas del nombre de la propiedad (o clave) entre llaves. Esta sintaxis también permite especificar el tipo, subíndice y rango de la propiedad. Recordar que este tipo de expresiones requieren que el arreglo/objeto sea pasado como primer argumento de la consulta.
 
 ```php
 //datos de usuario
@@ -623,7 +623,7 @@ $usuario->imagen = file_get_contents('foto.jpg');
 
 //insert data
 $mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen)
-VALUES (#{nombre}, #{password:s}, #{admin}, #{imagen:blob})", $user);
+                VALUES (#{nombre}, #{password:s}, #{admin}, #{imagen:blob})", $user);
 ```
 
 <br/>
@@ -850,8 +850,9 @@ $stmt = new Statement('findAllProducts', "SELECT * FROM productos", Statement::t
 $mapper->addStatement($stmt);
 
 //setear result map y tipo por defecto
-$mapper->stmt('findAllUsers', "SELECT * FROM users",
-Statement::config()->result_map('Acme\Result\UserResultMap')->type('obj[id]'));
+$mapper->stmt('findAllUsers',
+              "SELECT * FROM users",
+              Statement::config()->result_map('Acme\Result\UserResultMap')->type('obj[id]'));
 
 //invocar statements
 $productos = $mapper->execute('findAllProducts'):
@@ -863,7 +864,7 @@ El método *type* es una forma simplificada de definir el tipo por defecto de un
 ```php
 Statement::config(['map.result' => 'Acme\Result\UserResultMap', 'map.type' => 'obj[id]']);
 ```
-El listado de opciones de configuración puede verse en el Apéndice II - Opciones de configuración.
+El listado de opciones de configuración puede verse en el *Apéndice II - Opciones de configuración*.
 
 <br/>
 Namespaces
@@ -1012,7 +1013,7 @@ Configuración
 --------------
 
 <br/>
-Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**result_map**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el Apéndice II - Opciones de configuración.
+Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**result_map**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el *Apéndice II - Opciones de configuración*.
 
 ```php
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
@@ -1077,7 +1078,8 @@ $orden->columna = 'id_usuario';
 //(#columna) => 'id_usuario'
 //(#tipo?) => false
 $usuarios = $mapper->
-->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
+->query("SELECT * FROM usuarios 
+         ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 
 //orden como arreglo
 $orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
@@ -1086,7 +1088,8 @@ $orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
 //(#columna) => 'nombre'
 //(#tipo?) => true
 $usuarios = $mapper->
-->query("SELECT * FROM usuarios ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
+->query("SELECT * FROM usuarios
+         ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 ```
  - **Valores de configuración**: Las funciones encabezadas por el caracter **@** permiten acceder a valores de configuración previamente definidos para determinar su existencia y valor.
 
@@ -1097,7 +1100,8 @@ $mapper->set('orden.columna', 'id_producto');
 //(@orden.columna) => 'id_producto'
 //(@orden.tipo?) => false
 $productos = $mapper->type('obj[]')
-->query("SELECT * FROM productos ORDER BY [[ (@orden.columna) ]] [[ (if (@orden.tipo?) (@orden.tipo) 'DESC') ]]");
+->query("SELECT * FROM productos
+         ORDER BY [[ (@orden.columna) ]] [[ (if (@orden.tipo?) (@orden.tipo) 'DESC') ]]");
 ```
  - **Funciones no incluidas**: La mayoria de las funciones propias de PHP no se hallan declaradas en el ambiente de ejecución por defecto. Cada vez que se trata de invocar una función no declarada se comprueba la existencia de la misma. De hallarse se intentará invocarla con los parámetros suministrados. Ejemplos de funciones no declaradas pero invocables son **count**, **str_replace**, **nl2br**, etc. Las funciones de clases/objetos no se encuentran incluidas por defecto. Tampoco las de importado de funciones y paquetes. Las funciones de salida **echo**, **var-dump** y **print-r** no se incluyen.
  - **Paquetes incluidos**: El ambiente de ejecución incluye solamente los paquetes **DatePackage** y **RegexPackage**. Incluir más paquetes requerirá declarar un entorno personalizado.
@@ -1319,7 +1323,7 @@ use Acme\RGBColorTypeHandler;
 $mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 ```
 <br/>
-Al haber definido un alias podemos utilizar *color* como identificador de tipo.
+El alias *color* puede ahora ser utilizado como identificador de tipo.
 
 ```php
 use Acme\Type\RGBColor;
@@ -1332,7 +1336,7 @@ $mapper->query("INSERT INTO paleta (nombre, rgb) VALUES (#{nombre}, #{rgb:color}
 ```
 
 <br/>
-Tanto *Acme\RGBColor* como *color* pueden ahora utilizarse como expresiones de mapeo.
+Tanto *Acme\RGBColor* como *color* pueden utilizarse como expresiones de mapeo al invocar a **type**.
 
 ```php
 $rojo = $mapper->type('color')->query("SELECT rgb FROM paleta WHERE nombre = 'rojo'");
@@ -1342,7 +1346,7 @@ $rojo = $mapper->type('color')->query("SELECT rgb FROM paleta WHERE nombre = 'ro
 **Inserción de valor en consulta**
 
 <br/>
-Por defecto, si el método *setParameter* de un manejador de tipo retorna una cadena entonces el valor será escapado e insertado entre comillas. En ocasiones este valor no debe pasar por este proceso sino insertarse directamente, Este es el caso de la clase *BlobTypeHandler*, que retorna una cadena 'TRUE' o 'FALSE' de acuerdo al valor pasado. Para estos casos existe la annotation de configuración **@unquoted**. Esta annotation determina que el valor retornado por *setParameter* no será incluido entre comillas.
+Por defecto, si el método *setParameter* de un manejador de tipo retorna una cadena entonces el valor será escapado e insertado entre comillas. En ocasiones este valor no debe pasar por este proceso sino insertarse directamente. Este es el caso de la clase *BlobTypeHandler*, que retorna una cadena 'TRUE' o 'FALSE' de acuerdo al valor pasado. Para estos casos existe la annotation de configuración **@unquoted**. Esta annotation determina que el valor retornado por *setParameter* no será incluido entre comillas.
 
 ```php
 namespace eMapper\Type\Handler;
@@ -1418,7 +1422,7 @@ La consulta especificada recibe la instancia actual de *Usuario* y utiliza el va
 **Parametrización**
 
 <br/>
-Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles  deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos agregar también una annotation especial para decir que la instancia sea utilizada como argumento.
+Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles  deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos también agregar una annotation especial para decir que la instancia debe ser utilizada como argumento.
 
 ```php
 namespace Acme\Entity;
@@ -1446,7 +1450,8 @@ class Usuario {
     public $perfiles;
 }
 ```
-La annotation **@arg-self** especifica que la instancia actual de *Usuario* sea utilizada como argumento. Cuando no se están agregando argumentos auxiliares (como en el primer ejemplo) no es necesario agregarla. La instancia actual siempre se pasa como primer argumento. Ahora esta consulta agrega un entero para de este modo realizar el filtrado de resultados.
+La annotation **@arg-self** especifica que la instancia actual de *Usuario* sea utilizada como argumento. 
+No es necesario agregar esta annotation en los casos donde no se especifican argumentos auxiliares. El segundo argumento es pasado como entero directamente, para de este modo realizar el filtrado de resultados.
 
 <br/>
 **Propiedades como parámetros**
@@ -1498,7 +1503,7 @@ El envio de una propiedad como argumento se realiza agregando una annotation **@
 **Rutinas almacenadas**
 
 <br/>
-La invocación a una rutina almacenada se realiza utilizando la annotation **@procedure**. A diferencia de **@query** y **@stmt**, las invocaciones a rutinas no utilizan la instancia actual de mapeo como argumento.
+La invocación a una rutina almacenada se realiza utilizando la annotation **@procedure**. A diferencia de **@query** y **@stmt**, las invocaciones a rutinas no utilizan la instancia actual como argumento.
 
 ```php
 namespace Acme\Entity;
@@ -1528,13 +1533,13 @@ class Usuario {
 }
 ```
 
-La propiedad *perfiles* agrega una annotation extra para setear el result map a utilizar para esa consulta. **@result-map** espera una cadena de texto con el nombre completo de la clase a usar para el mapeo de datos. También hemos agregado un identificadorr de tipo al primer argumento de la consulta. En este caso la propiedad *id* ya esta asociada al tipo entero, pero puede llegar a resultar de utilidad como reemplazo del seteo de tipos a través de **sptypes**.
+La propiedad *perfiles* agrega una annotation extra para setear el result map a utilizar para esa consulta. **@result-map** espera una cadena de texto con el nombre completo de la clase a usar para el mapeo de datos. También hemos agregado un identificador de tipo al primer argumento de la consulta. En este caso la propiedad *id* ya esta asociada al tipo entero, pero puede llegar a resultar de utilidad como reemplazo del seteo de tipos a través de **sptypes**.
 
 <br/>
 **Macros**
 
 <br/>
-La annotation **@eval** permite asociar una propiedad al valor devuelto por una macro de usuario. Esta annotation define una expresion similar a las utilizadas en las consultas dinámicas. Las macros de usuario no definen argumentos auxiliares y siempre son invocadas con el arreglo o instancia actual como único argumento. Este ejemplo utiliza una macro de usuario para calcular la edad de un usuario basandose en la fecha de nacimiento.
+La annotation **@eval** permite asociar una propiedad al valor devuelto por una macro de usuario. Esta annotation define una expresion similar a las utilizadas en las consultas con SQL dinámico. Las macros de usuario no definen argumentos auxiliares y siempre son invocadas con la instancia actual como único argumento. Este ejemplo utiliza una macro de usuario para calcular la edad de un usuario basandose en la fecha de nacimiento.
 
 ```php
 /**

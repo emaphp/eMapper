@@ -126,6 +126,9 @@ class DynamicSQLTest extends MySQLTest {
 		self::$mapper->set('order.type', 'DESC');
 		$id = self::$mapper->type('i')->query($query);
 		$this->assertEquals(5, $id);
+		
+		$id = self::$mapper->type('i')->option('order.column', 'user_name')->query($query);
+		$this->assertEquals(2, $id);
 	}
 }
 ?>
