@@ -57,7 +57,7 @@ Introducción
 - **Indexado y Agrupamiento**: Los elementos dentro de una lista pueden ser indexados y/o agrupados por una valor de columna.
 - **Tipos customizados**: Es posible definir tipos y manejadores de tipo customizados.
 - **Caché**: Los datos mapeados pueden almacenarse en caché utilizando APC o Memcache.
-- **SQL Dinámico**: Las consultas pueden contener expresiones escritas en el lenguaje eMacros.
+- **SQL Dinámico**: Las consultas pueden contener expresiones escritas en el lenguaje *eMacros*.
 
 
 <br/>
@@ -1746,7 +1746,7 @@ $mapper->free_result($resultado);
 <br/>
 **Overriding de consulta**
 
-El método *query_callback* permite reescribir la consulta que es enviada al servidor de base de datos de acuerdo a una determinada lógica. Este método recibe una función cuyo primer argumento es la consulta a realizar. Al retornar un valor podemos sobreescribir la consulta que será enviada finalmente.
+El método *query_override* permite reescribir la consulta que es enviada al servidor de base de datos de acuerdo a una determinada lógica. Este método recibe una función cuyo primer argumento es la consulta a realizar. Al retornar un valor podemos sobreescribir la consulta que será enviada finalmente.
 
 ```php
 //composer autoloader
@@ -1754,15 +1754,15 @@ require __DIR__ . "/vendor/autoload.php";
 
 use eMapper\Engine\MySQL\MySQLMapper;
 
-$order = 'user_name ASC';
+$orden = 'nombre ASC';
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //ordenar usuarios
 $usuarios = $mapper
 ->type('obj[]')
-->query_callback(function ($query) {
+->query_override(function ($query) use ($orden) {
     //aplicar orden
-    return $query . ' ORDER BY ' . $order;
+    return $query . ' ORDER BY ' . $orden;
 })
 ->query("SELECT * FROM usuarios");
 ```
@@ -1782,7 +1782,7 @@ $usuarios = $mapper->type('obj[]')
 ->no_rows(function ($result) {
     throw new \UnexpectedValueException('No se encontraron usuarios :(');
 })
-->query("SELECT * FROM users");
+->query("SELECT * FROM usuarios");
 ```
 
 <br/>
@@ -1828,9 +1828,9 @@ use eMapper\Engine\MySQL\MySQLMapper;
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //obtener usuarios ordenados por id
-$users = $mapper
+$usuarios = $mapper
 ->type('obj[]')
-->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'id_usuario', 'ASC');
+->query("SELECT * FROM usuarios ORDER BY %{ustring} %{ustring}", 'id_usuario', 'ASC');
 ```
 
 
@@ -2012,7 +2012,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
 </table>
 
 <br/>
-**Cache**
+**Caché**
 <table width="95%">
     <thead>
         <tr>
@@ -2043,6 +2043,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
         </tr>
     </tbody>
 </table>
+
 <br/>
 **Callbacks**
 <table width="95%">
@@ -2137,13 +2138,13 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
             <td>environment.id</td>
             <td>Cadena</td>
             <td>Identificador de entorno de ejecución</td>
-            <td>default</td>
+            <td>'default'</td>
         </tr>
         <tr>
             <td>environment.class</td>
             <td>Cadena</td>
             <td>Nombre completo de clase entorno</td>
-            <td>eMapper\Dynamic\Environment\DynamicSQLEnvironment</td>
+            <td>'eMapper\Dynamic\Environment\DynamicSQLEnvironment'</td>
         </tr>
     </tbody>
 </table>
@@ -2174,6 +2175,7 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
         </tr>
     </tbody>
 </table>
+
 <br/>
 Licencia
 --------------

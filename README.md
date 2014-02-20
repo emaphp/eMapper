@@ -14,10 +14,11 @@ Latest modifications
 <br/>
 2014-??-?? - Version 3.0.0
 
+  * Deprecated: Models
   * Added: Support for SQLite and PostgreSQL
-  * Deprecated: Models are now replaced for ResultMaps and Entities
-  * Added: Entity classes allow to obtain customized objects through annotations
-  * Added: Support for dynamic SQL clauses through eMacros
+  * Added: Result maps
+  * Added: Entities
+  * Added: Support for Dynamic SQL clauses through eMacros
   * Added: Dynamic attributes
   * Added: Grouping
   * Added: Index (and group) callbacks
@@ -29,7 +30,7 @@ Dependencies
 <br/>
 - PHP >= 5.4
 - Marcio Almada's [annotations](https://github.com/marcioAlmada/annotations "") package
-- [eMacros](https://github.com/emaphp/eMacros "")
+- [eMacros](https://github.com/emaphp/eMacros "") package
  
 <br/>
 Installation
@@ -40,7 +41,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.*"
+        "emapper/emapper" : "dev-master*"
     }
 }
 ```
@@ -50,13 +51,13 @@ Introduction
 ------------
 
 <br/>
-***eMapper*** is a PHP library aimed to provide a simple, powerful and highly customizable data mapping tool. It comes with some interesting features like:
+*eMapper* is a PHP library aimed to provide a simple, powerful and highly customizable data mapping tool. It comes with some interesting features like:
 
 - **Customized mapping**: Results can be mapped to a desired type through mapping expressions.
 - **Indexation and Grouping**: Lists can be indexed or grouped together by a column value.
 - **Custom types**: Developers can design their own types and custom type handlers.
 - **Cache providers**: Obtained data can be stored in cache using APC or Memcache.
-- **Dynamic SQL**: Queries can contain Dynamic SQL clauses writted in eMacros.
+- **Dynamic SQL**: Queries can contain Dynamic SQL clauses writted in *eMacros*.
 
 
 <br/>
@@ -1317,493 +1318,573 @@ $red = $mapper->map('color')->query("SELECT rgb FROM palette WHERE name = 'red'"
 ```
 
 <br/>
-Exceptions
+Excepciones
 ----------
 
 <br/>
-All library exceptions extend the ***MySQLMapperException*** class.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+Altrough *eMapper* uses the exceptions already included in SPL, there are some special scenarios where those included in the library are used. These special scenarios are the following:
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
+ - Query syntax error
+ - Connection to database server failed
+ - Errors found when processing the returned result
 
-try {
-    //ERROR: empty user
-	$mapper = new MySQLMapper('my_db', 'localhost', '', 'my_pass');
-	
-	//run query
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-	
-	$mapper->close();
-}
-catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
-}
-?>
-```
 <br/>
-If the connection failed due to a wrong configuration value, then a ***MySQLConnectionException*** is thrown.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+The associated exception with each one of these scenarios depends on the database server currently used, althrough all of them extend *eMapper\Exception\MapperException*.
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
-use eMapper\Exception\MySQL\MySQLConnectionException;
-
-try {
-    //ERROR: fake_user does not exists!
-	$mapper = new MySQLMapper('my_db', 'localhost', 'fake_user', 'my_pass');
-	
-	//run query
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-	
-	$mapper->close();
-}
-catch (MySQLConnectionException $ce) {
-	echo "Connection error: " . $me->getMessage();
-}
-catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
-}
-?>
-```
-
-The ***MySQLQueryException*** is thrown only when a query syntax error is found.
+<br/>
+**MySQL**
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\Exception\MySQLMapperException;
+use eMapper\Engine\MySQL\Exception\MySQLQueryException;
+use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Exception\MySQL\MySQLMapperException;
-use eMapper\Exception\MySQL\MySQLQueryException;
+$mapper = new MySQLMapper('db');
 
 try {
-	$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-	
-	//ERROR: no columns
-	$users = $mapper->map('array[user_id]', MYSQLI_ASSOC)->query("SELECT FROM users");
-	
-	$mapper->close();
+    $mapper->query($query);
 }
 catch (MySQLQueryException $qe) {
-	echo "SQL query error: " . $qe->getMessage();
+    echo 'Query error! ' . $qe->getMessage();
+    echo '<br/>Tried to execute ' . $qe->getQuery();
+}
+catch (MySQLConnectionException $ce) {
+    echo 'Connection failed! ' . $ce->getMessage();
 }
 catch (MySQLMapperException $me) {
-	echo "Unexpected error: " . $me->getMessage();
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
 }
-?>
 ```
 
 <br/>
-Appendix I - Extra features
+**SQLite**
+
+```php
+use eMapper\Engine\SQLite\SQLiteMapper;
+use eMapper\Engine\SQLite\Exception\SQLiteMapperException;
+use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
+use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
+
+$mapper = new SQLiteMapper('filename.db');
+
+try {
+    $mapper->query($query);
+}
+catch (SQLiteQueryException $qe) {
+    echo 'Query error! ' . $qe->getMessage();
+    echo '<br/>Tried to execute ' . $qe->getQuery();
+}
+catch (SQLiteConnectionException $ce) {
+    echo 'Connection failed! ' . $ce->getMessage();
+}
+catch (SQLiteMapperException $me) {
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
+}
+```
+
+<br/>
+**PostgreSQL**
+
+```php
+use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLMapperException;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
+
+$mapper = new PostgreSQLMapper('dbname=test');
+
+try {
+    $mapper->query($query);
+}
+catch (PostgreSQLQueryException $qe) {
+   echo 'Query error! ' . $qe->getMessage();
+    echo '<br/>Tried to execute ' . $qe->getQuery();
+}
+catch (PostgreSQLConnectionException $ce) {
+    echo 'Connection failed! ' . $ce->getMessage();
+}
+catch (PostgreSQLMapperException $me) {
+    echo 'Error! ';
+    
+    if ($me->getPrevious() != null) {
+        echo $me->getPrevious()->getMessage();
+    }
+    else {
+        echo $me->getMessage();
+    }
+}
+```
+
+<br/>
+Appendix I - Additional features
 ---------------------------
+
+<br/>
+**Raw results**
+
+<br/>
+Through the **sql** method we can query the database to obtain the result without further processing. Result type will depend  on the mapper class that we are using.
+
+```php
+//call sql method
+$result = $mapper->sql("SELECT user_id, name FROM users WHERE user_id = %{i}", 5);
+
+//mysql
+while (($row = $result->fetch_array()) != null) {
+    //...
+}
+
+//free result
+$mapper->free_result($result);
+```
 
 <br/>
 **Query overriding**
 
-It is possible to override current query by chaining a call to the *query_callback* method. This method expects a Closure object which receives the query that will be executed right after.
+The *query_override* method allows us to rewrite the query which is sent to the database server according to a certain logic. This method argument is a function whose first parameter is the query to perform. By returning a value we can override the query that will be finally sent.
 
 ```php
-<?php
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $order = 'user_name ASC';
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//get users
-$users = $mapper->map('obj[]')
-->query_callback(function ($query) {
-    //apply custom order
+$users = $mapper
+->type('obj[]')
+->query_override(function ($query) use ($order) {
+    //apply order
     return $query . ' ORDER BY ' . $order;
 })
 ->query("SELECT * FROM users");
-?>
 ```
 
 <br/>
 **Empty results**
 
-Through the *no_rows* method we can assign the execution of an auxiliary callback whenever an empty result is retrieved from the database. The obtained result is sent as a parameter.
+Through the **no_rows** method we can associate the execution of an auxiliary function whenever a query does not return any rows. This function takes as argument the obtained result.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //get users
-$users = $mapper->map('obj[]')
+$users = $mapper->type('obj[]')
 ->no_rows(function ($result) {
-    die('No users have been found :(');
+    throw new \UnexpectedValueException('No users found :(');
 })
 ->query("SELECT * FROM users");
-?>
 ```
 
 <br/>
-**Non-escaped strings**
+**The 'each' method**
 
-Type *ustring* can be used to insert non-escaped strings into a query.
+<br/>
+The **each** method allows us to apply a user-defined function to each of the rows returned by a query. This function will receive two arguments: the row corresponding to the current value and the current mapper instance. The example below calculates the age of each user returned by a query and stores it within the *age* property.
 
 ```php
-<?php
+//get users
+$users = $mapper->each(function (&$user, $mapper) {
+    $user->age = (int) $user->birth_date->diff(new \DateTime())->format('%y');
+})->query("SELECT user_id, name, birth_date FROM users LIMIT 10");
+
+```
+<br/>
+**Filters**
+
+<br/>
+The **filter** method applies a user-defined filter function which removes those rows that do not meet certain condition. Using a filter is similar to set a user-defined function with [array_filter](http://www.php.net/manual/en/function.array-filter.php "").
+
+
+```php
+//remove users without photo
+$users = $mapper->filter(function ($user) {
+    return isset($user->photo);
+})->execute('users.findAll');
+```
+Whenever is applied to a single element (which do not come within a list) and the condition evaluates to false then the retured value is NULL.
+
+<br/>
+**Unescaped strings**
+
+The *ustring* type lets you insert an unescaped string within a query. This feature requires special attention because it is possible to suffer from *SQL injection attacks* if not used properly.
+
+```php
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
-//get users ordered by id
-$users = $mapper->map('obj[]')->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'user_id', 'ASC');
-?>
+//get users
+$users = $mapper
+->type('obj[]')
+->query("SELECT * FROM users ORDER BY %{ustring} %{ustring}", 'user_id', 'ASC');
 ```
-If certain string needs to be escaped before being inserted, then we can use the *escape* method available in the MySQLMapper class.
 
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$search = 'doe';
-
-//find users
-$users = $mapper->map('obj[]')->query("SELECT * FROM users WHERE user_name LIKE '%%{us}%'", $mapper->escape($search));
-?>
-```
 
 <br/>
 Appendix II - Configuration options
 ----------------------------------
 
 <br/>
-Configuration options are values that manage a mapper object behavior during a query/statement/procedure execution. They can be configured through class methods like *map*, *cache*, etc. or can be manipulated directly with ***set***. This is the list of all predefined keys available with their respective descriptions.
+Configuration options are values that manage a mapper object behavior during a query/statement/procedure execution. They can be configured through class methods like *type*, *cache*, etc. or can be manipulated directly with ***set***. This is the list of all predefined keys available with their respective descriptions.
 
 <br/>
-**Database properties**
-<table>
+**MySQL**
+
+<table width="95%">
     <thead>
         <tr>
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
-            <th>Notes</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>db.name</td>
-            <td>string</td>
-            <td>Database name.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>Database name</td>
         </tr>
         <tr>
             <td>db.host</td>
-            <td>string</td>
-            <td>Database host.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>Host name</td>
         </tr>
         <tr>
             <td>db.user</td>
-            <td>string</td>
-            <td>Database user</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>User name</td>
         </tr>
         <tr>
             <td>db.password</td>
-            <td>string</td>
-            <td>Database user password.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>User password</td>
         </tr>
         <tr>
             <td>db.port</td>
-            <td>string</td>
-            <td>Database port.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>
-            </td>
+            <td>String</td>
+            <td>Server port</td>
         </tr>
         <tr>
             <td>db.socket</td>
-            <td>string</td>
-            <td>Database socket.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>Server socket</td>
+        </tr>
+        <tr>
+            <td>db.charset</td>
+            <td>String</td>
+            <td>Client charset (setted with mysqli::set_charset)</td>
         </tr>
         <tr>
             <td>db.autocommit</td>
-            <td>boolean</td>
-            <td>Database autocommit feature.</td>
-            <td>
-            Initialized during instantiation.
-            <br/>
-            Evaluated on first query.
-            <br/>
-            Default value: <em>true</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>db.prefix</td>
-            <td>string</td>
-            <td>Database prefix.</td>
-            <td>
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Boolean</td>
+            <td>Autocommit option (setted with mysqli::autocommit)</td>
         </tr>
     </tbody>
 </table>
+
 <br/>
-**Mapping**
-<table>
+**SQLite**
+
+<table width="95%">
     <thead>
         <tr>
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
-            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.filename</td>
+            <td>String</td>
+            <td>Database filename</td>
+        </tr>
+        <tr>
+            <td>db.flags</td>
+            <td>Integer</td>
+            <td>Connection flags (default to SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE)</td>
+        </tr>
+            <td>db.encription_key</td>
+            <td>String</td>
+            <td>Encription key</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**PostgreSQL**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.connection_string</td>
+            <td>String</td>
+            <td>Database connection string</td>
+        </tr>
+        <tr>
+            <td>db.connection_type</td>
+            <td>Integer</td>
+            <td>Connection type</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Generic**
+<table width="95%">
+    <thead>
+       <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>db.prefix</td>
+            <td>String</td>
+            <td>Database prefix</td>
+            <td><em>Empty string</em></td>
+        </tr>
+    <tbody>
+</table>
+
+<br/>
+**Data mapping**
+
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>map.type</td>
-            <td>string</td>
-            <td>Mapping expression.</td>
-            <td>
-            Initialized with <em>map</em> method.
-            <br/>
-            Default value: <em>array[]</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>map.model</td>
-            <td>eMapper\Model\Model</td>
-            <td>Mapping model to use.</td>
-            <td>
-            Initialized with <em>model</em> method .
-            <br/>
-            Evaluated during array/object result mapping.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>Mapping expression</td>
+            <td><em>None</em></td>
         </tr>
         <tr>
             <td>map.params</td>
-            <td>array</td>
-            <td>Mapping parameters.</td>
-            <td>
-            Initialized with <em>map</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Array</td>
+            <td>Additional mapping parameters (for array mapping)</td>
+            <td><em>None</em></td>
         </tr>
-    </tbody>
+        <tr>
+            <td>map.result</td>
+            <td>String</td>
+            <td>Result map class fullname</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>map.parameter</td>
+            <td>String</td>
+            <td>Parameter map class fullname</td>
+            <td><em>None</em></td>
+        </tr>
+    <tbody>
 </table>
+
 <br/>
 **Cache**
-<table>
+<table width="95%">
     <thead>
         <tr>
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
-            <th>Notes</th>
+            <th>Default value</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>cache.provider</td>
             <td>eMapper\Cache\CacheProvider</td>
-            <td>Cache provider to use.</td>
-            <td>
-            Initialized with <em>setProvider</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>Cache provider instance</td>
+            <td><em>None</em></td>
         </tr>
         <tr>
             <td>cache.key</td>
-            <td>string</td>
-            <td>Cache key to use.</td>
-            <td>
-            Initialized with <em>cache</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
+            <td>String</td>
+            <td>Value identifier</td>
+            <td><em>None</em></td>
         </tr>
         <tr>
             <td>cache.ttl</td>
-            <td>integer</td>
-            <td>Cache TTL (time to live).</td>
-            <td>
-            Numerical.
-            <br/>
-            Initialized with <em>cache</em> method.
-            <br/>
-            Default value: 0.
-            </td>
-        </tr>
-    </tbody>
-</table>
-<br/>
-**Callbacks**
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-     <tr>
-            <td>callback.each</td>
-            <td>callable</td>
-            <td>Defines a callback which receives all mapped elements from a query.</td>
-            <td>
-            Initialized with <em>each</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>callback.filter</td>
-            <td>callable</td>
-            <td>Sets a callback which defines a filter to apply to all elements on a list.</td>
-            <td>
-            Similar to apply <em>array_filter</em> to a list of rows.
-            <br/>
-            Initialized with <em>filter</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>callback.no_rows</td>
-            <td>Closure</td>
-            <td>Defines a callback which is called if the given query returns an empty result.</td>
-            <td>
-            Initialized with <em>no_rows</em> method.
-            <br/>
-            Can override return value.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
-        </tr>
-         <tr>
-            <td>callback.query</td>
-            <td>Closure</td>
-            <td>Defines a callback which receives the generated query.</td>
-            <td>
-            Initialized with <em>query_callback</em> method.
-            <br/>
-            Can override query to run by returning a value.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
-        </tr>
-        <tr>
-            <td>callback.result</td>
-            <td>Closure</td>
-            <td>Defines a callback which receives the obtained result.</td>
-            <td>
-            Initialized with <em>result_callback</em> method.
-            <br/>
-            Default value: <em>none</em>.
-            </td>
-         </tr>
-         <tr>
-            <td>dynamic.*</td>
-            <td>Closure</td>
-            <td>Defines a Dynamic SQL callback.</td>
-            <td>
-            These callbacks are invoked from within the query by adding their callback id between double brackets.
-            <br/>
-            Default value: <em>none</em>
-            </td>
+            <td>Integer</td>
+            <td>TTL (time to live)</td>
+            <td><em>None</em> (0 when no specified)</td>
         </tr>
     </tbody>
 </table>
 
 <br/>
-**Stored procedure properties**
-<table>
+**Callbacks**
+<table width="95%">
     <thead>
         <tr>
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
-            <th>Notes</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>callback.each</td>
+            <td>Callable</td>
+            <td>Iteration callback</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>callback.filter</td>
+            <td>Callable</td>
+            <td>Filtering callback</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>callback.no_rows</td>
+            <td>Callable</td>
+            <td>Callback to invoke whenever an empty result is returned</td>
+            <td><em>None</em></td>
+        </tr>
+         <tr>
+            <td>callback.query</td>
+            <td>Callable</td>
+            <td>Query overriding callback</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>callback.index</td>
+            <td>Callback</td>
+            <td>Indexation callback</td>
+            <td><em>None</em></td>
+         </tr>
+         <tr>
+            <td>callback.group</td>
+            <td>Callable</td>
+            <td>Grouping callback</td>
+            <td><em>None</em></td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Stored procedures**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>procedure.use_prefix</td>
-            <td>boolean</td>
-            <td>Determines whether the procedure name uses the database prefix.</td>
-            <td>
-            Default value: <em>false</em>.
-            </td>
+            <td>Boolean</td>
+            <td>Determines whether the database prefix is used when invoking stored procedures</td>
+            <td>TRUE</td>
         </tr>
         <tr>
             <td>procedure.types</td>
-            <td>array</td>
-            <td>Sets procedure parameter types.</td>
-            <td>
-            Initialized through the <em>ptypes</em> method.
+            <td>Array</td>
+            <td>Defines the type associated with each argument in a call to a stored procedure</td>
+            <td><em>None</em></td>
         </tr>
     </tbody>
 </table>
+
+<br/>
+**Execution environment**
+<table width="95%">
+    <thead>
+       <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>environment.id</td>
+            <td>String</td>
+            <td>Execution environment id</td>
+            <td>'default'</td>
+        </tr>
+        <tr>
+            <td>environment.class</td>
+            <td>String</td>
+            <td>Execution environment full class name</td>
+            <td>'eMapper\Dynamic\Environment\DynamicSQLEnvironment'</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<br/>
+**Internals**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>depth.limit</td>
+            <td>Integer</td>
+            <td>Relationship nesting limit</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>depth.current</td>
+            <td>Integer</td>
+            <td>Current nesting depth</td>
+            <td>0</td>
+        </tr>
+    </tbody>
+</table>
+
 <br/>
 License
 --------------
