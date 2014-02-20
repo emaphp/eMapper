@@ -273,7 +273,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					}
 					else {
 						//validate group value
-						$key = $row[$groupColumn];
+						$key = $row->$groupColumn;
 						
 						if (is_null($key)) {
 							throw new \UnexpectedValueException("Null value found when grouping by column '$groupColumn'");
@@ -299,7 +299,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					}
 					else {
 						//validate index value
-						$idx = $row[$indexColumn];
+						$idx = $row->$indexColumn;
 						
 						if (is_null($idx)) {
 							throw new \UnexpectedValueException("Null value found when indexing by column '$indexColumn'");

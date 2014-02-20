@@ -38,7 +38,7 @@ abstract class ComplexTypeMapper {
 	 * Group indexes
 	 * @var array
 	 */
-	protected $groupKeys;
+	public $groupKeys;
 	
 	/**
 	 * Result map type handler list
