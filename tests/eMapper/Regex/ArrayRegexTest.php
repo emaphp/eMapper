@@ -1,6 +1,8 @@
 <?php
 namespace eMapper\Regex;
 
+use eMapper\Engine\Generic\GenericMapper;
+
 /**
  * Tests parsing an array mapping expression
  * 
@@ -8,7 +10,7 @@ namespace eMapper\Regex;
  * @group regex
  */
 class ArrayRegexTest extends \PHPUnit_Framework_TestCase {
-	const REGEX = '@^(?:array|arr+)(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
+	const REGEX = GenericMapper::ARRAY_TYPE_REGEX;
 	
 	public function testSimpleArray1() {
 		$expr = 'array';

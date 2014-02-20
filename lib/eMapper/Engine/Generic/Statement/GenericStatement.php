@@ -50,10 +50,7 @@ abstract class GenericStatement extends CacheKey {
 				}
 			}
 	
-			//verify if that element already exists
-			if (!in_array($new_elem, $list, true)) {
-				$list[] = $new_elem;
-			}
+			$list[] = $new_elem;
 		}
 	
 		//return joined expression

@@ -1,6 +1,8 @@
 <?php
 namespace eMapper\Regex;
 
+use eMapper\Engine\Generic\GenericMapper;
+
 /**
  * Tests parsing an object mapping expression
  * 
@@ -8,7 +10,7 @@ namespace eMapper\Regex;
  * @group regex
  */
 class ObjectRegexTest extends \PHPUnit_Framework_TestCase {
-	const REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
+	const REGEX = GenericMapper::OBJECT_TYPE_REGEX;
 	
 	public function testSimpleObject1() {
 		$expr = 'object';

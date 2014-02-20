@@ -56,7 +56,7 @@ class StatementTest extends MySQLTest {
 		$this->assertEquals('USER_1,2,3', $result);
 	
 		$result = $this->statement->build('USER_%{integer}', array(array(1, "2", 3.65, true,false)), array());
-		$this->assertEquals('USER_1,2,3,0', $result);
+		$this->assertEquals('USER_1,2,3,1,0', $result);
 	}
 	
 	/**
@@ -87,7 +87,7 @@ class StatementTest extends MySQLTest {
 		$this->assertEquals('PRICE_1.56,2.21,3.45', $result);
 	
 		$result = $this->statement->build('USER_%{f}', array(array(1, "2.45", true,false)), array());
-		$this->assertEquals('USER_1,2.45,0', $result);
+		$this->assertEquals('USER_1,2.45,1,0', $result);
 	}
 	
 	/**
@@ -124,7 +124,7 @@ class StatementTest extends MySQLTest {
 		$this->assertEquals("PROD_('XYZ','ABC','QWE')", $result);
 	
 		$result = $this->statement->build('PROD_(%{s})', array(array(1, "QWE", 3.65, false, true)), array());
-		$this->assertEquals("PROD_('1','QWE','3.65','')", $result);
+		$this->assertEquals("PROD_('1','QWE','3.65','','1')", $result);
 	}
 	
 	/**
@@ -176,13 +176,13 @@ class StatementTest extends MySQLTest {
 	 */
 	public function testBooleanArray() {
 		$result = $this->statement->build('CONN_%{b}', array(array(false,true,false)), array());
-		$this->assertEquals('CONN_FALSE,TRUE', $result);
+		$this->assertEquals('CONN_FALSE,TRUE,FALSE', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array(array('1', '0', '', 'F', 't', 'f', 'T')), array());
-		$this->assertEquals('CONN_TRUE,FALSE', $result);
+		$this->assertEquals('CONN_TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array(array(10, 1, 0, 0.0, 3.65)), array());
-		$this->assertEquals('CONN_TRUE,FALSE', $result);
+		$this->assertEquals('CONN_TRUE,TRUE,FALSE,FALSE,TRUE', $result);
 	}
 	
 	/**
@@ -219,7 +219,7 @@ class StatementTest extends MySQLTest {
 		$this->assertEquals('PROD:XYZ,ABC,QWE', $result);
 	
 		$result = $this->statement->build('PROD:%{us}', array(array(1, "QWE", 3.65, false, true)), array());
-		$this->assertEquals('PROD:1,QWE,3.65,', $result);
+		$this->assertEquals('PROD:1,QWE,3.65,,1', $result);
 	}
 	
 	/**
@@ -247,7 +247,7 @@ class StatementTest extends MySQLTest {
 	 */
 	public function testNullArray() {
 		$result = $this->statement->build('ENT_%{null}', array(array(1, 3.45, "XYZ",true,false)), array());
-		$this->assertEquals('ENT_NULL', $result);
+		$this->assertEquals('ENT_NULL,NULL,NULL,NULL,NULL', $result);
 	}
 	
 	/**
