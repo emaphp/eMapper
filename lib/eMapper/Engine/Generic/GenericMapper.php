@@ -27,6 +27,12 @@ abstract class GenericMapper {
 	public $typeManager;
 	
 	/**
+	 * Cache provider
+	 * @var CacheProvider
+	 */
+	public $cacheProvider;
+	
+	/**
 	 * Applies default configuration options
 	 */
 	protected function applyDefaultConfig() {
@@ -91,7 +97,7 @@ abstract class GenericMapper {
 	 * @return MapperConfiguration
 	 */
 	public function setCacheProvider(CacheProvider $provider) {
-		return $this->set('cache.provider', $provider);
+		$this->cacheProvider = $provider;
 	}
 	
 	/**
@@ -151,9 +157,9 @@ abstract class GenericMapper {
 		$cacheProvider = null;
 		
 		//check if there is a value stored in cache with the given key
-		if (array_key_exists('cache.key', $this->config)) {
+		if (array_key_exists('cache.key', $this->config) && isset($this->cacheProvider)) {
 			//obtain cache provider
-			$cacheProvider = $this->config['cache.provider'];
+			$cacheProvider = $this->cacheProvider;
 		
 			//build cache key
 			$cacheKeyBuilder = new CacheKey($this->typeManager, $parameterMap);
@@ -335,9 +341,12 @@ abstract class GenericMapper {
 					if ($typeHandler === false) {
 						$this->throw_exception("Unknown type '{$matches[1]}'");
 					}
-						
+					
+					//create mapper instance
+					$mapper = new ScalarTypeMapper($typeHandler);
+					
 					//set mapping callback
-					$mapping_callback = array(new ScalarTypeMapper($typeHandler));
+					$mapping_callback = array($mapper);
 					$mapping_callback[] = empty($matches[2]) ? 'mapResult' : 'mapList';
 				}
 				else {

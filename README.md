@@ -63,76 +63,211 @@ Introduction
 <br/>
 First steps
 -----------
-<br/>
-***Note***: Most of these examples use the *MySQLMapper* class. This is because the main difference between mapper classes is only their name. Check the appendix *Database Providers* for details of how to work with other databases.
 
 <br/>
-We'll begin by creating a new *MySQLMapper* instance. This class constructor receives the database name, host name, and user credentials.
+To start developing with *eMapper* we must create an instance of one of the mapping classes available in the library. Currently, *eMapper* supports MySQL, SQLite an PostgreSQL.
+
+<br/>
+**MySQL**
+
+<br/>
 ```php
-<?php
-//composer autoloader
+//composer autloader
 require __DIR__ . "/vendor/autoload.php";
 
 use eMapper\Engine\MySQL\MySQLMapper;
 
-//mysql mapper class
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-?>
 ```
+<table width="95%">
+    <thead>
+        <tr>
+            <th colspan="4">Arguments for MySQLMapper class</th>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>database</td>
+            <td>String</td>
+            <td>Database name</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>host</td>
+            <td>String</td>
+            <td>Server host</td>
+            <td>mysqli.default_host (php.ini)</td>
+        </tr>
+        <tr>
+            <td>user</td>
+            <td>String</td>
+            <td>User name</td>
+            <td>mysqli.default_user (php.ini)</td>
+        </tr>
+        <tr>
+            <td>password</td>
+            <td>String</td>
+            <td>User password</td>
+            <td>mysqli.default_pw (php.ini)</td>
+        </tr>
+        <tr>
+            <td>port</td>
+            <td>String</td>
+            <td>Server port</td>
+            <td>mysqli.default_port (php.ini)</td>
+        </tr>
+        <tr>
+            <td>socket</td>
+            <td>String</td>
+            <td>Connection socket</td>
+            <td>mysqli.default_socket (php.ini)</td>
+        </tr>
+        <tr>
+            <td>charset</td>
+            <td>String</td>
+            <td>Client charset (setted with mysqli::set_charset)</td>
+            <td>'UTF-8'</td>
+        </tr>
+        <tr>
+            <td>autocommit</td>
+            <td>Boolean</td>
+            <td>Query autocommit</td>
+            <td>TRUE</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**SQLite**
+
+<br/>
+```php
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Engine\SQLite\SQLiteMapper;
+
+$mapper = new SQLiteMapper('company.db');
+```
+
+<table width="95%">
+    <thead>
+        <tr>
+            <th colspan="4">Arguments for SQLiteMapper class</th>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>filename</td>
+            <td>String</td>
+            <td>Database file</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>flags</td>
+            <td>Integer</td>
+            <td>Connection flags</td>
+            <td>SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE</td>
+        </tr>
+        <tr>
+            <td>encription_key</td>
+            <td>String</td>
+            <td>Encription key</td>
+            <td><em>NULL</em></td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**PostgreSQL**
+
+<br/>
+```php
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
+
+$mapper = new PostgreSQLMapper('dbname=company user=test password=test');
+```
+<table width="95%">
+    <thead>
+        <tr>
+            <th colspan="4">Arguments for PostgreSQLMapper class</th>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>connection_string</td>
+            <td>String</td>
+            <td>Connection string</td>
+            <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>connect_type</td>
+            <td>Integer</td>
+            <td>Connection type</td>
+            <td><em>None</em></td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+A mapper instance stores these configuration values internally. The connection to the database is not made when creating an instance but right before a query is submitted. In order to check the proper connection to the database we can use the **connect** method.
 
 <br/>
 Arrays
 -------
 
 <br/>
-**Get a list of rows as an array**
+**Obtain a list of rows as an array**
 
 <br/>
-This example illustrates how to to execute a SQL query through the *query* method. The obtained result is returned as an array of arrays with both numeric and associative indexes.
+This example shows how we submit a query through the **query** method. The obtained result is then converted to the default type: a list of arrays, with each array having numeric and string indexes.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-//mysql mapper class
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user list
+//get a list of users as an array of arrays
 $users = $mapper->query("SELECT * FROM users");
 
-//do something with users
+//...
 
+//close connection
 $mapper->close();
-?>
 ```
 
 <br/>
 **Obtain a row as an associative array**
 
 <br/>
-To indicate which type is expected from a query we declare a mapping expression through the *type* method. This example specifies the desired type to *array*. The array mapper supports an additional parameter which tells the type of array to return. The obtained valued will be an associative array containing all values from that row.
+The desired type to obtain from a query is declared through the **type** method. This method receives a mapping expression which indicates the expected type. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return through a second argument.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\Result\ResultInterface;
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user by id as associative array
-$user = $mapper->type('array', MYSQLI_ASSOC)->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+//obtain a row as an associative array
+$user = $mapper->type('array', ResultInterface::ASSOC)
+->query("SELECT * FROM users WHERE user_id = 1");
 ```
 
 <br/>
-
 Objects
 -------
 
@@ -1731,12 +1866,6 @@ Configuration options are values that manage a mapper object behavior during a q
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>cache.provider</td>
-            <td>eMapper\Cache\CacheProvider</td>
-            <td>Cache provider instance</td>
-            <td><em>None</em></td>
-        </tr>
         <tr>
             <td>cache.key</td>
             <td>String</td>

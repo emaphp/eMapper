@@ -114,7 +114,7 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
         <tr>
             <td>password</td>
             <td>Cadena</td>
-            <td>Contraseña de usuario
+            <td>Contraseña de usuario</td>
             <td>mysqli.default_pw (php.ini)</td>
         </tr>
         <tr>
@@ -245,7 +245,7 @@ Arreglos
 **Obtener una lista de filas como arreglo**
 
 <br/>
-Este primer ejemplo muestra como a través del método *query* enviamos una consulta al servidor de base de datos. El resultado obtenido es luego mapeado al tipo por defecto: una lista de arreglos. Cada arreglo dentro de la lista posee claves numéricas y asociativas.
+Este primer ejemplo muestra como a través del método **query** enviamos una consulta al servidor de base de datos. El resultado obtenido es luego mapeado al tipo por defecto: una lista de arreglos. Cada arreglo dentro de la lista posee claves numéricas y asociativas.
 ```php
 //obtener lista de usuarios como lista de arreglos
 $usuarios = $mapper->query("SELECT * FROM usuarios");
@@ -260,7 +260,7 @@ $mapper->close();
 **Obtener una fila como un arreglo asociativo**
 
 <br/>
-El tipo de dato a devolver por una consulta se define a través del método *type*. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Configurar la manera de convertir un resultado a un tipo dado requiere hacer uso del encadenamiento de métodos (*method chaining*). Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
+El tipo de dato a devolver por una consulta se define a través del método **type**. Este método recibe una expresión de mapeo indicando el tipo de dato esperado. Configurar la manera de convertir un resultado a un tipo dado requiere hacer uso del encadenamiento de métodos (*method chaining*). Para obtener una fila como un arreglo definimos el tipo de dato como *array* (o *arr*). Cuando mapeamos a arreglo podemos también definir el tipo de arreglo como segundo parámetro.
 ```php
 use eMapper\Result\ResultInterface;
 
@@ -2023,12 +2023,6 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>cache.provider</td>
-            <td>eMapper\Cache\CacheProvider</td>
-            <td>Objeto de tipo cache provider</td>
-            <td><em>Ninguno</em></td>
-        </tr>
         <tr>
             <td>cache.key</td>
             <td>Cadena</td>
