@@ -278,30 +278,17 @@ Objects
 To obtain a *stdClass* instance from a row we simply set the desired type to *object* (or *obj*).
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //get user as object (stdClass)
 $user = $mapper->type('object')->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+```
 ```
 
 <br/>
 **Obtain a row as a custom class object**
 
 <br/>
-It is possible to define the object class through the mapping expression. For this purpose we have designed a *User* class within the *Acme* namespace.
+It is possible to define the object class within the mapping expression. In order to show this feature, we have designed a *User* class within the *Acme* namespace.
 ```php
-<?php
 namespace Acme;
 
 class User {
@@ -311,25 +298,14 @@ class User {
     public $email;
 }
 ```
-An object class must be specified right after the desired type adding a ':' between them.
+An object class must be specified right after the desired type in the following way.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user by id as an instance of Acme\User
-$user = $mapper->type('obj:Acme\User')->query("SELECT * FROM users WHERE user_id = 1");
-
-//do something with user
-
-$mapper->close();
-?>
+//get user as an Acme\User instance
+$user = $mapper->type('obj:Acme\User')
+->query("SELECT * FROM users WHERE user_id = 1");
 ```
+
 <br/>
 Scalars
 -------
@@ -340,41 +316,23 @@ Scalars
 <br/>
 Mapping expressions also support simple data types.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get username of user with id = 1
-$username = $mapper->type('string')->query("SELECT name FROM users WHERE user_id = 1");
-
-$mapper->close();
-?>
+//get name of user with id = 1
+$name = $mapper->type('string')
+->query("SELECT name FROM users WHERE user_id = 1");
 ```
+
 <br/>
 **Obtain a custom column value as an integer**
 
 <br/>
-By default, scalars are obtained reading from the first column. We can change this behaviour by specifying the column name as a second parameter.
+By default, scalars are obtained reading from the row's first column. We can change this behaviour by specifying the column name as a second parameter.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user id of user with username = 'jdoe'
-$username = $mapper->type('int', 'user_id')->query("SELECT * FROM users WHERE username = 'jdoe'");
-
-$mapper->close();
-?>
+//get id from users with name = 'jdoe'
+$id = $mapper->type('int', 'user_id')
+->query("SELECT * FROM users WHERE name = 'jdoe'");
 ```
+
 <br/>
 Dates
 -----
@@ -383,21 +341,21 @@ Dates
 **Obtain a column value as a DateTime instance**
 
 <br/>
-Columns of type *DATETIME*, *TIMESTAMP*, etc. are mapped by default to instances of **DateTime**.
+The *DateTime* type allow us to obtain instances of the *DateTime* class from a column. This example obtains the value from *sale_date* using a *DateTime* type alias as type specifier.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//get sale date
+$sale_date = $mapper->type('dt')->query("SELECT sale_date FROM sales WHERE sale_id = 324");
+```
 
-use eMapper\Engine\MySQL\MySQLMapper;
+Columns of type *DATETIME*, *TIMESTAMP*, etc. are mapped to instances of *DateTime* automatically.
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+```php
+//get user as array
+$user = $mapper->type('arr')->query("SELECT * FROM users WHERE user_id = 2");
 
-//get sale date as a DateTime object
-$date = $mapper->type('dt', 'sale_date')->query("SELECT * FROM sales WHERE sale_id = 324");
-
-$mapper->close();
-?>
+//show a formatted version of last_login column
+echo $user['last_login']->format('m/d/Y H:i:s');
 ```
 
 <br/>
@@ -410,21 +368,9 @@ Lists
 We can also get lists of a given type by adding brackets at the end of the mapping expression.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as a list of objects
-$users = $mapper->type('object[]')->query("SELECT * FROM users ORDER BY user_id ASC");
-
-//do something with users
-
-$mapper->close();
-?>
+//get users as an object list
+$users = $mapper->type('object[]')
+->query("SELECT * FROM users ORDER BY user_id ASC");
 ```
 
 <br/>
@@ -433,38 +379,19 @@ $mapper->close();
 <br/>
 This syntax is also supported when mapping to scalar types. For example, *integer[]* will return a list of integers.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users ids as a list
-$user_ids = $mapper->type('integer[]')->query("SELECT user_id FROM users");
-
-$mapper->close();
-?>
+//get user ids as a list
+$ids = $mapper->type('integer[]')->query("SELECT user_id FROM users");
 ```
 
 <br/>
 **Obtain a list of strings from a column**
 
+<br/>
+A second argument let us define which column to obtain.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users names as a list
-$usernames = $mapper->type('str[]', 'username')->query("SELECT * FROM users");
-
-$mapper->close();
-?>
+//get user names as a list
+$names = $mapper->type('str[]', 'name')->query("SELECT * FROM users");
 ```
 
 <br/>
@@ -475,88 +402,49 @@ Indexed lists
 **Obtain a list of objects indexed by column**
 
 <br/>
-Lists of arrays/objects can be indexed by a given column by specifying that column name between brackets in the mapping expression. The following code returns an array of objects where each key is the corresponding *user_id* for that row.
+Lists of arrays/objects can be indexed by a given column by specifying that column name between brackets in the mapping expression. The following code returns an array of objects where each key is the corresponding value of *user_id* for that row.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get user list as an array of objects indexed by user id
-$users = $mapper->type('object[user_id]')->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//get an indexed list of objects
+$users = $mapper->type('object[user_id]')
+->query("SELECT * FROM users");
 ```
+
 <br/>
 **Obtain a list of arrays indexed by column**
 
 This syntax is supported by the array mapper as well.
 
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+````php
+use eMapper\Result\ResultInterface;
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of associative arrays indexed by user id
-$users = $mapper->type('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//get a list of associative arrays indexed by user_id
+$users = $mapper->type('array[user_id]', ResultInterface::ASSOC)
+->query("SELECT * FROM users");
 ```
+
 Remember that you can use only columns which are present on the result set. If we want a list of numeric arrays the index column must be specified as an integer.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\Result\ResultInterface;
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of numeric arrays indexed by the first column
-$users = $mapper->type('array[0]', MYSQLI_NUM)->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//get a list of numeric arrays indexed by user_id
+$users = $mapper->type('array[0]', ResultInterface::NUM)
+->query("SELECT * FROM users");
 ```
+
 
 <br/>
 **Obtain a list of objects indexed by column with a custom type**
 
 <br/>
 Index type can be declared by adding a type specifier right after its name. If no type is specified then the one associated with the column is used.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//get users as an array of stdClass instances indexed by user id casted to string
-$users = $mapper->type('object[user_id:string]')->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
+//get a list of users indexed by user_id as a string
+$users = $mapper->type('object[user_id:string]')
+->query("SELECT * FROM users");
 ```
-
 
 <br/>
 **Custom indexation**
@@ -564,24 +452,10 @@ $mapper->close();
 Indexes can be customized by applying an *index callback* through the *index* method. This callback will receive each mapped row obtained from the result.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//create an index from user's email
+//generate index from user's mail
 $users = $mapper->type('object[]')->index(function ($user) {
-    //set email as index
     return strstr($user->email, '@', true);
 })->query("SELECT * FROM users");
-
-//do something with users
-
-$mapper->close();
-?>
 ```
 
 <br/>
@@ -592,24 +466,16 @@ Grouping
 **Grouping by a given column**
 
 <br/>
-Grouping allows to nest all rows into a distinct set of arrays. The required syntax is pretty similar to the one used for indexation. This example shows how to obtain a list of objects grouped by *category*.
+Grouping allows you to organize a list of results with a common characteristic among several arrays. The required syntax is pretty similar to the one used for indexation. This example shows how to obtain a list of objects grouped by *category*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//get a list of products grouped by category
+$products = $mapper->type('obj<category:string>')
+->query("SELECT * FROM products");
 
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//obtain products grouped by category
-$products = $mapper->type('obj<category:int>')->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
+//print_r($products['software']);
+//print_r($products['hardware']);
+//...
 ```
 
 <br/>
@@ -619,21 +485,9 @@ $mapper->close();
 Indexation and grouping can be combined to obtain more precise lists.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//obtain products grouped by category and indexed by id
-$products = $mapper->type('array<category>[product_id]')->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
+//get a list of products grouped by category and indexed by id
+$products = $mapper->type('array<category>[product_id:int]')
+->query("SELECT * FROM products");
 ```
 
 
@@ -643,24 +497,10 @@ $mapper->close();
 We can also define a *group callback* through the *group* method.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//obtain products grouped by code
+//get a list of products grouped by a custom callback
 $products = $mapper->type('obj[product_id]')->group(function ($product) {
-    //obtain first 3 letters
-    return substr($product->code, 0, 3);
+    return substr($product->codigo, 0, 3);
 })->query("SELECT * FROM products");
-
-//do something with products
-
-$mapper->close();
-?>
 ```
 
 <br/>
@@ -671,32 +511,15 @@ Queries
 **Passing parameters to a query**
 
 <br/>
-When calling the ***query*** method we can specify an arbitrary number of parameters. Each of these parameters are referenced within the query string with an expression that contains a leading ***%*** character followed by a type specifier between braces.
+When using the **query** method we can specify an arbitrary number of arguments. Each of these arguments can be referenced within the query string with an expression that contains a leading **%** character followed by a type specifier between braces.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //obtain user with id = 1
 $user = $mapper->type('obj')->query("SELECT * FROM users WHERE user_id = %{int}", 1);
-
-$mapper->close();
-?>
 ```
+
 The next example shows how to use type specifiers to generate an insertion query.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //user values
 $username = 'jdoe';
 $password = sha1('jhon123');
@@ -704,93 +527,48 @@ $is_admin = false;
 $image = file_get_contents('photo.jpg');
 
 //insert data ('x' is short for 'blob')
-$mapper->query("INSERT INTO users (username, password, is_admin, image) VALUES (%{s}, %{s}, %{b}, %{x})", $username, $password, $is_admin, $image);
-
-$mapper->close();
-?>
+$mapper->query("INSERT INTO users (username, password, is_admin, image) 
+                VALUES (%{s}, %{s}, %{b}, %{x})", $username, $password, $is_admin, $image);
 ```
 
 <br/>
-**Passing arrays as parameters to a query**
+**Passing arrays as parameters**
 
 <br/>
 When passing an array, all values are converted to the specified type and then joined together. This is useful when doing a search using the **IN** clause.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //execute query: SELECT * FROM products WHERE code IN ('MXP412', 'TRY235', 'OFR255')
 $products = $mapper->query("SELECT * FROM products WHERE code IN (%{s})", array('MXP412', 'TRY235', 'OFR255'));
-
-$mapper->close();
-?>
 ```
+
 <br/>
 **Specifying parameters by order of appearance**
 
 <br/>
 There's an additional syntax that allow us to refer to a parameter by its order of appearance. Instead of the desired type we use a number which identifies the parameter in the list and (optionally) a type specifier.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //first parameter is %{0}
-$products = $mapper->type('obj[product_id]')->query("SELECT * FROM products WHERE product_id = %{1} OR product_code = %{0:s}", 'PHN00098', 3);
-
-//do something with products
-
-$mapper->close();
-?>
+$products = $mapper->type('obj[product_id]')
+->query("SELECT * FROM products WHERE product_id = %{1} OR product_code = %{0:s}", 'PHN00098', 3);
 ```
+
 We can also tell from which subindex must be obtained a value. A subindex must be appended right after the parameter index and placed between brackets.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $param_list = array('id' => 1, 'jdoe', 'david');
-
-$users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
-
-//do something with users
-
-$mapper->close();
-?>
+$users = $mapper->type('obj[]')
+->query("SELECT * FROM users WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
 ```
 
 <br/>
 **Ranges**
 
-Ranges allow to use a subset of a list passed as argument. The obtained expression is similar to use the function [array_slice](http://www.php.net/manual/en/function.array-slice.php "") on the specified array. The left value represents the offset and the right one the length.
+Ranges allow to specify a subset of a list passed as argument. The obtained expression is similar to use the function [array_slice](http://www.php.net/manual/en/function.array-slice.php "") on the specified array. The left value represents the offset and the right one the length.
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $list = array(45, 23, '43', '164', 43);
 
 //obtain a sublist with '43' and '164'
 $users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE user_id IN (%{0[2..2]:i})", $list);
-
-$mapper->close();
-?>
 ```
 
 If one value is omitted then the corresponding limit is used:
@@ -800,20 +578,23 @@ If one value is omitted then the corresponding limit is used:
 * [..] Obtains the whole list.
 
 <br/>
+These expressions can be used with string values as well.
+
+```php
+$name = "XXXjdowXXX";
+
+//get user witn name = 'jdoe'
+$user = $mapper->type('obj')
+->query("SELECT * FROM users WHERE name = %{0[3..4]}", $name);
+```
+
+<br/>
 **Using objects and arrays as parameter**
 
 <br/>
-Queries also supports a syntax which obtains values from object properties (and array keys). We can refer to an object property with the '#' symbol and the object property between braces. Just like previous mapping expressions, it is also possible to specify the property type, subindex and range.
+Queries also supports a syntax which obtains values from object properties (and array keys). We can refer to an object property with the **#** symbol and the object property between braces. Just like previous mapping expressions, it is also possible to specify the property type, subindex and range.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //user values
 $user = new stdClass();
 $user->username = 'jdoe';
@@ -823,9 +604,24 @@ $user->image = file_get_contents('photo.jpg');
 
 //insert data
 $mapper->query("INSERT INTO users (username, password, is_admin, image) VALUES (#{username}, #{password:s}, #{is_admin}, #{image:blob})", $user);
+```
 
-$mapper->close();
-?>
+<br/>
+**Prefijo de base de datos**
+
+<br/>
+To define the database prefix we use the **setPrefix** method. The expression **@@** can then be used to insert the database prefix within a query.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mapper = new MySQLMapper('project');
+
+//set prefix
+$mapper->setPrefix('PRJ_');
+
+//SQL: SELECT * FROM PRJ_items WHERE active = TRUE
+$items = $mapper->query("SELECT * FROM @@items WHERE active = TRUE");
 ```
 
 <br/>

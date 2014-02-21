@@ -336,6 +336,7 @@ $id = $mapper
 ->type('int', 'id_usuario')
 ->query("SELECT * FROM usuarios WHERE nombre = 'jperez'");
 ```
+
 <br/>
 Fechas
 -----
@@ -396,7 +397,7 @@ También es posible definir la columna desde la cual obtener los valores.
 
 ```php
 //obtener nombre de usuario como lista
-$nombre = $mapper->type('str[]', 'nombre')->query("SELECT * FROM usuarios");
+$nombres = $mapper->type('str[]', 'nombre')->query("SELECT * FROM usuarios");
 ```
 
 <br/>
@@ -411,8 +412,7 @@ Las listas de arreglos y objetos pueden ser indexadas por una columna especifica
 
 ```php
 //obtener un listado de objetos indexado por id_usuario
-$usuarios = $mapper
-->type('object[id_usuario]')
+$usuarios = $mapper->type('object[id_usuario]')
 ->query("SELECT * FROM usuarios");
 ```
 
@@ -430,7 +430,9 @@ $usuarios = $mapper
 ->type('array[id_usuario]', ResultInterface::ASSOC)
 ->query("SELECT * FROM usuarios");
 ```
+
 Resulta útil recordar que solo es posible indexar por columnas presentes en el set de columnas devueltas por el resultado. Esto implica que al mapear a un arreglo con índices numéricos debemos expresar la columna como un entero.
+
 ```php
 use eMapper\Result\ResultInterface;
 
@@ -522,7 +524,7 @@ Consultas
 **Enviando parámetros a una consulta**
 
 <br/>
-Al invocar a la función ***query*** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **identificador de tipo** entre llaves.
+Al invocar a la función **query** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **identificador de tipo** entre llaves.
 
 ```php
 //obtener usuario con id 1
@@ -584,8 +586,7 @@ Un rango nos permite insertar un subconjunto de elementos de una lista. Para esp
 $list = array(45, 23, '43', '164', 43);
 
 //obtener una sublista con los elementos '43' y '164'
-$users = $mapper
-->type('obj[]')
+$users = $mapper->type('obj[]')
 ->query("SELECT * FROM usuarios WHERE id_usuario IN (%{0[2..2]:i})", $list);
 ```
 
@@ -602,8 +603,7 @@ Este tipo de expresiones también puede utilizarse con cadenas de texto.
 $nombre = "XXXjperezXXX";
 
 //obtener usuario con nombre 'jperez'
-$user = $mapper
-->type('obj')
+$usuario = $mapper->type('obj')
 ->query("SELECT * FROM usuarios WHERE nombre = %{0[3..6]}", $nombre);
 ```
 
@@ -633,7 +633,7 @@ $mapper->query("INSERT INTO usuarios (nombre, password, admin, imagen)
 Por lo general, las tablas dentro de una base de datos son creadas utilizando un prefijo. Para definir el prefijo de una base de datos utilizamos el método *setPrefix*. La expresión **@@** puede utilizarse luego para insertar el prefijo previamente definido y así evitar tener que ingresar el mismo por cada tabla dentro de una consulta.
 
 ```php
-use eMapper\Engine\MySQL\MySQLEngine;
+use eMapper\Engine\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('proyecto');
 
