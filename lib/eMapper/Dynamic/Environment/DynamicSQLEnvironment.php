@@ -2,13 +2,13 @@
 namespace eMapper\Dynamic\Environment;
 
 use eMacros\Environment\Environment;
-use eMapper\Dynamic\Environment\ConfigurableEnvironment;
+use eMapper\Configuration\Configuration;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMapper\Dynamic\Package\CorePackage;
 
 class DynamicSQLEnvironment extends Environment {
-	use ConfigurableEnvironment;
+	use Configuration;
 
 	public function __construct() {
 		$this->import(new RegexPackage());

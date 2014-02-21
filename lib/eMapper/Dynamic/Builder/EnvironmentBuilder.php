@@ -18,7 +18,7 @@ trait EnvironmentBuilder {
 		}
 		
 		$env = EnvironmentProvider::getEnvironment($environmentId);
-		$env->setConfiguration($config);
+		$env->config = $config;
 		return $env;
 	}
 }

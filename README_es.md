@@ -1154,7 +1154,7 @@ El método *setEnvironment* acepta un segundo argumento con la clase del entorno
 namespace Acme\SQL\Environment;
 
 use eMacros\Environment\Environment;
-use eMapper\Dynamic\Environment\ConfigurableEnvironment;
+use eMapper\Configuration\Configuration;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMacros\Package\ArrayPackagePackage;
@@ -1162,7 +1162,7 @@ use eMacros\Package\StringPackage;
 use eMapper\Dynamic\Package\CorePackage;
 
 class CustomSQLEnvironment extends Environment {
-    use ConfigurableEnvironment;
+    use Configuration;
     
     public function __construct() {
 		$this->import(new RegexPackage());
@@ -1173,7 +1173,7 @@ class CustomSQLEnvironment extends Environment {
 	}
 }
 ```
-El trait *ConfigurableEnvironment* permite que el ambiente almacene las opciones de configuración definidos para esa instancia. Es interesante notar que la clase **CorePackage** no es la incluida en *eMacros*. Es importante incluir este paquete en reemplazo del otro dado que de otra forma las funciones de acceso a propiedades no funcionarán del todo bien con entidades.
+El trait *Configuration* permite que el ambiente almacene las opciones de configuración definidos para esa instancia. Es interesante notar que la clase **CorePackage** no es la incluida en *eMacros*. Es importante incluir este paquete en reemplazo del otro dado que de otra forma las funciones de acceso a propiedades no funcionarán del todo bien con entidades.
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
