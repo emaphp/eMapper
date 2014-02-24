@@ -10,6 +10,7 @@ use eMapper\Type\Handler\BlobTypeHandler;
 use eMapper\Type\Handler\DatetimeTypeHandler;
 use eMapper\Type\Handler\NullTypeHandler;
 use eMapper\Type\Handler\DateTypeHandler;
+use eMapper\Type\Handler\JSONTypeHandler;
 
 class TypeManager {
 	/**
@@ -33,6 +34,7 @@ class TypeManager {
 				'DateTime' => new DatetimeTypeHandler(),
 				'date' => new DateTypeHandler(),
 				'ustring' => new UnquotedStringTypeHandler(),
+				'json' => new JSONTypeHandler(),
 				'null' => new NullTypeHandler());
 		
 		$this->aliases = array('us' => 'ustring', 'ustr' => 'ustring',

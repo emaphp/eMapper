@@ -281,7 +281,6 @@ To obtain a *stdClass* instance from a row we simply set the desired type to *ob
 //get user as object (stdClass)
 $user = $mapper->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 ```
-```
 
 <br/>
 **Obtain a row as a custom class object**

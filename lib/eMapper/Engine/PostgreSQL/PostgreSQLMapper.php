@@ -4,10 +4,10 @@ namespace eMapper\Engine\PostgreSQL;
 use eMapper\Engine\Generic\GenericMapper;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultInterface;
 use eMapper\Engine\PostgreSQL\Statement\PostgreSQLStatement;
-use eMapper\Type\TypeManager;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLMapperException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
+use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 
 class PostgreSQLMapper extends GenericMapper {
 	/**
@@ -40,7 +40,7 @@ class PostgreSQLMapper extends GenericMapper {
 		}
 		
 		//type manager
-		$this->typeManager = new TypeManager();
+		$this->typeManager = new PostgreSQLTypeManager();
 		
 		//set default configuration
 		$this->applyDefaultConfig();
