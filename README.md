@@ -510,7 +510,7 @@ Queries
 **Passing parameters to a query**
 
 <br/>
-When using the **query** method we can specify an arbitrary number of arguments. Each of these arguments can be referenced within the query string with an expression that contains a leading **%** character followed by a type specifier between braces.
+When submitting a query we can specify an arbitrary number of arguments. Each one of these arguments can be referenced within the query string with an expression that contains a leading **%** character followed by a type identifier between braces.
 
 ```php
 //obtain user with id = 1
@@ -527,7 +527,8 @@ $image = file_get_contents('photo.jpg');
 
 //insert data ('x' is short for 'blob')
 $mapper->query("INSERT INTO users (username, password, is_admin, image) 
-                VALUES (%{s}, %{s}, %{b}, %{x})", $username, $password, $is_admin, $image);
+                VALUES (%{s}, %{s}, %{b}, %{x})",
+               $username, $password, $is_admin, $image);
 ```
 
 <br/>
@@ -544,30 +545,34 @@ $products = $mapper->query("SELECT * FROM products WHERE code IN (%{s})", array(
 **Specifying parameters by order of appearance**
 
 <br/>
-There's an additional syntax that allow us to refer to a parameter by its order of appearance. Instead of the desired type we use a number which identifies the parameter in the list and (optionally) a type specifier.
+There's an additional syntax that allow us to refer to a parameter by its order of appearance. Instead of the desired type we use the parameter number and (optionally) a type identifier.
 ```php
 //first parameter is %{0}
 $products = $mapper->type('obj[product_id]')
-->query("SELECT * FROM products WHERE product_id = %{1} OR product_code = %{0:s}", 'PHN00098', 3);
+->query("SELECT * FROM products
+         WHERE product_id = %{1} OR product_code = %{0:s}", 'PHN00098', 3);
 ```
 
 We can also tell from which subindex must be obtained a value. A subindex must be appended right after the parameter index and placed between brackets.
 
 ```php
 $param_list = array('id' => 1, 'jdoe', 'david');
+
 $users = $mapper->type('obj[]')
-->query("SELECT * FROM users WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
+->query("SELECT * FROM users
+         WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
 ```
 
 <br/>
 **Ranges**
 
-Ranges allow to specify a subset of a list passed as argument. The obtained expression is similar to use the function [array_slice](http://www.php.net/manual/en/function.array-slice.php "") on the specified array. The left value represents the offset and the right one the length.
+Ranges allow to specify a subset of a list passed as argument. The obtained expression is equivalent to calling [array_slice](http://www.php.net/manual/en/function.array-slice.php "") with the specified array. The left value represents the offset and the right one the length.
 ```php
 $list = array(45, 23, '43', '164', 43);
 
 //obtain a sublist with '43' and '164'
-$users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE user_id IN (%{0[2..2]:i})", $list);
+$users = $mapper->type('obj[]')
+->query("SELECT * FROM users WHERE user_id IN (%{0[2..2]:i})", $list);
 ```
 
 If one value is omitted then the corresponding limit is used:
@@ -602,14 +607,15 @@ $user->is_admin = false;
 $user->image = file_get_contents('photo.jpg');
 
 //insert data
-$mapper->query("INSERT INTO users (username, password, is_admin, image) VALUES (#{username}, #{password:s}, #{is_admin}, #{image:blob})", $user);
+$mapper->query("INSERT INTO users (username, password, is_admin, image)
+                VALUES (#{username}, #{password:s}, #{is_admin}, #{image:blob})", $user);
 ```
 
 <br/>
-**Prefijo de base de datos**
+**Database prefix**
 
 <br/>
-To define the database prefix we use the **setPrefix** method. The expression **@@** can then be used to insert the database prefix within a query.
+We can store a database prefix with the **setPrefix** method. The expression **@@** can then be used to insert this prefix within a query.
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -628,61 +634,223 @@ Result maps
 ----------
 
 <br/>
+A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the type to use and the name of the column from which to take the value respectively. If no column is specified then the property name is used. If the type is not defined then the one associated with the column is used.
+
+```php
+namespace Acme\Result;
+
+class UserResultMap {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+    public $name;
+    
+    /**
+     * @column password
+     */
+    public $psw;
+    
+    /**
+     * @type blob
+     * @column photo
+     */
+    public $avatar;
+}
+```
+A result map is applied by chaining a call to the **result_map** method with the result map class fullname as argument.
+
+```php
+$user = $mapper->type('obj')
+->result_map('Acme\Result\UserResultMap')
+->query("SELECT * FROM users WHERE user_id = 1");
+```
+
+This example returns a *stdClass* instance with the properties *id*, *name*, *psw* and *avatar*.
+
+<br/>
 Entities
 ----------
+
+<br/>
+Just like a result map, an entity is a class that defines which properties must be mapped according to the its structure. Unlike a result map, an entity can be used as a mapping expression directly.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class Product {
+    /**
+     * @column product_id
+     */
+    public $id;
+    
+    /**
+     * @type str
+     */
+    public $code;
+    
+    /**
+     * @column modified_at
+     * @type string
+     */
+    public $modifiedAt;
+}
+```
+All entities must be declared using the **@entity** annotation. Mapping to an entity is pretty straightforward.
+
+```php
+$products = $mapper->type('obj:Acme\Entity\Product[id]')
+->query("SELECT * FROM products");
+```
+
+When mapping to an indexed list of entities the specified index must be the property name, not the associated column. Same goes for result maps.
+
+<br/>
+Declaring a property as private/protected requires adding the **@getter** and **@setter** annotations.
+
+```php
+namespace Amce\Entity;
+
+/**
+ * @entity
+ */
+class Profile {
+    /**
+     * @column profile_id
+     * @setter setProfileId
+     * @getter getProfileId
+     */
+    private $profileId;
+
+    /**
+     * @column user_id
+     * @setter setUserId
+     * @getter getUserId
+     */
+    private $userId;
+    
+    /**
+     * @type string
+     * @setter setType
+     * @getter getType
+     */
+    private $type;
+    
+    public function setProfileId($profileId) {
+        $this->profileId = $profileId;
+    }
+    
+    public function getProfileId() {
+        return $this->profileId;
+    }
+    
+    public function setUserId($userId) {
+        $this->userId = $userId;
+    }
+    
+    public function getUserId() {
+        return $this->userId;
+    }
+    
+    public function setType($type) {
+        $this->tipo = $type;
+    }
+    
+    public function getType() {
+        return $this->type;
+    }
+}
+```
+
 
 <br/>
 Statements
 ----------
 
 <br/>
+**Creating statements**
+
+<br/>
+Statements are objects that store a SQL query and can be identified by a string id. These objects can be declared in 2 ways. The first one consist in creating an instance of the *eMapper\SQL\Statement* class, which later can be added to a mapper instance through the **addStatement** method.
+
+```php
+use eMapper\SQL\Statement;
+
+//create statement
+$stmt = new Statement('findAllUsers', "SELECT * FROM users");
+
+//store
+$mapper->addStatement($stmt);
+```
+The second one uses the **stmt** method.
+
+```php
+//create statement
+$mapper->stmt('findAllUsers', "SELECT * FROM users");
+```
+
+**stmt** returns a reference to the object where the statement is stored. Multiple calls can be chained in order to declare multiple statements.
+
+```php
+//create statements
+$mapper
+->stmt('findAllUsers', "SELECT * FROM users")
+->stmt('findAllProducts', "SELECT * FROM products")
+->stmt('findAllSales', "SELECT * FROM sales");
+```
+
+<br/>
 **Executing statements**
 
 <br/>
-A statement object represents a query which can be identified by a string ID. Statements are created by calling the *stmt* method and are invoked through the *execute* method.
+Executing a statement is done by invoking the **execute** method and passing the statement identifier as argument. Just like **query**, **execute** takes an arbitrary number of additional arguments.
+
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //add statement
-$mapper->stmt('findAllUsers', "SELECT * FROM users");
+$mapper->stmt('findUserByPK', "SELECT * FROM users WHERE user_id = %{i}");
 
 //execute statement
-$users = $mapper->map('obj[]')->execute('findAllUsers');
-
-$mapper->close();
-?>
+$user = $mapper->type('obj')->execute('findUserByPK', 5);
 ```
+
 <br/>
-It is possible to provide a default set of options by adding a third parameter. Statement options are generated through 2 static methods available in the *eMapper\Statement\Statement* class.
+**Configuration**
+
+<br/>
+Both the *Statement* class constructor and the **stmt** method support and additional third parameter that takes a *StatementConfiguration* instance. This argument defines the default behaviour for that statement and can be generated through the **type** and **config** methods in the *Statement* class.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\SQL\Statement;
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Statement\Statement;
+//set default type to object list
+$stmt = new Statement('findAllProducts', "SELECT * FROM products", Statement::type('obj[]'));
+$mapper->addStatement($stmt);
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//add statements
-$mapper->stmt('findAllUsers', "SELECT * FROM users", Statement::config()->map('obj[user_id]'));
-$mapper->stmt('findUserByPK', "SELECT * FROM users WHERE user_id = %{i}", Statement::map('obj'));
+//set result map and default type
+$mapper->stmt('findAllUsers',
+              "SELECT * FROM users",
+              Statement::config()->result_map('Acme\Result\UserResultMap')->type('obj[id]'));
 
 //execute statements
+$products = $mapper->execute('findAllProducts'):
+//...
 $users = $mapper->execute('findAllUsers');
-$user = $mapper->execute('findUserByPK', 3);
-
-$mapper->close();
-?>
 ```
-The main difference between these two methods is that *config* accepts an array containing a list of options as a parameter. Check the *Appendix II - Configuration options* for a complete list of available options.
+The **type** method is a simplified way to define the expected type. **config**, on the other hand, takes an array of supported options as an optional argument. *findAllUsers* configuration can be also defined like this.
+
+```php
+Statement::config(['map.result' => 'Acme\Result\UserResultMap', 'map.type' => 'obj[id]']);
+```
+
+A list of supported configuration values can be found in the *Appendix II - Configuration options*.
+
 
 <br/>
 Namespaces

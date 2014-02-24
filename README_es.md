@@ -524,7 +524,7 @@ Consultas
 **Enviando parámetros a una consulta**
 
 <br/>
-Al invocar a la función **query** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter ***%*** seguido de un **identificador de tipo** entre llaves.
+Al invocar a la función **query** podemos especificar un número arbitrario de argumentos. Cada uno de estos argumentos puede ser referenciado desde la consulta con una expresión encabezada por el caracter **%** seguido de un **identificador de tipo** entre llaves.
 
 ```php
 //obtener usuario con id 1
@@ -649,7 +649,7 @@ Result maps
 ----------
 
 <br/>
-Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan *annotations*. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico al de la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan annotations. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico al de la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
 
 ```php
 namespace Acme\Result;
@@ -720,6 +720,7 @@ class Producto {
     public $fechaModificacion;
 }
 ```
+
 Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation **@entity**. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
 
 ```php
