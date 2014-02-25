@@ -72,7 +72,7 @@ To start developing with *eMapper* we must create an instance of one of the mapp
 
 <br/>
 ```php
-//composer autloader
+//composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -810,7 +810,7 @@ $mapper
 **Executing statements**
 
 <br/>
-Executing a statement is done by invoking the **execute** method and passing the statement identifier as argument. Just like **query**, **execute** takes an arbitrary number of additional arguments.
+Executing a statement is done by invoking the **execute** method and passing the statement identifier as argument. Just like **query**, this method takes an arbitrary number of additional arguments.
 
 ```php
 //add statement
@@ -830,7 +830,10 @@ Both the *Statement* class constructor and the **stmt** method support and addit
 use eMapper\SQL\Statement;
 
 //set default type to object list
-$stmt = new Statement('findAllProducts', "SELECT * FROM products", Statement::type('obj[]'));
+$stmt = new Statement('findAllProducts',
+                      "SELECT * FROM products",
+                      Statement::type('obj[]'));
+                      
 $mapper->addStatement($stmt);
 
 //set result map and default type
@@ -843,13 +846,13 @@ $products = $mapper->execute('findAllProducts'):
 //...
 $users = $mapper->execute('findAllUsers');
 ```
-The **type** method is a simplified way to define the expected type. **config**, on the other hand, takes an array of supported options as an optional argument. *findAllUsers* configuration can be also defined like this.
+The **type** method is a simplified way to define the expected type. **config**, on the other hand, takes an array of supported options as an argument. *findAllUsers* configuration can be also defined like this.
 
 ```php
 Statement::config(['map.result' => 'Acme\Result\UserResultMap', 'map.type' => 'obj[id]']);
 ```
 
-A list of supported configuration values can be found in the *Appendix II - Configuration options*.
+A list of supported configuration values can be found in *Appendix II - Configuration options*.
 
 
 <br/>
@@ -857,120 +860,101 @@ Namespaces
 ----------
 
 <br/>
-**Creating namespaces**
+**Organizing statements**
 
 <br/>
-A namespace is an object that contains statements. The main purpose of working with namespaces is allowing the programmer to manage statements trees separately. This can be helpful is mid-sized projects where a lot of queries are created and we need a way to organize them.
+Namespaces are objects designed with the purpose of storing a list of statements more easily. These can turn really helpful in medium and large projects, where a large number of queries are created and stored. In order to create a namespace we must first build a new instance of the *eMapper\SQL\StatementNamespace* class. This class constructor takes a string id as argument. Once created we can add an arbitrary number of statements using the same method we've seen previously. To store a namespace within a mapper instance we use the **addNamespace** method.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+use eMapper\SQL\Statement;
+use eMapper\SQL\StatementNamespace;
 
-use eMapper\MySQL\MySQLMapper;
-use eMapper\Statement\Statement;
+//crate namespace
+$ns = new StatementNamespace('users');
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+//add statement
+$stmt = new Statement('findAll', "SELECT * FROM users");
+$ns->addStatement($stmt);
 
-//create 'users' namespace
-$usersNamespace = $mapper->ns('users');
+//adding statement through 'stmt'
+$ns->stmt('findByPK', "SELECT * FROM users WHERE user_id = %{i}");
 
-//method ns returns a reference to the new namespace
-$usersNamespace
-->stmt('findAll', "SELECT * FROM users", Statement::map('obj[user_id]'))
-//calls to the stmt method can be chained
-->stmt('findByPK', "SELECT * FROM users WHERE user_id = %{i}", Statement::map('obj'))
-//this creates an inner namespace within 'users'
-->ns('admin')
-->stmt("delete", "DELETE FROM users WHERE user_id = %{i}");
+//add namespace
+$mapper->addNamespace($ns);
+```
+To execute a statement within a namespace we must specify the namespace identifier along with the statement id. Identifiers need to be separated from each other using the '.' character.
 
-//execute statements
-$users = $mapper->execute('users.findAll');
-$user = $mapper->execute('users.findByPK', 3);
-$mapper->execute('users.admin.delete', 0);
+```php
+$users = $mapper->type('arr[]')->execute('users.findAll');
+//...
+$user = $mapper->type('obj')->execute('users.findByPK', 7);
+```
 
-$mapper->close();
-?>
+<br/>
+**Nested namespaces**
+
+<br/>
+A namespace can contain other namespaces in case the complexity of the project requires it. Besides the **addNamespace** method we also have **ns**. This method returns a reference to the generated namespace, which is useful for chaining method invocations to **stmt** and define a group of statements quickly.
+
+```php
+use eMapper\SQL\Statement;
+use eMapper\SQL\StatementNamespace;
+
+//create namespace
+$usersNamespace = new StatementNamespace('users');
+
+//nested namespace
+$profilesNamespace = new StatementNamespace('profiles');
+$profilesNamespace->stmt('findByUserId',
+                         "SELECT * FROM profiles WHERE user_id = %{i}",
+                         Statement::type('obj[]'));
+
+//add namespace
+$usersNamespace->addNamespace($profilesNamespace);
+
+//using the 'ns' method
+$usersNamespace->ns('admin')
+->stmt('delete', "DELETE FROM users WHERE user_id = %{i}")
+->stmt('ban', "UPDATE users SET state = 'banned' WHERE user_id = %{i}");
+
+$mapper->addNamespace($usersNamespace);
+
+//...
+$perfil = $mapper->execute('users.profiles.findByUserId', 4);
+//...
+$mapper->execute('users.admin.ban', 7);
 ```
 
 <br/>
 **Custom namespaces**
 
 <br/>
-Another way to organize statements is creating custom namespaces classes to avoid keeping all of them on the same file. Custom namespaces must extend the *eMapper\Statement\StatementNamespace* class.
+We can create customized namespaces by extending the *eMapper\SQL\StatementNamespace* class. Customized namespaces need to declare their id by calling the parent class constructor.
 
 ```php
-<?php
-namespace Acme;
+namespace Acme\SQL;
 
-use eMapper\Statement\StatementNamespace;
-use eMapper\Statement\Statement;
+use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\Statement;
 
 class UsersNamespace extends StatementNamespace {
 	public function __construct() {
 		parent::__construct('users');
 		
 		$this->stmt('findByUsername',
-		            "SELECT * FROM users WHERE user_name = %{s}");
+		            "SELECT * FROM users WHERE name = %{s}");
 		            
 		$this->stmt('findByPK',
 		            "SELECT * FROM users WHERE user_id = %{i}",
-		            Statement::map('obj'));
+		            Statement::type('obj'));
 		            
 		$this->stmt('findAll',
 		            "SELECT * FROM users",
-		            Statement::config()->map('obj[user_id]'));
+		            Statement::type('obj[user_id]'));
 	}
 }
-?>
-```
-Namespaces are added through the *addNamespace* method.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-use Acme\UsersNamespace;
-
-//create mapper
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->addNamespace(new UsersNamespace());
-
-//get user
-$user = $mapper->execute('users.findByPK', 4);
-
-$mapper->close();
 ```
 
-<br/>
-Raw results
------------
-
-<br/>
-**Obtaining results as resources**
-
-<br/>
-Using the ***sql*** method we can obtain ***mysqli_result*** objects directly from queries. This method ignores all configuration methods appended before it.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper->sql("SELECT user_id, username FROM users WHERE user_id = %{i}", 5);
-
-while (($row = $result->fetch_array()) != null) {
-    //...
-}
-
-//avoid 'synchronized' bug in older mysqli
-$mapper->free_result($result);
-$mapper->close();
-?>
-```
 
 <br/>
 Stored procedures
@@ -980,66 +964,47 @@ Stored procedures
 **Calling stored procedures**
 
 <br/>
-Stored procedures are routines available in MySQL that manage persistence logic. These routines can be invoked directly from a mapper instance thanks to a feature that automatically translates a non-declared method invocation to a query through *overloading* ([http://php.net/manual/en/language.oop5.overloading.php](http://php.net/manual/en/language.oop5.overloading.php "")). The generated query will contain the procedure name and all parameters provided.
+Stored procedures are database routines aimed to provide persistence logic. These routines can be invoked from a mapper instance through a special feature that translates the invocation of a non-declared method into a stored procedure call. This is accomplished through a language feature called [overloading](http://php.net/manual/en/language.oop5.overloading.php "").
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
 //SQL: CALL FindUserByUsername('jdoe')
-$user = $mapper->map('object')->FindUserByUsername('jdoe');
-
-$mapper->close();
-?>
+$user = $mapper->type('object')->FindUserByUsername('jdoe');
 ```
-We can specify parameter types through the ***ptypes*** method if necessary. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean). The result will then be mapped to an integer.
+
+<br/>
+**Argument types**
+
+<br/>
+We can specify parameter types through the **sptypes** method when needed. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean).
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//SQL: CALL InsertNewUser('anndoe', 'pass123', TRUE)
-$user_id = $mapper
-->map('int')
-->ptypes('s', 's', 'b')
-->InsertNewUser('anndoe', 'pass123', 1);
-
-$mapper->close();
-?>
+//SQL: CALL InsertNewUser('juana', 'clave123', TRUE)
+$id_usuario = $mapper->type('int')
+->sptypes('s', 's', 'b')
+->InsertNewUser('juana', 'clave123', 1);
 ```
-In most cases, stored procedures are declared using the database prefix. In order to avoid specifying the stored procedure prefix for every call, we can set the option *db.prefix* to store the current database prefix. Whenever we try to execute a stored procedure this prefix will be automatically appended in front of it.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
 
+<br/>
+**Database prefix**
+
+<br/>
+It is common to declare stored procedures using the database prefix. By default, whenever a stored procedure is being called, the database prefix is appended in front of its name. This behaviour can be modified by calling the **usePrefix** method.
+
+```php
 use eMapper\MySQL\MySQLMapper;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //set database prefix
 $mapper->setPrefix('EMP_');
-//OR $mapper->set('db.prefix', 'EMP_');
+
+//add prefix
+$mapper->usePrefix(true);
 
 //SQL: CALL EMP_InsertImage('My Image', x...);
-$image_id = $mapper
-->map('integer')
-->ptypes('string', 'blob')
+$id_imagen = $mapper->type('integer')
+->sptypes('string', 'blob')
 ->InsertImage('My Image', file_get_contents('image.png'));
-
-$mapper->close();
-?>
 ```
-
 
 <br/>
 Dynamic SQL

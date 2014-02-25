@@ -875,7 +875,7 @@ Namespaces
 **Organización de statements**
 
 <br/>
-Los *namespaces* son objetos destinados a poder organizar con mayor facilidad un listado de statements. Estos resultan de mucha utilidad en proyectos medianos y grandes, donde se crean un gran número de consultas. Para declarar un namespace debemos crear una instancia de la clase *eMapper\SQL\StatementNamespace*. El constructor de esta clase require que especifiquemos una cadena de texto destinado a identificar univocamente a ese namespace. Una vez creado podemos agregar un número arbitrario de statements utilizando la misma metodología vista anteriormente con las clases mapper. Para agregar un namespace a un objeto mapper utilizamos el método *addNamespace*.
+Los *namespaces* son objetos destinados a poder organizar con mayor facilidad un listado de statements. Estos resultan de mucha utilidad en proyectos medianos y grandes, donde se crean un gran número de consultas. Para declarar un namespace debemos crear una instancia de la clase *eMapper\SQL\StatementNamespace*. El constructor de esta clase require que especifiquemos una cadena de texto destinado a identificar univocamente a ese namespace. Una vez creado podemos agregar un número arbitrario de statements utilizando la misma metodología vista anteriormente con las clases mapper. Para agregar un namespace a un objeto mapper utilizamos el método **addNamespace**.
 
 ```php
 use eMapper\SQL\Statement;
@@ -907,7 +907,7 @@ $usuario = $mapper->type('obj')->execute('usuarios.findByPK', 7);
 **Anidamiento**
 
 <br/>
-Un namespace puede contener otros namespaces en caso de que la complejidad del proyecto así lo requiera. Ademas del método *addNamespace* contamos también con *ns*. Este método retorna una referencia al namespace generado, lo cual resulta útil para encadenar invocaciones al método *stmt* y definir un grupo de statements rapidamente.
+Un namespace puede contener otros namespaces en caso de que la complejidad del proyecto así lo requiera. Además del método **addNamespace** contamos también con **ns**. Este método retorna una referencia al namespace generado, lo cual resulta útil para encadenar invocaciones al método **stmt** y definir un grupo de statements rapidamente.
 
 ```php
 use eMapper\SQL\Statement;
@@ -983,6 +983,10 @@ Las rutinas almacenadas son procedimientos del lado de la base de datos destinad
 //SQL: CALL FindUserByUsername('jperez')
 $usuario = $mapper->type('object')->FindUserByUsername('jperez');
 ```
+
+<br/>
+**Tipos**
+
 En ocasiones será necesario especificar el tipo correspondiente a cada parámetro. Para definir el tipo de cada argumento debemos encadenar una llamada al método **sptypes**. Este método recibe un listado de parámetros que corresponde a los identificadores de tipo a utilizar por cada argumento.
 
 ```php
@@ -992,7 +996,12 @@ $id_usuario = $mapper
 ->sptypes('s', 's', 'b')
 ->InsertNewUser('juana', 'clave123', 1);
 ```
-Es muy probable que las rutinas almacenadas se hayan declarado utilizando el prefijo de la base de datos. Por defecto, siempre que se invoca una stored procedure se agrega al principio de la misma el prefijo de la base de datos que haya sido definido. Podemos controlar este comportamiento a través del método *usePrefix*.
+
+<br/>
+**Prefijo de base de datos**
+
+<br/>
+Es muy probable que las rutinas almacenadas se hayan declarado utilizando el prefijo de la base de datos. Por defecto, siempre que se invoca una stored procedure se agrega al principio de la misma el prefijo de la base de datos que haya sido definido. Podemos controlar este comportamiento a través del método **usePrefix**.
 
 ```php
 use eMapper\MySQL\MySQLMapper;
@@ -1001,6 +1010,9 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //setear prefijo de base de datos
 $mapper->setPrefix('EMP_');
+
+//agregar prefijo
+$mapper->usePrefix(true);
 
 //SQL: CALL EMP_InsertImage('My Image', x...);
 $id_imagen = $mapper
