@@ -41,7 +41,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "dev-master*"
+        "emapper/emapper" : "dev-master"
     }
 }
 ```
@@ -231,7 +231,7 @@ $mapper = new PostgreSQLMapper('dbname=company user=test password=test');
 </table>
 
 <br/>
-A mapper instance stores these configuration values internally. The connection to the database is not made when creating an instance but right before a query is submitted. In order to check the proper connection to the database we can use the **connect** method.
+A mapper instance stores these configuration values internally. Database connection is not stablished after calling the constructor method but right before a query is submitted. In order to test a connection without sending a query we must use the **connect** method.
 
 <br/>
 Arrays
@@ -257,7 +257,7 @@ $mapper->close();
 **Obtain a row as an associative array**
 
 <br/>
-The desired type to obtain from a query is declared through the **type** method. This method receives a mapping expression which indicates the expected type. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return through a second argument.
+The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return through a second argument.
 
 ```php
 use eMapper\Result\ResultInterface;
@@ -340,18 +340,20 @@ Dates
 **Obtain a column value as a DateTime instance**
 
 <br/>
-The *DateTime* type allow us to obtain instances of the *DateTime* class from a column. This example obtains the value from *sale_date* using a *DateTime* type alias as type specifier.
+The *DateTime* type allow us to obtain instances of the *DateTime* class from a column. This example obtains the value from the column *sale_date* using *dt* as a type identifier, which is in fact a *DateTime* alias.
 
 ```php
 //get sale date
-$sale_date = $mapper->type('dt')->query("SELECT sale_date FROM sales WHERE sale_id = 324");
+$sale_date = $mapper->type('dt')
+->query("SELECT sale_date FROM sales WHERE sale_id = 324");
 ```
 
 Columns of type *DATETIME*, *TIMESTAMP*, etc. are mapped to instances of *DateTime* automatically.
 
 ```php
 //get user as array
-$user = $mapper->type('arr')->query("SELECT * FROM users WHERE user_id = 2");
+$user = $mapper->type('arr')
+->query("SELECT * FROM users WHERE user_id = 2");
 
 //show a formatted version of last_login column
 echo $user['last_login']->format('m/d/Y H:i:s');
@@ -367,7 +369,7 @@ Lists
 We can also get lists of a given type by adding brackets at the end of the mapping expression.
 
 ```php
-//get users as an object list
+//get users as list of objects
 $users = $mapper->type('object[]')
 ->query("SELECT * FROM users ORDER BY user_id ASC");
 ```
@@ -386,10 +388,10 @@ $ids = $mapper->type('integer[]')->query("SELECT user_id FROM users");
 **Obtain a list of strings from a column**
 
 <br/>
-A second argument let us define which column to obtain.
+A second argument can be used to define the column to retrieve.
 
 ```php
-//get user names as a list
+//get names as a list
 $names = $mapper->type('str[]', 'name')->query("SELECT * FROM users");
 ```
 
@@ -422,7 +424,7 @@ $users = $mapper->type('array[user_id]', ResultInterface::ASSOC)
 ->query("SELECT * FROM users");
 ```
 
-Remember that you can use only columns which are present on the result set. If we want a list of numeric arrays the index column must be specified as an integer.
+Remember that you can use only columns that are present in the result set. If we want a list of numeric arrays the index column must be specified as an integer.
 
 ```php
 use eMapper\Result\ResultInterface;
@@ -498,7 +500,7 @@ We can also define a *group callback* through the *group* method.
 ```php
 //get a list of products grouped by a custom callback
 $products = $mapper->type('obj[product_id]')->group(function ($product) {
-    return substr($product->codigo, 0, 3);
+    return substr($product->code, 0, 3);
 })->query("SELECT * FROM products");
 ```
 
@@ -634,7 +636,7 @@ Result maps
 ----------
 
 <br/>
-A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the type to use and the name of the column from which to take the value respectively. If no column is specified then the property name is used. If the type is not defined then the one associated with the column is used.
+A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the type to use and the name of the column from which to take the value respectively. If no column name is specified then is assumed that is the same as the property. If the type is not defined then the one associated with the column is used.
 
 ```php
 namespace Acme\Result;
@@ -978,7 +980,7 @@ $user = $mapper->type('object')->FindUserByUsername('jdoe');
 We can specify parameter types through the **sptypes** method when needed. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean).
 ```php
 //SQL: CALL InsertNewUser('juana', 'clave123', TRUE)
-$id_usuario = $mapper->type('int')
+$user_id = $mapper->type('int')
 ->sptypes('s', 's', 'b')
 ->InsertNewUser('juana', 'clave123', 1);
 ```
@@ -1001,65 +1003,188 @@ $mapper->setPrefix('EMP_');
 $mapper->usePrefix(true);
 
 //SQL: CALL EMP_InsertImage('My Image', x...);
-$id_imagen = $mapper->type('integer')
+$image_id = $mapper->type('integer')
 ->sptypes('string', 'blob')
 ->InsertImage('My Image', file_get_contents('image.png'));
 ```
+
+<br/>
+Configuración
+--------------
+
+<br/>
+A mapper instance keeps all configuration values defined by the user in an internal array called *config*. Whenever a particular method is called (**result_map** or **type**, for example) a new mapper instance is created. This new instance is a clone of the original with a new configuration value assigned. As a result, the original instance is not modified so it can continue to be used within the script. The example below uses the method **option** to generate a new mapper instance. This new instance will hold a new value called *map.type* with the value *integer*. This configuration key determines the desired result type to obtain from a query. For a more detailed list of the supported configuration options refer to *Appendix II - Configuration options*.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$four = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
+```
+<br/>
+To store values on the original instance we use the method **set**. This method receives 2 arguments: the configuration key and its value. These values can be then obtained through the **get** method.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('foo', 'bar');
+$bar = $mapper->get('foo');
+```
+<br/>
+Configuration values can also be referenced from within a query. We do this by surrounding the configuration key between braces after a leading **@** character.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper->set('table', 'users');
+$user = $mapper->type('obj')->query("SELECT * FROM @{table} WHERE user_id = 2");
+```
+If a given configuration value cannot be converted to string the expression is left blank.
 
 <br/>
 Dynamic SQL
 -----------
 
 <br/>
-**Calling a custom callback from within a query**
+Dynamic SQL is a special feature that allows us to add logic within a query so that its structure can be modified according to the supplied arguments. This capacity for self-modification is achieved by using a language based on [eMacros](https://github.com/emaphp/eMacros ""). The following example illustrates a query that uses one of these expressions to insert a search condition.
+
+```php
+$user = $mapper->type('obj')
+->query("SELECT * FROM users WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 5);
+```
+Dynamic expressions are enclosed within double brackets. The sample includes a small program that inserts a search condition depending on the type of the first argument.
+
+```lisp
+(if (int? (%0)) "user_id = %{i}" "name = %{s}")
+```
+The *if* function evaluates a condition and returns one of two arguments depending on whether this is true or false. The *int?* macro verifies if the given argument is an integer. In this case, the supplied argument is the one returned by the *%0* macro, which is in fact the first query argument. If the argument happens to be an integer the inserted string will be *'user_id = %{i}'*. Otherwise, the search condition will contain *'name = %{s}'*. Given 5 as argument, this query will return a *stdClass* intance containing all values from the user with ID 5. This example will evaluate *int?* to false, thus, doing a search by the user's name.
+
+```php
+$user = $mapper->type('obj')
+->query("SELECT * FROM usuarios WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 'jdoe');
+```
 
 <br/>
-It is possible to define custom callbacks in order to populate a SQL query with a custom string. These callbacks are defined by invoking the *dynamic* method with a callback id (as string) and a Closure object. Callbacks are called from within the query by inserting the callback id between double brackets. These callbacks receive one array containing all query arguments.
+**Syntax differencs with eMacros**
+
+<br/>
+The dialect used for dynamic expressions is slightly different from eMacros. These differences are minor but important.
+
+ - **Key and property macros**: These functions are not led by the character **@** but **#**. The property assignment operator is not included.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//order as an aobject
+$order = new \stdClass();
+$order->column = 'user_id';
 
-use eMapper\MySQL\MySQLMapper;
+//SQL: SELECT * FROM users ORDER BY user_id ASC
+//(#column) => 'user_id'
+//(#type?) => false
+$users = $mapper
+->query("SELECT * FROM users 
+         ORDER BY [[ (#column) ]] [[ (if (#type?) (#type) 'ASC') ]]", $order);
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper
-->map('obj')
-->dynamic('condition', function ($args) {
-    //put condition according with argument type
-    if (is_int($args[0])) {
-        return 'user_id = %{i}';
-    }
-    else {
-        return 'user_name = %{s}';
-    }
-})->query("SELECT * FROM user_id WHERE [[condition]]", 1);
+//order as an array
+$order = ['column' => 'name', 'type' => 'DESC'];
 
+//SQL: SELECT * FROM users ORDER BY name DESC
+//(#column) => 'name'
+//(#type?) => true
+$users = $mapper
+->query("SELECT * FROM users
+         ORDER BY [[ (#column) ]] [[ (if (#type?) (#type) 'ASC') ]]", $order);
 ```
-You can add an arbitrary number of callbacks. These are stored inside the mapper configuration array using their callback id with the prefix 'dynamic.' as key. You could also provide a default value in case a callback happens to be undefined. Default values are inserted right after the callback id and a double pipe (||). If the callback is defined then the default value is sent as a second parameter.
+ - **Configuration values**: Functions headed by the character **@** can obtain configuration values ​​and determine their existence.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+//store column
+$mapper->set('order.column', 'product_id');
 
-use eMapper\MySQL\MySQLMapper;
-
-//define order column
-$order_column = 'user_name';
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$result = $mapper
-->map('obj')
-->dynamic('order', function ($args, $default) use ($order_column) {
-    //return user_name ASC
-    return isset($order_column) ? $order_column . ' ASC' : $default;
-})
-//order by id by default
-->query("SELECT * FROM users ORDER BY [[order||user_id ASC]]");
-
+//(@order.column) => 'product_id'
+//(@order.type?) => false
+$products = $mapper->type('obj[]')
+->query("SELECT * FROM products
+         ORDER BY [[ (@order.column) ]] [[ (if (@order.type?) (@@order.type) 'DESC') ]]");
 ```
+ - **Non included functions**: Most PHP functions are not declared in the default execution environment. Each time a non included function is called the environment checks for its existence. If it is found, the environment will try to invoke it with the supplied arguments. Some functions that are not included but can be called within an expresion are **count**, **str_replace**, **nl2br**, etc. Import functions (like *use*) and package functions are not included. Neither are output functions like **echo**, **var-dump** and **print-r**. Same with class/object functions.
+ - **Included packages**: The default execution environment includes the **DatePackage** and **RegexPackage** packages. Including more packages will require creating a custom environment.
+
+
+<br/>
+**Typified expressions**
+
+<br/>
+Sometimes it is useful that the value returned by a dynamic expression to be converted to a particular type. This is possible using typified expressions. These expressions are embedded inside double braces. The following example shows a typified expression which builds a search criteria.
+
+```php
+$user = $mapper->type('obj')
+->query("SELECT * FROM users WHERE name LIKE {{ (. '%' (%0) '%') }}", 'doe');
+```
+The type must be specified at the beginning, just after the opening braces. If no type is declared, the value is converted to string.
+
+```php
+$products = $mapper->query("SELECT * FROM productos WHERE price > {{:int (/ (%0) 2) }}", 45);
+```
+
+<br/>
+**Execution environments**
+
+<br/>
+An execution environment is a class that defines which functions can be invoked within a dynamic expression. These environments can be identified with a string ID (default environment has the ID *default*). You can define the environment of a mapper instance through the method *setEnvironment*. This examples generates 2 mapper instances, each one with a separate environment.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\SQLite\SQLiteMapper;
+
+$mysql = new MySQLMapper('database');
+$mysql->setEnvironment('mysql_env');
+
+//...
+
+$sqlite = new SQLiteMapper('database.db');
+$sqlite->setEnvironment('sqlite_env);
+```
+
+<br/>
+**Custom environments**
+
+<br/>
+The *setEnvironment* method accepts a second argument with the class of the runtime environment to use (*eMapper\Dynamic\Enviroment\DynamicSQLEnvironment* by default). To build a custom execution environment we can extend this class or *eMapper\Environment\Environment*. The following example shows a custom environment that includes the **StringPackage** and **ArrayPackage** packages.
+
+```php
+namespace Acme\SQL\Environment;
+
+use eMacros\Environment\Environment;
+use eMapper\Configuration\Configuration;
+use eMacros\Package\RegexPackage;
+use eMacros\Package\DatePackage;
+use eMacros\Package\ArrayPackagePackage;
+use eMacros\Package\StringPackage;
+use eMapper\Dynamic\Package\CorePackage;
+
+class CustomSQLEnvironment extends Environment {
+    use Configuration;
+    
+    public function __construct() {
+		$this->import(new RegexPackage());
+		$this->import(new DatePackage());
+		$this->import(new ArrayPackage());
+		$this->import(new StringPackage());
+		$this->import(new CorePackage());
+	}
+}
+```
+The *Configuration* trait allows the environment to store configuration values defined in the mapper instance. Notice that the **CorePackage** class is not the one included in *eMacros*. It is important to include this package because otherwise the property access functions will not work quite well with entities.
+
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
+
+$mysql = new MySQLMapper('database');
+$mysql->setEnvironment('mysql_env', 'Acme\SQL\Environment\CustomSQLEnvironment');
+```
+
 <br/>
 Cache
 -----
@@ -1118,114 +1243,6 @@ $user = $mapper
 $mapper->close();
 ?>
 ```
-
-<br/>
-Configuration
---------------
-<br/>
-In order to accomplish its functionality, a mapper class generates copies of itself dynamically whenever certain methods are invoked. This means that when calling methods like ***cache***, ***map***, etc. the object clones itself and applies a new configuration. These configuration values are transient, which means that they don't apply to the main instance from they were created. For example, the ***map*** method sets the option *'map.type'* to the requested value type. Alternatively, we can declare transient values using the ***option*** method.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$four = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
-?>
-```
-<br/>
-An mapper instance can also store customized configuration values of any type. To store a configuration value within an object we call the ***set*** method specifying both name and value.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('my_value', 'foo');
-?>
-```
-Values defined with the ***set*** method are permanent. This means that all instances generated from that object will keep those values. Additionally, values generated with this method can be obtained by calling ***get*** with the configuration key name.
-
-<br/>
-Configuration values can also be used within queries. We do this by surrounding the configuration key between braces after a leading *'@'* character.
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->set('my_table', 'users');
-$user = $mapper->map('obj')->query("SELECT * FROM @{my_table} WHERE user_id = 2");
-?>
-```
-If a given configuration value cannot be converted to string the expression is left blank.
-
-<br/>
-The 'each' method
------------------
-
-<br/>
-The ***each*** method allow us to apply a user defined function to every row returned from a query. This method sets the configuration property 'callback.each', which must be assigned to a valid callback. The user function receives the row obtained and the mapper instance. This example illustrates how to use this method in order to dynamically generate 2 extra attributes on an obtained row.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//find user
-$user = $mapper
-->each(function (&$user, $mapper) {
-    $user->age = (int) $user->birth_date->diff(new \DateTime())->format('%y');
-    $user->profile = $mapper->execute('profiles.findByUserId', $user->user_id);
-})
-->execute('users.findByPK', 3);
-
-$mapper->close();
-?>
-```
-<br/>
-Filters
--------
-
-<br/>
-The ***filter*** method sets a callback that determines which objects are removed from an obtained list. Using filters is pretty similar to apply a user-defined function to an array through the [array_filter](http://www.php.net/manual/en/function.array-filter.php "") function.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-
-//find users according to a filter
-$users = $mapper
-->each(function (&$user, $mapper) {
-    $user->age = (int) $user->birth_date->diff(new \DateTime())->format('%y');
-    $user->profile = $mapper->execute('profiles.findByUserId', $user->user_id);
-})
-->filter(function ($user) {
-    //filter users that are 60 years old (or older)
-    return $user->age < 60;
-})
-->execute('users.findAll');
-
-$mapper->close();
-?>
-```
-If a filter is applied to a non-list and the filter evaluates to false then NULL is returned.
 
 <br/>
 Custom type handlers
