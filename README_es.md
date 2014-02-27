@@ -1026,7 +1026,7 @@ Configuración
 --------------
 
 <br/>
-Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**result_map**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original a excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el *Apéndice II - Opciones de configuración*.
+Un objeto mapper almacena internamente un arreglo de configuración donde se van agregando cada una de las opciones definidas por el usuario. Cada vez que se invoca un determinado método (**result_map**, **type**, etc) un nueva instancia del objeto es creada. Esta nueva instancia es identica a la original con la excepción de que posee un nuevo valor de configuración, correspondiente al método invocado. Esto tiene la ventaja de que la instancia original no se modifica por lo que puede seguir utilizandose dentro del script. El ejemplo a continuación utiliza el método **option** para generar una nueva instancia con el valor de configuración *map.type* seteado a *'integer'*. El valor de configuración *map.type* define el tipo al cual será mapeado un resultado. Para un listado más detallado de las opciones de configuración soportadas consulte el *Apéndice II - Opciones de configuración*.
 
 ```php
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
@@ -1069,8 +1069,7 @@ Las expresiones dinámicas son incluidas dentro de corchetes dobles. El ejemplo 
 La función *if* evalua una condición y devuelve uno de los 2 argumentos de acuerdo a si esta es verdadera o falsa. La macro *int?* verifica si el argumento dado es de tipo entero. En este caso, el argumento pasado es el valor retornado por la macro *%0*, es decir, el primer argumento de la consulta. En caso de que el argumento sea de tipo entero entonces la condición contendrá el string *'id_usuario = %{i}'*. Caso contrario, la búsqueda se realizará por nombre (*'nombre = %{s}'*). La ejecución de la consulta, entonces, realizará la búsqueda de un usuario con ID igual a 5. Otro sería el caso utilizando un argumento de tipo cadena.
 
 ```php
-$usuario = $mapper
-->type('obj')
+$usuario = $mapper->type('obj')
 ->query("SELECT * FROM usuarios WHERE [[ (if (int? (%0)) 'id_usuario = %{i}' 'nombre = %{s}') ]]", 'jperez');
 ```
 
@@ -1090,7 +1089,7 @@ $orden->columna = 'id_usuario';
 //SQL: SELECT * FROM usuarios ORDER BY id_usuario ASC
 //(#columna) => 'id_usuario'
 //(#tipo?) => false
-$usuarios = $mapper->
+$usuarios = $mapper
 ->query("SELECT * FROM usuarios 
          ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 
@@ -1100,7 +1099,7 @@ $orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
 //SQL: SELECT * FROM usuarios ORDER BY nombre DESC
 //(#columna) => 'nombre'
 //(#tipo?) => true
-$usuarios = $mapper->
+$usuarios = $mapper
 ->query("SELECT * FROM usuarios
          ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
 ```
@@ -1274,7 +1273,7 @@ class RGBColor {
 **La clase RGBColorTypeHandler**
 
 <br/>
-Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación desde la bae de datos y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador queda de la siguiente manera.
+Nuestro manejador de tipo estará encargado de convertir una instancia de *RGBColor* a su correspondiente representación en hexadecimal. Luego, tomar esa representación desde la base de datos y generar una instancia de *RGBColor* nuevamente. La implementación de nuestro manejador queda de la siguiente manera.
 
 ```php
 namespace Acme\Type;
@@ -1435,7 +1434,7 @@ La consulta especificada recibe la instancia actual de *Usuario* y utiliza el va
 **Parametrización**
 
 <br/>
-Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles  deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos también agregar una annotation especial para decir que la instancia debe ser utilizada como argumento.
+Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos también agregar una annotation especial para decir que la instancia debe ser utilizada como argumento.
 
 ```php
 namespace Acme\Entity;
@@ -1483,7 +1482,7 @@ $profilesNamespace->stmt('findByUserIdAndType',
                          
 $mapper->addNamespace($profilesNamespace);
 ```
-Para invocar statements se utiliza la annotation **stmt**. Esta annotation espera una cadena de texto con el nombre completo de la statement a ejecutar. En este caso, la statement a invocar no espera una instancia de *Usuario* como primer argumento sino un entero. Para enviar el valor de una propiedad como argumento hacemos uso de una expresión especial.
+Para invocar statements se utiliza la annotation **@stmt**. Esta annotation espera una cadena de texto con el nombre completo de la statement a ejecutar. En este caso, la statement a invocar no espera una instancia de *Usuario* como primer argumento sino un entero. Para enviar el valor de una propiedad como argumento hacemos uso de una expresión especial.
 
 ```php
 namespace Acme\Entity;

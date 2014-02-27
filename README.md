@@ -12,7 +12,7 @@ eMapper
 Latest modifications
 ------------------
 <br/>
-2014-??-?? - Version 3.0.0
+2014-03-01 - Version 3.0.0
 
   * Deprecated: Models
   * Added: Support for SQLite and PostgreSQL
@@ -257,7 +257,7 @@ $mapper->close();
 **Obtain a row as an associative array**
 
 <br/>
-The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return through a second argument.
+The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return by adding a second argument.
 
 ```php
 use eMapper\Result\ResultInterface;
@@ -321,10 +321,10 @@ $name = $mapper->type('string')
 ```
 
 <br/>
-**Obtain a custom column value as an integer**
+**Obtain an integer from a custom column**
 
 <br/>
-By default, scalars are obtained reading from the row's first column. We can change this behaviour by specifying the column name as a second parameter.
+The column can also be specified as an auxilary argument.
 
 ```php
 //get id from users with name = 'jdoe'
@@ -340,7 +340,7 @@ Dates
 **Obtain a column value as a DateTime instance**
 
 <br/>
-The *DateTime* type allow us to obtain instances of the *DateTime* class from a column. This example obtains the value from the column *sale_date* using *dt* as a type identifier, which is in fact a *DateTime* alias.
+The *DateTime* type allow us to obtain instances of the *DateTime* class. This example returns a date using *dt* as a type identifier, which is in fact a *DateTime* alias.
 
 ```php
 //get sale date
@@ -388,7 +388,7 @@ $ids = $mapper->type('integer[]')->query("SELECT user_id FROM users");
 **Obtain a list of strings from a column**
 
 <br/>
-A second argument can be used to define the column to retrieve.
+A second argument can be used to define the column to read.
 
 ```php
 //get names as a list
@@ -540,7 +540,8 @@ $mapper->query("INSERT INTO users (username, password, is_admin, image)
 When passing an array, all values are converted to the specified type and then joined together. This is useful when doing a search using the **IN** clause.
 ```php
 //execute query: SELECT * FROM products WHERE code IN ('MXP412', 'TRY235', 'OFR255')
-$products = $mapper->query("SELECT * FROM products WHERE code IN (%{s})", array('MXP412', 'TRY235', 'OFR255'));
+$values = ['MXP412', 'TRY235', 'OFR255'];
+$products = $mapper->query("SELECT * FROM products WHERE code IN (%{s})", $values);
 ```
 
 <br/>
@@ -562,7 +563,9 @@ $param_list = array('id' => 1, 'jdoe', 'david');
 
 $users = $mapper->type('obj[]')
 ->query("SELECT * FROM users
-         WHERE user_id = %{0[id]} OR username = %{0[1]:str} OR username = %{0[2]:str}", $param_list);
+         WHERE user_id = %{0[id]}
+         OR username = %{0[1]:str}
+         OR username = %{0[2]:str}", $param_list);
 ```
 
 <br/>
@@ -606,18 +609,18 @@ $user = new stdClass();
 $user->username = 'jdoe';
 $user->password = sha1('jhon123');
 $user->is_admin = false;
-$user->image = file_get_contents('photo.jpg');
+$user->img = file_get_contents('photo.jpg');
 
 //insert data
 $mapper->query("INSERT INTO users (username, password, is_admin, image)
-                VALUES (#{username}, #{password:s}, #{is_admin}, #{image:blob})", $user);
+                VALUES (#{username}, #{password:s}, #{is_admin}, #{img:blob})", $user);
 ```
 
 <br/>
 **Database prefix**
 
 <br/>
-We can store a database prefix with the **setPrefix** method. The expression **@@** can then be used to insert this prefix within a query.
+We can define a database prefix for the current connection with the **setPrefix** method. The expression **@@** can then be used to insert this prefix within a query.
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -636,7 +639,7 @@ Result maps
 ----------
 
 <br/>
-A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the type to use and the name of the column from which to take the value respectively. If no column name is specified then is assumed that is the same as the property. If the type is not defined then the one associated with the column is used.
+A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the associated type and the name of the column. If no column name is specified then is assumed that is the same as the property. If the type is not defined then the one associated with the column is used.
 
 ```php
 namespace Acme\Result;
@@ -896,7 +899,7 @@ $user = $mapper->type('obj')->execute('users.findByPK', 7);
 **Nested namespaces**
 
 <br/>
-A namespace can contain other namespaces in case the complexity of the project requires it. Besides the **addNamespace** method we also have **ns**. This method returns a reference to the generated namespace, which is useful for chaining method invocations to **stmt** and define a group of statements quickly.
+A namespace can contain other namespaces in case the complexity of the project requires it. ALong with the **addNamespace** method we also have **ns**. This method returns a reference to the generated namespace, which is useful for chaining method invocations to **stmt** and define a group of statements quickly.
 
 ```php
 use eMapper\SQL\Statement;
@@ -1009,7 +1012,7 @@ $image_id = $mapper->type('integer')
 ```
 
 <br/>
-Configuración
+Configuration
 --------------
 
 <br/>
@@ -1052,22 +1055,24 @@ Dynamic SQL is a special feature that allows us to add logic within a query so t
 
 ```php
 $user = $mapper->type('obj')
-->query("SELECT * FROM users WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 5);
+->query("SELECT * FROM users
+         WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 5);
 ```
 Dynamic expressions are enclosed within double brackets. The sample includes a small program that inserts a search condition depending on the type of the first argument.
 
 ```lisp
 (if (int? (%0)) "user_id = %{i}" "name = %{s}")
 ```
-The *if* function evaluates a condition and returns one of two arguments depending on whether this is true or false. The *int?* macro verifies if the given argument is an integer. In this case, the supplied argument is the one returned by the *%0* macro, which is in fact the first query argument. If the argument happens to be an integer the inserted string will be *'user_id = %{i}'*. Otherwise, the search condition will contain *'name = %{s}'*. Given 5 as argument, this query will return a *stdClass* intance containing all values from the user with ID 5. This example will evaluate *int?* to false, thus, doing a search by the user's name.
+The *if* function evaluates a condition and returns one of the two supplied arguments depending on whether is true or false. The *int?* macro verifies if the given argument is an integer. In this case, the supplied argument is the one returned by the *%0* macro, which is in fact the first query argument. If the argument happens to be an integer the inserted string will be *'user_id = %{i}'*. Otherwise, the search condition will contain *'name = %{s}'*. Given 5 as argument, this query will return a *stdClass* intance containing all values from the user with ID 5. This other example will evaluate *int?* to false, thus, doing a search by name.
 
 ```php
 $user = $mapper->type('obj')
-->query("SELECT * FROM usuarios WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 'jdoe');
+->query("SELECT * FROM usuarios
+         WHERE [[ (if (int? (%0)) 'user_id = %{i}' 'name = %{s}') ]]", 'jdoe');
 ```
 
 <br/>
-**Syntax differencs with eMacros**
+**Syntax differences with eMacros**
 
 <br/>
 The dialect used for dynamic expressions is slightly different from eMacros. These differences are minor but important.
@@ -1106,9 +1111,9 @@ $mapper->set('order.column', 'product_id');
 //(@order.type?) => false
 $products = $mapper->type('obj[]')
 ->query("SELECT * FROM products
-         ORDER BY [[ (@order.column) ]] [[ (if (@order.type?) (@@order.type) 'DESC') ]]");
+         ORDER BY [[ (@order.column) ]] [[ (if (@order.type?) (@order.type) 'DESC') ]]");
 ```
- - **Non included functions**: Most PHP functions are not declared in the default execution environment. Each time a non included function is called the environment checks for its existence. If it is found, the environment will try to invoke it with the supplied arguments. Some functions that are not included but can be called within an expresion are **count**, **str_replace**, **nl2br**, etc. Import functions (like *use*) and package functions are not included. Neither are output functions like **echo**, **var-dump** and **print-r**. Same with class/object functions.
+ - **Non included functions**: Most PHP functions are not declared in the default execution environment. Each time a non included function is called the environment checks for its existence in the PHP environment. If it is found, the environment will try to invoke it with the supplied arguments. Some functions that are not included but can be called within an expresion are **count**, **str_replace**, **nl2br**, etc. Import functions (like *use*) and package functions are not included. Neither are output functions like **echo**, **var-dump** and **print-r**. Same with class/object functions.
  - **Included packages**: The default execution environment includes the **DatePackage** and **RegexPackage** packages. Including more packages will require creating a custom environment.
 
 
@@ -1116,7 +1121,7 @@ $products = $mapper->type('obj[]')
 **Typified expressions**
 
 <br/>
-Sometimes it is useful that the value returned by a dynamic expression to be converted to a particular type. This is possible using typified expressions. These expressions are embedded inside double braces. The following example shows a typified expression which builds a search criteria.
+Typified expressions are dynamic expression that are evaluated and then converted to a specified type. These expressions are surrounded inside double braces. The following example shows a typified expression which builds a search criteria.
 
 ```php
 $user = $mapper->type('obj')
@@ -1125,14 +1130,14 @@ $user = $mapper->type('obj')
 The type must be specified at the beginning, just after the opening braces. If no type is declared, the value is converted to string.
 
 ```php
-$products = $mapper->query("SELECT * FROM productos WHERE price > {{:int (/ (%0) 2) }}", 45);
+$products = $mapper->query("SELECT * FROM products WHERE price > {{:int (/ (%0) 2) }}", 45);
 ```
 
 <br/>
 **Execution environments**
 
 <br/>
-An execution environment is a class that defines which functions can be invoked within a dynamic expression. These environments can be identified with a string ID (default environment has the ID *default*). You can define the environment of a mapper instance through the method *setEnvironment*. This examples generates 2 mapper instances, each one with a separate environment.
+An execution environment is a class that defines which functions can be invoked within a dynamic expression. These environments can be identified with a string ID (default environment has the ID *default*). You can define the environment of a mapper instance through the **setEnvironment** method. This examples generates 2 mapper instances, each one with a separate environment.
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -1193,76 +1198,58 @@ Cache
 **Using cache providers**
 
 <br/>
-Cache providers provide a generic way to store and retrieve values using libraries like **APC**, **Memcache** and **Memcached**. The first step consist in defining the cache provider to use through the *setProvider* method. Then, we append an invocation to the ***cache*** method before running a query/statement/procedure. This method expects the *cache identification key* and its *expiration time* (TTL: time to live).
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+Cache providers provide a generic way to store and retrieve values using libraries like **APC**, **Memcache** and **Memcached**. Using a *cache provider* requires calling the **setCacheProvider** method with a provider instance as argument. The following example initializes a *MySQLMapper* object and then sets a *APCProvider* instance as cache provider.
 
-use eMapper\MySQL\MySQLMapper;
+```php
+use eMapper\Engine\MySQL\MySQLMapper;
 use eMapper\Cache\APCProvider;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //set provider
-$mapper->setProvider(new APCProvider());
-
-//store user list in apc cache for 5 minutes
-$users = $mapper->cache('USERS_ALL', 300)->query("SELECT * FROM users");
-
-$mapper->close();
-?>
+$mapper->setCacheProvider(new APCProvider());
 ```
-When using the cache extension the behaviour of the mapper object is modified in the following way:
+
+Inserting a retrieving values ​​to and from cache is done by chaining a call to the **cache** method. This method expects a string identifier as first argument. We can also define its TTL (time to live) as a second argument.
+
+```php
+//store user list as 'USERS_ALL' for 5 minutes
+$users = $mapper->cache('USERS_ALL', 300)
+->query("SELECT * FROM users");
+```
+
+When using a cache provider the behaviour of the mapper object is modified in the following way:
 
  - If a value with the given key is found in cache then that value is returned.
- - If no value is found, ***query*** is executed as usual. If the query returns 1 or more rows then the result is mapped and then stored in cache. That value is then returned.
+ - If no value is found, ***query*** is executed as usual. If the query returns 1 or more rows then the result is mapped and stored in cache. That value is then returned.
 
 <br/>
 This example uses Memcache instead of APC and also illustrates how to create a **dynamic cache key**. The parameters used to run the query are also used to build the cache key. As a result, the returned value will be stored using the key *USER_6*.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLMapper;
 use eMapper\Cache\MemcacheProvider;
 
 $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 
 //set provider
-$mapper->setProvider(new MemcacheProvider('65.132.12.4', 13412));
+$mapper->setCacheProvider(new MemcacheProvider('65.132.12.4', 13412));
 
 //get user and store in cache
-$user = $mapper
+$user = $mapper->type('array')
 ->cache('USER_%{i}', 120)
-->map('array')
-->query("SELECT * FROM users where user_id = %{i}", 6);
-
-$mapper->close();
-?>
+->query("SELECT * FROM users WHERE user_id = %{i}", 6);
 ```
 
 <br/>
-Custom type handlers
+Cumtom type handlers
 --------------------
 
 <br/>
-Custom type handlers provide the logic to store and retrieve user defined types to/from a column. These classes must extend the *eMapper\Type\Typehandler* class and implement these functionalities:
-
- - Read a value from a column and obtain a valid class instance.
- - Generate a valid expression from an instance to put inside a query.
-
-<br/>
-The next examples will illustrate the implementation of a custom type class named *Acme\RGBColor*. Instances of this class will be stored in a column defined as CHAR(6). The column will hold the hexadecimal representation of a color, that is, the proper string which describes its red, green and blue components.
-
-<br/>
-**Custom type: the RGBColor class**
+*eMapper* allows to associate the value of a given column to a type handler created by the user. To add a user-defined type is necessary to implement a type handler that extends the *eMapper\Type\TypeHandler* class. Our handler must then implement the **setParameter** and **getValue** methods, which insert a value ​​into a query and read from a column respectively. Next examples will introduce an user-defined type handler designed to store and retrieve instances of the *Acme\RGBColor* class. This class represents an RGB color, holding the red, green and blue components.
 
 ```php
-<?php
-namespace Acme;
+namespace Acme\Type;
 
 class RGBColor {
 	public $red;
@@ -1278,21 +1265,22 @@ class RGBColor {
 ```
 
 <br/>
-**Type handler: the RGBColorTypeHandler class**
+**The RGBColorTypeHandler class**
+
+<br/>
+Our type handler is responsible for converting an instance of *RGBColor* to its corresponding hexadecimal representation. Then, take that representation from the database and generate an instance of *RGBColor* again.
 
 ```php
-<?php
-namespace Acme;
+namespace Acme\Type;
 
 use eMapper\Type\TypeHandler;
-use Acme\RGBColor;
 
 class RGBColorTypeHandler extends TypeHandler {
 	/**
-	 * Translates a RGBColor instance to a valid string expression
+	 * Converts a RGBColor instance to its hexadecimal representation
 	 */
 	public function setParameter($parameter) {
-	    //get red component
+	    //red
 	    if ($parameter->red < 16) {
 	        $hexred = '0' . dechex($parameter->red);
 	    }
@@ -1300,7 +1288,7 @@ class RGBColorTypeHandler extends TypeHandler {
     	    $hexred = dechex($parameter->red % 256);
 	    }
 	    
-        //get green component
+        //green
 	    if ($parameter->green < 16) {
 	        $hexgreen = '0' . dechex($parameter->green);
 	    }
@@ -1308,7 +1296,7 @@ class RGBColorTypeHandler extends TypeHandler {
     	    $hexgreen = dechex($parameter->green % 256);
 	    }
 	    
-        //get blue component
+        //blue
 	    if ($parameter->blue < 16) {
 	        $hexblue = '0' . dechex($parameter->blue);
 	    }
@@ -1320,96 +1308,318 @@ class RGBColorTypeHandler extends TypeHandler {
 	}
 
 	/**
-	 * Generates a new RGBColor instance from a string
+	 * Generates a new RGBColor instance from an hexadecimal representation
 	 */
 	public function getValue($value) {
 		return new RGBColor(hexdec(substr($value, 0, 2)),
 		                    hexdec(substr($value, 2, 2)),
 		                    hexdec(substr($value, 4, 2)));
 	}
+}
+```
 
-	/**
-	 * Tries to convert a value to a RGBColor instance
-	 */
-	public function castParameter($parameter) {
-		if (!($parameter instanceof RGBColor)) {
-			return null;
+<br/>
+**Adding a custom type**
+
+<br/>
+User-defined types are added through the **addType** method. This method expects the type class name and a type handler instance. A third parameter could be used to define a *type alias*.
+
+```php
+use Acme\RGBColorTypeHandler;
+
+$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
+```
+<br/>
+The *color* alias can be used in replacement of *Acme\RGBColor*.
+
+```php
+use Acme\Type\RGBColor;
+
+$color = new \stdClass;
+$color->name = 'red';
+$color->rgb = new RGBColor(255, 0, 0);
+
+$mapper->query("INSERT INTO palette (name, rgb) VALUES (#{name}, #{rgb:color})", $color);
+```
+
+<br/>
+Both *Acme\RGBColor* and *color* can also be used as mapping expressions when chaining a call to **type**.
+
+```php
+$red = $mapper->type('color')->query("SELECT rgb FROM palette WHERE name = 'red'");
+```
+
+<br/>
+**Setting parameters in a query**
+
+<br/>
+By default, if the **setParameter** method returns a string, then that value will be escaped and inserted between quotes. Sometimes this value should not go through this process but inserted directly. This is the case of the *BlobTypeHandler* class, which returns two possible values ('TRUE' or 'FALSE') depending on the parameter. The annotation **@unquoted** was added fo these type of scenarios. This annotation, when added to a type handler class, indicates that the value returned by **setParameter** is not going to be inserted between quotes.
+
+```php
+namespace eMapper\Type\Handler;
+
+use eMapper\Type\TypeHandler;
+
+/**
+ * @unquoted
+ */
+class BooleanTypeHandler extends TypeHandler {
+	protected function isTrue($value) {
+		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
+			return false;
 		}
-
-		return $parameter;
+	
+		return (bool) $value;
+	}
+	
+	public function getValue($value) {
+		return $this->isTrue($value);
+	}
+	
+	public function castParameter($parameter) {
+		return $this->isTrue($parameter);
+	}
+	
+	public function setParameter($parameter) {
+		return ($parameter) ? 'TRUE' : 'FALSE';
 	}
 }
 ```
-<br/>
-Some things to notice about type handlers:
-
-- The method *setParameter* receives a RGBColor instance and builds a string expression that is then inserted on a query string.
-- The method *getValue* obtains a column content and is responsible of generating a new RGBColor instance from it.
-- Additionally, we can convert an incoming query parameter to a RGBColor instance. The method *castParameter* is called whenever a query parameter uses *Acme\RGBColor* as a type specifier. The actual implementation chooses to avoid any parameter that is not a valid RGBColor instance and returning null as a replacement.
+The **castParameter** method is an internal method that is invoked in order to check a parameter type prior to being inserted. This method can be used to notify that a particular value is invalid or generate a valid expression from it.
 
 <br/>
-**Declaring a custom type**
+Dynamic attributes
+----------
+
 
 <br/>
-Customs types are declared through the *addType* method. This methods expects the custom type full name, its type handler and an optional alias.
+A dynamic attribute is a property declared within an entity or result map which is associated with the value returned by a query. These attributes must be defined using a special type of annotations and can define their mapping expressions using **@type**.
+
+<br/>
+**Adding a dynamic attribute**
+
+<br/>
+To associate a property with the execution of a query we use the **@query** annotation.
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class User {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $name;
+    
+    /**
+     * @query "SELECT * FROM profiles WHERE user_id = #{id} ORDER BY type"
+     * @type obj[]
+     */
+    public $profiles;
+}
+```
+The specified query receives the current instance of *User* and obtains the associated profiles by its *id*. The result of this query is then mapped to an array of objects.
+
+<br/>
+**Parameters**
+
+<br/>
+We can specify a variable number of arguments for a given query through the **@arg** annotation. Suppose that we want to filter all associated profiles by type. In order to do this we append an auxilary argument for this query holding the value 1. Since we still need the *User* instance, we must add a special annotation to treat the current user as an argument too.
 
 ```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
+namespace Acme\Entity;
 
-use eMapper\MySQL\MySQLMapper;
-use Acme\RGBColorTypeHandler;
+/**
+ * @entity
+ */
+class User {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $name;
+    
+    /**
+     * @query "SELECT * FROM profiles WHERE user_id = #{id} AND type = %{i}"
+     * @arg-self
+     * @arg 1
+     * @type obj[]
+     */
+    public $profiles;
+}
+```
+**@arg-self** specifies that the current *User* instance must be used as an argument. It is not necessary to add this annotation if no auxiliary arguments are used.
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
-?>
+<br/>
+**Properties as arguments**
+
+<br/>
+It is more likely that the query returning all user profiles was previously declared as a statement.
+
+```php
+use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\Statement;
+
+$profilesNamespace = new StatementNamespace('profiles');
+$profilesNamespace->stmt('findByUserIdAndType',
+                         "SELECT * FROM profiles WHERE user_id = #{i} AND type = %{i}",
+                         Statement::type('obj[profile_id]'));
+                         
+$mapper->addNamespace($profilesNamespace);
+```
+To execute an statement we use the **@stmt** annotation. This particular statement we need to call does not expect a *User* instance as argument but an integer. In order to pass an object property as an argument we must use a special expression.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class User {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $name;
+    
+    /**
+     * @stmt 'profiles.findByUserIdAndType'
+     * @arg #id
+     * @arg 1
+     */
+    public $perfiles;
+}
+```
+Using a property as an argument requires adding an **@arg** annotation starting with a **#** symbol followed by the property name.
+
+<br/>
+**Stored procedures**
+
+<br/>
+Calling a stored procedure is performed through the **@procedure** annotation. Unlike **@query** and **@stmt**, stored procedures don't use the current instance as an argument.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @entity
+ */
+class User {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $name;
+    
+    /**
+     * @procedure Profiles_FindByUserIdType
+     * @arg #id:int
+     * @arg 1
+     * @type obj[]
+     * @result-map Acme\Result\ProfileResultMap
+     */
+    public $profiles;
+}
+```
+This example introduces the **@result-map** annotation, which indicates the result map class to use for mapping. A type identifier has also been added to the first argument to indicate its type. These expressions can be used to indicate the procedure argument types, just like when calling **sptypes**.
+
+<br/>
+**Macros**
+
+<br/>
+The **@eval** annotation allows to associate a property to the value returned by a user macro. This annotation uses the same syntax defined for dynamic SQL expressions. User macros don't support auxiliary arguments and are always invoked with the current instance as the only argument. This example adds a dynamic attribute called *age* which calculates the user's age with a user macro.
+```php
+/**
+ * @entity
+ */
+class User {
+    /**
+     * @column user_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $name;
+    
+    /**
+     * @column birth_date
+     * @type dt
+     */
+    public $birthDate;
+    
+    /**
+     * User's age
+     * @eval (as-int (->format (->diff (#birthDate) (now)) "%y"))
+     */
+    public $age;
+}
 ```
 
 <br/>
-By creating an alias we can now use 'color' as a type specifier. This is in fact not necessary as we already define a type handler for the class itself.
+**Conditions**
 
+<br/>
+It is also possible to associate a condition to an attribute using the **@cond** annotation. These attributes will be evaluated only if the given condition is true. Conditions must be entered as user macros. This example entity adds a property that checks if an obtained product belongs to the *software* category before executing a statement.
 ```php
-<?php
-$red = new \stdClass;
-$red->name = 'red';
-$red->rgb = new RGBColor(255, 0, 0);
+namespace Acme\Entity;
 
-$mapper->query("INSERT INTO palette (name, rgb) VALUES (#{name}, #{rgb:color})", $red);
-?>
+/**
+ * @entity
+ */
+class Product {
+    /**
+     * @column product_id
+     */
+    public $id;
+    
+    /**
+     * @type string
+     */
+     public $category;
+    
+    /**
+     * @cond (== (#category) "software")
+     * @stmt 'products.findSupportedOS'
+     * @arg #id
+     * @type obj[]
+     */
+    public $supportedOS;
+}
 ```
 
 <br/>
-The real advantage comes when used as a mapping expression.
-
-```php
-<?php
-//composer autoloader
-require __DIR__ . "/vendor/autoload.php";
-
-use eMapper\MySQL\MySQLMapper;
-use Acme\RGBColorTypeHandler;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
-$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
-
-$red = $mapper->map('color')->query("SELECT rgb FROM palette WHERE name = 'red'");
-?>
-```
-
-<br/>
-Excepciones
+Exceptions
 ----------
 
 <br/>
 Altrough *eMapper* uses the exceptions already included in SPL, there are some special scenarios where those included in the library are used. These special scenarios are the following:
 
  - Query syntax error
- - Connection to database server failed
- - Errors found when processing the returned result
+ - Failed database connection
+ - Errors when processing a mapping expression or result
 
 <br/>
-The associated exception with each one of these scenarios depends on the database server currently used, althrough all of them extend *eMapper\Exception\MapperException*.
+The associated exception depends on the database server currently used, althrough all of them extend from *eMapper\Exception\MapperException*.
 
 <br/>
 **MySQL**
@@ -1518,7 +1728,7 @@ Appendix I - Additional features
 **Raw results**
 
 <br/>
-Through the **sql** method we can query the database to obtain the result without further processing. Result type will depend  on the mapper class that we are using.
+Through the **sql** method we can query the database to obtain a result without further processing. Result type will depend  on the mapper class that we are using.
 
 ```php
 //call sql method
@@ -1559,7 +1769,7 @@ $users = $mapper
 <br/>
 **Empty results**
 
-Through the **no_rows** method we can associate the execution of an auxiliary function whenever a query does not return any rows. This function takes as argument the obtained result.
+Through the **no_rows** method we can associate the execution of an auxiliary function whenever a query does not return any rows. The specified callback takes the obtained result as argument .
 
 ```php
 use eMapper\Engine\MySQL\MySQLMapper;
@@ -1578,7 +1788,7 @@ $users = $mapper->type('obj[]')
 **The 'each' method**
 
 <br/>
-The **each** method allows us to apply a user-defined function to each of the rows returned by a query. This function will receive two arguments: the row corresponding to the current value and the current mapper instance. The example below calculates the age of each user returned by a query and stores it within the *age* property.
+The **each** method allows us to apply a user-defined function to each of the rows returned by a query. This function will receive two arguments: the current row and the mapper instance. The example below calculates the age of each user returned by a query.
 
 ```php
 //get users
@@ -1600,12 +1810,12 @@ $users = $mapper->filter(function ($user) {
     return isset($user->photo);
 })->execute('users.findAll');
 ```
-Whenever is applied to a single element (which do not come within a list) and the condition evaluates to false then the retured value is NULL.
+If a filter is applied to a single element (which do not come within a list) and the specified condition evaluates to false then NULL is returned.
 
 <br/>
 **Unescaped strings**
 
-The *ustring* type lets you insert an unescaped string within a query. This feature requires special attention because it is possible to suffer from *SQL injection attacks* if not used properly.
+The *ustring* type lets you insert an unescaped string within a query. This feature requires special attention because it is possible to suffer from *SQL injection attacks* when not used properly.
 
 ```php
 //composer autoloader
