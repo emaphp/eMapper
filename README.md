@@ -257,7 +257,7 @@ $mapper->close();
 **Obtain a row as an associative array**
 
 <br/>
-The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a desired type requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return by adding a second argument.
+The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a mapping expression requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return by adding a second argument.
 
 ```php
 use eMapper\Result\ResultInterface;
@@ -286,7 +286,7 @@ $user = $mapper->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 **Obtain a row as a custom class object**
 
 <br/>
-It is possible to define the object class within the mapping expression. In order to show this feature, we have designed a *User* class within the *Acme* namespace.
+It is possible to define the object class within the mapping expression. In order to show this feature, we have designed a *User* class in the *Acme* namespace.
 ```php
 namespace Acme;
 
@@ -340,7 +340,7 @@ Dates
 **Obtain a column value as a DateTime instance**
 
 <br/>
-The *DateTime* type allow us to obtain instances of the *DateTime* class. This example returns a date using *dt* as a type identifier, which is in fact a *DateTime* alias.
+The *DateTime* type can be used to obtain a *DateTime* instance from a row. This example returns a date using *dt* as a type identifier, which is in fact a *DateTime* alias.
 
 ```php
 //get sale date
@@ -467,7 +467,7 @@ Grouping
 **Grouping by a given column**
 
 <br/>
-Grouping allows you to organize a list of results with a common characteristic among several arrays. The required syntax is pretty similar to the one used for indexation. This example shows how to obtain a list of objects grouped by *category*.
+Grouping allows you to organize a list of rows with a common characteristic among several arrays. The required syntax is pretty similar to the one used for indexation. This example shows how to obtain a list of objects grouped by *category*.
 
 ```php
 //get a list of products grouped by category
@@ -601,7 +601,7 @@ $user = $mapper->type('obj')
 **Using objects and arrays as parameter**
 
 <br/>
-Queries also supports a syntax which obtains values from object properties (and array keys). We can refer to an object property with the **#** symbol and the object property between braces. Just like previous mapping expressions, it is also possible to specify the property type, subindex and range.
+Queries also supports a syntax which obtains values from object properties (and array keys). We can refer to an object property by putting the property name between braces right after a **#** symbol. Just like previous mapping expressions, it is also possible to specify the property type, subindex and range.
 
 ```php
 //user values
@@ -639,7 +639,7 @@ Result maps
 ----------
 
 <br/>
-A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the associated type and the name of the column. If no column name is specified then is assumed that is the same as the property. If the type is not defined then the one associated with the column is used.
+A result map is a class that defines which properties will be mapped to an object / array. Using a result map is ideal for cases where for some reason the values ​​in a column must be stored using another name or with a particular type. In order to define a property type and the name of the referenced column we use *annotations*. The following code shows the implementation of a result map that defines 4 properties. The **@column** and **@type** annotations are used to define the associated type and the column name respectively. If no column name is specified then the mapper assumes that is the same as the property. If the type is not defined then the one associated with the column is used.
 
 ```php
 namespace Acme\Result;
@@ -899,7 +899,7 @@ $user = $mapper->type('obj')->execute('users.findByPK', 7);
 **Nested namespaces**
 
 <br/>
-A namespace can contain other namespaces in case the complexity of the project requires it. ALong with the **addNamespace** method we also have **ns**. This method returns a reference to the generated namespace, which is useful for chaining method invocations to **stmt** and define a group of statements quickly.
+A namespace can contain other namespaces in case the complexity of the project requires it. Along with the **addNamespace** method we also have **ns**. This method returns a reference to the generated namespace, which is useful for chaining method invocations to **stmt** and define a group of statements quickly.
 
 ```php
 use eMapper\SQL\Statement;
@@ -925,7 +925,7 @@ $usersNamespace->ns('admin')
 $mapper->addNamespace($usersNamespace);
 
 //...
-$perfil = $mapper->execute('users.profiles.findByUserId', 4);
+$profile = $mapper->execute('users.profiles.findByUserId', 4);
 //...
 $mapper->execute('users.admin.ban', 7);
 ```
@@ -934,7 +934,7 @@ $mapper->execute('users.admin.ban', 7);
 **Custom namespaces**
 
 <br/>
-We can create customized namespaces by extending the *eMapper\SQL\StatementNamespace* class. Customized namespaces need to declare their id by calling the parent class constructor.
+We can create customized namespaces by extending the *eMapper\SQL\StatementNamespace* class. Customized namespaces need to declare their id by calling their parent class constructor.
 
 ```php
 namespace Acme\SQL;
@@ -1077,30 +1077,6 @@ $user = $mapper->type('obj')
 <br/>
 The dialect used for dynamic expressions is slightly different from eMacros. These differences are minor but important.
 
- - **Key and property macros**: These functions are not led by the character **@** but **#**. The property assignment operator is not included.
-
-```php
-//order as an aobject
-$order = new \stdClass();
-$order->column = 'user_id';
-
-//SQL: SELECT * FROM users ORDER BY user_id ASC
-//(#column) => 'user_id'
-//(#type?) => false
-$users = $mapper
-->query("SELECT * FROM users 
-         ORDER BY [[ (#column) ]] [[ (if (#type?) (#type) 'ASC') ]]", $order);
-
-//order as an array
-$order = ['column' => 'name', 'type' => 'DESC'];
-
-//SQL: SELECT * FROM users ORDER BY name DESC
-//(#column) => 'name'
-//(#type?) => true
-$users = $mapper
-->query("SELECT * FROM users
-         ORDER BY [[ (#column) ]] [[ (if (#type?) (#type) 'ASC') ]]", $order);
-```
  - **Configuration values**: Functions headed by the character **@** can obtain configuration values ​​and determine their existence.
 
 ```php
@@ -1149,14 +1125,14 @@ $mysql->setEnvironment('mysql_env');
 //...
 
 $sqlite = new SQLiteMapper('database.db');
-$sqlite->setEnvironment('sqlite_env);
+$sqlite->setEnvironment('sqlite_env');
 ```
 
 <br/>
 **Custom environments**
 
 <br/>
-The *setEnvironment* method accepts a second argument with the class of the runtime environment to use (*eMapper\Dynamic\Enviroment\DynamicSQLEnvironment* by default). To build a custom execution environment we can extend this class or *eMapper\Environment\Environment*. The following example shows a custom environment that includes the **StringPackage** and **ArrayPackage** packages.
+The **setEnvironment** method accepts a second argument with the execution environment class to use (*eMapper\Dynamic\Enviroment\DynamicSQLEnvironment* by default). To build a custom execution environment we can extend this class or *eMapper\Environment\Environment*. The following example shows a custom environment that includes the **StringPackage** and **ArrayPackage** packages.
 
 ```php
 namespace Acme\SQL\Environment;
@@ -1246,7 +1222,7 @@ Cumtom type handlers
 --------------------
 
 <br/>
-*eMapper* allows to associate the value of a given column to a type handler created by the user. To add a user-defined type is necessary to implement a type handler that extends the *eMapper\Type\TypeHandler* class. Our handler must then implement the **setParameter** and **getValue** methods, which insert a value ​​into a query and read from a column respectively. Next examples will introduce an user-defined type handler designed to store and retrieve instances of the *Acme\RGBColor* class. This class represents an RGB color, holding the red, green and blue components.
+*eMapper* allows to associate the value of a given column to a type handler created by the user. To add a user-defined type is necessary to implement a type handler that extends the *eMapper\Type\TypeHandler* class. Our handler must then implement the **setParameter** and **getValue** methods, which insert a value ​​into a query and read from a column respectively. Next examples will introduce an user-defined type handler designed to store and retrieve instances of the *Acme\RGBColor* class. This class represents a RGB color, holding the red, green and blue components.
 
 ```php
 namespace Acme\Type;
@@ -1268,7 +1244,7 @@ class RGBColor {
 **The RGBColorTypeHandler class**
 
 <br/>
-Our type handler is responsible for converting an instance of *RGBColor* to its corresponding hexadecimal representation. Then, take that representation from the database and generate an instance of *RGBColor* again.
+Our type handler is responsible for converting an instance of *RGBColor* to its corresponding hexadecimal representation. Then, take that representation from the database and generate a *RGBColor* instance again.
 
 ```php
 namespace Acme\Type;
@@ -1322,7 +1298,7 @@ class RGBColorTypeHandler extends TypeHandler {
 **Adding a custom type**
 
 <br/>
-User-defined types are added through the **addType** method. This method expects the type class name and a type handler instance. A third parameter could be used to define a *type alias*.
+User-defined types are added through the **addType** method. This method expects the type class name and a type handler instance. A third parameter can also be added to define a *type alias*.
 
 ```php
 use Acme\RGBColorTypeHandler;
@@ -1330,7 +1306,7 @@ use Acme\RGBColorTypeHandler;
 $mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 ```
 <br/>
-The *color* alias can be used in replacement of *Acme\RGBColor*.
+*color* can be used as a type identifier in replacement of *Acme\RGBColor*.
 
 ```php
 use Acme\Type\RGBColor;
@@ -1353,7 +1329,7 @@ $red = $mapper->type('color')->query("SELECT rgb FROM palette WHERE name = 'red'
 **Setting parameters in a query**
 
 <br/>
-By default, if the **setParameter** method returns a string, then that value will be escaped and inserted between quotes. Sometimes this value should not go through this process but inserted directly. This is the case of the *BlobTypeHandler* class, which returns two possible values ('TRUE' or 'FALSE') depending on the parameter. The annotation **@unquoted** was added fo these type of scenarios. This annotation, when added to a type handler class, indicates that the value returned by **setParameter** is not going to be inserted between quotes.
+By default, if the **setParameter** method returns a string, then that value will be escaped and inserted between quotes. Sometimes this value should not go through this process but inserted directly. This is the case of the *BlobTypeHandler* class, which returns two possible values ('TRUE' or 'FALSE') depending on the parameter. For these type of scenarios, the annotation **@unquoted** was introduced. This annotation, when added to a type handler class, indicates that the value returned by **setParameter** will not be inserted between quotes.
 
 ```php
 namespace eMapper\Type\Handler;
@@ -1569,7 +1545,7 @@ class User {
     
     /**
      * User's age
-     * @eval (as-int (->format (->diff (#birthDate) (now)) "%y"))
+     * @eval (as-int (diff-format (#birthDate) (now) "%y"))
      */
     public $age;
 }
@@ -1838,7 +1814,7 @@ Appendix II - Configuration options
 ----------------------------------
 
 <br/>
-Configuration options are values that manage a mapper object behavior during a query/statement/procedure execution. They can be configured through class methods like *type*, *cache*, etc. or can be manipulated directly with ***set***. This is the list of all predefined keys available with their respective descriptions.
+Configuration options are values that manage a mapper object behavior during a query/statement/procedure execution. They can be configured through class methods like **type**, **cache**, etc. or can be manipulated directly with **set**. This is the list of all predefined keys available with their respective descriptions.
 
 <br/>
 **MySQL**

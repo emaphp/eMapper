@@ -12,7 +12,7 @@ eMapper
 Ultimas modificaciones
 ------------------
 <br/>
-2014-??-?? - Versión 3.0.0
+2014-03-01 - Versión 3.0.0
 
   * Obsoleto: Models.
   * Agregado: Result maps.
@@ -1079,30 +1079,6 @@ $usuario = $mapper->type('obj')
 <br/>
 El dialecto utilizado para expresiones dinámicas es ligeramente distinto al definido por eMacros. Las diferencias son menores aunque importantes.
 
- - **Funciones de clave/propiedad**: Estas funciones no son encabezadas por el caracter **@** sino por **#**. El operador de asignación de propiedad no se incluye.
-
-```php
-//orden como objeto
-$orden = new \stdClass();
-$orden->columna = 'id_usuario';
-
-//SQL: SELECT * FROM usuarios ORDER BY id_usuario ASC
-//(#columna) => 'id_usuario'
-//(#tipo?) => false
-$usuarios = $mapper
-->query("SELECT * FROM usuarios 
-         ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
-
-//orden como arreglo
-$orden = ['columna' => 'nombre', 'tipo' => 'DESC'];
-
-//SQL: SELECT * FROM usuarios ORDER BY nombre DESC
-//(#columna) => 'nombre'
-//(#tipo?) => true
-$usuarios = $mapper
-->query("SELECT * FROM usuarios
-         ORDER BY [[ (#columna) ]] [[ (if (#tipo?) (#tipo) 'ASC') ]]", $orden);
-```
  - **Valores de configuración**: Las funciones encabezadas por el caracter **@** permiten acceder a valores de configuración previamente definidos para determinar su existencia y valor.
 
 ```php
@@ -1576,7 +1552,7 @@ class Usuario {
     
     /**
      * Edad de usuario
-     * @eval (as-int (->format (->diff (#fechaNacimiento) (now)) "%y"))
+     * @eval (as-int (diff-format (#fechaNacimiento) (now) "%y"))
      */
     public $edad;
 }
@@ -1586,36 +1562,32 @@ class Usuario {
 **Condiciones**
 
 <br/>
-También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. En este ejemplo verificamos el campo *karma* de un usuario para determinar si debemos traer su historial de conducta.
+También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. Esta entidad de ejemplo agrega una propiedad que determina si la categoria de un producto es igual a "software" previo a la ejecución de una statement.
+
 ```php
 namespace Acme\Entity;
 
 /**
  * @entity
  */
-class Usuario {
+class Producto {
     /**
-     * @column id_usuario
+     * @column id_producto
      */
     public $id;
     
     /**
      * @type string
      */
-     public $nombre;
+     public $categoria;
     
     /**
-     * @type int
-     */
-    public $karma;
-    
-    /**
-     * @cond (< (#karma) 30)
-     * @stmt 'users.getBanHistory'
+     * @cond (== (#categoria) "software")
+     * @stmt 'products.findSupportedOS'
      * @arg #id
      * @type obj[]
      */
-    public $banHistory;
+    public $sistemasSoportados;
 }
 ```
 

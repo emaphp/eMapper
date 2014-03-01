@@ -1,4 +1,4 @@
-2014-??-?? - Version 3.0.0
+2014-03-01 - Version 3.0.0
 
   Added: Support for SQLite and PostgreSQL
   Deprecated: Models are now replaced for ResultMaps and Entities

@@ -15,8 +15,8 @@
 		"BSD-2-Clause"
 	],
 	"require" : {
-		"minime/annotations" : "~1.1",
-		"emacros/emacros" : "dev-master"
+		"minime/annotations" : "1.12.16",
+		"emacros/emacros" : "1.0.0"
 	},
 	"autoload" : {
 		"psr-0" : {
