@@ -1,5 +1,5 @@
 {
-	"name" : "emapper/emapper3",
+	"name" : "emapper/emapper",
 	"description" : "The Extensible Mapper Library for PHP",
 	"type" : "library",
 	"authors" : [{
@@ -23,5 +23,5 @@
 			"eMapper" : "lib"
 		}
 	},
-	"minimum-stability" : "dev"
+	"minimum-stability" : "beta"
 }
