@@ -24,19 +24,24 @@ class PostgreSQLMapper extends GenericMapper {
 	
 	/**
 	 * Initializes a PostgreSQLMapper instance
-	 * @param string $connection_string
+	 * @param mixed $database
 	 * @param int $connect_type
 	 * @throws PostgreSQLMapperException
 	 */
-	public function __construct($connection_string, $connect_type = null) {
-		if (!is_string($connection_string) || empty($connection_string)) {
-			throw new PostgreSQLMapperException("Connection string is not a valid string");
+	public function __construct($database, $connect_type = null) {
+		if (is_resource($database)) {
+			$this->connection = $database;
 		}
-		
-		$this->config['db.connection_string'] = $connection_string;
-		
-		if (!empty($connect_type)) {
-			$this->config['db.connect_type'] = $connect_type;
+		else {
+			if (empty($database)) {
+				throw new PostgreSQLMapperException("Connection string is not a valid string");
+			}
+			
+			$this->config['db.connection_string'] = $database;
+			
+			if (!empty($connect_type)) {
+				$this->config['db.connect_type'] = $connect_type;
+			}
 		}
 		
 		//type manager

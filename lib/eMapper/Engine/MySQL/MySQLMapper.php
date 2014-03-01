@@ -21,7 +21,7 @@ class MySQLMapper extends GenericMapper {
 	
 	/**
 	 * Initializes a MySQLMapper instance
-	 * @param string $database
+	 * @param mixed $database
 	 * @param string $host
 	 * @param string $user
 	 * @param string $password
@@ -32,64 +32,69 @@ class MySQLMapper extends GenericMapper {
 	 * @throws MySQLMapperException
 	 */
 	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = 'UTF-8', $autocommit = true) {
-		if (!is_string($database) || empty($database)) {
-			throw new MySQLMapperException("Invalid database specified");
+		if ($database instanceof \mysqli) {
+			$this->connection = $database;
 		}
-	
-		//initialize configuration
-		$this->config['db.name'] = $database;
-	
-		if (isset($host)) {
-			if (!is_string($host) || empty($host)) {
-				throw new MySQLMapperException("Invalid host specified");
-			}
-	
-			$this->config['db.host'] = $host;
-		}
-	
-		if (isset($user)) {
-			if (!is_string($user) || empty($user)) {
-				throw new MySQLMapperException("Invalid user specified");
-			}
-	
-			$this->config['db.user'] = $user;
-		}
-	
-		if (isset($password)) {
-			if (!is_string($password) || empty($password)) {
-				throw new MySQLMapperException("Invalid password specified");
-			}
-	
-			$this->config['db.password'] = $password;
-		}
-	
-		if (isset($port)) {
-			if (!is_string($port) || !is_integer($port) || empty($port)) {
-				throw new MySQLMapperException("Invalid port specified");
-			}
-	
-			$this->config['db.port'] = strval($port);
-		}
-	
-		if (isset($socket)) {
-			if (!is_string($socket) || empty($socket)) {
-				throw new MySQLMapperException("Invalid socket specified");
-			}
-	
-			$this->config['db.socket'] = $socket;
-		}
-		
-		if (isset($charset)) {
-			if (!is_string($charset) || empty($charset)) {
-				throw new MySQLMapperException("Invalid charset specified");
+		else {
+			if (empty($database)) {
+				throw new MySQLMapperException("Invalid database specified");
 			}
 			
-			$this->config['db.charset'] = $charset;
+			//initialize configuration
+			$this->config['db.name'] = $database;
+			
+			if (isset($host)) {
+				if (!is_string($host) || empty($host)) {
+					throw new MySQLMapperException("Invalid host specified");
+				}
+			
+				$this->config['db.host'] = $host;
+			}
+			
+			if (isset($user)) {
+				if (!is_string($user) || empty($user)) {
+					throw new MySQLMapperException("Invalid user specified");
+				}
+			
+				$this->config['db.user'] = $user;
+			}
+			
+			if (isset($password)) {
+				if (!is_string($password) || empty($password)) {
+					throw new MySQLMapperException("Invalid password specified");
+				}
+			
+				$this->config['db.password'] = $password;
+			}
+			
+			if (isset($port)) {
+				if (!is_string($port) || !is_integer($port) || empty($port)) {
+					throw new MySQLMapperException("Invalid port specified");
+				}
+			
+				$this->config['db.port'] = strval($port);
+			}
+			
+			if (isset($socket)) {
+				if (!is_string($socket) || empty($socket)) {
+					throw new MySQLMapperException("Invalid socket specified");
+				}
+			
+				$this->config['db.socket'] = $socket;
+			}
+			
+			if (isset($charset)) {
+				if (!is_string($charset) || empty($charset)) {
+					throw new MySQLMapperException("Invalid charset specified");
+				}
+					
+				$this->config['db.charset'] = $charset;
+			}
+			
+			//aet autocommit option
+			$this->config['db.autocommit'] = (bool) $autocommit;
 		}
-	
-		//aet autocommit option
-		$this->config['db.autocommit'] = (bool) $autocommit;
-	
+		
 		//type manager
 		$this->typeManager = new TypeManager();
 		

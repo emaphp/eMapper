@@ -23,24 +23,29 @@ class SQLiteMapper extends GenericMapper {
 	
 	/**
 	 * Initializes a SQLiteMapper instance
-	 * @param string $filename
+	 * @param mixed $database
 	 * @param int $flags
 	 * @param string $encription_key
 	 * @throws SQLiteMapperException
 	 */
-	public function __construct($filename, $flags = 0, $encription_key = null) {
-		if (!is_string($filename) || empty($filename)) {
-			throw new SQLiteMapperException("Filename is not a valid string");
+	public function __construct($database, $flags = 0, $encription_key = null) {
+		if ($database instanceof \SQLite3) {
+			$this->db = $database;
 		}
-		
-		$this->config['db.filename'] = $filename;
-		
-		if (empty($flags)) {
-			$flags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
+		else {
+			if (empty($database)) {
+				throw new SQLiteMapperException("Filename is not a valid string");
+			}
+			
+			$this->config['db.filename'] = $database;
+			
+			if (empty($flags)) {
+				$flags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
+			}
+			
+			$this->config['db.flags'] = $flags;
+			$this->config['db.encription_key'] = $encription_key;
 		}
-		
-		$this->config['db.flags'] = $flags;
-		$this->config['db.encription_key'] = $encription_key;
 		
 		//type managet
 		$this->typeManager = new TypeManager();

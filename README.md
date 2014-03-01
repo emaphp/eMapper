@@ -94,8 +94,8 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
     <tbody>
         <tr>
             <td>database</td>
-            <td>String</td>
-            <td>Database name</td>
+            <td>String / Object</td>
+            <td>Database name / mysqli instance</td>
             <td><em>None</em></td>
         </tr>
         <tr>
@@ -171,8 +171,8 @@ $mapper = new SQLiteMapper('company.db');
     <tbody>
         <tr>
             <td>filename</td>
-            <td>String</td>
-            <td>Database file</td>
+            <td>String / Object</td>
+            <td>Database file / SQLite3 instance</td>
             <td><em>None</em></td>
         </tr>
         <tr>
@@ -217,8 +217,8 @@ $mapper = new PostgreSQLMapper('dbname=company user=test password=test');
     <tbody>
         <tr>
             <td>connection_string</td>
-            <td>String</td>
-            <td>Connection string</td>
+            <td>String / Resouce</td>
+            <td>Connection string / Connection resource</td>
             <td><em>None</em></td>
         </tr>
         <tr>
