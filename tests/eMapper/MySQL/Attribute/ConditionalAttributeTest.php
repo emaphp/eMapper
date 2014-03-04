@@ -4,9 +4,11 @@ namespace eMapper\MySQL\Attribute;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test a conditional attribute
  * 
  * @author emaphp
  * @group cond
+ * @group mysql
  */
 class ConditionalAttributeTest extends MySQLTest {
 	public function testConditionalAttribute() {

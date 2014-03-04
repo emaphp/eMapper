@@ -5,6 +5,7 @@ use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 use eMapper\Result\ResultInterface;
 
 /**
+ * Test MySQLResultInterface class
  * 
  * @author emaphp
  * @group mysql

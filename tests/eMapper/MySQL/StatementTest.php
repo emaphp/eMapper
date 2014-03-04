@@ -4,6 +4,7 @@ namespace eMapper\MySQL;
 use eMapper\Engine\MySQL\Statement\MySQLStatement;
 use eMapper\Type\TypeManager;
 /**
+ * Test MySQLStatement class
  * 
  * @author emaphp
  * @group mysql

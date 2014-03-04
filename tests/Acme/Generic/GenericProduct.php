@@ -8,6 +8,7 @@ class GenericProduct {
 	protected $description;
 	protected $code;
 	protected $price;
+	protected $category;
 	protected $color;
 	
 	public function getId() {
@@ -40,6 +41,14 @@ class GenericProduct {
 	
 	public function setPrice($price) {
 		$this->price = $price;
+	}
+	
+	public function getCategory() {
+		return $this->category;
+	}
+	
+	public function setCategory($category) {
+		$this->category = $category;
 	}
 	
 	public function getColor() {

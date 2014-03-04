@@ -4,9 +4,11 @@ namespace eMapper\MySQL\Callback;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test setting a callback that overrides current query
  * 
  * @author emaphp
  * @group callback
+ * @group mysql
  */
 class OverrideCallbackTest extends MySQLTest {
 	public function testOverride() {

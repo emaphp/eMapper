@@ -6,6 +6,7 @@ use eMapper\Type\TypeManager;
 use Acme\Entity\Product;
 
 /**
+ * Test dynamic sql expressions
  * 
  * @author emaphp
  * @group dynamic

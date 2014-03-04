@@ -4,6 +4,7 @@ namespace eMapper\MySQL\Mapper;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test mapping to arrays
  * 
  * @author emaphp
  * @group mysql

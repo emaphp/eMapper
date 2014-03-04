@@ -4,9 +4,11 @@ namespace eMapper\MySQL\Callback;
 use eMapper\MySQL\MySQLTest;
 
 /**
- * Tests applying a user-defined function through the each method
+ * Tests applying a user-defined callback through the each method
+ * 
  * @author emaphp
  * @group callback
+ * @group mysql
  */
 class EachCallbackTest extends MySQLTest {
 	public function testUniqueObject() {

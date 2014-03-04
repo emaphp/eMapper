@@ -4,9 +4,11 @@ namespace eMapper\MySQL\Callback;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test setting a custom callback for empty results
  * 
  * @author emaphp
  * @group callback
+ * @group mysql
  */
 class EmptyResultCallbackTest extends MySQLTest {
 	/**

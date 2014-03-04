@@ -4,9 +4,11 @@ namespace eMapper\MySQL\Callback;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test setting a filter callback
  * 
  * @author emaphp
  * @group callback
+ * @group mysql
  */
 class FilterCallbackTest extends MySQLTest {
 	public function testSingleInteger() {

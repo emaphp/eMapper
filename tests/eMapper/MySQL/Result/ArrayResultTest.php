@@ -7,9 +7,11 @@ use eMapper\Result\Mapper\ArrayTypeMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 
 /**
+ * Test ArrayTypeMapper class with various results
  * 
  * @author emaphp
  * @group mysql
+ * @group result
  */
 class ArrayResultTest extends MySQLTest {
 	/**
@@ -204,7 +206,6 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertArrayHasKey('lastLogin', $user);
 		$this->assertInternalType('string', $user['lastLogin']);
 		$this->assertEquals('2013-02-16 20:00:33', $user['lastLogin']);
-		
 		
 		$result->free();
 	}
@@ -654,7 +655,7 @@ class ArrayResultTest extends MySQLTest {
 		$result->free();
 	}
 	
-	public function testIndexedGroupList() {
+	public function testIndexedOverrideList() {
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');
@@ -810,7 +811,7 @@ class ArrayResultTest extends MySQLTest {
 		$this->assertArrayNotHasKey('last_login', $users['1']);
 	}
 	
-	public function testIndexedForcedGroupList() {
+	public function testIndexedGroupList() {
 		$mapper = new ArrayTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');

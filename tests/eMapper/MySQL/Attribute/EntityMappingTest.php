@@ -8,6 +8,7 @@ use eMapper\MySQL\MySQLTest;
  * 
  * @author emaphp
  * @group attribute
+ * @group mysql
  */
 class EntityMappingTest extends MySQLTest {
 	public function testMacroAttribute() {

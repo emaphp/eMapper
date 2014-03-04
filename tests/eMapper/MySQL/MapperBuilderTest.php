@@ -4,6 +4,7 @@ namespace eMapper\MySQL;
 use eMapper\Engine\MySQL\MySQLMapper;
 
 /**
+ * Test building MySQLMapper intances
  * 
  * @author emaphp
  * @group mysql

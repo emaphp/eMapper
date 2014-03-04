@@ -1,9 +1,6 @@
 <?php
 namespace Acme\Result;
 
-/**
- * @defaultClass Acme\Generic\GenericProduct
- */
 class GenericProductResultMap {
 	/**
 	 * @setter setDescription
@@ -23,6 +20,12 @@ class GenericProductResultMap {
 	 * @var float
 	 */
 	protected $price;
+	
+	/**
+	 * @setter setCategory
+	 * @var string
+	 */
+	protected $category;
 	
 	/**
 	 * @setter setColor

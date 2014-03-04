@@ -12,9 +12,11 @@ use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 use Acme\Type\RGBColorTypeHandler;
 
 /**
+ * Test ScalarTypeMapper with different results
  * 
  * @author emaphp
  * @group mysql
+ * @group result
  */
 class ScalarResultTest extends MySQLTest {
 	public function testString() {

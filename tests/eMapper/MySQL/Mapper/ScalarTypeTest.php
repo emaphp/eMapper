@@ -4,6 +4,7 @@ namespace eMapper\MySQL\Mapper;
 use eMapper\MySQL\MySQLTest;
 
 /**
+ * Test mapping to scalar types
  * 
  * @author emaphp
  * @group mysql

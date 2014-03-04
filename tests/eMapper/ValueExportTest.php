@@ -20,7 +20,7 @@ class ValueExportTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('1', $ve->toString(true));
 		$this->assertEquals('', $ve->toString(false));
 		
-		$fp = fopen(__DIR__ . '/resource', 'r');
+		$fp = fopen(__DIR__ . '/avatar.gif', 'r');
 		$this->assertFalse($ve->toString($fp));
 		fclose($fp);
 		
@@ -38,7 +38,7 @@ class ValueExportTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('TRUE', $ve->asString(true));
 		$this->assertEquals('FALSE', $ve->asString(false));
 		
-		$fp = fopen(__DIR__ . '/resource', 'r');
+		$fp = fopen(__DIR__ . '/avatar.gif', 'r');
 		$this->assertFalse($ve->toString($fp));
 		fclose($fp);
 		

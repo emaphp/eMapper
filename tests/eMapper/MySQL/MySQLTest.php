@@ -5,6 +5,7 @@ use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\SQL\Statement;
 /**
+ * Generic mysql test class
  * 
  * @author emaphp
  * @group mysql

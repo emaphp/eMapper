@@ -26,15 +26,6 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	 */
 	public function __construct(TypeManager $typeManager, $resultMap = null, $defaultClass = 'stdClass') {
 		parent::__construct($typeManager, $resultMap);
-		
-		if ($defaultClass == 'stdClass' && isset($this->resultMap)) {
-			$profile = Profiler::getClassProfile($this->resultMap);
-			
-			if ($profile->classAnnotations->has('defaultClass')) {
-				$defaultClass = $profile->classAnnotations->get('defaultClass');
-			}
-		}
-		
 		$this->defaultClass = $defaultClass;
 	}
 	
