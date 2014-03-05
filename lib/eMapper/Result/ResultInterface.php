@@ -41,7 +41,7 @@ abstract class ResultInterface implements \Iterator {
 	/**
 	 * Returns an associative array containing all column types by name
 	 */
-	public abstract function columnTypes();
+	public abstract function columnTypes($resultType = self::ASSOC);
 	
 	/**
 	 * Fetchs a row to an array

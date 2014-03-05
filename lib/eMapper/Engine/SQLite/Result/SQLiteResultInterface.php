@@ -14,11 +14,8 @@ class SQLiteResultInterface extends ResultInterface {
 		return $this->result->numColumns();
 	}
 
-	/* (non-PHPdoc)
-	 * @see \eMapper\Result\ResultInterface::columnTypes()
-	 */
-	public function columnTypes() {
-		// TODO: Auto-generated method stub
+	
+	public function columnTypes($resultType = self::ASSOC) {
 		$num_columns = $this->result->numColumns();
 		$types = array();
 		
@@ -48,7 +45,14 @@ class SQLiteResultInterface extends ResultInterface {
 					break;
 			}
 			
-			$types[$i] = $type[$name] = $type;
+			//store type
+			if ($resultType & self::NUM) {
+				$types[$i] = $type;
+			}
+			
+			if ($resultType & self::ASSOC) {
+				$types[$name] = $type;
+			}
 		}
 		
 		return $types;

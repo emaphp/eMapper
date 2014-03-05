@@ -6,7 +6,7 @@ use eMapper\Result\ResultInterface;
 class MySQLResultInterface extends ResultInterface {
 	public $resultTypes = array(self::BOTH => MYSQLI_BOTH, self::ASSOC => MYSQLI_ASSOC, self::NUM => MYSQLI_NUM);
 	
-	public function columnTypes() {
+	public function columnTypes($resultType = self::ASSOC) {
 		//get result fields
 		$fields = $this->result->fetch_fields();
 		$types = array();
@@ -64,7 +64,13 @@ class MySQLResultInterface extends ResultInterface {
 			}
 		
 			//store type
-			$types[$i] = $types[$field->name] = $type;
+			if ($resultType & self::NUM) {
+				$types[$i] = $type;
+			}
+			
+			if ($resultType & self::ASSOC) {
+				$types[$field->name] = $type;
+			}
 		}
 		
 		return $types;

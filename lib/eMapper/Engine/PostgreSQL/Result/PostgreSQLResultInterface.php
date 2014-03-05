@@ -10,7 +10,7 @@ class PostgreSQLResultInterface extends ResultInterface {
 		return pg_num_rows($this->result);
 	}
 	
-	public function columnTypes() {
+	public function columnTypes($resultType = self::ASSOC) {
 		$num_fields = pg_num_fields($this->result);
 		$types = array();
 		
@@ -71,7 +71,14 @@ class PostgreSQLResultInterface extends ResultInterface {
 				break;
 			}
 			
-			$types[$i] = $types[$name] = $type;
+			//store type
+			if ($resultType & self::NUM) {
+				$types[$i] = $type;
+			}
+			
+			if ($resultType & self::ASSOC) {
+				$types[$name] = $type;
+			}
 		}
 		
 		return $types;

@@ -15,7 +15,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	
 		//obtain mapped properties
 		$this->propertyList = Profiler::getClassProfile($this->resultMap)->propertiesConfig;
-	
+		
 		//store type handlers while on it
 		$this->typeHandlers = array();
 	
@@ -91,7 +91,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		}
 
 		//get result column types
-		$this->columnTypes = $result->columnTypes();
+		$this->columnTypes = $result->columnTypes($resultType);
 		
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
@@ -119,7 +119,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		}
 	
 		//get result column types
-		$this->columnTypes = $result->columnTypes();
+		$this->columnTypes = $result->columnTypes($resultType);
 	
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
