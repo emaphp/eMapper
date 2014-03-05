@@ -137,7 +137,7 @@ trait StatementConfiguration {
 	 * @return StatementConfiguration
 	 */
 	public function depth($depth) {
-		if (!is_integer($depth) || $depth <= 0) {
+		if (!is_integer($depth) || $depth < 0) {
 			throw new \InvalidArgumentException("Depth limit must be defined as a valid integer.");
 		}
 		

@@ -559,7 +559,7 @@ $products = $mapper->type('obj[product_id]')
 We can also tell from which subindex must be obtained a value. A subindex must be appended right after the parameter index and placed between brackets.
 
 ```php
-$param_list = array('id' => 1, 'jdoe', 'david');
+$param_list = ['id' => 1, 'jdoe', 'david'];
 
 $users = $mapper->type('obj[]')
 ->query("SELECT * FROM users
@@ -573,7 +573,7 @@ $users = $mapper->type('obj[]')
 
 Ranges allow to specify a subset of a list passed as argument. The obtained expression is equivalent to calling [array_slice](http://www.php.net/manual/en/function.array-slice.php "") with the specified array. The left value represents the offset and the right one the length.
 ```php
-$list = array(45, 23, '43', '164', 43);
+$list = [45, 23, '43', '164', 43];
 
 //obtain a sublist with '43' and '164'
 $users = $mapper->type('obj[]')
@@ -590,7 +590,7 @@ If one value is omitted then the corresponding limit is used:
 These expressions can be used with string values as well.
 
 ```php
-$name = "XXXjdowXXX";
+$name = "XXXjdoeXXX";
 
 //get user witn name = 'jdoe'
 $user = $mapper->type('obj')
@@ -1218,7 +1218,7 @@ $user = $mapper->type('array')
 ```
 
 <br/>
-Cumtom type handlers
+Custom type handlers
 --------------------
 
 <br/>
@@ -1588,14 +1588,14 @@ Exceptions
 ----------
 
 <br/>
-Altrough *eMapper* uses the exceptions already included in SPL, there are some special scenarios where those included in the library are used. These special scenarios are the following:
+*eMapper* does come with a small subset of exceptions in order to communicateunexpected errors.
 
  - Query syntax error
  - Failed database connection
- - Errors when processing a mapping expression or result
+ - Unrecognizaed mapping expression / Invalid configuratio
 
 <br/>
-The associated exception depends on the database server currently used, althrough all of them extend from *eMapper\Exception\MapperException*.
+All these exceptions extend the *eMapper\Exception\MapperException* class. The examples above illustrate exception handling according to the available mapping classes.
 
 <br/>
 **MySQL**

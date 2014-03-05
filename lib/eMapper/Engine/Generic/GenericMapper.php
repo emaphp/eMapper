@@ -128,7 +128,9 @@ abstract class GenericMapper {
 		}
 		
 		//check current mapper depth
-		if ($this->config['depth.current'] > $this->config['depth.limit']) {
+		if ($this->config['depth.current'] > $this->config['depth.limit'] 
+					&& (!array_key_exists('map.type', $this->config) 
+					|| (preg_match(self::OBJECT_TYPE_REGEX, $this->config['map.type']) || preg_match(self::ARRAY_TYPE_REGEX, $this->config['map.type'])))) {
 			return null;
 		}
 

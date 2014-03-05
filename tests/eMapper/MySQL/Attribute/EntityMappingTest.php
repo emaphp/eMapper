@@ -156,7 +156,7 @@ class EntityMappingTest extends MySQLTest {
 		$this->assertInstanceOf('Acme\RGBColor', $best->color);
 		$this->assertNull($best->lastSale);
 		$this->assertNull($best->bestInCategory);
-		$this->assertNull($best->avgPrice);
+		$this->assertEquals(152.41666412353516, $best->avgPrice);
 		
 		//avgPrice
 		$avg = $product->avgPrice;
