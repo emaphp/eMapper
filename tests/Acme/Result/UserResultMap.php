@@ -2,9 +2,6 @@
 namespace Acme\Result;
 
 
-/**
- * @defaultClass stdClass
- */
 class UserResultMap {
 	/**
 	 * @type integer

@@ -17,22 +17,12 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($profile->has('unquoted'));
 	}
 	
-	public function testResultMapAnnotations() {
-		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->classAnnotations;
-		$this->assertNotNull($profile);
-		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
-		$this->assertTrue($profile->has('defaultClass'));
-		$this->assertEquals('stdClass', $profile->get('defaultClass'));
-	}
-	
 	public function testResultMapProfile() {		
 		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->classAnnotations;
 		$properties = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->propertiesAnnotations;
 		
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
-		$this->assertTrue($profile->has('defaultClass'));
-		$this->assertEquals('stdClass', $profile->get('defaultClass'));
 		
 		$this->assertInternalType('array', $properties);
 		

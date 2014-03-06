@@ -6,6 +6,12 @@ namespace Acme\Entity;
  */
 class Product {
 	/**
+	 * @column product_id
+	 * @var int
+	 */
+	public $id;
+	
+	/**
 	 * @column product_code
 	 */
 	public $code;

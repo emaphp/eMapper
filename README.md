@@ -1588,14 +1588,14 @@ Exceptions
 ----------
 
 <br/>
-*eMapper* does come with a small subset of exceptions in order to communicateunexpected errors.
+*eMapper* does come with a small subset of exceptions in order to communicate unexpected errors. These errors may vary but they can be grouped in the following scenarios:
 
  - Query syntax error
  - Failed database connection
- - Unrecognizaed mapping expression / Invalid configuratio
+ - Invalid configuration
 
 <br/>
-All these exceptions extend the *eMapper\Exception\MapperException* class. The examples above illustrate exception handling according to the available mapping classes.
+The examples above illustrate exception handling for each supported database. All exceptions extend the *eMapper\Exception\MapperException* class.
 
 <br/>
 **MySQL**
@@ -1704,8 +1704,7 @@ Appendix I - Additional features
 **Raw results**
 
 <br/>
-Through the **sql** method we can query the database to obtain a result without further processing. Result type will depend  on the mapper class that we are using.
-
+Through the **sql** method we can query the database to obtain a result without further processing. Result type will depend on the mapper class being used.
 ```php
 //call sql method
 $result = $mapper->sql("SELECT user_id, name FROM users WHERE user_id = %{i}", 5);
@@ -1722,7 +1721,7 @@ $mapper->free_result($result);
 <br/>
 **Query overriding**
 
-The *query_override* method allows us to rewrite the query which is sent to the database server according to a certain logic. This method argument is a function whose first parameter is the query to perform. By returning a value we can override the query that will be finally sent.
+The *query_override* method allows to rewrite the query which is sent to the database server according to a certain logic. This method argument is a function whose first parameter is the query to perform. By returning a value we can override the query being sent.
 
 ```php
 //composer autoloader

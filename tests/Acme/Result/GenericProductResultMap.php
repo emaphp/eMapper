@@ -3,6 +3,13 @@ namespace Acme\Result;
 
 class GenericProductResultMap {
 	/**
+	 * @column product_id
+	 * @setter setId
+	 * @var int
+	 */
+	protected $id;
+	
+	/**
 	 * @setter setDescription
 	 * @var string
 	 */
