@@ -35,7 +35,7 @@ class MemcacheProvider implements CacheProvider {
 	}
 	
 	public function store($id, $value, $ttl = 0) {
-		return $this->memcache->set($id, $value, $this->flags, $ttl);
+		return $this->memcache->set($id, $value, isset($this->flags) ? $this->flags : 0, $ttl);
 	}
 	
 	public function exists($id) {
@@ -50,7 +50,7 @@ class MemcacheProvider implements CacheProvider {
 	}
 	
 	public function fetch($id) {
-		return $this->memcache->get($id, $this->flags);
+		return $this->memcache->get($id, isset($this->flags) ? $this->flags : 0);
 	}
 	
 	public function delete($id) {
