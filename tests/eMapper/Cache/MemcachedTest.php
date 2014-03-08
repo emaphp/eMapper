@@ -12,6 +12,10 @@ use eMapper\Cache\MemcachedProvider;
  * @group memcached
  */
 class MemcachedTest extends \PHPUnit_Framework_TestCase {
+	/**
+	 * Memcached provider
+	 * @var MemcachedProvider
+	 */
 	public $provider;
 	
 	protected function setUp() {

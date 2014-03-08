@@ -12,6 +12,10 @@ use eMapper\Cache\MemcacheProvider;
  * @group memcache
  */
 class MemcacheTest extends \PHPUnit_Framework_TestCase {
+	/**
+	 * Memcache provider
+	 * @var MemcacheProvider
+	 */
 	public $provider;
 	
 	protected function setUp() {
