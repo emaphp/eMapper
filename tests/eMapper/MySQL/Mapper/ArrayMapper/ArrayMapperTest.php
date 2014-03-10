@@ -1,27 +1,18 @@
 <?php
-namespace eMapper\MySQL\Result\ArrayMapper;
+namespace eMapper\MySQL\Mapper\ArrayMapper;
 
 use eMapper\MySQL\MySQLTest;
-use eMapper\Result\Mapper\ArrayTypeMapper;
-use eMapper\Type\TypeManager;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 
 /**
- * Test ArrayTypeMapper class with various results
- * 
+ * Test MySQLMapper mapping to array values
  * @author emaphp
  * @group mysql
- * @group result
+ * @group mapper
  */
 class ArrayMapperTest extends MySQLTest {
-	/**
-	 * Obtains a row as different types of arrays
-	 */
 	public function testRow() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new MySQLResultInterface($result));
+		$user = self::$mapper->type('array')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertInternalType('array', $user);
 		$this->assertArrayHasKey(0, $user);
 		$this->assertArrayHasKey(1, $user);
@@ -62,11 +53,9 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals('12:00:00', $user['newsletter_time']);
 		$this->assertInternalType('string', $user['avatar']);
 		$this->assertEquals(self::$blob, $user['avatar']);
-		$result->free();
 	
 		//MYSQLI_ASSOC
-		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new MySQLResultInterface($result), MYSQLI_ASSOC);
+		$user = self::$mapper->type('array', MYSQLI_ASSOC)->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertInternalType('array', $user);
 		$this->assertArrayNotHasKey(0, $user);
 		$this->assertArrayNotHasKey(1, $user);
@@ -81,12 +70,9 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('last_login', $user);
 		$this->assertArrayHasKey('newsletter_time', $user);
 		$this->assertArrayHasKey('avatar', $user);
-		
-		$result->free();
 	
 		//MYSQLI_NUM
-		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new MySQLResultInterface($result), MYSQLI_NUM);
+		$user = self::$mapper->type('array', MYSQLI_NUM)->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertInternalType('array', $user);
 		$this->assertArrayHasKey(0, $user);
 		$this->assertArrayHasKey(1, $user);
@@ -100,19 +86,12 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey('last_login', $user);
 		$this->assertArrayNotHasKey('newsletter_time', $user);
 		$this->assertArrayNotHasKey('avatar', $user);
-		
-		$result->free();
 	}
 	
-	/**
-	 * Obtains a list of various types of arrays
-	 */
 	public function testList() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result));
-		
+		$users = self::$mapper->type('array[]')->query("SELECT * FROM users ORDER BY user_id ASC");
+	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey(0, $users);
@@ -163,12 +142,9 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertInternalType('string', $users[0][5]);
 		$this->assertEquals(self::$blob, $users[0][5]);
 	
-		$result->free();
-	
 		//MYSQLI_NUM
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, null, null, MYSQLI_NUM);
-		
+		$users = self::$mapper->type('array[]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
+	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey(0, $users);
@@ -190,15 +166,12 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(3, $users[0]);
 		$this->assertArrayHasKey(4, $users[0]);
 		$this->assertArrayHasKey(5, $users[0]);
-		
-		$result->free();
 	
 		//MYSQLI_ASSOC
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), null, null, null, null, MYSQLI_ASSOC);
+		$users = self::$mapper->type('array[]', MYSQLI_ASSOC)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
-		
+	
 		$this->assertArrayHasKey(0, $users);
 		$this->assertArrayHasKey(1, $users);
 		$this->assertArrayHasKey(2, $users);
@@ -218,18 +191,11 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('last_login', $users[0]);
 		$this->assertArrayHasKey('newsletter_time', $users[0]);
 		$this->assertArrayHasKey('avatar', $users[0]);
-	
-		$result->free();
 	}
 	
-	/**
-	 * Obtains an indexed list by a integer/string column
-	 */
 	public function testIndexedList() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
+		$users = self::$mapper->type('array[user_id]')->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey(1, $users);
@@ -280,11 +246,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertInternalType('string', $users[1][5]);
 		$this->assertEquals(self::$blob, $users[1][5]);
 	
-		$result->free();
-		
 		//MYSQLI_ASSOC
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', null, null, null, MYSQLI_ASSOC);
+		$users = self::$mapper->type('array[user_id]', MYSQLI_ASSOC)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey(1, $users);
@@ -299,7 +262,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('last_login', $users[1]);
 		$this->assertArrayHasKey('newsletter_time', $users[1]);
 		$this->assertArrayHasKey('avatar', $users[1]);
-		
+	
 		$this->assertArrayNotHasKey(0, $users[1]);
 		$this->assertArrayNotHasKey(1, $users[1]);
 		$this->assertArrayNotHasKey(2, $users[1]);
@@ -307,11 +270,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey(4, $users[1]);
 		$this->assertArrayNotHasKey(5, $users[1]);
 	
-		$result->free();
-	
 		//MYSQLI_NUM
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 0, null, null, null, MYSQLI_NUM);
+		$users = self::$mapper->type('array[0]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey(1, $users);
@@ -333,16 +293,12 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(3, $users[1]);
 		$this->assertArrayHasKey(4, $users[1]);
 		$this->assertArrayHasKey(5, $users[1]);
-	
-		$result->free();
 	}
 	
 	public function testCustomIndexList() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 'string');
-		
+		$users = self::$mapper->type('array[user_id:string]')->query("SELECT * FROM users ORDER BY user_id ASC");
+	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey('1', $users);
@@ -350,7 +306,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('3', $users);
 		$this->assertArrayHasKey('4', $users);
 		$this->assertArrayHasKey('5', $users);
-
+	
 		$this->assertArrayHasKey('user_id', $users['1']);
 		$this->assertInternalType('integer', $users['1']['user_id']);
 		$this->assertEquals(1, $users['1']['user_id']);
@@ -393,20 +349,17 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertInternalType('string', $users['1'][5]);
 		$this->assertEquals(self::$blob, $users['1'][5]);
 	
-		$result->free();
-	
 		//MYSQLI_ASSOC
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 'string', null, null, MYSQLI_ASSOC);
+		$users = self::$mapper->type('array[user_id:string]', MYSQLI_ASSOC)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
-		
+	
 		$this->assertArrayHasKey('1', $users);
 		$this->assertArrayHasKey('2', $users);
 		$this->assertArrayHasKey('3', $users);
 		$this->assertArrayHasKey('4', $users);
 		$this->assertArrayHasKey('5', $users);
 		$this->assertCount(5, $users);
-		
+	
 		$this->assertArrayHasKey('user_id', $users['1']);
 		$this->assertArrayHasKey('user_name', $users['1']);
 		$this->assertArrayHasKey('birth_date', $users['1']);
@@ -419,46 +372,36 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey(3, $users['1']);
 		$this->assertArrayNotHasKey(4, $users['1']);
 		$this->assertArrayNotHasKey(5, $users['1']);
-		
-		$result->free();
-		
+	
 		//MYSQLI_NUM
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 0, 'string', null, null, MYSQLI_NUM);
+		$users = self::$mapper->type('array[0:string]', MYSQLI_NUM)->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertInternalType('array', $users);
-		
+	
 		$this->assertArrayHasKey('1', $users);
 		$this->assertArrayHasKey('2', $users);
 		$this->assertArrayHasKey('3', $users);
 		$this->assertArrayHasKey('4', $users);
 		$this->assertArrayHasKey('5', $users);
 		$this->assertCount(5, $users);
-		
+	
 		$this->assertArrayNotHasKey('user_id', $users['1']);
 		$this->assertArrayNotHasKey('user_name', $users['1']);
 		$this->assertArrayNotHasKey('birth_date', $users['1']);
 		$this->assertArrayNotHasKey('last_login', $users['1']);
 		$this->assertArrayNotHasKey('newsletter_time', $users['1']);
 		$this->assertArrayNotHasKey('avatar', $users['1']);
-		
+	
 		$this->assertArrayHasKey(0, $users['1']);
 		$this->assertArrayHasKey(1, $users['1']);
 		$this->assertArrayHasKey(2, $users['1']);
 		$this->assertArrayHasKey(3, $users['1']);
 		$this->assertArrayHasKey(4, $users['1']);
 		$this->assertArrayHasKey(5, $users['1']);
-		
-		$result->free();
 	}
 	
-	/**
-	 * Test indexing by a common value
-	 */
 	public function testIndexOverrideList() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');
+		$products = self::$mapper->type('array[category]')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		$this->assertArrayHasKey('Clothes', $products);
@@ -587,14 +530,10 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['manufacture_year']);
 		$this->assertEquals('2011', $products['Smartphones']['manufacture_year']);
-		
-		$result->free();
-		
+	
 		//MYSQLI_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'category', null, null, null, MYSQLI_ASSOC);
-		
+		$products = self::$mapper->type('array[category]', MYSQLI_ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertArrayHasKey('product_id', $products['Clothes']);
 		$this->assertArrayHasKey('product_code', $products['Clothes']);
 		$this->assertArrayHasKey('description', $products['Clothes']);
@@ -613,14 +552,10 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey(6, $products['Clothes']);
 		$this->assertArrayNotHasKey(7, $products['Clothes']);
 		$this->assertArrayNotHasKey(8, $products['Clothes']);
-		
-		$result->free();
-		
+	
 		//MYSQLI_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 5, null, null, null, MYSQLI_NUM);
-		
+		$products = self::$mapper->type('array[5]', MYSQLI_NUM)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertArrayNotHasKey('product_id', $products['Clothes']);
 		$this->assertArrayNotHasKey('product_code', $products['Clothes']);
 		$this->assertArrayNotHasKey('description', $products['Clothes']);
@@ -639,18 +574,11 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(6, $products['Clothes']);
 		$this->assertArrayHasKey(7, $products['Clothes']);
 		$this->assertArrayHasKey(8, $products['Clothes']);
-		
-		$result->free();
 	}
 	
-	/**
-	 * Test grouping by a column
-	 */
 	public function testGroupedList() {
 		//MSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');
+		$products = self::$mapper->type('array<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		$this->assertArrayHasKey('Clothes', $products);
@@ -669,7 +597,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(0, $products['Clothes']);
 		$this->assertArrayHasKey(1, $products['Clothes']);
 		$this->assertArrayHasKey(2, $products['Clothes']);
-		
+	
 		$this->assertArrayHasKey('product_id', $products['Clothes'][0]);
 		$this->assertInternalType('integer', $products['Clothes'][0]['product_id']);
 		$this->assertEquals(1, $products['Clothes'][0]['product_id']);
@@ -821,14 +749,10 @@ class ArrayMapperTest extends MySQLTest {
 	
 		////
 		$this->assertArrayHasKey(0, $products['Smartphones']);
-		
-		$result->free();
-		
+	
 		//MYSQLI_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category', null, MYSQLI_ASSOC);
-		
+		$products = self::$mapper->type('array<category>', MYSQLI_ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertArrayHasKey('product_id', $products['Clothes'][0]);
 		$this->assertArrayHasKey('product_code', $products['Clothes'][0]);
 		$this->assertArrayHasKey('description', $products['Clothes'][0]);
@@ -838,7 +762,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('rating', $products['Clothes'][0]);
 		$this->assertArrayHasKey('refurbished', $products['Clothes'][0]);
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][0]);
-		
+	
 		$this->assertArrayNotHasKey(0, $products['Clothes'][0]);
 		$this->assertArrayNotHasKey(1, $products['Clothes'][0]);
 		$this->assertArrayNotHasKey(2, $products['Clothes'][0]);
@@ -848,14 +772,10 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey(6, $products['Clothes'][0]);
 		$this->assertArrayNotHasKey(7, $products['Clothes'][0]);
 		$this->assertArrayNotHasKey(8, $products['Clothes'][0]);
-		
-		$result->free();
-		
+	
 		//MYSQLI_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 5, null, MYSQLI_NUM);
-		
+		$products = self::$mapper->type('array<5>', MYSQLI_NUM)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertArrayNotHasKey('product_id', $products['Clothes'][0]);
 		$this->assertArrayNotHasKey('product_code', $products['Clothes'][0]);
 		$this->assertArrayNotHasKey('description', $products['Clothes'][0]);
@@ -865,7 +785,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey('rating', $products['Clothes'][0]);
 		$this->assertArrayNotHasKey('refurbished', $products['Clothes'][0]);
 		$this->assertArrayNotHasKey('manufacture_year', $products['Clothes'][0]);
-		
+	
 		$this->assertArrayHasKey(0, $products['Clothes'][0]);
 		$this->assertArrayHasKey(1, $products['Clothes'][0]);
 		$this->assertArrayHasKey(2, $products['Clothes'][0]);
@@ -875,41 +795,34 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(6, $products['Clothes'][0]);
 		$this->assertArrayHasKey(7, $products['Clothes'][0]);
 		$this->assertArrayHasKey(8, $products['Clothes'][0]);
-		
-		$result->free();
 	}
 	
-	/**
-	 * Test grouping and indexing a list by a column
-	 */
 	public function testGroupedIndexedList() {
 		//MYSQLI_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'product_id', null, 'category');
-		
+		$products = self::$mapper->type('array<category>[product_id]')->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
-		
+	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
-		
+	
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
-		
+	
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
 		$this->assertCount(1, $products['Smartphones']);
-		
+	
 		////
 		$this->assertArrayHasKey(1, $products['Clothes']);
 		$this->assertArrayHasKey(2, $products['Clothes']);
 		$this->assertArrayHasKey(3, $products['Clothes']);
 		$this->assertArrayHasKey(4, $products['Hardware']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
-		
+	
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][1]);
 		$this->assertArrayHasKey('product_code', $products['Clothes'][1]);
@@ -920,7 +833,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('rating', $products['Clothes'][1]);
 		$this->assertArrayHasKey('refurbished', $products['Clothes'][1]);
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][1]);
-		
+	
 		$this->assertArrayHasKey(0, $products['Clothes'][1]);
 		$this->assertArrayHasKey(1, $products['Clothes'][1]);
 		$this->assertArrayHasKey(2, $products['Clothes'][1]);
@@ -930,14 +843,10 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(6, $products['Clothes'][1]);
 		$this->assertArrayHasKey(7, $products['Clothes'][1]);
 		$this->assertArrayHasKey(8, $products['Clothes'][1]);
-		
-		$result->free();
-		
+	
 		//MYSQLI_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'product_id', null, 'category', null, MYSQLI_ASSOC);
-		
+		$products = self::$mapper->type('array<category>[product_id]', MYSQLI_ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][1]);
 		$this->assertArrayHasKey('product_code', $products['Clothes'][1]);
@@ -948,7 +857,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey('rating', $products['Clothes'][1]);
 		$this->assertArrayHasKey('refurbished', $products['Clothes'][1]);
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][1]);
-		
+	
 		$this->assertArrayNotHasKey(0, $products['Clothes'][1]);
 		$this->assertArrayNotHasKey(1, $products['Clothes'][1]);
 		$this->assertArrayNotHasKey(2, $products['Clothes'][1]);
@@ -958,24 +867,20 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey(6, $products['Clothes'][1]);
 		$this->assertArrayNotHasKey(7, $products['Clothes'][1]);
 		$this->assertArrayNotHasKey(8, $products['Clothes'][1]);
-		
-		$result->free();
-		
+	
 		//MYSQLI_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 0, null, 5, null, MYSQLI_NUM);
-		
+		$products = self::$mapper->type('array<5>[0]', MYSQLI_NUM)->query("SELECT * FROM products ORDER BY product_id ASC");
+	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
-		
+	
 		$this->assertArrayHasKey(1, $products['Clothes']);
 		$this->assertArrayHasKey(2, $products['Clothes']);
 		$this->assertArrayHasKey(3, $products['Clothes']);
 		$this->assertArrayHasKey(4, $products['Hardware']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
-		
+	
 		////
 		$this->assertArrayNotHasKey('product_id', $products['Clothes'][1]);
 		$this->assertArrayNotHasKey('product_code', $products['Clothes'][1]);
@@ -986,7 +891,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayNotHasKey('rating', $products['Clothes'][1]);
 		$this->assertArrayNotHasKey('refurbished', $products['Clothes'][1]);
 		$this->assertArrayNotHasKey('manufacture_year', $products['Clothes'][1]);
-		
+	
 		$this->assertArrayHasKey(0, $products['Clothes'][1]);
 		$this->assertArrayHasKey(1, $products['Clothes'][1]);
 		$this->assertArrayHasKey(2, $products['Clothes'][1]);
@@ -996,8 +901,7 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertArrayHasKey(6, $products['Clothes'][1]);
 		$this->assertArrayHasKey(7, $products['Clothes'][1]);
 		$this->assertArrayHasKey(8, $products['Clothes'][1]);
-		
-		$result->free();
 	}
 }
+
 ?>
