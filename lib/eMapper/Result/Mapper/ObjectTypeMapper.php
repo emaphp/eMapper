@@ -342,7 +342,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 						
 						//obtain index value
 						$idx = $indexTypeHandler->getValue($idx);
-						
+
 						if (!is_int($idx) && !is_string($idx)) {
 							throw new \UnexpectedValueException("Obtained index key in column '$indexColumn' is neither an integer or string");
 						}

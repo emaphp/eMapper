@@ -5,15 +5,21 @@ use eMapper\Result\ResultInterface;
 
 class SQLiteResultInterface extends ResultInterface {
 	public $resultTypes = array(self::BOTH => SQLITE3_BOTH, self::ASSOC => SQLITE3_ASSOC, self::NUM => SQLITE3_NUM);
+	public $numRows;
 	
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\ResultInterface::countRows()
 	 */
 	public function countRows() {
-		// TODO: Auto-generated method stub
-		return $this->result->numColumns();
+		if (is_null($this->numRows)) {
+			for ($this->numRows = 0; $this->result->fetchArray(); $this->numRows++) {
+			}
+			
+			$this->result->reset();
+		}
+		
+		return $this->numRows;
 	}
-
 	
 	public function columnTypes($resultType = self::ASSOC) {
 		$num_columns = $this->result->numColumns();
@@ -36,8 +42,11 @@ class SQLiteResultInterface extends ResultInterface {
 					break;
 					
 				case SQLITE3_NULL:
-					$type = 'null';
-					break;
+					//For some reason columType does not return an useful value
+					//Instead, always returns SQLITE3_NULL, which at the end produces bad indexation an a lot of other issues
+					//In order to avoid this, all values use 'string' as a default type
+					//$type = 'null';
+					//break;
 					
 				case SQLITE3_TEXT:
 				default:

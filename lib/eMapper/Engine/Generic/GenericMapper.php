@@ -410,9 +410,10 @@ abstract class GenericMapper {
 			 */
 			
 			$cacheable = true;
+			$ri = $this->build_result_interface($result);
 			
 			//check if result is empty
-			if ($result->num_rows === 0) {
+			if ($ri->countRows() === 0) {
 				if (array_key_exists('callback.no_rows', $this->config)) {
 					return call_user_func($this->config['callback.no_rows'], $result);
 				}
@@ -436,10 +437,10 @@ abstract class GenericMapper {
 			
 			//build mapping callback parameters
 			if (isset($mapping_params)) {
-				array_unshift($mapping_params, $this->build_result_interface($result));
+				array_unshift($mapping_params, $ri);
 			}
 			else {
-				$mapping_params = array($this->build_result_interface($result));
+				$mapping_params = array($ri);
 			}
 			
 			/**
