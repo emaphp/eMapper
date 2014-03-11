@@ -42,6 +42,12 @@ class CacheKey {
 	 */
 	public $args;
 	
+	/**
+	 * Wrapped argument
+	 * @var ParameterWrapper
+	 */
+	public $wrappedArg;
+	
 	public function __construct(TypeManager $typeManager, $parameterMap = null) {
 		$this->typeManager = $typeManager;
 		$this->parameterMap = $parameterMap;
@@ -464,10 +470,11 @@ class CacheKey {
 				throw new \InvalidArgumentException("Specified parameter is not an array/object");
 			}
 			
+			//move default counter to 1
 			$counter_start = 1;
 			
 			//wrap first argument
-			$this->args[0] = ParameterWrapper::wrap($args[0], $this->parameterMap);
+			$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
 
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, 
 					function ($matches) {
@@ -486,10 +493,10 @@ class CacheKey {
 								$key = $matches[1];
 								
 								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->args[0], $key);
+									$type = $this->getDefaultType($this->wrappedArg, $key);
 								}
 								
-								return $this->getIndex($this->args[0], $key, $subindex, $type);
+								return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
 								break;
 							
 							/**
@@ -501,10 +508,10 @@ class CacheKey {
 								$key = $matches[4];
 								
 								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->args[0], $key);
+									$type = $this->getDefaultType($this->wrappedArg, $key);
 								}
 								
-								return $this->getRange($this->args[0], $key, $matches[6], $matches[7], $type);
+								return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
 								break;
 						}
 						

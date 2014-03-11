@@ -129,7 +129,7 @@ abstract class GenericStatement extends CacheKey {
 		
 		//wrap first parameter
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
-			$this->args[0] = ParameterWrapper::wrap($args[0], $parameterMap);
+			$this->wrappedArg = ParameterWrapper::wrap($args[0], $parameterMap);
 		}
 		
 		//replace dynamic sql expressions (unescaped)
@@ -211,10 +211,10 @@ abstract class GenericStatement extends CacheKey {
 								$key = $matches[1];
 		
 								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->args[0], $key);
+									$type = $this->getDefaultType($this->wrappedArg, $key);
 								}
 		
-								return $this->getIndex($this->args[0], $key, $subindex, $type);
+								return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
 								break;
 									
 								/**
@@ -226,10 +226,10 @@ abstract class GenericStatement extends CacheKey {
 								$key = $matches[4];
 		
 								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->args[0], $key);
+									$type = $this->getDefaultType($this->wrappedArg, $key);
 								}
 		
-								return $this->getRange($this->args[0], $key, $matches[6], $matches[7], $type);
+								return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
 								break;
 						}
 		

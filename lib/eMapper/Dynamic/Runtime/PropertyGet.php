@@ -68,11 +68,11 @@ class PropertyGet implements Applicable {
 		else {
 			$wrapper = ParameterWrapper::wrap($value);
 			
-			if (!$value->offsetExists($property)) {
+			if (!$wrapper->offsetExists($property)) {
 				throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
 			}
 			
-			return $value[$property];
+			return $wrapper[$property];
 		}
 	}
 }

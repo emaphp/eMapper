@@ -131,5 +131,25 @@ class DynamicSQLTest extends MySQLTest {
 		$id = self::$mapper->type('i')->option('order.column', 'user_name')->query($query);
 		$this->assertEquals(2, $id);
 	}
+	
+	public function testTypifiedExpression() {
+		$query = "SELECT * FROM products WHERE color = {{:Acme\RGBColor (new Acme\RGBColor 112 124 4) }}";
+		$products = self::$mapper->type('obj[]')->query($query);
+		$this->assertCount(1, $products);
+		$this->assertEquals(3, $products[0]->product_id);
+	}
+	
+	public function testEvaluationOrder() {
+		$dt = new \DateTime('2013-05-22');
+		$query = "SELECT * FROM users [[ (if (%0?) 'WHERE last_login > {{:date (%0) }}' ) ]]";
+		$users = self::$mapper->type('obj[user_id]')
+		->query_override(function($query) {
+			$this->assertEquals("SELECT * FROM users WHERE last_login > '2013-05-22'", $query);
+		})
+		->query($query, $dt);
+		$this->assertCount(2, $users);
+		$this->assertArrayHasKey(1, $users);
+		$this->assertArrayHasKey(5, $users);
+	}
 }
 ?>
