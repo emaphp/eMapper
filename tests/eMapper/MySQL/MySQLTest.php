@@ -61,6 +61,7 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	
 	public static function tearDownAfterClass() {
 		self::$conn->close();
+		self::$mapper->close();
 	}
 }
 ?>

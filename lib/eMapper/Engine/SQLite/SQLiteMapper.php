@@ -242,8 +242,8 @@ class SQLiteMapper extends GenericMapper {
 	/**
 	 * Throws a SQLiteMapper generic exception
 	 */
-	public function throw_exception($message) {
-		throw new SQLiteMapperException($message);
+	public function throw_exception($message, \Exception $previous = null) {
+		throw new SQLiteMapperException($message, $previous);
 	}
 	
 	/**
