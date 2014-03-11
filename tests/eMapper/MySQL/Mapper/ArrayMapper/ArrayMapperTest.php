@@ -453,8 +453,8 @@ class ArrayMapperTest extends MySQLTest {
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes']);
 		$this->assertArrayHasKey(8, $products['Clothes']);
-		$this->assertInternalType('string', $products['Clothes']['manufacture_year']);
-		$this->assertEquals('2013', $products['Clothes']['manufacture_year']);
+		$this->assertInternalType('integer', $products['Clothes']['manufacture_year']);
+		$this->assertEquals(2013, $products['Clothes']['manufacture_year']);
 	
 		////
 		$this->assertInternalType('array', $products['Hardware']);
@@ -490,8 +490,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals(0, $products['Hardware']['refurbished']);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Hardware']);
-		$this->assertInternalType('string', $products['Hardware']['manufacture_year']);
-		$this->assertEquals('2013', $products['Hardware']['manufacture_year']);
+		$this->assertInternalType('integer', $products['Hardware']['manufacture_year']);
+		$this->assertEquals(2013, $products['Hardware']['manufacture_year']);
 	
 		////
 		$this->assertInternalType('array', $products['Smartphones']);
@@ -528,8 +528,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals(1, $products['Smartphones']['refurbished']);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
-		$this->assertInternalType('string', $products['Smartphones']['manufacture_year']);
-		$this->assertEquals('2011', $products['Smartphones']['manufacture_year']);
+		$this->assertInternalType('integer', $products['Smartphones']['manufacture_year']);
+		$this->assertEquals(2011, $products['Smartphones']['manufacture_year']);
 	
 		//MYSQLI_ASSOC
 		$products = self::$mapper->type('array[category]', MYSQLI_ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -663,12 +663,12 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals(0, $products['Clothes'][0][7]);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][0]);
-		$this->assertInternalType('string', $products['Clothes'][0]['manufacture_year']);
-		$this->assertEquals('2011', $products['Clothes'][0]['manufacture_year']);
+		$this->assertInternalType('integer', $products['Clothes'][0]['manufacture_year']);
+		$this->assertEquals(2011, $products['Clothes'][0]['manufacture_year']);
 	
 		$this->assertArrayHasKey(8, $products['Clothes'][0]);
-		$this->assertInternalType('string', $products['Clothes'][0][8]);
-		$this->assertEquals('2011', $products['Clothes'][0][8]);
+		$this->assertInternalType('integer', $products['Clothes'][0][8]);
+		$this->assertEquals(2011, $products['Clothes'][0][8]);
 	
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][1]);
@@ -704,8 +704,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals(0, $products['Clothes'][1]['refurbished']);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][1]);
-		$this->assertInternalType('string', $products['Clothes'][1]['manufacture_year']);
-		$this->assertEquals('2012', $products['Clothes'][1]['manufacture_year']);
+		$this->assertInternalType('integer', $products['Clothes'][1]['manufacture_year']);
+		$this->assertEquals(2012, $products['Clothes'][1]['manufacture_year']);
 	
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][2]);
@@ -741,8 +741,8 @@ class ArrayMapperTest extends MySQLTest {
 		$this->assertEquals(0, $products['Clothes'][2]['refurbished']);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Clothes'][2]);
-		$this->assertInternalType('string', $products['Clothes'][2]['manufacture_year']);
-		$this->assertEquals('2013', $products['Clothes'][2]['manufacture_year']);
+		$this->assertInternalType('integer', $products['Clothes'][2]['manufacture_year']);
+		$this->assertEquals(2013, $products['Clothes'][2]['manufacture_year']);
 	
 		////
 		$this->assertArrayHasKey(0, $products['Hardware']);

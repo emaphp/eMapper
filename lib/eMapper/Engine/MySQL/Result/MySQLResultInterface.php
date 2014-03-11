@@ -26,6 +26,7 @@ class MySQLResultInterface extends ResultInterface {
 				case 3://INTEGER
 				case 8://BIGINT, SERIAL
 				case 9://MEDIUMINT
+				case 13://YEAR
 					$type = 'integer';
 					break;
 		
@@ -47,7 +48,6 @@ class MySQLResultInterface extends ResultInterface {
 					break;
 		
 				case 11://TIME
-				case 13://YEAR
 					$type = 'string';
 					break;
 		
