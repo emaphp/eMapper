@@ -10,6 +10,7 @@ abstract class SQLiteTest extends \PHPUnit_Framework_TestCase {
 	public static $filename;
 	public static $conn;
 	public static $mapper;
+	public static $blob;
 	
 	public static function setUpBeforeClass() {
 		self::$filename = __DIR__ . '/testing.db';
@@ -17,6 +18,8 @@ abstract class SQLiteTest extends \PHPUnit_Framework_TestCase {
 		
 		self::$mapper = new SQLiteMapper(self::$filename);
 		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
+		
+		self::$blob = file_get_contents(__DIR__ . '/../avatar.gif');
 	}
 	
 	public static function tearDownAfterClass() {
