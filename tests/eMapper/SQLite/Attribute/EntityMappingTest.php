@@ -86,7 +86,9 @@ class EntityMappingTest extends SQLiteTest {
 		$this->assertEquals('1977-03-16', $sale->user->getBirthDate()->format('Y-m-d'));
 		$this->assertEquals('ISHMAEL', $sale->user->uppercase_name);
 		$this->assertEquals(10, $sale->user->fakeId);
-		$this->assertEquals('36', $sale->user->age);
+		
+		$age = $sale->user->getBirthDate()->diff(new \DateTime())->format('%y');
+		$this->assertEquals($age, $sale->user->age);
 	}
 	
 	public function testStatementAttribute() {
