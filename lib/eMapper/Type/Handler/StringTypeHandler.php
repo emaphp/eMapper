@@ -8,7 +8,7 @@ class StringTypeHandler extends TypeHandler {
 	use ValueExport;
 	
 	public function getValue($value) {
-		return $value;
+		return strval($value);
 	}
 	
 	public function castParameter($parameter) {

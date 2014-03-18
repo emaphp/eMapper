@@ -4,9 +4,9 @@ namespace eMapper\SQLite\Result\ArrayMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Result\Mapper\ArrayTypeMapper;
-use eMapper\Type\TypeManager;
 use eMapper\Result\ResultInterface;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Tests ArrayTypeMapper mapping to different arrays using result maps
@@ -19,7 +19,7 @@ class ResultMapTest extends SQLiteTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testArrayTypeError() {
-		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new SQLiteResultInterface($result), ResultInterface::NUM);
 		$this->assertInternalType('array', $user);
@@ -29,7 +29,7 @@ class ResultMapTest extends SQLiteTest {
 	 * Obtains a row with all fields declared through a result map
 	 */
 	public function testResultMapRow() {
-		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new SQLiteResultInterface($result));
 		$this->assertInternalType('array', $user);
@@ -57,7 +57,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result));
 	
@@ -85,7 +85,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'name');
 	
@@ -117,7 +117,7 @@ class ResultMapTest extends SQLiteTest {
 	 * Test setting a custom index to a list using a result map
 	 */
 	public function testCustomIndexResultMapList() {
-		$mapper = new ArrayTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string');
 	
@@ -145,7 +145,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testIndexOverrideList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -181,7 +181,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testGroupedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -231,7 +231,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");

@@ -65,7 +65,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		if (is_null($this->resultMap)) {
 			foreach ($row as $column => $value) {
 				$typeHandler = $this->columnHandler($column);
-				$result[$column] = $typeHandler->getValue($value);
+				$result[$column] = is_null($row[$column]) ? null : $typeHandler->getValue($value);
 			}
 		}
 		else {

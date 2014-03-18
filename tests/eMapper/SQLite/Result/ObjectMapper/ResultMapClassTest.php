@@ -3,9 +3,9 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
-use eMapper\Type\TypeManager;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Result\Mapper\ObjectTypeMapper;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Test ObjectTypeMapper class with different results mapping to a custom class using a result map
@@ -15,7 +15,7 @@ use eMapper\Result\Mapper\ObjectTypeMapper;
  */
 class ResultMapClassTest extends SQLiteTest {
 	public function testRow() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -42,7 +42,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -78,7 +78,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -114,7 +114,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testCustomIndexList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -153,7 +153,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -186,7 +186,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testGroupedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -242,7 +242,7 @@ class ResultMapClassTest extends SQLiteTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');

@@ -8,7 +8,7 @@ use eMapper\Type\TypeHandler;
  */
 class IntegerTypeHandler extends TypeHandler {
 	public function getValue($value) {
-		return (int) $value;
+		return intval($value);
 	}
 	
 	public function castParameter($parameter) {
@@ -16,7 +16,7 @@ class IntegerTypeHandler extends TypeHandler {
 			return $parameter;
 		}
 		elseif (is_string($parameter) || is_float($parameter) || is_bool($parameter)) {
-			return (int) $parameter;
+			return intval($parameter);
 		}
 		
 		return null;

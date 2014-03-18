@@ -4,7 +4,7 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Type\TypeManager;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Tests ObjectTypeMapper mapping to custom classes
@@ -14,7 +14,7 @@ use eMapper\Type\TypeManager;
  */
 class ObjectMapperTest extends SQLiteTest {
 	public function testRow() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new SQLiteResultInterface($result));
 	
@@ -39,7 +39,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result));
 	
@@ -73,7 +73,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id');
 	
@@ -108,7 +108,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category');
 	
@@ -138,7 +138,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\GenericUser');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string');
 	
@@ -173,7 +173,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category');
 	
@@ -222,7 +222,7 @@ class ObjectMapperTest extends SQLiteTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), null, 'Acme\Generic\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'product_id', null, 'category');
 	

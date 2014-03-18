@@ -4,7 +4,7 @@ namespace eMapper\SQLite\Result\ArrayMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Result\Mapper\ArrayTypeMapper;
-use eMapper\Type\TypeManager;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Tests ArrayTypeMapper with various types of result
@@ -18,7 +18,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testRow() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new SQLiteResultInterface($result));
 		$this->assertInternalType('array', $user);
@@ -108,7 +108,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result));
 	
@@ -222,7 +222,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testIndexedList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'integer');
 		$this->assertInternalType('array', $users);
@@ -330,7 +330,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 	public function testCustomIndexList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string');
 	
@@ -443,7 +443,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testIndexOverrideList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category');
 		$this->assertInternalType('array', $products);
@@ -578,7 +578,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category', null, null, null, SQLITE3_ASSOC);
 	
@@ -604,7 +604,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 5, null, null, null, SQLITE3_NUM);
 	
@@ -635,7 +635,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testGroupedList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category');
 		$this->assertInternalType('array', $products);
@@ -812,7 +812,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category', null, SQLITE3_ASSOC);
 	
@@ -839,7 +839,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 5, null, SQLITE3_NUM);
 	
@@ -871,7 +871,7 @@ class ArrayMapperTest extends SQLiteTest {
 	 */
 	public function testGroupedIndexedList() {
 		//SQLITE3_BOTH
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'product_id', 'int', 'category');
 	
@@ -921,7 +921,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_ASSOC
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 'product_id', 'i', 'category', null, SQLITE3_ASSOC);
 	
@@ -949,7 +949,7 @@ class ArrayMapperTest extends SQLiteTest {
 		$result->finalize();
 	
 		//SQLITE3_NUM
-		$mapper = new ArrayTypeMapper(new TypeManager());
+		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultInterface($result), 0, 'int', 5, null, SQLITE3_NUM);
 	

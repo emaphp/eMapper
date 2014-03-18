@@ -3,9 +3,9 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
-use eMapper\Type\TypeManager;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Result\Mapper\ObjectTypeMapper;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Tests ObjectTypeMapper mapping to entity classes
@@ -19,7 +19,7 @@ class EntityTest extends SQLiteTest {
 	public function __construct() {
 		parent::__construct();
 	
-		$this->typeManager = new TypeManager();
+		$this->typeManager = new SQLiteTypeManager();
 		$this->typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	}
 	

@@ -4,8 +4,8 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Type\TypeManager;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Test ObjectTypeMapper class with different types of results using a result map
@@ -15,7 +15,7 @@ use Acme\Type\RGBColorTypeHandler;
  */
 class ResultMapTest extends SQLiteTest {
 	public function testRow() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new SQLiteResultInterface($result));
 	
@@ -37,7 +37,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result));
 	
@@ -68,7 +68,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id');
 	
@@ -99,7 +99,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper(new TypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 's');
 	
@@ -130,7 +130,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
@@ -163,7 +163,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testGroupedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
@@ -219,7 +219,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');

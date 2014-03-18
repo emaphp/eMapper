@@ -4,7 +4,16 @@ namespace eMapper\Engine\SQLite\Result;
 use eMapper\Result\ResultInterface;
 
 class SQLiteResultInterface extends ResultInterface {
+	/**
+	 * Result types array
+	 * @var array
+	 */
 	public $resultTypes = array(self::BOTH => SQLITE3_BOTH, self::ASSOC => SQLITE3_ASSOC, self::NUM => SQLITE3_NUM);
+	
+	/**
+	 * Total rows
+	 * @var int
+	 */
 	public $numRows;
 	
 	/* (non-PHPdoc)
@@ -29,28 +38,12 @@ class SQLiteResultInterface extends ResultInterface {
 			$name = $this->result->columnName($i);
 			
 			switch ($this->result->columnType($i)) {
-				case SQLITE3_INTEGER:
-					$type = 'integer';
-					break;
-					
-				case SQLITE3_FLOAT:
-					$type = 'float';
-					break;
-					
-				case SQLITE3_BLOB:
-					$type = 'blob';
-					break;
-					
-				case SQLITE3_NULL:
+				default:
 					//For some reason columType does not return an useful value
 					//Instead, always returns SQLITE3_NULL, which at the end produces bad indexation an a lot of other issues
-					//In order to avoid this, all values use 'string' as a default type
-					//$type = 'null';
-					//break;
-					
-				case SQLITE3_TEXT:
-				default:
-					$type = 'string';
+					//In order to avoid this, all values use 'default' as a default type
+					//This type handler just returns the value as is
+					$type = 'default';
 					break;
 			}
 			

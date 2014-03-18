@@ -7,7 +7,7 @@ use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
-use eMapper\Type\TypeManager;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 class SQLiteMapper extends GenericMapper {
 	//transaction type constants
@@ -48,7 +48,7 @@ class SQLiteMapper extends GenericMapper {
 		}
 		
 		//type managet
-		$this->typeManager = new TypeManager();
+		$this->typeManager = new SQLiteTypeManager();
 	
 		// set default options
 		$this->applyDefaultConfig();
