@@ -150,7 +150,7 @@ class EntityTest extends SQLiteTest {
 		$this->assertInternalType('string', $product->getCategory());
 		$this->assertEquals('Hardware', $product->getCategory());
 
-		$this->assertInstanceOf('Acme\RGBColor', $product->color);
+		$this->assertNull($product->color);
 
 		////
 		$product = $products['Smartphones'];
@@ -251,7 +251,7 @@ class EntityTest extends SQLiteTest {
 		$this->assertInternalType('string', $product->getCategory());
 		$this->assertEquals('Hardware', $product->getCategory());
 
-		$this->assertInstanceOf('Acme\RGBColor', $product->color);
+		$this->assertNull($product->color);
 
 		////
 		$product = $products['Smartphones'][0];
@@ -352,7 +352,7 @@ class EntityTest extends SQLiteTest {
 		$this->assertInternalType('string', $product->getCategory());
 		$this->assertEquals('Hardware', $product->getCategory());
 
-		$this->assertInstanceOf('Acme\RGBColor', $product->color);
+		$this->assertNull($product->color);
 
 		////
 		$product = $products['Smartphones'][5];

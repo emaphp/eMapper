@@ -47,6 +47,18 @@ class DefaultMapTest extends MySQLTest {
 		$result->free();
 	}
 	
+	public function testNullColumnRow() {
+		$mapper = new ObjectTypeMapper(new TypeManager());
+		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 4");
+		$product = $mapper->mapResult(new MySQLResultInterface($result));
+	
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertObjectHasAttribute('color', $product);
+		$this->assertNull($product->color);
+	
+		$result->free();
+	}
+	
 	public function testList() {
 		$mapper = new ObjectTypeMapper(new TypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");

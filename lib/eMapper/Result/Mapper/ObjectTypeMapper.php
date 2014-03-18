@@ -132,19 +132,20 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			foreach ($this->propertyList as $name => $config) {
 				$column = $config->column;
 				$typeHandler = $this->typeHandlers[$name];
+				$value = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
 				
 				if ($instance instanceof \stdClass) {
-					$instance->$name = $typeHandler->getValue($row->$column);
+					$instance->$name = $value;
 				}
 				elseif ($instance instanceof \ArrayObject) {
-					$instance[$name] = $typeHandler->getValue($row->$column);
+					$instance[$name] = $value;
 				}
 				elseif (isset($config->setter)) {
 					$setter = $config->setter;
-					$instance->$setter($typeHandler->getValue($row->$column));
+					$instance->$setter($value);
 				}
 				else {
-					$instance->$name = $typeHandler->getValue($row->$column);
+					$instance->$name = $value;
 				}
 			}
 		}
@@ -158,19 +159,19 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 					}
 					
 					$typeHandler = $this->columnHandler($column);
-					$instance->$column = $typeHandler->getValue($row->$column);
+					$instance->$column = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
 				}
 			}
 			elseif ($this->defaultClass == 'ArrayObject') {
 				foreach ($this->columnTypes as $column => $type) {
 					$typeHandler = $this->columnHandler($column);
-					$instance[$column] = $typeHandler->getValue($row->$column);
+					$instance[$column] = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
 				}
 			}
 			else {				
 				foreach ($this->columns as $column => $typeHandler) {
 					//set values
-					$instance->$column = $typeHandler->getValue($row->$column);
+					$instance->$column = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);	
 				}
 			}
 		}
