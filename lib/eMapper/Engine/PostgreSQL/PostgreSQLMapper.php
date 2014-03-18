@@ -228,7 +228,7 @@ class PostgreSQLMapper extends GenericMapper {
 	 * @return string
 	 */
 	protected function build_statement($query, $args, $parameterMap) {
-		$stmt = new PostgreSQLStatement($this->connection, $typeManager, $parameterMap);
+		$stmt = new PostgreSQLStatement($this->connection, $this->typeManager, $parameterMap);
 		return $stmt->build($query, $args, $this->config);
 	}
 	

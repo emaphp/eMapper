@@ -97,8 +97,9 @@ abstract class GenericStatement extends CacheKey {
 		}
 	
 		//get parameter expression
+		
 		$value = $typeHandler->setParameter($value);
-	
+		
 		if (is_null($value)) {
 			return 'NULL';
 		}
@@ -125,7 +126,6 @@ abstract class GenericStatement extends CacheKey {
 	public function build($expr, $args, $config, $parameterMap = null) {
 		$this->args = $args;
 		$this->config = $config;
-		$counter_start = 0;
 		
 		//wrap first parameter
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
@@ -191,8 +191,6 @@ abstract class GenericStatement extends CacheKey {
 			elseif (!is_object($args[0]) && !is_array($args[0])) {
 				throw new \InvalidArgumentException("Specified parameter is not an array/object");
 			}
-				
-			$counter_start = 1;
 		
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX,
 					function ($matches) {
@@ -241,16 +239,17 @@ abstract class GenericStatement extends CacheKey {
 			$this->args[0] = $args[0];
 			$total_args = count($this->args);
 			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX,
-					function ($matches) use ($counter_start, $total_args) {
+					function ($matches) use ($total_args) {
+						static $n = 0;
 						$total_matches = count($matches);
 		
 						if ($total_matches == 2) { //%{TYPE@1 | CLASS@1}
 							//check if there is arguments left
-							if ($counter_start >= $total_args) {
+							if ($n >= $total_args) {
 								throw new \OutOfBoundsException("No arguments left for expression '{$matches[0]}'");
 							}
-		
-							return $this->castParameter($this->args[$counter_start++], $matches[1]);
+
+							return $this->castParameter($this->args[$n++], $matches[1]);
 						}
 						else {
 							$subindex = $type = null;

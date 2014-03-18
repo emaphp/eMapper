@@ -375,7 +375,7 @@ abstract class GenericMapper {
 				}
 				
 				//check for index callback
-				if (array_key_exists('callback.index', $this->index)) {
+				if (array_key_exists('callback.index', $this->config)) {
 					$index = $this->config['callback.index'];
 					$index_type = 'callable';
 				}
