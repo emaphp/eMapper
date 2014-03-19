@@ -1340,7 +1340,7 @@ use eMapper\Type\TypeHandler;
  * @unquoted
  */
 class BooleanTypeHandler extends TypeHandler {
-	protected function isTrue($value) {
+	protected function cast_to_boolean($value) {
 		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
 			return false;
 		}
@@ -1349,11 +1349,11 @@ class BooleanTypeHandler extends TypeHandler {
 	}
 	
 	public function getValue($value) {
-		return $this->isTrue($value);
+		return $this->cast_to_boolean($value);
 	}
 	
 	public function castParameter($parameter) {
-		return $this->isTrue($parameter);
+		return $this->cast_to_boolean($parameter);
 	}
 	
 	public function setParameter($parameter) {
@@ -1361,7 +1361,7 @@ class BooleanTypeHandler extends TypeHandler {
 	}
 }
 ```
-The **castParameter** method is an internal method that is invoked in order to check a parameter type prior to being inserted. This method can be used to notify that a particular value is invalid or generate a valid expression from it.
+The **castParameter** method is an internal method that is invoked in order to check a parameter type prior to being inserted. This method can be used to notify that a particular value is invalid or to generate a valid expression from it.
 
 <br/>
 Dynamic attributes

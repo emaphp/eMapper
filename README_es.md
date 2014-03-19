@@ -1345,7 +1345,7 @@ use eMapper\Type\TypeHandler;
  * @unquoted
  */
 class BooleanTypeHandler extends TypeHandler {
-	protected function isTrue($value) {
+	protected function cast_to_boolean($value) {
 		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
 			return false;
 		}
@@ -1354,11 +1354,11 @@ class BooleanTypeHandler extends TypeHandler {
 	}
 	
 	public function getValue($value) {
-		return $this->isTrue($value);
+		return $this->cast_to_boolean($value);
 	}
 	
 	public function castParameter($parameter) {
-		return $this->isTrue($parameter);
+		return $this->cast_to_boolean($parameter);
 	}
 	
 	public function setParameter($parameter) {
