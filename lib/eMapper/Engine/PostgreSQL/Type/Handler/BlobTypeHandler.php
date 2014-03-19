@@ -11,7 +11,7 @@ class BlobTypeHandler extends TypeHandler {
 	use ValueExport;
 	
 	public function getValue($value) {
-		return $value;
+		return pg_unescape_bytea($value);
 	}
 	
 	public function castParameter($parameter) {
