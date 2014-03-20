@@ -16,25 +16,18 @@ class PostgreSQLResultInterface extends ResultInterface {
 		
 		for ($i = 0; $i < $num_fields; $i++) {
 			$name = pg_field_name($this->result, $i);
+			$type = pg_field_type($this->result, $i);
 			
-			switch (pg_field_type($this->result, $i)) {
+			switch ($type) {
 				case 'bit':
 				case 'boolean': {
 					$type = 'boolean';
 				}
 				break;
 				
-				case 'character':
-				case 'char':
-				case 'text':
-				case 'json':
-				case 'xml':
-				case 'varchar': {
-					$type = 'string';
-				}
-				break;
-				
-				case 'bytea':
+				case 'int2':
+				case 'int4':
+				case 'int8':
 				case 'smallint':
 				case 'smallserial':
 				case 'integer':
@@ -49,6 +42,8 @@ class PostgreSQLResultInterface extends ResultInterface {
 				}
 				break;
 				
+				case 'float4':
+				case 'float8':
 				case 'real':
 				case 'double precision': {
 					$type = 'float';
@@ -68,6 +63,21 @@ class PostgreSQLResultInterface extends ResultInterface {
 				case 'timestamp': {
 					$type = 'DateTime';
 				}
+				
+				case 'bytea': {
+					$type = 'blob';
+				}
+				
+				case 'character':
+				case 'char':
+				case 'text':
+				case 'json':
+				case 'xml':
+				case 'varchar':
+				default: {
+					$type = 'string';
+				}
+				break;
 				break;
 			}
 			
