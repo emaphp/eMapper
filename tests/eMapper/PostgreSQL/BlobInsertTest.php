@@ -9,7 +9,7 @@ namespace eMapper\PostgreSQL;
  */
 class BlobInsertTest extends PostgreSQLTest {
 	public function testArray() {
-		$result = self::$mapper->type('array')->query("SELECT * FROM \"Users_FindAll\"()");
+		$result = self::$mapper->type('array')->query("SELECT * FROM users_findall()");
 	}
 	
 	public function __testInsertion() {

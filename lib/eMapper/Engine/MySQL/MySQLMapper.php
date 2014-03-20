@@ -294,8 +294,12 @@ class MySQLMapper extends GenericMapper {
 			throw new MySQLMapperException("No valid MySQL connection available");
 		}
 	
-		//warning: PHP 5.5 required
-		return $this->connection->begin_transaction();
+		if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+			return $this->connection->begin_transaction();
+		}
+		else {
+			return $this->connection->query("");
+		}
 	}
 	
 	/**
