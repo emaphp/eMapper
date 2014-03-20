@@ -721,7 +721,7 @@ When mapping to an indexed list of entities the specified index must be the prop
 Declaring a property as private/protected requires adding the **@getter** and **@setter** annotations.
 
 ```php
-namespace Amce\Entity;
+namespace Acme\Entity;
 
 /**
  * @entity
@@ -815,7 +815,7 @@ $mapper
 **Executing statements**
 
 <br/>
-Executing a statement is done by invoking the **execute** method and passing the statement identifier as argument. Just like **query**, this method takes an arbitrary number of additional arguments.
+To execute a statement we simply invoke the **execute** method passing the statement identifier as argument. Just like **query**, this method takes an arbitrary number of additional arguments.
 
 ```php
 //add statement
@@ -868,14 +868,14 @@ Namespaces
 **Organizing statements**
 
 <br/>
-Namespaces are objects designed with the purpose of storing a list of statements more easily. These can turn really helpful in medium and large projects, where a large number of queries are created and stored. In order to create a namespace we must first build a new instance of the *eMapper\SQL\StatementNamespace* class. This class constructor takes a string id as argument. Once created we can add an arbitrary number of statements using the same method we've seen previously. To store a namespace within a mapper instance we use the **addNamespace** method.
+Namespaces are objects designed with the purpose of storing a list of statements more easily. These can turn really helpful in medium and large projects, where a large number of queries need to be stored. In order to create a namespace we must first build a new instance of the *eMapper\SQL\SQLNamespace* class. This class constructor takes a string id as argument. Once created we can add an arbitrary number of statements using the same method we've seen previously. To store a namespace within a mapper instance we use the **addNamespace** method.
 
 ```php
 use eMapper\SQL\Statement;
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 
-//crate namespace
-$ns = new StatementNamespace('users');
+//create namespace
+$ns = new SQLNamespace('users');
 
 //add statement
 $stmt = new Statement('findAll', "SELECT * FROM users");
@@ -903,13 +903,13 @@ A namespace can contain other namespaces in case the complexity of the project r
 
 ```php
 use eMapper\SQL\Statement;
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 
 //create namespace
-$usersNamespace = new StatementNamespace('users');
+$usersNamespace = new SQLNamespace('users');
 
 //nested namespace
-$profilesNamespace = new StatementNamespace('profiles');
+$profilesNamespace = new SQLNamespace('profiles');
 $profilesNamespace->stmt('findByUserId',
                          "SELECT * FROM profiles WHERE user_id = %{i}",
                          Statement::type('obj[]'));
@@ -918,7 +918,8 @@ $profilesNamespace->stmt('findByUserId',
 $usersNamespace->addNamespace($profilesNamespace);
 
 //using the 'ns' method
-$usersNamespace->ns('admin')
+$usersNamespace
+->ns('admin')
 ->stmt('delete', "DELETE FROM users WHERE user_id = %{i}")
 ->stmt('ban', "UPDATE users SET state = 'banned' WHERE user_id = %{i}");
 
@@ -934,15 +935,15 @@ $mapper->execute('users.admin.ban', 7);
 **Custom namespaces**
 
 <br/>
-We can create customized namespaces by extending the *eMapper\SQL\StatementNamespace* class. Customized namespaces need to declare their id by calling their parent class constructor.
+We can create customized namespaces by extending the *eMapper\SQL\SQLNamespace* class. Customized namespaces need to declare their id by calling their parent class constructor.
 
 ```php
 namespace Acme\SQL;
 
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 use eMapper\SQL\Statement;
 
-class UsersNamespace extends StatementNamespace {
+class UsersNamespace extends SQLNamespace {
 	public function __construct() {
 		parent::__construct('users');
 		
@@ -964,6 +965,9 @@ class UsersNamespace extends StatementNamespace {
 <br/>
 Stored procedures
 -----------------
+
+<br/>
+***NOTE:*** *Currently this feature is only supported by the MySQLMapper class.*
 
 <br/>
 **Calling stored procedures**
@@ -1426,7 +1430,7 @@ class User {
      public $name;
     
     /**
-     * @query "SELECT * FROM profiles WHERE user_id = #{id} AND type = %{i}"
+     * @query "SELECT * FROM profiles WHERE user_id = #{id} AND type = %{1}"
      * @arg-self
      * @arg 1
      * @type obj[]
@@ -1448,7 +1452,7 @@ use eMapper\SQL\Statement;
 
 $profilesNamespace = new StatementNamespace('profiles');
 $profilesNamespace->stmt('findByUserIdAndType',
-                         "SELECT * FROM profiles WHERE user_id = #{i} AND type = %{i}",
+                         "SELECT * FROM profiles WHERE user_id = #{i} AND type = %{1}",
                          Statement::type('obj[profile_id]'));
                          
 $mapper->addNamespace($profilesNamespace);

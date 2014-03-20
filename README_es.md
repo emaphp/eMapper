@@ -734,7 +734,7 @@ Es necesario notar que al mapear a listas de entidades el índice a especificar 
 En caso de declarar las propiedades de una entidad como privadas/protegidas debemos configurar los métodos setter y getter de cada una.
 
 ```php
-namespace Amce\Entity;
+namespace Acme\Entity;
 
 /**
  * @entity
@@ -875,14 +875,14 @@ Namespaces
 **Organización de statements**
 
 <br/>
-Los *namespaces* son objetos destinados a poder organizar con mayor facilidad un listado de statements. Estos resultan de mucha utilidad en proyectos medianos y grandes, donde se crean un gran número de consultas. Para declarar un namespace debemos crear una instancia de la clase *eMapper\SQL\StatementNamespace*. El constructor de esta clase require que especifiquemos una cadena de texto destinado a identificar univocamente a ese namespace. Una vez creado podemos agregar un número arbitrario de statements utilizando la misma metodología vista anteriormente con las clases mapper. Para agregar un namespace a un objeto mapper utilizamos el método **addNamespace**.
+Los *namespaces* son objetos destinados a poder organizar con mayor facilidad un listado de statements. Estos resultan de mucha utilidad en proyectos medianos y grandes, donde se crean un gran número de consultas. Para declarar un namespace debemos crear una instancia de la clase *eMapper\SQL\SQLNamespace*. El constructor de esta clase require que especifiquemos una cadena de texto destinado a identificar univocamente a ese namespace. Una vez creado podemos agregar un número arbitrario de statements utilizando la misma metodología vista anteriormente con las clases mapper. Para agregar un namespace a un objeto mapper utilizamos el método **addNamespace**.
 
 ```php
 use eMapper\SQL\Statement;
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 
 //declarar namespace
-$ns = new StatementNamespace('usuarios');
+$ns = new SQLNamespace('usuarios');
 
 //agregar statement
 $stmt = new Statement('findAll', "SELECT * FROM usuarios");
@@ -911,10 +911,10 @@ Un namespace puede contener otros namespaces en caso de que la complejidad del p
 
 ```php
 use eMapper\SQL\Statement;
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 
 //declarar namespace
-$usersNamespace = new StatementNamespace('usuarios');
+$usersNamespace = new SQLNamespace('usuarios');
 
 //namespace anidado
 $profilesNamespace = new StatementNamespace('perfiles');
@@ -942,15 +942,15 @@ $mapper->execute('usuarios.admin.ban', 7);
 **Namespace customizados**
 
 <br/>
-Otra forma de organizar statements es crear nuestras propias clases de anidamiento. De esta forma evitamos declarar varias statements en el mismo archivo. Los namespaces customizados deben extender de la clase *eMapper\SQL\StatementNamespace*.
+Otra forma de organizar statements es crear nuestras propias clases de anidamiento. De esta forma evitamos declarar varias statements en el mismo archivo. Los namespaces customizados deben extender de la clase *eMapper\SQL\SQLNamespace*.
 
 ```php
 namespace Acme\SQL;
 
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 use eMapper\SQL\Statement;
 
-class UsersNamespace extends StatementNamespace {
+class UsersNamespace extends SQLNamespace {
 	public function __construct() {
 		parent::__construct('usuarios');
 		
@@ -972,6 +972,9 @@ class UsersNamespace extends StatementNamespace {
 <br/>
 Rutinas almacenadas
 -----------------
+
+<br/>
+***NOTA:*** *Por el momento, esta feature solo esta disponible para la clase MySQLMapper.*
 
 <br/>
 **Invocando rutinas almacenadas**
@@ -1430,7 +1433,7 @@ class Usuario {
      public $nombre;
     
     /**
-     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{i}"
+     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{1}"
      * @arg-self
      * @arg 1
      * @type obj[]
@@ -1453,7 +1456,7 @@ use eMapper\SQL\Statement;
 
 $profilesNamespace = new StatementNamespace('profiles');
 $profilesNamespace->stmt('findByUserIdAndType',
-                         "SELECT * FROM perfiles WHERE id_usuario = #{i} AND tipo = %{i}",
+                         "SELECT * FROM perfiles WHERE id_usuario = #{i} AND tipo = %{1}",
                          Statement::type('obj[id_perfil]'));
                          
 $mapper->addNamespace($profilesNamespace);

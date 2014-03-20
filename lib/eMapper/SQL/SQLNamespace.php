@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\SQL;
 
-use eMapper\SQL\Aggregate\StatementNamespaceAggregate;
+use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
 
-class StatementNamespace {
-	use StatementNamespaceAggregate;
+class SQLNamespace {
+	use SQLNamespaceAggregate;
 	
 	/**
 	 * Namespace ID validation regex
@@ -30,7 +30,7 @@ class StatementNamespace {
 	}
 	
 	public static function create($id) {
-		return new StatementNamespace($id);
+		return new SQLNamespace($id);
 	}
 }
 ?>

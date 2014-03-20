@@ -1,6 +1,6 @@
 {
 	"name" : "emapper/emapper",
-	"description" : "The Extensible Mapper Library for PHP",
+	"description" : "The Extensible Mapper Package for PHP",
 	"type" : "library",
 	"authors" : [{
 			"name" : "Emmanuel Antico",

@@ -1,12 +1,12 @@
 <?php
 namespace eMapper\SQL\Aggregate;
 
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 use eMapper\SQL\Statement;
 use eMapper\SQL\Configuration\StatementConfigurationContainer;
 use eMapper\SQL\Aggregate\StatementAggregate;
 
-trait StatementNamespaceAggregate {
+trait SQLNamespaceAggregate {
 	use StatementAggregate;
 	
 	/**
@@ -28,7 +28,7 @@ trait StatementNamespaceAggregate {
 	 */
 	protected function validateNamespaceId($namespaceId) {
 		//validate $id
-		if (!is_string($namespaceId) || !preg_match(StatementNamespace::NAMESPACE_ID_REGEX, $namespaceId)) {
+		if (!is_string($namespaceId) || !preg_match(SQLNamespace::NAMESPACE_ID_REGEX, $namespaceId)) {
 			throw new \InvalidArgumentException("Namespace ID is not valid");
 		}
 	}
@@ -46,7 +46,7 @@ trait StatementNamespaceAggregate {
 	 * Adds a new namespace
 	 * @param StatementNamespace $ns
 	 */
-	public function addNamespace(StatementNamespace $ns) {
+	public function addNamespace(SQLNamespace $ns) {
 		$this->namespaces[$ns->id] = $ns;
 	}
 	
@@ -72,7 +72,7 @@ trait StatementNamespaceAggregate {
 			return false;
 		}
 		
-		if (preg_match(StatementNamespace::INNER_NAMESPACE_REGEX, $statementId, $matches)) {
+		if (preg_match(SQLNamespace::INNER_NAMESPACE_REGEX, $statementId, $matches)) {
 			$namespaceId = $matches[1];
 		
 			if (!$this->hasNamespace($namespaceId)) {
@@ -103,7 +103,7 @@ trait StatementNamespaceAggregate {
 			return false;
 		}
 	
-		if (preg_match(StatementNamespace::INNER_NAMESPACE_REGEX, $id, $matches)) {
+		if (preg_match(SQLNamespace::INNER_NAMESPACE_REGEX, $id, $matches)) {
 			$namespaceId = $matches[1];
 	
 			if (!$this->hasNamespace($namespaceId)) {
@@ -131,7 +131,7 @@ trait StatementNamespaceAggregate {
 	 */
 	public function &buildNamespace($namespaceId) {
 		$this->validateNamespaceId($namespaceId);
-		$this->namespaces[$namespaceId] = new StatementNamespace($namespaceId);
+		$this->namespaces[$namespaceId] = new SQLNamespace($namespaceId);
 		return $this->namespaces[$namespaceId];
 	}
 	
@@ -150,7 +150,7 @@ trait StatementNamespaceAggregate {
 		}
 	
 		//create new namespace and return
-		$this->namespaces[$namespaceId] = new StatementNamespace($namespaceId);
+		$this->namespaces[$namespaceId] = new SQLNamespace($namespaceId);
 		return $this->namespaces[$namespaceId];
 	}
 	

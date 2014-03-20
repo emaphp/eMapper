@@ -4,7 +4,7 @@ namespace eMapper;
 use eMapper\SQL\Statement;
 use Acme\Result\UserResultMap;
 use Acme\Parameter\ProductParameterMap;
-use eMapper\SQL\StatementNamespace;
+use eMapper\SQL\SQLNamespace;
 
 /**
  * Tests creating Statement and StatementNamespace instances and applying different configuration
@@ -171,27 +171,27 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testNamespaceCreate0() {
-		$ns = new StatementNamespace('*');
+		$ns = new SQLNamespace('*');
 	}
 	
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testNamespaceCreate1() {
-		$ns = StatementNamespace::create('+');
+		$ns = SQLNamespace::create('+');
 	}
 	
 	public function testNamespaceCreate2() {
-		$ns = new StatementNamespace('main');
+		$ns = new SQLNamespace('main');
 		$this->assertFalse($ns->hasNamespace('ns1'));
 		$this->assertFalse($ns->getNamespace('ns1'));
 		
-		$sub_ns = new StatementNamespace('sub');
+		$sub_ns = new SQLNamespace('sub');
 		$ns->addNamespace($sub_ns);
 		$this->assertTrue($ns->hasNamespace('sub'));
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ns->getNamespace('sub'));
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ns->getNamespace('sub'));
 		
-		$xtra_ns = new StatementNamespace('xtra');
+		$xtra_ns = new SQLNamespace('xtra');
 		$this->assertFalse($xtra_ns->hasStatement('stmt1'));
 		$this->assertFalse($xtra_ns->getStatement('stmt1'));
 		$stmt = new Statement('stmt1', "SELECT * FROM table");
@@ -201,7 +201,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		
 		$ns->addNamespace($xtra_ns);
 		$this->assertTrue($ns->hasNamespace('xtra'));
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ns->getNamespace('xtra'));
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ns->getNamespace('xtra'));
 		
 		$this->assertTrue($ns->hasStatement('xtra.stmt1'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ns->getStatement('xtra.stmt1'));
@@ -209,7 +209,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$ref = $ns->buildNamespace('ns2');
 		$ref->addStatement(new Statement('find'));		
 		$this->assertTrue($ns->hasNamespace('ns2'));
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ns->getNamespace('ns2'));
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ns->getNamespace('ns2'));
 		$this->assertTrue($ref->hasStatement('find'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ref->getStatement('find'));
 		$this->assertTrue($ns->hasStatement('ns2.find'));
@@ -218,14 +218,14 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$ref = $ns->ns('ns3');
 		$ref->addStatement(new Statement('find'));
 		$this->assertTrue($ns->hasNamespace('ns3'));
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ns->getNamespace('ns3'));
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ns->getNamespace('ns3'));
 		$this->assertTrue($ref->hasStatement('find'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ref->getStatement('find'));
 		$this->assertTrue($ns->hasStatement('ns3.find'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ns->getStatement('ns3.find'));
 		
 		$ref = $ns->ns('ns2');
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ref);
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ref);
 		$ns->ns('ns3')->addStatement(new Statement('findAll'));
 		$this->assertTrue($ns->hasStatement('ns3.findAll'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ns->getStatement('ns3.findAll'));
@@ -236,7 +236,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ns->getStatement('findByPK'));
 		
 		$ref = $ns->stmt('findByName');
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ref);
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ref);
 		$this->assertTrue($ns->hasStatement('findByName'));
 		$this->assertInstanceOf('eMapper\SQL\Statement', $ns->getStatement('findByName'));
 		
@@ -246,7 +246,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		->stmt('findByUserId', "SELECT * FROM users WHERE id = %{i}", Statement::type('obj'))
 		->stmt('findByEmail', "SELECT * FROM users WHERE email = %{s}", Statement::type('array'));
 		
-		$this->assertInstanceOf('eMapper\SQL\StatementNamespace', $ref);
+		$this->assertInstanceOf('eMapper\SQL\SQLNamespace', $ref);
 		$this->assertTrue($ns->hasNamespace('ns4'));
 		$this->assertTrue($ns->hasStatement('ns4.findByUserId'));
 		$this->assertTrue($ns->hasStatement('ns4.findByEmail'));

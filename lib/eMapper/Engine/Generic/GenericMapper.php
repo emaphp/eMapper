@@ -2,7 +2,7 @@
 namespace eMapper\Engine\Generic;
 
 use eMapper\SQL\Configuration\StatementConfiguration;
-use eMapper\SQL\Aggregate\StatementNamespaceAggregate;
+use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\CacheProvider;
 use eMapper\Cache\Key\CacheKey;
@@ -13,7 +13,7 @@ use eMapper\Result\Mapper\ScalarTypeMapper;
 
 abstract class GenericMapper {
 	use StatementConfiguration;
-	use StatementNamespaceAggregate;
+	use SQLNamespaceAggregate;
 	
 	//mapping expression regex
 	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
