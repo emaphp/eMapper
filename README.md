@@ -12,24 +12,20 @@ eMapper
 Latest modifications
 ------------------
 <br/>
-2014-03-01 - Version 3.0.0
+2014-03-26 - Version 3.0.0 (beta)
 
-  * Deprecated: Models
-  * Added: Support for SQLite and PostgreSQL
-  * Added: Result maps
-  * Added: Entities
-  * Added: Support for Dynamic SQL clauses through eMacros
-  * Added: Dynamic attributes
-  * Added: Grouping
-  * Added: Index (and group) callbacks
-  * Fixed: Lots of bugs from previous version
+  * Added: Drivers.
+  * Added: Mapper class.
+  * Modified: Array type constants in ArrayType class.
+  * Modified: Configuration values for stored procedures.
+  * Deprecated: MySQLMapper, SQLiteMapper and PostgreSQLMapper.
 
 <br/>
 Dependencies
 --------------
 <br/>
 - PHP >= 5.4
-- Marcio Almada's [annotations](https://github.com/marcioAlmada/annotations "") package
+- [Annotations](https://github.com/marcioAlmada/annotations "") package
 - [eMacros](https://github.com/emaphp/eMacros "") package
  
 <br/>
@@ -65,7 +61,28 @@ First steps
 -----------
 
 <br/>
-To start developing with *eMapper* we must create an instance of one of the mapping classes available in the library. Currently, *eMapper* supports MySQL, SQLite an PostgreSQL.
+To start developing with *eMapper* we must first create an instance of *eMapper\Mapper*. In order to connect to a database, this class requires an instance of *Driver*. This example initializes a *Mapper* instance that uses the MySQL driver class.
+<br/>
+```php
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+
+//create driver instance
+$driver = new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass');
+
+//create mapper
+$mapper = new Mapper($driver);
+```
+
+<br/>
+Drivers
+-----------
+
+<br/>
+Drivers are classes that provide a connection interface to a *Mapper* instance. This library comes with 3 database drivers ready to use for MySQL, SQLite and PostgreSQL.
 
 <br/>
 **MySQL**
@@ -75,14 +92,17 @@ To start developing with *eMapper* we must create an instance of one of the mapp
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLDriver;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+//MySQL/MariaDB driver
+$driver = new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass');
 ```
+
+<br/>
 <table width="95%">
     <thead>
         <tr>
-            <th colspan="4">Arguments for MySQLMapper class</th>
+            <th colspan="4">Arguments for MySQLDriver class</th>
         </tr>
         <tr>
             <th>Name</th>
@@ -151,15 +171,15 @@ $mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\Engine\SQLite\SQLiteMapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
 
-$mapper = new SQLiteMapper('company.db');
+$driver = new SQLiteDriver('company.db');
 ```
 
 <table width="95%">
     <thead>
         <tr>
-            <th colspan="4">Arguments for SQLiteMapper class</th>
+            <th colspan="4">Arguments for SQLiteDriver class</th>
         </tr>
         <tr>
             <th>Name</th>
@@ -198,14 +218,14 @@ $mapper = new SQLiteMapper('company.db');
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
+use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
 
-$mapper = new PostgreSQLMapper('dbname=company user=test password=test');
+$driver = new PostgreSQLDriver('dbname=company user=test password=test');
 ```
 <table width="95%">
     <thead>
         <tr>
-            <th colspan="4">Arguments for PostgreSQLMapper class</th>
+            <th colspan="4">Arguments for PostgreSQLDriver class</th>
         </tr>
         <tr>
             <th>Name</th>
@@ -232,6 +252,30 @@ $mapper = new PostgreSQLMapper('dbname=company user=test password=test');
 
 <br/>
 A mapper instance stores these configuration values internally. Database connection is not stablished after calling the constructor method but right before a query is submitted. In order to test a connection without sending a query we must use the **connect** method.
+
+```php
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
+
+$driver = new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper($driver);
+
+try {
+    //connect to database
+    $mapper->connect();
+}
+catch (MySQLConnectionException $ce) {
+    //connection failed
+}
+
+//...
+
+$mapper->close();
+```
 
 <br/>
 Arrays
@@ -260,10 +304,10 @@ $mapper->close();
 The expected type to obtain from a query is declared through the **type** method. This method receives a string which acts as a mapping expression. Mapping expressions are strings that indicate how a result must be interpreted. Applying a mapping expression requires chaining a call to this method before sending the query. In order to obtain an array from a row we indicate the expected type as *array* (or *arr*). We can also tell which type of array to return by adding a second argument.
 
 ```php
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 //obtain a row as an associative array
-$user = $mapper->type('array', ResultInterface::ASSOC)
+$user = $mapper->type('array', ArrayType::ASSOC)
 ->query("SELECT * FROM users WHERE user_id = 1");
 ```
 
@@ -417,20 +461,20 @@ $users = $mapper->type('object[user_id]')
 This syntax is supported by the array mapper as well.
 
 ````php
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 //get a list of associative arrays indexed by user_id
-$users = $mapper->type('array[user_id]', ResultInterface::ASSOC)
+$users = $mapper->type('array[user_id]', ArrayType::ASSOC)
 ->query("SELECT * FROM users");
 ```
 
 Remember that you can use only columns that are present in the result set. If we want a list of numeric arrays the index column must be specified as an integer.
 
 ```php
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 //get a list of numeric arrays indexed by user_id
-$users = $mapper->type('array[0]', ResultInterface::NUM)
+$users = $mapper->type('array[0]', ArrayType::NUM)
 ->query("SELECT * FROM users");
 ```
 
@@ -623,9 +667,14 @@ $mapper->query("INSERT INTO users (username, password, is_admin, image)
 We can define a database prefix for the current connection with the **setPrefix** method. The expression **@@** can then be used to insert this prefix within a query.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
 
-$mapper = new MySQLMapper('project');
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+
+$driver = new MySQLDriver('project');
+$mapper = new Mapper($driver);
 
 //set prefix
 $mapper->setPrefix('PRJ_');
@@ -644,6 +693,9 @@ A result map is a class that defines which properties will be mapped to an objec
 ```php
 namespace Acme\Result;
 
+/**
+ * @parser emapper/emapper
+ */
 class UserResultMap {
     /**
      * @column user_id
@@ -688,6 +740,7 @@ Just like a result map, an entity is a class that defines which properties must 
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class Product {
@@ -724,6 +777,7 @@ Declaring a property as private/protected requires adding the **@getter** and **
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class Profile {
@@ -967,7 +1021,7 @@ Stored procedures
 -----------------
 
 <br/>
-***NOTE:*** *Currently this feature is only supported by the MySQLMapper class.*
+***NOTE:*** *This feature is only available for MySQL and PostgreSQL databases.*
 
 <br/>
 **Calling stored procedures**
@@ -976,7 +1030,8 @@ Stored procedures
 Stored procedures are database routines aimed to provide persistence logic. These routines can be invoked from a mapper instance through a special feature that translates the invocation of a non-declared method into a stored procedure call. This is accomplished through a language feature called [overloading](http://php.net/manual/en/language.oop5.overloading.php "").
 
 ```php
-//SQL: CALL FindUserByUsername('jdoe')
+//MySQL: CALL FindUserByUsername('jdoe')
+//PostgreSQL: SELECT FindUserByUsername('jdoe')
 $user = $mapper->type('object')->FindUserByUsername('jdoe');
 ```
 
@@ -984,11 +1039,12 @@ $user = $mapper->type('object')->FindUserByUsername('jdoe');
 **Argument types**
 
 <br/>
-We can specify parameter types through the **sptypes** method when needed. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean).
+We can specify parameter types through the **proc_types** method when needed. Each one of the arguments corresponds to a parameter type. The code below calls a stored procedure specifying the argument types (username:string, password:string, is_admin:boolean).
 ```php
-//SQL: CALL InsertNewUser('juana', 'clave123', TRUE)
+//MySQL: CALL InsertNewUser('juana', 'clave123', TRUE)
+//PostgreSQL: SELECT InsertNewUser('juana', 'clave123', TRUE)
 $user_id = $mapper->type('int')
-->sptypes('s', 's', 'b')
+->proc_types('s', 's', 'b')
 ->InsertNewUser('juana', 'clave123', 1);
 ```
 
@@ -996,22 +1052,24 @@ $user_id = $mapper->type('int')
 **Database prefix**
 
 <br/>
-It is common to declare stored procedures using the database prefix. By default, whenever a stored procedure is being called, the database prefix is appended in front of its name. This behaviour can be modified by calling the **usePrefix** method.
+It is common to declare stored procedures using the database prefix. By default, whenever a stored procedure is being called, the database prefix is appended in front of its name.
 
 ```php
-use eMapper\MySQL\MySQLMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+use eMapper\Mapper;
+use eMapper\MySQL\MySQLDriver;
+
+$driver = new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper($driver);
 
 //set database prefix
 $mapper->setPrefix('EMP_');
 
-//add prefix
-$mapper->usePrefix(true);
-
 //SQL: CALL EMP_InsertImage('My Image', x...);
 $image_id = $mapper->type('integer')
-->sptypes('string', 'blob')
+->proc_types('string', 'blob')
 ->InsertImage('My Image', file_get_contents('image.png'));
 ```
 
@@ -1023,18 +1081,12 @@ Configuration
 A mapper instance keeps all configuration values defined by the user in an internal array called *config*. Whenever a particular method is called (**result_map** or **type**, for example) a new mapper instance is created. This new instance is a clone of the original with a new configuration value assigned. As a result, the original instance is not modified so it can continue to be used within the script. The example below uses the method **option** to generate a new mapper instance. This new instance will hold a new value called *map.type* with the value *integer*. This configuration key determines the desired result type to obtain from a query. For a more detailed list of the supported configuration options refer to *Appendix II - Configuration options*.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $four = $mapper->option('map.type', 'integer')->query("SELECT 2 + 2");
 ```
 <br/>
 To store values on the original instance we use the method **set**. This method receives 2 arguments: the configuration key and its value. These values can be then obtained through the **get** method.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $mapper->set('foo', 'bar');
 $bar = $mapper->get('foo');
 ```
@@ -1042,9 +1094,6 @@ $bar = $mapper->get('foo');
 Configuration values can also be referenced from within a query. We do this by surrounding the configuration key between braces after a leading **@** character.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
 $mapper->set('table', 'users');
 $user = $mapper->type('obj')->query("SELECT * FROM @{table} WHERE user_id = 2");
 ```
@@ -1120,15 +1169,19 @@ $products = $mapper->query("SELECT * FROM products WHERE price > {{:int (/ (%0) 
 An execution environment is a class that defines which functions can be invoked within a dynamic expression. These environments can be identified with a string ID (default environment has the ID *default*). You can define the environment of a mapper instance through the **setEnvironment** method. This examples generates 2 mapper instances, each one with a separate environment.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-use eMapper\Engine\SQLite\SQLiteMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
 
-$mysql = new MySQLMapper('database');
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Engine\SQLite\SQLiteDriver;
+
+$mysql = new Mapper(new MySQLDriver('database'));
 $mysql->setEnvironment('mysql_env');
 
 //...
 
-$sqlite = new SQLiteMapper('database.db');
+$sqlite = new Mapper(new SQLiteDriver('database.db'));
 $sqlite->setEnvironment('sqlite_env');
 ```
 
@@ -1164,9 +1217,6 @@ class CustomSQLEnvironment extends Environment {
 The *Configuration* trait allows the environment to store configuration values defined in the mapper instance. Notice that the **CorePackage** class is not the one included in *eMacros*. It is important to include this package because otherwise the property access functions will not work quite well with entities.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-
-$mysql = new MySQLMapper('database');
 $mysql->setEnvironment('mysql_env', 'Acme\SQL\Environment\CustomSQLEnvironment');
 ```
 
@@ -1178,13 +1228,17 @@ Cache
 **Using cache providers**
 
 <br/>
-Cache providers provide a generic way to store and retrieve values using libraries like **APC**, **Memcache** and **Memcached**. Using a *cache provider* requires calling the **setCacheProvider** method with a provider instance as argument. The following example initializes a *MySQLMapper* object and then sets a *APCProvider* instance as cache provider.
+Cache providers provide a generic way to store and retrieve values using libraries like **APC**, **Memcache** and **Memcached**. Using a *cache provider* requires calling the **setCacheProvider** method with a provider instance as argument. The following example initializes a *Mapper* object and then sets a *APCProvider* instance as cache provider.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
 use eMapper\Cache\APCProvider;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
 
 //set provider
 $mapper->setCacheProvider(new APCProvider());
@@ -1207,10 +1261,14 @@ When using a cache provider the behaviour of the mapper object is modified in th
 This example uses Memcache instead of APC and also illustrates how to create a **dynamic cache key**. The parameters used to run the query are also used to build the cache key. As a result, the returned value will be stored using the key *USER_6*.
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
 use eMapper\Cache\MemcacheProvider;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
 
 //set provider
 $mapper->setCacheProvider(new MemcacheProvider('65.132.12.4', 13412));
@@ -1219,6 +1277,27 @@ $mapper->setCacheProvider(new MemcacheProvider('65.132.12.4', 13412));
 $user = $mapper->type('array')
 ->cache('USER_%{i}', 120)
 ->query("SELECT * FROM users WHERE user_id = %{i}", 6);
+```
+
+The *MemcachedProvider* class is also included. This class supports more than one instance of memcache.
+
+```php
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Cache\MemcachedProvider;
+
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
+
+//configure provider
+$provider = new MemcachedProvider();
+$provider->addServer('111.22.33.44', 11211);
+$provider->addServer('111.22.33.45', 11211);
+
+//set provider
+$mapper->setCacheProvider($provider);
 ```
 
 <br/>
@@ -1384,6 +1463,7 @@ To associate a property with the execution of a query we use the **@query** anno
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class User {
@@ -1410,12 +1490,13 @@ The specified query receives the current instance of *User* and obtains the asso
 **Parameters**
 
 <br/>
-We can specify a variable number of arguments for a given query through the **@arg** annotation. Suppose that we want to filter all associated profiles by type. In order to do this we append an auxilary argument for this query holding the value 1. Since we still need the *User* instance, we must add a special annotation to treat the current user as an argument too.
+We can specify a variable number of arguments for a given query through the **@arg** annotation. Suppose that we want to filter all associated profiles by type. In order to do this we append an auxiliary argument for this query holding the value 1. Since we still need the *User* instance, we must add a special annotation to treat the current user as an argument too.
 
 ```php
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class User {
@@ -1463,6 +1544,7 @@ To execute an statement we use the **@stmt** annotation. This particular stateme
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class User {
@@ -1481,7 +1563,7 @@ class User {
      * @arg #id
      * @arg 1
      */
-    public $perfiles;
+    public $profiles;
 }
 ```
 Using a property as an argument requires adding an **@arg** annotation starting with a **#** symbol followed by the property name.
@@ -1496,6 +1578,7 @@ Calling a stored procedure is performed through the **@procedure** annotation. U
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class User {
@@ -1519,7 +1602,7 @@ class User {
     public $profiles;
 }
 ```
-This example introduces the **@result-map** annotation, which indicates the result map class to use for mapping. A type identifier has also been added to the first argument to indicate its type. These expressions can be used to indicate the procedure argument types, just like when calling **sptypes**.
+This example introduces the **@result-map** annotation, which indicates the result map class to use for mapping. A type identifier has also been added to the first argument to indicate its type. These expressions can be used to indicate the procedure argument types, just like when invoking the  **proc_types** method.
 
 <br/>
 **Macros**
@@ -1528,6 +1611,7 @@ This example introduces the **@result-map** annotation, which indicates the resu
 The **@eval** annotation allows to associate a property to the value returned by a user macro. This annotation uses the same syntax defined for dynamic SQL expressions. User macros don't support auxiliary arguments and are always invoked with the current instance as the only argument. This example adds a dynamic attribute called *age* which calculates the user's age with a user macro.
 ```php
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class User {
@@ -1564,6 +1648,7 @@ It is also possible to associate a condition to an attribute using the **@cond**
 namespace Acme\Entity;
 
 /**
+ * @parser emapper/emapper
  * @entity
  */
 class Product {
@@ -1599,18 +1684,22 @@ Exceptions
  - Invalid configuration
 
 <br/>
-The examples above illustrate exception handling for each supported database. All exceptions extend the *eMapper\Exception\MapperException* class.
+The examples above illustrate exception handling for each supported database. All exceptions extend the *eMapper\Exception\DatabaseException* class.
 
 <br/>
 **MySQL**
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
-use eMapper\Engine\MySQL\Exception\MySQLMapperException;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Engine\MySQL\Exception\MySQLException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 
-$mapper = new MySQLMapper('db');
+$mapper = new Mapper(new MySQLDriver('db'));
 
 try {
     $mapper->query($query);
@@ -1622,7 +1711,7 @@ catch (MySQLQueryException $qe) {
 catch (MySQLConnectionException $ce) {
     echo 'Connection failed! ' . $ce->getMessage();
 }
-catch (MySQLMapperException $me) {
+catch (MySQLException $me) {
     echo 'Error! ';
     
     if ($me->getPrevious() != null) {
@@ -1638,12 +1727,16 @@ catch (MySQLMapperException $me) {
 **SQLite**
 
 ```php
-use eMapper\Engine\SQLite\SQLiteMapper;
-use eMapper\Engine\SQLite\Exception\SQLiteMapperException;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
 
-$mapper = new SQLiteMapper('filename.db');
+$mapper = new Mapper(new SQLiteDriver('filename.db'));
 
 try {
     $mapper->query($query);
@@ -1655,14 +1748,14 @@ catch (SQLiteQueryException $qe) {
 catch (SQLiteConnectionException $ce) {
     echo 'Connection failed! ' . $ce->getMessage();
 }
-catch (SQLiteMapperException $me) {
+catch (SQLiteException $se) {
     echo 'Error! ';
     
-    if ($me->getPrevious() != null) {
-        echo $me->getPrevious()->getMessage();
+    if ($se->getPrevious() != null) {
+        echo $se->getPrevious()->getMessage();
     }
     else {
-        echo $me->getMessage();
+        echo $se->getMessage();
     }
 }
 ```
@@ -1671,12 +1764,16 @@ catch (SQLiteMapperException $me) {
 **PostgreSQL**
 
 ```php
-use eMapper\Engine\PostgreSQL\PostgreSQLMapper;
-use eMapper\Engine\PostgreSQL\Exception\PostgreSQLMapperException;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
+
+use eMapper\Mapper;
+use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
+use eMapper\Engine\PostgreSQL\Exception\PostgreSQLException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
 
-$mapper = new PostgreSQLMapper('dbname=test');
+$mapper = new Mapper(new PostgreSQLDriver('dbname=test'));
 
 try {
     $mapper->query($query);
@@ -1688,14 +1785,14 @@ catch (PostgreSQLQueryException $qe) {
 catch (PostgreSQLConnectionException $ce) {
     echo 'Connection failed! ' . $ce->getMessage();
 }
-catch (PostgreSQLMapperException $me) {
+catch (PostgreSQLException $pe) {
     echo 'Error! ';
     
-    if ($me->getPrevious() != null) {
-        echo $me->getPrevious()->getMessage();
+    if ($pe->getPrevious() != null) {
+        echo $pe->getPrevious()->getMessage();
     }
     else {
-        echo $me->getMessage();
+        echo $pe->getMessage();
     }
 }
 ```
@@ -1731,10 +1828,11 @@ The *query_override* method allows to rewrite the query which is sent to the dat
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
 
 $order = 'user_name ASC';
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
 
 $users = $mapper
 ->type('obj[]')
@@ -1751,9 +1849,13 @@ $users = $mapper
 Through the **no_rows** method we can associate the execution of an auxiliary function whenever a query does not return any rows. The specified callback takes the obtained result as argument .
 
 ```php
-use eMapper\Engine\MySQL\MySQLMapper;
+//composer autoloader
+require __DIR__ . "/vendor/autoload.php";
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
 
 //get users
 $users = $mapper->type('obj[]')
@@ -1800,9 +1902,10 @@ The *ustring* type lets you insert an unescaped string within a query. This feat
 //composer autoloader
 require __DIR__ . "/vendor/autoload.php";
 
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Mapper;
+use eMapper\Engine\MySQL\MySQLDriver;
 
-$mapper = new MySQLMapper('my_db', 'localhost', 'my_user', 'my_pass');
+$mapper = new Mapper(new MySQLDriver('my_db', 'localhost', 'my_user', 'my_pass'));
 
 //get users
 $users = $mapper
@@ -2079,16 +2182,28 @@ Configuration options are values that manage a mapper object behavior during a q
     </thead>
     <tbody>
         <tr>
-            <td>procedure.use_prefix</td>
+            <td>proc.use_prefix</td>
             <td>Boolean</td>
             <td>Determines whether the database prefix is used when invoking stored procedures</td>
             <td>TRUE</td>
         </tr>
         <tr>
-            <td>procedure.types</td>
+            <td>proc.types</td>
             <td>Array</td>
             <td>Defines the type associated with each argument in a call to a stored procedure</td>
             <td><em>None</em></td>
+        </tr>
+        <tr>
+            <td>proc.wrap</td>
+            <td>Boolean</td>
+            <td>Determine if the procedure name goes between quotes (only PostgreSQL)</td>
+            <td>TRUE</td>
+        </tr>
+        <tr>
+            <td>proc.as_table</td>
+            <td>Boolean</td>
+            <td>Determines if the value returned by the procedure must be treated as a table. If true, queries having the form <em>SELECT FUNCTION()</em> will be converted to <em>SELECT * FROM FUNCTION()</em> (only PostgreSQL)</td>
+            <td>FALSE</td>
         </tr>
     </tbody>
 </table>

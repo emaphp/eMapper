@@ -182,7 +182,7 @@ class PostgreSQLDriver extends Driver {
 		}
 		
 		//use returned values as a table
-		if (array_key_exists('proc.table', $config) && $config['proc.table'] === true) {
+		if (array_key_exists('proc.as_table', $config) && $config['proc.as_table'] === true) {
 			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
 		}
 		

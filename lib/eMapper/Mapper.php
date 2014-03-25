@@ -66,6 +66,12 @@ class Mapper {
 	
 		//use database prefix for procedure names
 		$this->config['proc.use_prefix'] = true;
+		
+		//wrap procedure name between quotes (PostgreSQL)
+		$this->config['proc.wrap'] = true;
+		
+		//procedure returning values directly (PostgreSQL)
+		$this->config['proc.as_table'] = false;
 	
 		//default relation depth
 		$this->config['depth.current'] = 0;
@@ -77,8 +83,8 @@ class Mapper {
 	public function __safe_copy() {
 		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
 				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
-				'cache.provider', 'cache.key', 'cache.ttl',
-				'procedure.types');
+				'cache.key', 'cache.ttl',
+				'proc.types');
 	}
 	
 	/**
