@@ -2,8 +2,9 @@
 namespace eMapper\SQLite\Mapper\ScalarMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\SQLiteMapper;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Engine\SQLite\SQLiteDriver;
+use eMapper\Mapper;
 
 /**
  * Test MySQLMapper with a custom type handler
@@ -18,7 +19,8 @@ class CustomTypeTest extends SQLiteTest {
 	public function __construct() {
 		parent::__construct();
 	
-		$this->xmapper = new SQLiteMapper(new \SQLite3(self::$filename));
+		$driver = new SQLiteDriver(new \SQLite3(self::$filename));
+		$this->xmapper = new Mapper($driver);
 		$this->xmapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 	}
 	

@@ -2,6 +2,7 @@
 namespace Acme\Entity;
 
 /**
+ * @parser custom
  * @moves forward
  * @speed slow
  */

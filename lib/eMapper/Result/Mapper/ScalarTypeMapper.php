@@ -3,6 +3,7 @@ namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeHandler;
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 class ScalarTypeMapper {
 	/**
@@ -46,7 +47,7 @@ class ScalarTypeMapper {
 		}
 		
 		while ($result->valid()) {
-			$row = $result->fetchArray(ResultInterface::BOTH);
+			$row = $result->fetchArray(ArrayType::BOTH);
 			$list[] = (is_null($row[$column])) ? null : $this->typeHandler->getValue($row[$column]);
 			$result->next();
 		}

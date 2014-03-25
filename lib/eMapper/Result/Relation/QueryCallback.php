@@ -29,7 +29,7 @@ class QueryCallback extends DynamicAttribute {
 		$this->mergeConfig($mapper->config);
 		
 		//invoke statement
-		return call_user_func_array(array($mapper->merge($this->config), 'query'), $args);
+		return call_user_func_array([$mapper->merge($this->config), 'query'], $args);
 	}
 }
 ?>

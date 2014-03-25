@@ -2,13 +2,14 @@
 namespace eMapper\Engine\SQLite\Result;
 
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 class SQLiteResultInterface extends ResultInterface {
 	/**
 	 * Result types array
 	 * @var array
 	 */
-	public $resultTypes = array(self::BOTH => SQLITE3_BOTH, self::ASSOC => SQLITE3_ASSOC, self::NUM => SQLITE3_NUM);
+	public $resultTypes = array(ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM);
 	
 	/**
 	 * Total rows
@@ -30,7 +31,7 @@ class SQLiteResultInterface extends ResultInterface {
 		return $this->numRows;
 	}
 	
-	public function columnTypes($resultType = self::ASSOC) {
+	public function columnTypes($resultType = ArrayType::ASSOC) {
 		$num_columns = $this->result->numColumns();
 		$types = array();
 		
@@ -48,11 +49,11 @@ class SQLiteResultInterface extends ResultInterface {
 			}
 			
 			//store type
-			if ($resultType & self::NUM) {
+			if ($resultType & ArrayType::NUM) {
 				$types[$i] = $type;
 			}
 			
-			if ($resultType & self::ASSOC) {
+			if ($resultType & ArrayType::ASSOC) {
 				$types[$name] = $type;
 			}
 		}
@@ -60,7 +61,7 @@ class SQLiteResultInterface extends ResultInterface {
 		return $types;
 	}
 
-	public function fetchArray($resultType = self::BOTH) {
+	public function fetchArray($resultType = ArrayType::BOTH) {
 		return $this->result->fetchArray($this->resultTypes[$resultType]);
 	}
 	

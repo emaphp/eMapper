@@ -95,7 +95,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 		$this->mergeConfig($mapper->config, $sptypes);
 		
 		//call stored procedure
-		return call_user_func(array($mapper->merge($this->config), '__call'), $this->procedure, $args);
+		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);
 	}
 }
 ?>

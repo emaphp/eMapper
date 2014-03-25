@@ -2,7 +2,8 @@
 namespace eMapper\MySQL;
 
 use eMapper\Engine\MySQL\Statement\MySQLStatement;
-use eMapper\Type\TypeManager;
+use eMapper\Engine\MySQL\Type\MySQLTypeManager;
+
 /**
  * Test MySQLStatement class
  * 
@@ -15,7 +16,7 @@ class StatementTest extends MySQLTest {
 	
 	public function __construct() {
 		self::setUpBeforeClass();
-		$this->statement = new MySQLStatement(self::$conn, new TypeManager(), null);
+		$this->statement = new MySQLStatement(self::$conn, new MySQLTypeManager(), null);
 	}
 	
 	public function testEmpty() {

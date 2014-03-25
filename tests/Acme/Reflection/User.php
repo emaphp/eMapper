@@ -2,6 +2,7 @@
 namespace Acme\Reflection;
 
 /**
+ * @parser emapper\emapper
  * @entity
  */
 class User {

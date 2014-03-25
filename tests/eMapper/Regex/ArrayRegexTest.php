@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Regex;
 
-use eMapper\Engine\Generic\GenericMapper;
+use eMapper\Mapper;
 
 /**
  * Tests parsing an array mapping expression
@@ -10,7 +10,7 @@ use eMapper\Engine\Generic\GenericMapper;
  * @group regex
  */
 class ArrayRegexTest extends \PHPUnit_Framework_TestCase {
-	const REGEX = GenericMapper::ARRAY_TYPE_REGEX;
+	const REGEX = Mapper::ARRAY_TYPE_REGEX;
 	
 	public function testSimpleArray1() {
 		$expr = 'array';

@@ -2,6 +2,7 @@
 namespace Acme\Result\Attribute;
 
 /**
+ * @parser emapper\emapper
  * @entity
  */
 class Sale {

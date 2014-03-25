@@ -2,6 +2,8 @@
 namespace eMapper\SQLite;
 
 use eMapper\Engine\SQLite\SQLiteMapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+use eMapper\Mapper;
 /**
  * Test creating instances of SQLiteMapper though different methods
  * @author emaphp
@@ -13,35 +15,24 @@ class MapperBuilderTest extends SQLiteTest {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testBuildException() {
-		$config = array();
-		$mapper = SQLiteMapper::build($config);
+		$config = [];
+		$driver = SQLiteDriver::build($config);
 	}
 	
 	public function testBuild() {
-		$config = array('database' => self::$filename);
-		$mapper = SQLiteMapper::build($config);
+		$config = ['database' => self::$filename];
+		$driver = SQLiteDriver::build($config);
 	
-		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteMapper', $mapper);
-		$this->assertArrayHasKey('db.filename', $mapper->config);
-		$this->assertEquals(self::$filename, $mapper->config['db.filename']);
-	}
-	
-	public function testBuildADditionalConfig() {
-		$config = array('database' => self::$filename);
-		$additional_config = array('custom.option' => 100);
-	
-		$mapper = SQLiteMapper::build($config, $additional_config);
-		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteMapper', $mapper);
-		$this->assertArrayHasKey('db.filename', $mapper->config);
-		$this->assertEquals(self::$filename, $mapper->config['db.filename']);
-		$this->assertArrayHasKey('custom.option', $mapper->config);
-		$this->assertEquals(100, $mapper->config['custom.option']);
+		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
+		$this->assertArrayHasKey('db.filename', $driver->config);
+		$this->assertEquals(self::$filename, $driver->config['db.filename']);
 	}
 	
 	public function testBuildFromConnection() {
-		$mapper = new SQLiteMapper(self::$conn);
-		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteMapper', $mapper);
+		$driver = new SQLiteDriver(self::$conn);
+		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
 	
+		$mapper = new Mapper($driver);
 		$two = $mapper->type('i')->query("SELECT 1 + 1");
 		$this->assertEquals(2, $two);
 	
@@ -52,5 +43,4 @@ class MapperBuilderTest extends SQLiteTest {
 		$this->assertInstanceOf('stdClass', $row);
 	}
 }
-
 ?>

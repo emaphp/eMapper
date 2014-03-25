@@ -1,17 +1,19 @@
 <?php
-namespace eMapper\Engine\Generic;
+namespace eMapper;
 
 use eMapper\SQL\Configuration\StatementConfiguration;
 use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\CacheProvider;
+use eMapper\Engine\Generic\Driver;
 use eMapper\Cache\Key\CacheKey;
 use eMapper\Reflection\Profiler;
 use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Result\Mapper\ArrayTypeMapper;
 use eMapper\Result\Mapper\ScalarTypeMapper;
+use eMapper\Type\TypeManager;
 
-abstract class GenericMapper {
+class Mapper {
 	use StatementConfiguration;
 	use SQLNamespaceAggregate;
 	
@@ -19,6 +21,12 @@ abstract class GenericMapper {
 	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const ARRAY_TYPE_REGEX  = '@^(?:array|arr+)(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const SIMPLE_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)(\[\])?@';
+	
+	/**
+	 * Database driver
+	 * @var Driver
+	 */
+	public $driver;
 	
 	/**
 	 * Type manager
@@ -32,47 +40,51 @@ abstract class GenericMapper {
 	 */
 	public $cacheProvider;
 	
+	public function __construct(Driver $driver) {
+		$this->driver = $driver;
+		
+		//obtain defaul type handler
+		$this->typeManager = $this->driver->build_type_manager();
+		
+		//build configuration
+		$this->applyDefaultConfig();
+		$this->config = array_merge($this->config, $driver->config);
+	}
+	
 	/**
 	 * Applies default configuration options
 	 */
 	protected function applyDefaultConfig() {
 		//database prefix
 		$this->config['db.prefix'] = '';
-		
+	
 		//dynamic sql environment id
 		$this->config['environment.id'] = 'default';
-		
+	
 		//dynamic sql environment class
 		$this->config['environment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
-		
+	
 		//use database prefix for procedure names
-		$this->config['procedure.use_prefix'] = true;
-		
+		$this->config['proc.use_prefix'] = true;
+	
 		//default relation depth
 		$this->config['depth.current'] = 0;
-		
+	
 		//default relation depth limit
 		$this->config['depth.limit'] = 1;
 	}
 	
-	/**
-	 * Assigns a TypeHandler instance for the given type
-	 * @param string $type
-	 * @param TypeHandler $typeHandler
-	 * @throws \InvalidArgumentException
-	 */
-	public function addType($type, TypeHandler $typeHandler, $alias = null) {	
-		$this->typeManager->setTypeHandler($type, $typeHandler);
-	
-		if (!is_null($alias)) {				
-			$this->typeManager->addAlias($type, $alias);
-		}
+	public function __safe_copy() {
+		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
+				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
+				'cache.provider', 'cache.key', 'cache.ttl',
+				'procedure.types');
 	}
 	
 	/**
-	 * Sets database prefix
+	 * Stores database prefix
 	 * @param string $prefix
-	 * @return MapperConfiguration
+	 * @throws \InvalidArgumentException
 	 */
 	public function setPrefix($prefix) {
 		if (!is_string($prefix)) {
@@ -83,34 +95,52 @@ abstract class GenericMapper {
 	}
 	
 	/**
-	 * Sets whether using the database prefix in stored procedure calls
-	 * @param boolean $use_prefix
+	 * Adds a new type handler
+	 * @param string $type
+	 * @param TypeHandler $typeHandler
+	 * @param string $alias
 	 */
-	public function usePrefix($use_prefix = true) {
-		$use_prefix = (bool) $use_prefix;
-		return $this->set('procedure.use_prefix', $use_prefix);
+	public function addType($type, TypeHandler $typeHandler, $alias = null) {
+		$this->typeManager->setTypeHandler($type, $typeHandler);
+	
+		if (!is_null($alias)) {
+			$this->typeManager->addAlias($type, $alias);
+		}
 	}
 	
 	/**
-	 * Assigns a cache provider
+	 * Assigns a cache provider to current instance
 	 * @param CacheProvider $provider
-	 * @return MapperConfiguration
 	 */
 	public function setCacheProvider(CacheProvider $provider) {
 		$this->cacheProvider = $provider;
 	}
 	
 	/**
-	 * Configures dynamic SQL environment
-	 * @param string $id Environment id
-	 * @param string $class Environment class
-	 * @throws \InvalidArgumentException
+	 * Configures dynamic sql environment
+	 * @param string $id
+	 * @param string $class
 	 */
 	public function setEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
 		//apply values
 		$this->config['environment.id'] = $id;
 		$this->config['environment.class'] = $class;
-	} 
+	}
+	
+	/**
+	 * Returns current database connection
+	 * @return mixed
+	 */
+	public function getConnection() {
+		return $this->driver->connection;
+	}
+	
+	/**
+	 * Initializes a database connection
+	 */
+	public function connect() {
+		return $this->driver->connect();
+	}
 	
 	/**
 	 * Executes a query
@@ -124,18 +154,18 @@ abstract class GenericMapper {
 		
 		//validate query
 		if (!is_string($query) || empty($query)) {
-			$this->throw_exception("Query is not a valid string");
+			$this->driver->throw_exception("Query is not a valid string");
 		}
 		
-		//check current mapper depth
-		if ($this->config['depth.current'] > $this->config['depth.limit'] 
-					&& (!array_key_exists('map.type', $this->config) 
-					|| (preg_match(self::OBJECT_TYPE_REGEX, $this->config['map.type']) || preg_match(self::ARRAY_TYPE_REGEX, $this->config['map.type'])))) {
+		//validate current depth
+		if ($this->config['depth.current'] > $this->config['depth.limit']
+		&& (!array_key_exists('map.type', $this->config)
+		|| (preg_match(self::OBJECT_TYPE_REGEX, $this->config['map.type']) || preg_match(self::ARRAY_TYPE_REGEX, $this->config['map.type'])))) {
 			return null;
 		}
-
+		
 		//open connection
-		$this->connect();
+		$this->driver->connect();
 		
 		/**
 		 * OBTAIN PARAMETERS
@@ -144,19 +174,13 @@ abstract class GenericMapper {
 		//get query and parameters
 		$args = func_get_args();
 		$query = array_shift($args);
-		$parameterMap = null;
-		
-		//get parameter map
-		if (array_key_exists('map.parameter', $this->config)) {
-			$parameterMap = $this->config['map.parameter'];
-		}
+		$parameterMap = array_key_exists('map.parameter', $this->config) ? $this->config['map.parameter'] : null;
 		
 		/**
 		 * CACHE CONTROL
 		 */
 		
-		$cached_value = null;
-		$cacheProvider = null;
+		$cached_value = $cacheProvider = null;
 		
 		//check if there is a value stored in cache with the given key
 		if (array_key_exists('cache.key', $this->config) && isset($this->cacheProvider)) {
@@ -165,17 +189,17 @@ abstract class GenericMapper {
 		
 			//build cache key
 			$cacheKeyBuilder = new CacheKey($this->typeManager, $parameterMap);
-			
+				
 			try {
-				$cacheKey = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
+				$cache_key = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
 			}
 			catch (\Exception $e) {
 				$this->throw_exception($e->getMessage());
 			}
 		
 			//check if key is present
-			if ($cacheProvider->exists($cacheKey)) {
-				$cached_value = $cacheProvider->fetch($cacheKey);
+			if ($cacheProvider->exists($cache_key)) {
+				$cached_value = $cacheProvider->fetch($cache_key);
 			}
 		}
 		
@@ -186,19 +210,20 @@ abstract class GenericMapper {
 			/**
 			 * GENERATE QUERY
 			 */
-			
+				
 			//build statement
 			try {
-				$stmt = $this->build_statement($query, $args, $parameterMap);
+				$stmt = $this->driver->build_statement($this->typeManager, $parameterMap);
+				$stmt = $stmt->build($query, $args, $this->config);
 			}
 			catch (\Exception $e) {
-				$this->throw_exception($e->getMessage());
+				$this->driver->throw_exception($e->getMessage(), $e);
 			}
 			
 			//override query
 			if (array_key_exists('callback.query', $this->config)) {
 				$query = call_user_func($this->config['callback.query'], $stmt);
-			
+					
 				if (!is_null($query)) {
 					$stmt = $query;
 				}
@@ -209,12 +234,12 @@ abstract class GenericMapper {
 			 */
 			
 			$resultMap = null;
-			
+				
 			//build mapping callback
 			if (array_key_exists('map.type', $this->config)) {
 				//get mapping type
 				$mapping_type = $this->config['map.type'];
-					
+				
 				//object mapping type: object, object:class, object[column], object[column:type], etc
 				if (preg_match(self::OBJECT_TYPE_REGEX, $mapping_type, $matches)) {
 					//get class, if any
@@ -226,7 +251,7 @@ abstract class GenericMapper {
 						//remove leading ':'
 						$defaultClass = $matches[1];
 						$resultMap = null;
-			
+							
 						//get result map
 						if (array_key_exists('map.result', $this->config)) {
 							$resultMap = $this->config['map.result'];
@@ -235,14 +260,14 @@ abstract class GenericMapper {
 							$resultMap = $defaultClass;
 						}
 					}
-						
+					
 					//generate a new object mapper object
 					$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass);
 					$group = $group_type = $index = $index_type = null;
 					
 					if (count($matches) > 2) {
 						$mapping_callback = array($mapper, 'mapList');
-						
+					
 						//obtain group
 						if (array_key_exists('callback.group', $this->config)) {
 							$group = $this->config['callback.group'];
@@ -251,13 +276,13 @@ abstract class GenericMapper {
 						elseif (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
 							$group = $matches[2];
 							$group_type = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
-							
+								
 							//check group type
 							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized group type '$group_type'");
+								$this->driver->throw_exception("Unrecognized group type '$group_type'");
 							}
 						}
-						
+					
 						//obtain index
 						if (array_key_exists('callback.index', $this->config)) {
 							$index = $this->config['callback.index'];
@@ -266,33 +291,33 @@ abstract class GenericMapper {
 						elseif (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
 							$index = $matches[5];
 							$index_type = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
-								
+					
 							//check index type
 							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized index type '$index_type'");
+								$this->driver->throw_exception("Unrecognized index type '$index_type'");
 							}
 						}
-						
+					
 						//add index and group to mapper parameters
-						$mapping_params = array($index, $index_type, $group, $group_type);
+						$mapping_params = [$index, $index_type, $group, $group_type];
 					}
 					else {
 						//add method
-						$mapping_callback = array($mapper, 'mapResult');
+						$mapping_callback = [$mapper, 'mapResult'];
 					}
 				}
 				//array mapping type: array, array[], array[column], array[column:type]
 				elseif (preg_match(self::ARRAY_TYPE_REGEX, $mapping_type, $matches)) {
 					//obtain result map
 					$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
-			
+						
 					//generate a new array mapper object
 					$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
-						
+					
 					if (count($matches) > 1) {
-						$mapping_callback = array($mapper, 'mapList');
+						$mapping_callback = [$mapper, 'mapList'];
 						$group = $group_type = $index = $index_type = null;
-						
+					
 						//obtain group and group type
 						if (array_key_exists('callback.group', $this->config)) {
 							$group = $this->config['callback.group'];
@@ -301,13 +326,13 @@ abstract class GenericMapper {
 						elseif (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
 							$group = $matches[1];
 							$group_type = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
-							
+								
 							//check group type
 							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized group type '$group_type'");
+								$this->driver->throw_exception("Unrecognized group type '$group_type'");
 							}
 						}
-						
+					
 						//obtain index and index type
 						if (array_key_exists('callback.index', $this->config)) {
 							$index = $this->config['callback.index'];
@@ -316,43 +341,43 @@ abstract class GenericMapper {
 						elseif (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
 							$index = $matches[4];
 							$index_type = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
-							
+								
 							//check index type
 							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
-								$this->throw_exception("Unrecognized index type '$index_type'");
+								$this->driver->throw_exception("Unrecognized index type '$index_type'");
 							}
 						}
 							
 						//add index and group to mapper parameters
-						$mapping_params = array($index, $index_type, $group, $group_type);
+						$mapping_params = [$index, $index_type, $group, $group_type];
 					}
 					else {
-						$mapping_callback = array($mapper, 'mapResult');
+						$mapping_callback = [$mapper, 'mapResult'];
 					}
 				}
 				//simple mapping type: integer, string, float, etc
 				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mapping_type, $matches)) {
 					//check type
 					if (!in_array($matches[1], $this->typeManager->getTypesList())) {
-						$this->throw_exception("Unrecognized type '{$matches[1]}'");
+						$this->driver->throw_exception("Unrecognized type '{$matches[1]}'");
 					}
-						
+					
 					//get type handler
 					$typeHandler = $this->typeManager->getTypeHandler($matches[1]);
-						
-					if ($typeHandler === false) {
-						$this->throw_exception("Unknown type '{$matches[1]}'");
-					}
 					
+					if ($typeHandler === false) {
+						$this->driver->throw_exception("Unknown type '{$matches[1]}'");
+					}
+						
 					//create mapper instance
 					$mapper = new ScalarTypeMapper($typeHandler);
-					
+						
 					//set mapping callback
-					$mapping_callback = array($mapper);
+					$mapping_callback = [$mapper];
 					$mapping_callback[] = empty($matches[2]) ? 'mapResult' : 'mapList';
 				}
 				else {
-					$this->throw_exception("Unrecognized mapping expression '$mapping_type'");
+					$this->driver->throw_exception("Unrecognized mapping expression '$mapping_type'");
 				}
 			}
 			else {
@@ -363,7 +388,7 @@ abstract class GenericMapper {
 				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
 					
 				//use default mapping type
-				$mapping_callback = array($mapper, 'mapList');
+				$mapping_callback = [$mapper, 'mapList'];
 				
 				//check for group callback
 				if (array_key_exists('callback.group', $this->config)) {
@@ -383,48 +408,48 @@ abstract class GenericMapper {
 					$index = $index_type = null;
 				}
 				
-				$mapping_params = array($index, $index_type, $group, $group_type);
+				$mapping_params = [$index, $index_type, $group, $group_type];
 			}
 			
 			/**
 			 * EXECUTE QUERY
 			 */
-			
+				
 			//run query
-			$result = $this->run_query($stmt);
-			
+			$result = $this->driver->query($stmt);
+				
 			//check query execution
 			if ($result === false) {
-				$this->throw_query_exception($stmt);
+				$this->driver->throw_query_exception($stmt);
 			}
 			
 			//check if result is successful
 			if ($result === true) {
 				//free result
-				$this->free_result($result);
+				$this->driver->free_result($result);
 				return true;
 			}
 			
 			/**
 			 * INVOKE EMPTY RESULT CALLBACK
 			 */
-			
+				
 			$cacheable = true;
-			$ri = $this->build_result_interface($result);
-			
+			$ri = $this->driver->build_result_interface($result);
+				
 			//check if result is empty
 			if ($ri->countRows() === 0) {
 				if (array_key_exists('callback.no_rows', $this->config)) {
 					return call_user_func($this->config['callback.no_rows'], $result);
 				}
-			
+					
 				$cacheable = false;
 			}
 			
 			/**
 			 * ADD CUSTOM MAPPING OPTIONS
 			 */
-			
+				
 			//add defined mapping parameters
 			if (array_key_exists('map.params', $this->config)) {
 				if (!empty($mapping_params)) {
@@ -434,44 +459,42 @@ abstract class GenericMapper {
 					$mapping_params = $this->config['map.params'];
 				}
 			}
-			
+				
 			//build mapping callback parameters
 			if (isset($mapping_params)) {
 				array_unshift($mapping_params, $ri);
 			}
 			else {
-				$mapping_params = array($ri);
+				$mapping_params = [$ri];
 			}
 			
 			/**
 			 * MAP RESULT
 			 */
-			
+				
 			//call mapping callback
 			try {
 				$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
 			}
 			catch (\Exception $e) {
-				$this->throw_exception($e->getMessage());
+				$this->driver->throw_exception($e->getMessage(), $e);
 			}
-			
+				
 			//free result
-			$this->free_result($result);
+			$this->driver->free_result($result);
 			
 			/**
 			 * EVALUATE RELATIONS
 			 */
-			
-			if (isset($resultMap)) {
-				if (is_null($safe_clone)) {
-					$safe_clone = $this->safe_clone();
-				}
 				
+			if (isset($resultMap)) {
+				$safe_clone = $this->__safe_copy();
+			
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
 							$indexes = array_keys($mapped_result[$key]);
-							
+								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
 								$mapper->relate($mapped_result[$key][$indexes[$i]], $parameterMap, $safe_clone);
 							}
@@ -493,15 +516,15 @@ abstract class GenericMapper {
 			/**
 			 * CACHE STORE
 			 */
-			
+				
 			//check if obtained value can be stored
 			if (isset($cacheProvider) && $cacheable) {
 				//store value
 				if (array_key_exists('cache.ttl', $this->config)) {
-					$cacheProvider->store($cacheKey, $mapped_result, intval($this->config['cache.ttl']));
+					$cacheProvider->store($cache_key, $mapped_result, intval($this->config['cache.ttl']));
 				}
 				else {
-					$cacheProvider->store($cacheKey, $mapped_result);
+					$cacheProvider->store($cache_key, $mapped_result);
 				}
 			}
 		}
@@ -516,18 +539,18 @@ abstract class GenericMapper {
 		if (array_key_exists('callback.each', $this->config)) {
 			//generate a new safe instance
 			if (is_null($safe_clone)) {
-				$safe_clone = $this->safe_clone();
+				$safe_clone = $this->__safe_copy();
 			}
-			
+				
 			$each_callback = $this->config['callback.each'];
-
+		
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
 							$indexes = array_keys($mapped_result[$key]);
-							
+								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
 								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $safe_clone);
 							}
@@ -556,7 +579,7 @@ abstract class GenericMapper {
 					if (!empty($mapper->groupKeys)) {
 						foreach ($mapper->groupKeys as $key) {
 							$indexes = array_keys($mapped_result[$key]);
-							
+								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
 								$c->__invoke($mapped_result[$key][$indexes[$i]]);
 							}
@@ -583,7 +606,7 @@ abstract class GenericMapper {
 		//apply filter
 		if (array_key_exists('callback.filter', $this->config)) {
 			$filter_callback = $this->config['callback.filter'];
-				
+		
 			//check if mapped result is a list
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 				if (!empty($mapper->groupKeys)) {
@@ -606,7 +629,7 @@ abstract class GenericMapper {
 	}
 	
 	/**
-	 * Runs a statement with the given id and returns a result
+	 * Executes a declared statement
 	 * @param string $statementId
 	 * @return mixed
 	 */
@@ -614,93 +637,148 @@ abstract class GenericMapper {
 		//obtain parameters
 		$args = func_get_args();
 		$statementId = array_shift($args);
-	
+		
 		if (!is_string($statementId) || empty($statementId)) {
-			$this->throw_exception("Statement id must be a valid string");
+			$this->driver->throw_exception("Statement id is not a valid string");
 		}
-	
+		
 		//obtain statement
 		$stmt = $this->getStatement($statementId);
-	
+		
 		if ($stmt === false) {
-			$this->throw_exception("Statement '$statementId' could not be found");
+			$this->driver->throw_exception("Statement '$statementId' could not be found");
 		}
-	
+		
 		//get statement config
 		$query = $stmt->query;
 		$options = $stmt->options;
-	
+		
 		//add query to method parameters
 		array_unshift($args, $query);
-	
-		//call query method
-		return (empty($options)) ? call_user_func_array(array($this, 'query'), $args) : call_user_func_array(array($this->merge($options->config, true), 'query'), $args);
+		
+		//run query
+		return (empty($options)) ? call_user_func_array([$this, 'query'], $args) : call_user_func_array([$this->merge($options->config, true), 'query'], $args);
 	}
 	
 	/**
-	 * Runs a query and returns a result instance
+	 * Runs a query
 	 * @param string $query
 	 * @return mixed
 	 */
 	public function sql($query) {
 		if (!is_string($query) || empty($query)) {
-			$this->throw_exception("Query is not a valid string");
+			$this->driver->throw_exception("Query is not a valid string");
 		}
 	
 		//open connection
-		$this->connect();
+		$this->driver->connect();
 	
 		//get query and parameters
 		$args = func_get_args();
 		$query = array_shift($args);
 	
 		//build statement
-		$stmt = $this->build_statement($query, $args);
+		$stmt = $this->driver->build_statement($this->typeManager);
 	
 		//run query
-		$result = $this->run_query($stmt);
+		$result = $this->driver->query($stmt->build($query, $args, $this->config));
 	
 		//check query execution
 		if ($result === false) {
-			$this->throw_query_exception($stmt);
+			$this->driver->throw_query_exception($stmt);
 		}
 	
 		return $result;
 	}
 	
-	/*
-	 * ABSTRACT METHODS
-	 */
+	public function __call($method, $args) {
+		//include database prefix
+		if (array_key_exists('proc.use_prefix', $this->config) && $this->config['proc.use_prefix'] === true) {
+			//get database prefix
+			$db_prefix = array_key_exists('db.prefix', $this->config) ? $this->config['db.prefix'] : '';
 	
-	public abstract function connect();
-	public abstract function free_result($result);
-	public abstract function close();
-	public abstract function lastError();
-	public abstract function getLastId();
+			//build procedure name
+			$procedure_name = $db_prefix . $method;
+		}
+		else {
+			$procedure_name = $method;
+		}
 	
-	//transaction methods
-	public abstract function beginTransaction();
-	public abstract function commit();
-	public abstract function rollback();
+		$tokens = array();
 	
-	//internal methods
+		//check if argument types are defined
+		if (array_key_exists('proc.types', $this->config)) {
+			$parameter_types = $this->config['proc.types'];
 	
-	/**
-	 * Obtains a clone of current instance without sensible configuration options
-	 */
-	protected function safe_clone() {
-		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
-				'cache.provider', 'cache.key', 'cache.ttl',
-				'procedure.types');
+			//build argument types string
+			foreach ($parameter_types as $type) {
+				$tokens[] = '%{' . $type . '}';
+			}
+		}
+	
+		//fill tokens array
+		for ($i = count($tokens), $n = count($args); $i < $n; $i++) {
+			$tokens[] = '%{' . $i . '}';
+		}
+	
+		//check if tokens exceeds parameters
+		if (count($tokens) > count($args)) {
+			$tokens = array_slice($tokens, 0, count($args));
+		}
+		
+		$call = $this->driver->build_call($procedure_name, $tokens, $this->config);
+		
+		array_unshift($args, $call);
+		
+		//call query
+		return call_user_func_array([$this, 'query'], $args);
 	}
 	
-	protected abstract function build_statement($query, $args, $parameterMap);
-	protected abstract function build_result_interface($result);
-	protected abstract function run_query($query);
+	/**
+	 * Closes a database connection
+	 */
+	public function close() {
+		return $this->driver->close();
+	}
 	
-	//exception methods
-	public abstract function throw_exception($message, \Exception $previous = null);
-	public abstract function throw_query_exception($query); 
+	/**
+	 * Returns las generated error
+	 */
+	public function lastError() {
+		return $this->driver->get_last_error();
+	}
+	
+	/**
+	 * Returns last generated id
+	 */
+	public function lastId() {
+		return $this->driver->get_last_id();
+	}
+	
+	/*
+	 * TRANSACTION METHODS
+	 */
+	
+	/**
+	 * Begins a transaction
+	 */
+	public function beginTransaction() {
+		return $this->driver->begin();
+	}
+	
+	/**
+	 * Commits current transaction
+	 */
+	public function commit() {
+		return $this->driver->commit();
+	}
+	
+	/**
+	 * Rollbacks current transaction
+	 */
+	public function rollback() {
+		return $this->driver->rollback();
+	}
 }
+
 ?>

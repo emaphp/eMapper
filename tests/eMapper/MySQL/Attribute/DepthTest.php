@@ -2,8 +2,9 @@
 namespace eMapper\MySQL\Attribute;
 
 use eMapper\MySQL\MySQLTest;
-use eMapper\Engine\MySQL\MySQLMapper;
 use eMapper\SQL\Statement;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Mapper;
 
 /**
  * Test setting different values for depth internal value
@@ -19,7 +20,8 @@ class DepthTest extends MySQLTest {
 		parent::__construct();
 		
 		//create specialized mapper
-		$this->xmapper = new MySQLMapper(new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']));
+		$driver = new MySQLDriver(new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']));
+		$this->xmapper = new Mapper($driver);
 		
 		$this->xmapper->stmt('findBoughtProducts',
 							"SELECT p.product_id, p.product_code, p.category, p.price

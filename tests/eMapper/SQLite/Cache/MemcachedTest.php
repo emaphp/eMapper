@@ -3,7 +3,8 @@ namespace eMapper\SQLite\Cache;
 
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Cache\MemcachedProvider;
-use eMapper\Engine\SQLite\SQLiteMapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+use eMapper\Mapper;
 
 /**
  * Tests MemcachedProvider with SQLiteMapper class
@@ -35,8 +36,9 @@ class MemcachedTest extends SQLiteTest {
 					'The Memcached extension is not available.'
 			);
 		}
-	
-		$this->sqlite = new SQLiteMapper(self::$conn);
+
+		$driver = new SQLiteDriver(self::$conn);
+		$this->sqlite = new Mapper($driver);
 		$this->sqlite->setCacheProvider($this->provider);
 	}
 	

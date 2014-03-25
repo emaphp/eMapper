@@ -3,6 +3,7 @@ namespace eMapper\MySQL;
 
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 /**
  * Test MySQLResultInterface fetching various types of data
@@ -55,7 +56,7 @@ class ResultInterfaceTest extends MySQLTest {
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ResultInterface::BOTH);
+			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::BOTH);
 	
 			$this->assertEquals($expected_name[$i], $row['user_name']);
 			$this->assertEquals($expected_name[$i], $row[0]);
@@ -77,7 +78,7 @@ class ResultInterfaceTest extends MySQLTest {
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ResultInterface::ASSOC);
+			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::ASSOC);
 	
 			$this->assertEquals($expected_name[$i], $row['user_name']);
 			$this->assertArrayNotHasKey(0, $row);
@@ -99,7 +100,7 @@ class ResultInterfaceTest extends MySQLTest {
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ResultInterface::NUM);
+			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::NUM);
 	
 			$this->assertArrayNotHasKey('user_name', $row);
 			$this->assertEquals($expected_name[$i], $row[0]);

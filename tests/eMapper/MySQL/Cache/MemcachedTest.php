@@ -1,10 +1,9 @@
 <?php
-
 namespace eMapper\MySQL\Cache;
 
 use eMapper\MySQL\MySQLTest;
 use eMapper\Cache\MemcachedProvider;
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Mapper;
 
 /**
  * Test MemcachedProvider with MySQLMapper class
@@ -37,7 +36,7 @@ class MemcachedTest extends MySQLTest {
 			);
 		}
 	
-		$this->mysql = new MySQLMapper(self::$conn);
+		$this->mysql = new Mapper(self::$driver);
 		$this->mysql->setCacheProvider($this->provider);
 	}
 	

@@ -94,6 +94,13 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('ustring', $typeManager->aliases['us']);
 		$this->assertEquals('ustring', $typeManager->aliases['ustr']);
 		
+		//string
+		$this->assertArrayHasKey('json', $typeManager->typeHandlers);
+		$this->assertInstanceOf('eMapper\Type\Handler\JSONTypeHandler', $typeManager->typeHandlers['json']);
+		
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\JSONTypeHandler')->classAnnotations;
+		$this->assertFalse($profile->has('unquoted'));
+		
 		//null
 		$this->assertArrayHasKey('null', $typeManager->typeHandlers);
 		$this->assertInstanceOf('eMapper\Type\Handler\NullTypeHandler', $typeManager->typeHandlers['null']);

@@ -7,13 +7,6 @@ abstract class ResultInterface implements \Iterator {
 	 */
 	const AS_ARRAY  = 0;
 	const AS_OBJECT = 1;
-		
-	/**
-	 * ARRAY TYPES
-	 */
-	const ASSOC = MYSQLI_ASSOC;
-	const NUM   = MYSQLI_NUM;
-	const BOTH  = MYSQLI_BOTH;
 	
 	/**
 	 * Query result
@@ -41,13 +34,13 @@ abstract class ResultInterface implements \Iterator {
 	/**
 	 * Returns an associative array containing all column types by name
 	 */
-	public abstract function columnTypes($resultType = self::ASSOC);
+	public abstract function columnTypes($resultType = ArrayType::ASSOC);
 	
 	/**
 	 * Fetchs a row to an array
 	 * @param int $resultType
 	 */
-	public abstract function fetchArray($resultType = self::BOTH);
+	public abstract function fetchArray($resultType = ArrayType::BOTH);
 	
 	/**
 	 * Fetchs a row to an object
@@ -63,7 +56,7 @@ abstract class ResultInterface implements \Iterator {
 		return $this->counter != $this->countRows();
 	}
 	
-	public function current($as = self::AS_ARRAY, $resultType = self::BOTH, $className = null) {
+	public function current($as = self::AS_ARRAY, $resultType = ArrayType::BOTH, $className = null) {
 		if ($as == self::AS_ARRAY) {
 			return $this->fetchArray($resultType);
 		}

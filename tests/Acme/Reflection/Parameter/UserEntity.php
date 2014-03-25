@@ -2,6 +2,7 @@
 namespace Acme\Reflection\Parameter;
 
 /**
+ * @parser emapper\emapper
  * @entity
  * @author emaphp
  */

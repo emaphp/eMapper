@@ -1,9 +1,11 @@
 <?php
 namespace eMapper\MySQL;
 
-use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\SQL\Statement;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Mapper;
+
 /**
  * Generic mysql test class
  * 
@@ -30,6 +32,12 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	public static $conn;
 	
 	/**
+	 * MySQL driver
+	 * @var MySQLDriver
+	 */
+	public static $driver;
+	
+	/**
 	 * MySQLMapper instance
 	 * @var MySQLMapper
 	 */
@@ -42,11 +50,8 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public static function setUpBeforeClass() {
 		self::$conn = new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']);
-		
-		self::$mapper = new MySQLMapper(self::$config['database'],
-				self::$config['host'],
-				self::$config['user'],
-				self::$config['password']);
+		self::$driver = new MySQLDriver(self::$config['database'], self::$config['host'], self::$config['user'], self::$config['password']);
+		self::$mapper = new Mapper(self::$driver);
 		
 		//add 'color' type
 		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');

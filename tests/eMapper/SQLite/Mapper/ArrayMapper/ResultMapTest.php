@@ -11,7 +11,7 @@ use eMapper\SQLite\SQLiteTest;
  */
 class ResultMapTest extends SQLiteTest {
 	/**
-	 * @expectedException eMapper\Engine\SQLite\Exception\SQLiteMapperException
+	 * @expectedException eMapper\Engine\SQLite\Exception\SQLiteException
 	 */
 	public function testArrayTypeError() {
 		$user = self::$mapper

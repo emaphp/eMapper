@@ -4,9 +4,9 @@ namespace eMapper\MySQL\Result\ObjectMapper;
 use eMapper\MySQL\MySQLTest;
 use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Type\TypeManager;
 use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
 /**
  * Test ObjectTypeMapper class mapping to entities
@@ -21,7 +21,7 @@ class EntityTest extends MySQLTest {
 	public function __construct() {
 		parent::__construct();
 		
-		$this->typeManager = new TypeManager();
+		$this->typeManager = new MySQLTypeManager();
 		$this->typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	}
 	

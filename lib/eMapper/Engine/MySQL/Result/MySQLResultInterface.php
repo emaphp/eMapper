@@ -2,11 +2,12 @@
 namespace eMapper\Engine\MySQL\Result;
 
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 class MySQLResultInterface extends ResultInterface {
-	public $resultTypes = array(self::BOTH => MYSQLI_BOTH, self::ASSOC => MYSQLI_ASSOC, self::NUM => MYSQLI_NUM);
+	public $resultTypes = array(ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM);
 	
-	public function columnTypes($resultType = self::ASSOC) {
+	public function columnTypes($resultType = ArrayType::ASSOC) {
 		//get result fields
 		$fields = $this->result->fetch_fields();
 		$types = array();
@@ -64,11 +65,11 @@ class MySQLResultInterface extends ResultInterface {
 			}
 		
 			//store type
-			if ($resultType & self::NUM) {
+			if ($resultType & ArrayType::NUM) {
 				$types[$i] = $type;
 			}
 			
-			if ($resultType & self::ASSOC) {
+			if ($resultType & ArrayType::ASSOC) {
 				$types[$field->name] = $type;
 			}
 		}
@@ -80,7 +81,7 @@ class MySQLResultInterface extends ResultInterface {
 		return $this->result->num_rows;
 	}
 	
-	public function fetchArray($resultType = self::BOTH) {
+	public function fetchArray($resultType = ArrayType::BOTH) {
 		return $this->result->fetch_array($this->resultTypes[$resultType]);
 	}
 	

@@ -123,13 +123,13 @@ abstract class GenericStatement extends CacheKey {
 		return $program->executeWith($env, $this->args);
 	}
 	
-	public function build($expr, $args, $config, $parameterMap = null) {
+	public function build($expr, $args, $config) {
 		$this->args = $args;
 		$this->config = $config;
 		
 		//wrap first parameter
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
-			$this->wrappedArg = ParameterWrapper::wrap($args[0], $parameterMap);
+			$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
 		}
 		
 		//replace dynamic sql expressions (unescaped)

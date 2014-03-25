@@ -3,7 +3,7 @@ namespace eMapper\MySQL\Cache;
 
 use eMapper\MySQL\MySQLTest;
 use eMapper\Cache\APCProvider;
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Mapper;
 
 /**
  * Test APCProvider with MySQLMapper class
@@ -36,7 +36,7 @@ class APCTest extends MySQLTest {
 			);
 		}
 		
-		$this->mysql = new MySQLMapper(self::$conn);
+		$this->mysql = new Mapper(self::$driver);
 		$this->mysql->setCacheProvider($this->provider);
 	}
 	

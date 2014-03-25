@@ -90,21 +90,21 @@ class DatetimeTypeTest extends MySQLTest {
 	}
 	
 	/**
-	 * @expectedException \eMapper\Exception\MapperException
+	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
 	 */
 	public function testDatetimeError1() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_id FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException \eMapper\Exception\MapperException
+	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
 	 */
 	public function testDatetimeError2() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_name FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException \eMapper\Exception\MapperException
+	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
 	 */
 	public function testDatetimeError3() {
 		$result = self::$mapper->type('DateTime')->query("SELECT avatar FROM users WHERE user_id = 1");

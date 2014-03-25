@@ -1,6 +1,10 @@
 <?php
 namespace Acme\Parameter;
 
+/**
+ * @parser emapper\emapper
+ * @author emaphp
+ */
 class ProductParameterMap {
 	/**
 	 * @property pcod

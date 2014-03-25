@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Exception;
 
-class PostgreSQLQueryException extends PostgreSQLMapperException {
+class PostgreSQLQueryException extends PostgreSQLException {
 	/**
 	 * Query string
 	 * @var string

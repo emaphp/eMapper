@@ -4,6 +4,7 @@ namespace Acme\Type;
 use eMapper\Type\TypeHandler;
 
 /**
+ * @parser emapper\emapper
  * @unquoted
  */
 class DummyTypeHandler extends TypeHandler {

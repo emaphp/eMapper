@@ -170,4 +170,23 @@ trait StatementConfiguration {
 		
 		return $this->merge(['callback.group' => $callable]);
 	}
+	
+	/*
+	 * STORED PROCEDURES CONFIGURATION
+	 */
+	
+	/**
+	 * Sets parameter types for a store procedure call
+	 */
+	public function proc_types() {
+		return $this->merge(['proc.types' => func_get_args()]);
+	}
+	
+	/**
+	 * Determines if the database prefix must be appended in front of the procedure name
+	 * @param boolean $use_prefix
+	 */
+	public function proc_prefix($use_prefix) {
+		return $this->merge(['proc.use_prefix' => (boolean) $use_prefix]);
+	}
 }

@@ -1,6 +1,6 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Exception;
 
-class PostgreSQLConnectionException extends PostgreSQLMapperException {
+class PostgreSQLConnectionException extends PostgreSQLException {
 }
 ?>

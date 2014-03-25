@@ -3,7 +3,8 @@ namespace eMapper\MySQL\Mapper\ScalarMapper;
 
 use eMapper\MySQL\MySQLTest;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Engine\MySQL\MySQLMapper;
+use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Mapper;
 
 /**
  * Test MySQLMapper with custom
@@ -18,7 +19,8 @@ class CustomTypeTest extends MySQLTest {
 	public function __construct() {
 		parent::__construct();
 		
-		$this->xmapper = new MySQLMapper(new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']));
+		$driver = new MySQLDriver(new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']));
+		$this->xmapper = new Mapper($driver);
 		$this->xmapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 	}
 	

@@ -4,9 +4,9 @@ namespace eMapper\SQLite\Result\ArrayMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
 use eMapper\Result\Mapper\ArrayTypeMapper;
-use eMapper\Result\ResultInterface;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
+use eMapper\Result\ArrayType;
 
 /**
  * Tests ArrayTypeMapper mapping to different arrays using result maps
@@ -21,7 +21,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testArrayTypeError() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result), ResultInterface::NUM);
+		$user = $mapper->mapResult(new SQLiteResultInterface($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
 	}
 	

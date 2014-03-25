@@ -2,6 +2,7 @@
 namespace Acme\Depth;
 
 /**
+ * @parser emapper\emapper
  * @entity
  * @author emaphp
  */

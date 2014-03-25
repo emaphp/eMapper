@@ -11,7 +11,7 @@ use eMapper\MySQL\MySQLTest;
  */
 class ResultMapTest extends MySQLTest {
 	/**
-	 * @expectedException eMapper\Engine\MySQL\Exception\MySQLMapperException
+	 * @expectedException eMapper\Engine\MySQL\Exception\MySQLException
 	 */
 	public function testArrayTypeError() {
 		$user = self::$mapper

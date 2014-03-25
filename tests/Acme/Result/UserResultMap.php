@@ -1,7 +1,10 @@
 <?php
 namespace Acme\Result;
 
-
+/**
+ * @parser emapper\emapper
+ * @author emaphp
+ */
 class UserResultMap {
 	/**
 	 * @type integer

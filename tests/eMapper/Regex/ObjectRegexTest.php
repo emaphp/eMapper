@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Regex;
 
-use eMapper\Engine\Generic\GenericMapper;
+use eMapper\Mapper;
 
 /**
  * Tests parsing an object mapping expression
@@ -10,7 +10,7 @@ use eMapper\Engine\Generic\GenericMapper;
  * @group regex
  */
 class ObjectRegexTest extends \PHPUnit_Framework_TestCase {
-	const REGEX = GenericMapper::OBJECT_TYPE_REGEX;
+	const REGEX = Mapper::OBJECT_TYPE_REGEX;
 	
 	public function testSimpleObject1() {
 		$expr = 'object';

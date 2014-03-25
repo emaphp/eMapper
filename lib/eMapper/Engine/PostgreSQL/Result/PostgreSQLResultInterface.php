@@ -2,15 +2,16 @@
 namespace eMapper\Engine\PostgreSQL\Result;
 
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 
 class PostgreSQLResultInterface extends ResultInterface {
-	public $resultTypes = array(self::BOTH => PGSQL_BOTH, self::ASSOC => PGSQL_ASSOC, self::NUM => PGSQL_NUM);
+	public $resultTypes = array(ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM);
 	
 	public function countRows() {
 		return pg_num_rows($this->result);
 	}
 	
-	public function columnTypes($resultType = self::ASSOC) {
+	public function columnTypes($resultType = ArrayType::ASSOC) {
 		$num_fields = pg_num_fields($this->result);
 		$types = array();
 		
@@ -82,11 +83,11 @@ class PostgreSQLResultInterface extends ResultInterface {
 			}
 			
 			//store type
-			if ($resultType & self::NUM) {
+			if ($resultType & ArrayType::NUM) {
 				$types[$i] = $type;
 			}
 			
-			if ($resultType & self::ASSOC) {
+			if ($resultType & ArrayType::ASSOC) {
 				$types[$name] = $type;
 			}
 		}
@@ -94,7 +95,7 @@ class PostgreSQLResultInterface extends ResultInterface {
 		return $types;
 	}
 	
-	public function fetchArray($resultType = self::BOTH) {
+	public function fetchArray($resultType = ArrayType::BOTH) {
 		return pg_fetch_array($this->result, null, $this->resultTypes[$resultType]);
 	}
 	

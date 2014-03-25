@@ -14,7 +14,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testUniqueObject() {
 		$user = self::$mapper->type('obj')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 			
 			$row->eman = strrev($row->user_name);
 		})->query("SELECT * FROM users WHERE user_id = 1");
@@ -26,7 +26,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testUniqueArray() {
 		$user = self::$mapper->type('arr')->each(function(&$row, $mapper) {
 			$this->assertInternalType('array', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 				
 			$row['eman'] = strrev($row['user_name']);
 		})->query("SELECT * FROM users WHERE user_id = 1");
@@ -38,7 +38,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testObjectList() {
 		$users = self::$mapper->type('obj[]')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 				
 			$row->eman = strrev($row->user_name);
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -54,7 +54,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testArrayList() {
 		$users = self::$mapper->type('array[]')->each(function(&$row, $mapper) {
 			$this->assertInternalType('array', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 	
 			$row['eman'] = strrev($row['user_name']);
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -70,7 +70,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testIndexedObjectList() {
 		$users = self::$mapper->type('obj[user_id]')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 		
 			$row->eman = strrev($row->user_name);
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -86,7 +86,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testIndexedArrayList() {
 		$users = self::$mapper->type('array[user_id]')->each(function(&$row, $mapper) {
 			$this->assertInternalType('array', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 	
 			$row['eman'] = strrev($row['user_name']);
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
@@ -102,7 +102,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testGroupedObjectList() {
 		$products = self::$mapper->type('obj<category>')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 		
 			$row->edoc = strrev($row->product_code);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -123,7 +123,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testGroupedArrayList() {
 		$products = self::$mapper->type('array<category>')->each(function(&$row, $mapper) {
 			$this->assertInternalType('array', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 	
 			$row['edoc'] = strrev($row['product_code']);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -144,7 +144,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testGroupedIndexedObjectList() {
 		$products = self::$mapper->type('obj<category>[product_id]')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 	
 			$row->edoc = strrev($row->product_code);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -165,7 +165,7 @@ class EachCallbackTest extends MySQLTest {
 	public function testGroupedIndexedArrayList() {
 		$products = self::$mapper->type('array<category>[product_id]')->each(function(&$row, $mapper) {
 			$this->assertInternalType('array', $row);
-			$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLMapper', $mapper);
+			$this->assertInstanceOf('eMapper\Mapper', $mapper);
 	
 			$row['edoc'] = strrev($row['product_code']);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");

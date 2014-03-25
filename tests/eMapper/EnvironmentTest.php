@@ -20,7 +20,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testProviderError2() {
-		EnvironmentProvider::buildEnvironment('fake', 'eMapper\Engine\Generic\GenericMapper');
+		EnvironmentProvider::buildEnvironment('fake', 'eMapper\Mapper');
 	}
 	
 	public function testProvider() {

@@ -2,8 +2,9 @@
 namespace eMapper\SQLite\Attribute;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\SQLiteMapper;
 use eMapper\SQL\Statement;
+use eMapper\Engine\SQLite\SQLiteDriver;
+use eMapper\Mapper;
 
 /**
  * Tests setting different values for depth internal value
@@ -17,7 +18,8 @@ class DepthTest extends SQLiteTest {
 	public function __construct() {
 		self::setUpBeforeClass();
 		
-		$this->xmapper = new SQLiteMapper(self::$conn);
+		$driver = new SQLiteDriver(new \SQLite3(self::$filename));
+		$this->xmapper = new Mapper($driver);
 		
 		$this->xmapper->stmt('findBoughtProducts',
 				"SELECT p.product_id, p.product_code, p.category, p.price

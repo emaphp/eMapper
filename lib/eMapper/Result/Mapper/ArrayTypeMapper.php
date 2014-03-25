@@ -2,6 +2,7 @@
 namespace eMapper\Result\Mapper;
 
 use eMapper\Result\ResultInterface;
+use eMapper\Result\ArrayType;
 use eMapper\Reflection\Profiler;
 
 class ArrayTypeMapper extends ComplexTypeMapper {
@@ -84,7 +85,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * @param ResultInterface $result
 	 * @param int $resultType
 	 */
-	public function mapResult(ResultInterface $result, $resultType = ResultInterface::BOTH) {
+	public function mapResult(ResultInterface $result, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return null;
@@ -112,7 +113,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * @param int $resultType
 	 * @param \UnexpectedValueException
 	 */
-	public function mapList(ResultInterface $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ResultInterface::BOTH) {
+	public function mapList(ResultInterface $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return array();

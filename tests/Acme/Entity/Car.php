@@ -2,6 +2,7 @@
 namespace Acme\Entity;
 
 /**
+ * @parser emapper\emapper
  * @color red
  * @speed fast
  */

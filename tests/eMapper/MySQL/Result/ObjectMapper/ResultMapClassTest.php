@@ -2,10 +2,10 @@
 namespace eMapper\MySQL\Result\ObjectMapper;
 
 use eMapper\MySQL\MySQLTest;
-use eMapper\Type\TypeManager;
 use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultInterface;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
 
 /**
@@ -16,7 +16,7 @@ use Acme\Type\RGBColorTypeHandler;
  */
 class ResultMapClassTest extends MySQLTest {
 	public function testRow() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -43,7 +43,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -79,7 +79,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -115,7 +115,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -154,7 +154,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -187,7 +187,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testGroupedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');
@@ -243,7 +243,7 @@ class ResultMapClassTest extends MySQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$typeManager = new TypeManager();
+		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap', 'Acme\Generic\GenericProduct');

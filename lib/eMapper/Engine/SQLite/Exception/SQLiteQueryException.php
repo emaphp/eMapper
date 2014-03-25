@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Engine\SQLite\Exception;
 
-class SQLiteQueryException extends SQLiteMapperException {
+class SQLiteQueryException extends SQLiteException {
 	/**
 	 * Query string
 	 * @var string

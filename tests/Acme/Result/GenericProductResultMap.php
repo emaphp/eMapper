@@ -1,6 +1,10 @@
 <?php
 namespace Acme\Result;
 
+/**
+ * @parser emapper\emapper
+ * @author emaphp
+ */
 class GenericProductResultMap {
 	/**
 	 * @column product_id

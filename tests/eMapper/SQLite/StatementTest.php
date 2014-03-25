@@ -2,7 +2,7 @@
 namespace eMapper\SQLite;
 
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
-use eMapper\Type\TypeManager;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Test SQLiteStatement class
@@ -15,7 +15,7 @@ class StatementTest extends SQLiteTest {
 	
 	public function __construct() {
 		self::setUpBeforeClass();
-		$this->statement = new SQLiteStatement(self::$conn, new TypeManager());
+		$this->statement = new SQLiteStatement(self::$conn, new SQLiteTypeManager());
 	}
 	
 	public function testEmpty() {

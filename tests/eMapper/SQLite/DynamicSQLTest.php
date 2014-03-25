@@ -2,8 +2,8 @@
 namespace eMapper\SQLite;
 
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
-use eMapper\Type\TypeManager;
 use Acme\Entity\Product;
+use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
 /**
  * Test dynamix sql expressions running in a SQLite environment
@@ -16,7 +16,7 @@ class DynamicSQLTest extends SQLiteTest {
 	
 	public function __construct() {
 		self::setUpBeforeClass();
-		$this->statement = new SQLiteStatement(self::$conn, new TypeManager());
+		$this->statement = new SQLiteStatement(self::$conn, new SQLiteTypeManager());
 	}
 	
 	public function testSimpleValue() {
