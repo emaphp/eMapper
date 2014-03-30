@@ -14,8 +14,7 @@ class ExampleUserPameterMap {
 	public $surname;
 	
 	/**
-	 * @getter getPassword
-	 * @var s
+	 * @property password
 	 */
 	public $pass;
 }

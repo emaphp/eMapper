@@ -8,9 +8,7 @@ class QueryCallback extends DynamicAttribute {
 	 */
 	public $query;
 	
-	public function __construct($classname, $name, $attribute) {
-		parent::__construct($classname, $name, $attribute);
-		
+	protected function parseAttribute($attribute) {
 		//obtain query
 		$this->query = $attribute->get('query');
 	}
@@ -25,8 +23,8 @@ class QueryCallback extends DynamicAttribute {
 		$args = $this->evaluateArgs($row, $parameterMap);
 		array_unshift($args, $this->query);
 
-		//merge mapper configuration
-		$this->mergeConfig($mapper->config);
+		//apply configuration
+		$this->applyConfig($mapper->config);
 		
 		//invoke statement
 		return call_user_func_array([$mapper->merge($this->config), 'query'], $args);

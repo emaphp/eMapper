@@ -39,7 +39,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		//store type handlers while on it
 		$this->typeHandlers = array();
 		
-		//get reflection class in order to validate setter methods
+		//get reflection class in order to validate property accesibility
 		$reflectionClass = ($this->defaultClass != 'stdClass' && $this->defaultClass != 'ArrayObject') ? Profiler::getClassProfile($this->defaultClass)->reflectionClass : null;		
 		
 		foreach ($this->propertyList as $name => $config) {
@@ -48,28 +48,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				throw new \UnexpectedValueException("Column '{$config->column}' was not found on this result");
 			}
 			
-			if (isset($reflectionClass)) {
-				if (isset($config->setter)) {
-					if (!$reflectionClass->hasMethod($config->setter)) {
-						throw new \UnexpectedValueException("Setter method '$config->setter' was not found in class {$this->defaultClass}");
-					}
-				
-					$reflectionMethod = $reflectionClass->getMethod($config->setter);
-				
-					if (!$reflectionMethod->isPublic()) {
-						throw new \UnexpectedValueException("Setter method '$config->setter' is not public in class {$this->defaultClass}");
-					}
-				}
-				elseif ($this->resultMap != $this->defaultClass) {
-					if (!$reflectionClass->hasProperty($name)) {
-						throw new \UnexpectedValueException("Property '$name' was not found in class {$this->defaultClass}");
-					}
-				
-					$reflectionProperty = $reflectionClass->getProperty($name);
-				
-					if (!$reflectionProperty->isPublic()) {
-						throw new \UnexpectedValueException("Property '$name' is not public in class {$this->defaultClass}");
-					}
+			//check property
+			if (isset($reflectionClass) && $this->resultMap != $this->defaultClass) {
+				if (!$reflectionClass->hasProperty($name)) {
+					throw new \UnexpectedValueException("Property '$name' was not found in class {$this->defaultClass}");
 				}
 			}
 			
@@ -116,7 +98,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			$property = $reflectionClass->getProperty($column);
 				
 			if (!$property->isPublic()) {
-				throw new \UnexpectedValueException(sprintf("Property %s in class %s has not public access", $property->getName(), $this->defaultClass));
+				$property->setAccesible(true);
 			}
 				
 			$this->columns[$column] = $this->columnHandler($column);
@@ -140,12 +122,15 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 				elseif ($instance instanceof \ArrayObject) {
 					$instance[$name] = $value;
 				}
-				elseif (isset($config->setter)) {
-					$setter = $config->setter;
-					$instance->$setter($value);
-				}
 				else {
-					$instance->$name = $value;
+					if (!$config->reflectionProperty->isPublic()) {
+						$rp = new \ReflectionProperty($instance, $name);
+						$rp->setAccessible(true);
+						$rp->setValue($instance, $value);
+					}
+					else {
+						$instance->$name = $value;
+					}
 				}
 			}
 		}
@@ -422,12 +407,14 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	
 	public function relate(&$row, $parameterMap, $mapper) {
 		foreach ($this->relationList as $property => $relation) {
-			if ($relation->setter) {
-				$setter = $relation->setter;
-				$row->$setter($relation->evaluate($row, $parameterMap, $mapper));
+			$value = $relation->evaluate($row, $parameterMap, $mapper);
+			
+			if (!$relation->reflectionProperty->isPublic()) {
+				$relation->reflectionProperty->setAccesible(true);
+				$relation->reflectionProperty->setValue($row, $value);
 			}
 			else {
-				$row->$property = $relation->evaluate($row, $parameterMap, $mapper);
+				$row->$property = $value;
 			}
 		}
 	}

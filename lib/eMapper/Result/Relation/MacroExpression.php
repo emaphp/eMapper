@@ -12,9 +12,10 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	public $program;
 	
-	public function __construct($classname, $name, $attribute) {
-		parent::__construct($classname, $name, $attribute);
-		
+	/* (non-PHPdoc)
+	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()
+	 */
+	protected function parseAttribute($attribute) {
 		//obtain program source
 		$this->program = new SimpleProgram($attribute->get('eval'));
 	}

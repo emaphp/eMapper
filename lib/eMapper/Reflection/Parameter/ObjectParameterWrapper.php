@@ -17,47 +17,19 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		$classname = isset($this->parameterMap) ? $this->parameterMap : $this->classname;
 		$this->config = Profiler::getClassProfile($classname)->propertiesConfig;
 		$reflectionClass = Profiler::getClassProfile($this->classname)->reflectionClass;
-		$filtered = array();
 		
-		foreach ($this->config as $property => $config) {
-			if (isset($config->getter)) {
-				//validate getter method
-				$getter = $config->getter;
-					
-				if (!$reflectionClass->hasMethod($getter)) {
-					throw new \UnexpectedValueException(sprintf("Getter method '$getter' not found in class %s", $classname));
-				}
-					
-				$method = $reflectionClass->getMethod($getter);
-					
-				if (!$method->isPublic()) {
-					throw new \UnexpectedValueException(sprintf("Getter method '$getter' is not accessible in class %s", $classname));
-				}
-			}
-			elseif (is_null($this->parameterMap)) {
-				$rp = $reflectionClass->getProperty($config->property);
-				
-				if (!$rp->isPublic()) {
-					$filtered[$config->property] = 0;
-				}
-			}
-			elseif ($this->classname != $this->parameterMap) {
+		//validate parameter map
+		if ($this->classname != $this->parameterMap) {
+			foreach ($this->config as $name => $config) {
 				$property = $config->property;
-					
+				
 				if (!$reflectionClass->hasProperty($property)) {
 					throw new \UnexpectedValueException(sprintf("Property '$property' was not found in class %s", $classname));
 				}
 				
-				$rp = $reflectionClass->getProperty($property);
-				
-				if (!$rp->isPublic()) {
-					throw new \UnexpectedValueException(sprintf("Property '$property' is not accessible in class %s", $classname));
-				}
+				//override reflection property with hte original one
+				$this->config[$name]->reflectionProperty = $reflectionClass->getProperty($property);
 			}
-		}
-		
-		if (!empty($filtered)) {
-			$this->config = array_diff_key($this->config, $filtered);
 		}
 	}
 	
@@ -67,7 +39,7 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		}
 		else {
 			$vars = array();
-				
+	
 			foreach ($this->config as $name => $config) {
 				if (isset($config->getter)) {
 					$getter = $config->getter;
@@ -78,7 +50,7 @@ class ObjectParameterWrapper extends ParameterWrapper {
 					$vars[$name] = $this->value->$property;
 				}
 			}
-				
+	
 			return $vars;
 		}
 	}
@@ -88,12 +60,14 @@ class ObjectParameterWrapper extends ParameterWrapper {
 	}
 	
 	public function offsetGet($offset) {
-		if (isset($this->config[$offset]->getter)) {
-			$getter = $this->config[$offset]->getter;
-			return $this->value->$getter();
+		$property = $this->config[$offset]->property;
+
+		if (!$this->config[$offset]->reflectionProperty->isPublic()) {
+			$rp = new \ReflectionProperty($this->value, $property);
+			$rp->setAccessible(true);
+			return $rp->getValue($this->value);
 		}
 		else {
-			$property = $this->config[$offset]->property;
 			return $this->value->$property;
 		}
 	}

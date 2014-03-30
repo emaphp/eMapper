@@ -64,15 +64,6 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		return false;
 	}
 	
-	public abstract function getParameterVars();
-	
-	/**
-	 * ARRAYACCESS METHODS
-	 */
-	
-	public abstract function offsetExists($offset);
-	public abstract function offsetGet($offset);
-
 	public function offsetSet($offset, $value) {
 		return;
 	}
@@ -80,5 +71,10 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	public function offsetUnset($offset) {
 		return;
 	}
+	
+	public abstract function offsetExists($offset);
+	public abstract function offsetGet($offset);
+	public abstract function getParameterVars();
+
 }
 ?>

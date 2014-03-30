@@ -53,19 +53,19 @@ class ClassProfile {
 			
 		foreach ($this->propertiesAnnotations as $name => $attr) {
 			if ($attr->has('eval')) {
-				$this->dynamicAttributes[$name] = new MacroExpression($classname, $name, $attr);
+				$this->dynamicAttributes[$name] = new MacroExpression($name, $attr, $this->reflectionClass->getProperty($name));
 			}
 			elseif ($attr->has('stmt')) {
-				$this->dynamicAttributes[$name] = new StatementCallback($classname, $name, $attr);
+				$this->dynamicAttributes[$name] = new StatementCallback($name, $attr, $this->reflectionClass->getProperty($name));
 			}
 			elseif ($attr->has('query')) {
-				$this->dynamicAttributes[$name] = new QueryCallback($classname, $name, $attr);
+				$this->dynamicAttributes[$name] = new QueryCallback($name, $attr, $this->reflectionClass->getProperty($name));
 			}
 			elseif ($attr->has('procedure')) {
-				$this->dynamicAttributes[$name] = new StoredProcedureCallback($classname, $name, $attr);
+				$this->dynamicAttributes[$name] = new StoredProcedureCallback($name, $attr, $this->reflectionClass->getProperty($name), $classname);
 			}
 			else {
-				$this->propertiesConfig[$name] = new PropertyProfile($name, $attr);
+				$this->propertiesConfig[$name] = new PropertyProfile($name, $attr, $this->reflectionClass->getProperty($name));
 			}
 		}
 	}

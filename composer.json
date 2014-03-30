@@ -16,7 +16,7 @@
 	],
 	"require" : {
 		"minime/annotations" : "1.12.16",
-		"emacros/emacros" : "1.0.0"
+		"emacros/emacros" : "1.0.*"
 	},
 	"autoload" : {
 		"psr-0" : {

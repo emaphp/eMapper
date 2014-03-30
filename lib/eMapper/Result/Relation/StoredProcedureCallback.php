@@ -7,14 +7,23 @@ use eMapper\Reflection\Profiler;
 
 class StoredProcedureCallback extends DynamicAttribute {
 	/**
+	 * Class which declares this attribute
+	 * @var string
+	 */
+	public $classname;
+	
+	/**
 	 * Stored procedure name
 	 * @var string
 	 */
 	public $procedure;
 	
-	public function __construct($classname, $name, $attribute) {
-		parent::__construct($classname, $name, $attribute);
-		
+	public function __construct($name, $attribute, \ReflectionProperty $reflectionProperty, $classname) {
+		parent::__construct($name, $attribute, $reflectionProperty);
+		$this->classname = $classname;
+	}
+	
+	protected function parseAttribute($attribute) {
 		//obtain procedure name
 		$this->procedure = $attribute->get('procedure');
 	}
@@ -25,9 +34,9 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 * @throws \UnexpectedValueException
 	 * @return string
 	 */
-	protected function getType($value) {
+	protected function getType($value, $property) {
 		if (is_array($value)) {
-			throw new \UnexpectedValueException("Type 'array' cannot be used as stored procedure argument");
+			throw new \UnexpectedValueException("Property '$property' is an array and cannot be used as stored procedure argument");
 		}
 		
 		if (is_object($value)) {
@@ -37,7 +46,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return strtolower(gettype($value));
 	}
 	
-	protected function evaluateArgs($row, $parameterMap, &$sptypes) {
+	protected function evaluateArgs($row, $parameterMap, &$proc_types) {
 		$args = array();
 		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 	
@@ -50,7 +59,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 					$profile = Profiler::getClassProfile($this->classname);
 					
 					if (!array_key_exists($arg->property, $profile->propertiesConfig)) {
-						throw new \UnexpectedValueException();
+						throw new \UnexpectedValueException("Property '{$arg->property}' not found in class '{$this->classname}'");
 					}
 					
 					if (isset($profile->propertiesConfig[$arg->property]->type)) {
@@ -58,7 +67,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 					}
 					else {
 						//get value type
-						$type = $this->getType($value);
+						$type = $this->getType($value, $arg->property);
 					}
 				}
 				else {
@@ -66,7 +75,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 				}
 				
 				$args[] = $value;
-				$sptypes[] = $type;
+				$proc_types[] = $type;
 			}
 			else {
 				$args[] = $arg;
@@ -76,9 +85,9 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return $args;
 	}
 	
-	protected function mergeConfig($config, $sptypes) {
+	protected function applyConfig($config, $proc_types) {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
-		$this->config['procedure.types'] = $sptypes;
+		$this->config['proc.types'] = $proc_types;
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {
@@ -88,11 +97,11 @@ class StoredProcedureCallback extends DynamicAttribute {
 		}
 		
 		//build argument list
-		$sptypes = array();
-		$args = $this->evaluateArgs($row, $parameterMap, $sptypes);
+		$proc_types = array();
+		$args = $this->evaluateArgs($row, $parameterMap, $proc_types);
 		
-		//merge mapper configuration
-		$this->mergeConfig($mapper->config, $sptypes);
+		//apply configuration
+		$this->applyConfig($mapper->config, $proc_types);
 		
 		//call stored procedure
 		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);

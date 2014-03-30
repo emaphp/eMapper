@@ -29,12 +29,12 @@ class ArrayParameterWrapper extends ParameterWrapper {
 		}
 		else {
 			$vars = array();
-			
+	
 			foreach ($this->config as $name => $config) {
 				$key = $config->property;
 				$vars[$name] = $this->value[$key];
 			}
-			
+	
 			return $vars;
 		}
 	}

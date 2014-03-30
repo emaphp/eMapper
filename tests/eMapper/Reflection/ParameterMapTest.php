@@ -124,7 +124,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ObjectParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
 		$this->assertTrue($wrapper->offsetExists('lastname'));
-		$this->assertFalse($wrapper->offsetExists('password'));
+		$this->assertTrue($wrapper->offsetExists('password'));
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['lastname']);
 		

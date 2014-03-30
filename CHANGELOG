@@ -1,3 +1,7 @@
+2014-04-?? - Version 3.0.0
+
+  Deprecated: @setter and @getter annotations.
+
 2014-03-26 - Version 3.0.0 (beta)
 
   Added: Database drivers classes

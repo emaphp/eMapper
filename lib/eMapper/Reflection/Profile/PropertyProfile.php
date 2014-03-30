@@ -35,19 +35,14 @@ class PropertyProfile {
 	public $suggestedType;
 	
 	/**
-	 * Setter method
-	 * @var string
+	 * Reflection property instance
+	 * @var \ReflectionProperty
 	 */
-	public $setter;
+	public $reflectionProperty;
 	
-	/**
-	 * Getter method
-	 * @var string
-	 */
-	public $getter;
-	
-	public function __construct($name, AnnotationsBag $prop) {
+	public function __construct($name, AnnotationsBag $prop, \ReflectionProperty $reflectionProperty = null) {
 		$this->name = $name;
+		$this->reflectionProperty = $reflectionProperty;
 		$this->column = $prop->has('column') ? $prop->get('column') : $name;
 		$this->property = $prop->has('property') ? $prop->get('property') : $name;
 		
@@ -56,14 +51,6 @@ class PropertyProfile {
 		}
 		elseif ($prop->has('var')) {
 			$this->suggestedType = $prop->get('var');
-		}
-		
-		if ($prop->has('setter')) {
-			$this->setter = $prop->get('setter');
-		}
-		
-		if ($prop->has('getter')) {
-			$this->getter = $prop->get('getter');
 		}
 	}
 }

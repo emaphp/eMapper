@@ -16,12 +16,6 @@ abstract class DynamicAttribute extends PropertyProfile {
 	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)(?::([A-z]{1}[\w|\\\\]*))?$/';
 	
 	/**
-	 * Class which declares this attribute
-	 * @var string
-	 */
-	public $classname;
-	
-	/**
 	 * Attribute arguments
 	 * @var array
 	 */
@@ -45,9 +39,10 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	public $condition;
 	
-	public function __construct($classname, $name, $attribute) {
-		parent::__construct($name, $attribute);
-		$this->classname = $classname;
+	public function __construct($name, $attribute, \ReflectionProperty $reflectionProperty) {
+		parent::__construct($name, $attribute, $reflectionProperty);
+
+		$this->parseAttribute($attribute);
 		$this->parseArguments($attribute);
 		$this->parseConfig($attribute);
 	}
@@ -156,13 +151,14 @@ abstract class DynamicAttribute extends PropertyProfile {
 	}
 	
 	/**
-	 * Merges current configuration with mapper configuration
+	 * Applies configuration values for attribute evaluation
 	 * @param array $config
 	 */
-	protected function mergeConfig($config) {
+	protected function applyConfig($config) {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
 	}
 	
+	protected abstract function parseAttribute($attribute);
 	public abstract function evaluate($row, $parameterMap, $mapper);
 }
 
