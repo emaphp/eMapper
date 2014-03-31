@@ -46,6 +46,7 @@ class User {
 	 * @map.query "SELECT last_login FROM login WHERE user_id = %{i}"
 	 * @map.arg #id
 	 * @map.type dt
+	 * @map.option.map.result Acme\Reflection\ConnectionResultMap
 	 */
 	public $lastConnection;
 	

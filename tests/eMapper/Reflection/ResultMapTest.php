@@ -127,6 +127,8 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('#id', $lastConnection->get('map.arg'));
 		$this->assertTrue($lastConnection->has('map.type'));
 		$this->assertEquals('dt', $lastConnection->get('map.type'));
+		$this->assertTrue($lastConnection->useNamespace('map.option')->has('map.result'));
+		$this->assertEquals(['map.result' => 'Acme\Reflection\ConnectionResultMap'], $lastConnection->useNamespace('map.option')->export());
 		
 		//favorites
 		$favorites = $properties['favorites'];

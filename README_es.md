@@ -12,7 +12,7 @@ eMapper
 Ultimas modificaciones
 ------------------
 <br/>
-2014-03-26 - Versión 3.0.0 (beta)
+2014-04-02 - Versión 3.0.0
 
   * Agregado: Clases de conexión (Drivers).
   * Agregado: Clase Mapper.
@@ -691,33 +691,33 @@ Result maps
 ----------
 
 <br/>
-Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan annotations. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@type** y **@column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico al de la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
+Un result map es una clase que permite definir que propiedades serán mapeadas hacia un objeto/arreglo. Utilizar un result map resulta ideal para casos en donde por algún motivo los valores de una columna deben ser almacenados utilizando otro nombre o con un tipo particular. Para definir el tipo de una propiedad y el nombre de la columna referenciada se utilizan annotations. El siguiente código muestra la implementación de un result map que define 4 propiedades. Las annotations **@map.type** y **@map.column** se utilizan para definir el tipo a utilizar y el nombre de la columna desde donde tomar el valor respectivamente. En caso de no definir el nombre de la columna entonces se asumirá que es idéntico al de la propiedad. Si el tipo no viene definido entonces se utilizará aquel asociado con la columna.
 
 ```php
 namespace Acme\Result;
 
 /**
- * @parser emapper/emapper
+ * @meta.parser emapper/emapper
  */
 class UserResultMap {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
     public $nombre;
     
     /**
-     * @column password
+     * @map.column password
      */
     public $clave;
     
     /**
-     * @type blob
-     * @column imagen
+     * @map.type blob
+     * @map.column imagen
      */
     public $avatar;
 }
@@ -745,29 +745,29 @@ Una entidad es una clase que, de la misma manera que un result map, define cuale
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Producto {
     /**
-     * @column id_producto
+     * @map.column id_producto
      */
     public $id;
     
     /**
-     * @type str
+     * @map.type str
      */
     public $codigo;
     
     /**
-     * @column fecha_modificacion
-     * @type string
+     * @map.column fecha_modificacion
+     * @map.type string
      */
     public $fechaModificacion;
 }
 ```
 
-Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation **@entity**. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
+Otra de las diferencias con respecto a los result map es que las entidades deben ser declaradas utilizando la annotation **@map.entity**. La entidad *Producto* mostrada como ejemplo define 3 campos públicos: *id*, *codigo* y *fechaModificacion*. Este último campo lo hemos definido de tipo *string* para así evitar almacenarlo como instancia de *DateTime*, algo útil en casos donde sea necesario exportar un determinado valor a JSON. Mapear a una entidad no requiere mayor esfuerzo.
 
 ```php
 $productos = $mapper
@@ -776,63 +776,6 @@ $productos = $mapper
 ```
 Es necesario notar que al mapear a listas de entidades el índice a especificar debe ser la propiedad y no la columna asociada. Lo mismo ocurre en los casos donde se utilice un result map.
 
-<br/>
-En caso de declarar las propiedades de una entidad como privadas/protegidas debemos configurar los métodos setter y getter de cada una.
-
-```php
-namespace Acme\Entity;
-
-/**
- * @parser emapper/emapper
- * @entity
- */
-class Perfil {
-    /**
-     * @column id_perfil
-     * @setter setIdPerfil
-     * @getter getIdPerfil
-     */
-    private $idPerfil;
-
-    /**
-     * @column id_usuario
-     * @setter setIdUsuario
-     * @getter getIdUsuario
-     */
-    private $idUsuario;
-    
-    /**
-     * @type string
-     * @setter setTipo
-     * @getter getTipo
-     */
-    private $tipo;
-    
-    public function setIdPerfil($idPerfil) {
-        $this->idPerfil = $idPerfil;
-    }
-    
-    public function getIdPerfil() {
-        return $this->idPerfil;
-    }
-    
-    public function setIdUsuario($idUsuario) {
-        $this->idUsuario = $idUsuario;
-    }
-    
-    public function getIdUsuario() {
-        return $this->idUsuario;
-    }
-    
-    public function setTipo($tipo) {
-        $this->tipo = $tipo;
-    }
-    
-    public function getTipo() {
-        return $this->tipo;
-    }
-}
-```
 
 <br/>
 Statements
@@ -1423,7 +1366,7 @@ $rojo = $mapper->type('color')->query("SELECT rgb FROM paleta WHERE nombre = 'ro
 **Inserción de valor en consulta**
 
 <br/>
-Por defecto, si el método *setParameter* de un manejador de tipo retorna una cadena entonces el valor será escapado e insertado entre comillas. En ocasiones este valor no debe pasar por este proceso sino insertarse directamente. Este es el caso de la clase *BlobTypeHandler*, que retorna una cadena 'TRUE' o 'FALSE' de acuerdo al valor pasado. Para estos casos existe la annotation de configuración **@unquoted**. Esta annotation determina que el valor retornado por *setParameter* no será incluido entre comillas.
+Por defecto, si el método *setParameter* de un manejador de tipo retorna una cadena entonces el valor será escapado e insertado entre comillas. En ocasiones este valor no debe pasar por este proceso sino insertarse directamente. Este es el caso de la clase *BlobTypeHandler*, que retorna una cadena 'TRUE' o 'FALSE' de acuerdo al valor pasado. Para estos casos existe la annotation de configuración **@map.unquoted**. Esta annotation determina que el valor retornado por *setParameter* no será incluido entre comillas.
 
 ```php
 namespace eMapper\Type\Handler;
@@ -1431,7 +1374,7 @@ namespace eMapper\Type\Handler;
 use eMapper\Type\TypeHandler;
 
 /**
- * @unquoted
+ * @map.unquoted
  */
 class BooleanTypeHandler extends TypeHandler {
 	protected function cast_to_boolean($value) {
@@ -1463,33 +1406,33 @@ Atributos dinámicos
 ----------
 
 <br/>
-Un atributo dinámico es una propiedad de un entidad o result map al cual se le asocia el valor retornado por una consulta. Estos atributos deben definirse con un grupo especial de annotations y pueden definir la expresión de mapeo asociada con **@type**.
+Un atributo dinámico es una propiedad de un entidad o result map al cual se le asocia el valor retornado por una consulta. Estos atributos deben definirse con un grupo especial de annotations y pueden definir la expresión de mapeo asociada con **@map.type**.
 
 **Definir un atributo dinámico**
 
 <br/>
-Para asociar una propiedad con la ejecución de una consulta utilizamos la annotation **@query**. Esta annotation espera una cadena de texto con la consulta propiamente dicha.
+Para asociar una propiedad con la ejecución de una consulta utilizamos la annotation **@map.query**. Esta annotation espera una cadena de texto con la consulta propiamente dicha.
 ```php
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Usuario {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $nombre;
     
     /**
-     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} ORDER BY tipo"
-     * @type obj[]
+     * @map.query "SELECT * FROM perfiles WHERE id_usuario = #{id} ORDER BY tipo"
+     * @map.type obj[]
      */
     public $perfiles;
 }
@@ -1500,36 +1443,36 @@ La consulta especificada recibe la instancia actual de *Usuario* y utiliza el va
 **Parametrización**
 
 <br/>
-Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@arg**. Supongamos ahora que los perfiles deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos también agregar una annotation especial para decir que la instancia debe ser utilizada como argumento.
+Podemos especificar un número variable de argumentos para una determinada consulta a través de la annotation **@map.arg**. Supongamos ahora que los perfiles deben ser filtrados por tipo, de modo que este sea igual a 1. Para eso debemos agregar un argumento auxiliar a la consulta. Dado que aún necesitamos la instancia de *Usuario* debemos también agregar una annotation especial para decir que la instancia debe ser utilizada como argumento.
 
 ```php
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Usuario {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $nombre;
     
     /**
-     * @query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{1}"
-     * @arg-self
-     * @arg 1
-     * @type obj[]
+     * @map.query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{1}"
+     * @map.self-arg
+     * @map.arg 1
+     * @map.type obj[]
      */
     public $perfiles;
 }
 ```
-La annotation **@arg-self** especifica que la instancia actual de *Usuario* sea utilizada como argumento. 
+La annotation **@map.self-arg** especifica que la instancia actual de *Usuario* sea utilizada como argumento. 
 No es necesario agregar esta annotation en los casos donde no se especifican argumentos auxiliares. El segundo argumento es pasado como entero directamente, para de este modo realizar el filtrado de resultados.
 
 <br/>
@@ -1549,104 +1492,105 @@ $profilesNamespace->stmt('findByUserIdAndType',
                          
 $mapper->addNamespace($profilesNamespace);
 ```
-Para invocar statements se utiliza la annotation **@stmt**. Esta annotation espera una cadena de texto con el nombre completo de la statement a ejecutar. En este caso, la statement a invocar no espera una instancia de *Usuario* como primer argumento sino un entero. Para enviar el valor de una propiedad como argumento hacemos uso de una expresión especial.
+Para invocar statements se utiliza la annotation **@map.stmt**. Esta annotation espera una cadena de texto con el nombre completo de la statement a ejecutar. En este caso, la statement a invocar no espera una instancia de *Usuario* como primer argumento sino un entero. Para enviar el valor de una propiedad como argumento hacemos uso de una expresión especial.
 
 ```php
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Usuario {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $nombre;
     
     /**
-     * @stmt 'profiles.findByUserIdAndType'
-     * @arg #id
-     * @arg 1
+     * @map.stmt 'profiles.findByUserIdAndType'
+     * @map.arg #id
+     * @map.arg 1
      */
     public $perfiles;
 }
 ```
-El envio de una propiedad como argumento se realiza agregando una annotation **@arg** con el valor de la propiedad a enviar encabezada por el símbolo **#**.
+El envio de una propiedad como argumento se realiza agregando una annotation **@map.arg** con el valor de la propiedad a enviar encabezada por el símbolo **#**.
 
 <br/>
 **Rutinas almacenadas**
 
 <br/>
-La invocación a una rutina almacenada se realiza utilizando la annotation **@procedure**. A diferencia de **@query** y **@stmt**, las invocaciones a rutinas no utilizan la instancia actual como argumento.
+La invocación a una rutina almacenada se realiza utilizando la annotation **@map.procedure**. A diferencia de **@map.query** y **@map.stmt**, las invocaciones a rutinas no utilizan la instancia actual como argumento.
 
 ```php
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Usuario {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $nombre;
     
     /**
-     * @procedure Profiles_FindByUserIdType
-     * @arg #id:int
-     * @arg 1
-     * @type obj[]
-     * @result-map Acme\Result\ProfileResultMap
+     * @map.procedure Profiles_FindByUserIdType
+     * @map.arg #id:int
+     * @map.arg 1
+     * @map.type obj[]
+     * @map.result-map Acme\Result\ProfileResultMap
      */
     public $perfiles;
 }
 ```
 
-La propiedad *perfiles* agrega una annotation extra para setear el result map a utilizar para esa consulta. **@result-map** espera una cadena de texto con el nombre completo de la clase a usar para el mapeo de datos. También hemos agregado un identificador de tipo al primer argumento de la consulta. En este caso la propiedad *id* ya esta asociada al tipo entero, pero puede llegar a resultar de utilidad como reemplazo del seteo de tipos a través de **proc_types**.
+La propiedad *perfiles* agrega una annotation extra para setear el result map a utilizar para esa consulta. **@map.result-map** espera una cadena de texto con el nombre completo de la clase a usar para el mapeo de datos. También hemos agregado un identificador de tipo al primer argumento de la consulta. En este caso la propiedad *id* ya esta asociada al tipo entero, pero puede llegar a resultar de utilidad como reemplazo del seteo de tipos a través de **proc_types**.
 
 <br/>
 **Macros**
 
 <br/>
-La annotation **@eval** permite asociar una propiedad al valor devuelto por una macro de usuario. Esta annotation define una expresion similar a las utilizadas en las consultas con SQL dinámico. Las macros de usuario no definen argumentos auxiliares y siempre son invocadas con la instancia actual como único argumento. Este ejemplo utiliza una macro de usuario para calcular la edad de un usuario basandose en la fecha de nacimiento.
+La annotation **@map.eval** permite asociar una propiedad al valor devuelto por una macro de usuario. Esta annotation define una expresion similar a las utilizadas en las consultas con SQL dinámico. Las macros de usuario no definen argumentos auxiliares y siempre son invocadas con la instancia actual como único argumento. Este ejemplo utiliza una macro de usuario para calcular la edad de un usuario basandose en la fecha de nacimiento.
 
 ```php
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Usuario {
     /**
-     * @column id_usuario
+     * @map.column id_usuario
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $nombre;
     
     /**
-     * @column fecha_nacimiento
-     * @type dt
+     * @map.column fecha_nacimiento
+     * @map.type dt
      */
     public $fechaNacimiento;
     
     /**
-     * Edad de usuario
-     * @eval (as-int (diff-format (#fechaNacimiento) (now) "%y"))
+     * Calcular diferencia entre la fecha actual y la fecha de nacimiento del usuario
+     * Luego, convertir a entero
+     * @map.eval (as-int (diff-format (#fechaNacimiento) (now) "%y"))
      */
     public $edad;
 }
@@ -1656,31 +1600,31 @@ class Usuario {
 **Condiciones**
 
 <br/>
-También es posible asociarle a un atributo una condición utilizando la annotation **@cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. Esta entidad de ejemplo agrega una propiedad que determina si la categoria de un producto es igual a "software" previo a la ejecución de una statement.
+También es posible asociarle a un atributo una condición utilizando la annotation **@map.cond**. Si un atributo define una condición entonces solo se realizará la consulta (o evaluación de macro) si la condición resulta verdadera. Las condiciones se expresan utilizando macros de usuario. Esta entidad de ejemplo agrega una propiedad que determina si la categoria de un producto es igual a "software" previo a la ejecución de una statement.
 
 ```php
 namespace Acme\Entity;
 
 /**
- * @parser emapper/emapper
- * @entity
+ * @meta.parser emapper/emapper
+ * @map.entity
  */
 class Producto {
     /**
-     * @column id_producto
+     * @map.column id_producto
      */
     public $id;
     
     /**
-     * @type string
+     * @map.type string
      */
      public $categoria;
     
     /**
-     * @cond (== (#categoria) "software")
-     * @stmt 'products.findSupportedOS'
-     * @arg #id
-     * @type obj[]
+     * @map.cond (== (#categoria) "software")
+     * @map.stmt 'products.findSupportedOS'
+     * @map.arg #id
+     * @map.type obj[]
      */
     public $sistemasSoportados;
 }

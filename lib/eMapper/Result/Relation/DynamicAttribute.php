@@ -108,6 +108,13 @@ abstract class DynamicAttribute extends PropertyProfile {
 		if ($attribute->has('map.cond')) {
 			$this->condition = new SimpleProgram($attribute->get('map.cond'));
 		}
+		
+		//get additional options
+		$options = $attribute->useNamespace('map.option');
+		
+		if ($options->count() != 0) {
+			$this->config = array_merge($this->config, $options->export());
+		}
 	}
 	
 	/**
