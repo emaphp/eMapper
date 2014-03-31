@@ -18,9 +18,10 @@ class PostgreSQLResultIterator extends ResultIterator {
 		for ($i = 0; $i < $num_fields; $i++) {
 			$name = pg_field_name($this->result, $i);
 			$type = pg_field_type($this->result, $i);
-			
+
 			switch ($type) {
 				case 'bit':
+				case 'bool':
 				case 'boolean': {
 					$type = 'boolean';
 				}
@@ -57,17 +58,19 @@ class PostgreSQLResultIterator extends ResultIterator {
 				break;
 				
 				case 'date': {
-					$type = 'date';
+					$type = 'DateTime';
 				}
 				break;
 				
 				case 'timestamp': {
 					$type = 'DateTime';
 				}
+				break;
 				
 				case 'bytea': {
 					$type = 'blob';
 				}
+				break;
 				
 				case 'character':
 				case 'char':

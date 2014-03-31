@@ -1,6 +1,8 @@
 2014-04-?? - Version 3.0.0
   
   Fixed: Mapping to objects using PostgreSQLDriver.
+  Fixed: Boolean values in PostgreSQL not being converted correctly.
+  Fixed: Columns of type 'date' and 'timestamp' not using the correct type handler.
   Modified: Annotations are now declared using the namespace 'map' (map.type, map.query, etc).
   Modified: Class ResultInterface renamed to ResultIterator.
   Added: Support for custom configuration annotations (map.option).
