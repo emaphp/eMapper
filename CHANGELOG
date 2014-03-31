@@ -1,6 +1,7 @@
 2014-04-?? - Version 3.0.0
 
   Deprecated: @setter and @getter annotations.
+  Modified: Annotations are now declared using the namespace 'map' (map.type, map.query, etc). 
 
 2014-03-26 - Version 3.0.0 (beta)
 

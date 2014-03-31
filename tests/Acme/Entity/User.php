@@ -2,21 +2,17 @@
 namespace Acme\Entity;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  */
 class User {
 	/**
-	 * @type int
+	 * @map.type int
 	 */
 	public $id;
 	
 	public $birthDate;
 	
-	/**
-	 * @getter getName
-	 * @setter setName
-	 */
 	private $name;
 	
 	public function setName($name) {

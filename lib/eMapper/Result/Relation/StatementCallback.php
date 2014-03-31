@@ -10,7 +10,7 @@ class StatementCallback extends DynamicAttribute {
 	
 	protected function parseAttribute($attribute) {
 		//obtain statement id
-		$this->statement = $attribute->get('stmt');
+		$this->statement = $attribute->get('map.stmt');
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {

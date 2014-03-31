@@ -2,33 +2,33 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  * @author emaphp
  */
 class ExtraSale {
 	/**
-	 * @column product_id
-	 * @type integer
+	 * @map.column product_id
+	 * @map.type integer
 	 */
 	public $productId;
 	
 	/**
-	 * @column user_id
+	 * @map.column user_id
 	 * @var integer
 	 */
 	public $userId;
 	
 	/**
-	 * @stmt getProduct
-	 * @type array
+	 * @map.stmt getProduct
+	 * @map.type array
 	 */
 	public $product;
 	
 	/**
-	 * @stmt getUser
-	 * @arg #userId
-	 * @type obj
+	 * @map.stmt getUser
+	 * @map.arg #userId
+	 * @map.type obj
 	 */
 	public $user;
 }

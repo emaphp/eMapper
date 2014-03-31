@@ -2,45 +2,45 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  * @author emaphp
  */
 class Product {
 	/**
-	 * @column product_id
+	 * @map.column product_id
 	 * @var integer
 	 */
 	public $id;
 	
 	/**
-	 * @type string
+	 * @map.type string
 	 */
 	public $category;
 	
 	/**
-	 * @type color
+	 * @map.type color
 	 */
 	public $color;
 	
 	/**
-	 * @procedure Sales_FindLastByProductId
-	 * @arg #id
-	 * @type obj:Acme\Result\Attribute\Sale
+	 * @map.procedure Sales_FindLastByProductId
+	 * @map.arg #id
+	 * @map.type obj:Acme\Result\Attribute\Sale
 	 */
 	public $lastSale;
 	
 	/**
-	 * @procedure Products_FindBestByCategory
-	 * @arg #category
-	 * @type obj:Acme\Result\Attribute\Product
+	 * @map.procedure Products_FindBestByCategory
+	 * @map.arg #category
+	 * @map.type obj:Acme\Result\Attribute\Product
 	 */
 	public $bestInCategory;
 	
 	/**
-	 * @procedure Products_FindAvgPriceByCategory
-	 * @arg #category
-	 * @type float
+	 * @map.procedure Products_FindAvgPriceByCategory
+	 * @map.arg #category
+	 * @map.type float
 	 */
 	public $avgPrice;
 }

@@ -14,7 +14,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->classAnnotations;
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $profile);
-		$this->assertTrue($profile->has('unquoted'));
+		$this->assertTrue($profile->has('map.unquoted'));
 	}
 	
 	public function testResultMapProfile() {		
@@ -28,25 +28,25 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertArrayHasKey('user_id', $properties);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $properties['user_id']);
-		$this->assertTrue($properties['user_id']->has('type'));
-		$this->assertEquals('integer', $properties['user_id']->get('type'));
+		$this->assertTrue($properties['user_id']->has('map.type'));
+		$this->assertEquals('integer', $properties['user_id']->get('map.type'));
 		
 		$this->assertArrayHasKey('name', $properties);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $properties['name']);
-		$this->assertTrue($properties['name']->has('column'));
-		$this->assertEquals('user_name', $properties['name']->get('column'));
+		$this->assertTrue($properties['name']->has('map.column'));
+		$this->assertEquals('user_name', $properties['name']->get('map.column'));
 		
 		$this->assertArrayHasKey('lastLogin', $properties);
 		$this->assertInstanceOf("Minime\Annotations\AnnotationsBag", $properties['lastLogin']);
-		$this->assertTrue($properties['lastLogin']->has('type'));
-		$this->assertEquals('string', $properties['lastLogin']->get('type'));
-		$this->assertTrue($properties['lastLogin']->has('column'));
-		$this->assertEquals('last_login', $properties['lastLogin']->get('column'));
+		$this->assertTrue($properties['lastLogin']->has('map.type'));
+		$this->assertEquals('string', $properties['lastLogin']->get('map.type'));
+		$this->assertTrue($properties['lastLogin']->has('map.column'));
+		$this->assertEquals('last_login', $properties['lastLogin']->get('map.column'));
 	}
 	
 	public function testEntityAnnotations() {
 		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->classAnnotations;
-		$this->assertTrue($profile->has('entity'));
+		$this->assertTrue($profile->has('map.entity'));
 		
 		$properties = Profiler::getClassProfile('Acme\\Entity\\Product')->propertiesAnnotations;
 		
@@ -54,16 +54,11 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('category', $properties);
 		$this->assertArrayHasKey('color', $properties);
 		
-		$this->assertTrue($properties['code']->has('column'));
-		$this->assertEquals('product_code', $properties['code']->get('column'));
-		
-		$this->assertTrue($properties['category']->has('setter'));
-		$this->assertEquals('setCategory', $properties['category']->get('setter'));
-		$this->assertTrue($properties['category']->has('getter'));
-		$this->assertEquals('getCategory', $properties['category']->get('getter'));
-		
-		$this->assertTrue($properties['color']->has('type'));
-		$this->assertEquals('Acme\\RGBColor', $properties['color']->get('type'));
+		$this->assertTrue($properties['code']->has('map.column'));
+		$this->assertEquals('product_code', $properties['code']->get('map.column'));
+
+		$this->assertTrue($properties['color']->has('map.type'));
+		$this->assertEquals('Acme\\RGBColor', $properties['color']->get('map.type'));
 	}
 	
 	public function testSubclass() {
@@ -92,57 +87,57 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		
 		//full name
 		$fullName = $properties['fullName'];
-		$this->assertTrue($fullName->has('eval'));
-		$this->assertInternalType('string', $fullName->get('eval'));
-		$this->assertEquals("(. (#surname) ', ' (#name))", $fullName->get('eval'));
+		$this->assertTrue($fullName->has('map.eval'));
+		$this->assertInternalType('string', $fullName->get('map.eval'));
+		$this->assertEquals("(. (#surname) ', ' (#name))", $fullName->get('map.eval'));
 		$this->assertTrue($fullName->has('var'));
 		$this->assertInternalType('string', $fullName->get('var'));
 		$this->assertEquals('string', $fullName->get('var'));
 		
 		//profiles
 		$profiles = $properties['profiles'];
-		$this->assertTrue($profiles->has('stmt'));
-		$this->assertInternalType('string', $profiles->get('stmt'));
-		$this->assertEquals("profiles.findByUserId", $profiles->get('stmt'));
-		$this->assertTrue($profiles->has('arg'));
-		$this->assertInternalType('array', $profiles->get('arg'));
-		$this->assertCount(2, $profiles->get('arg'));
-		$this->assertInternalType('string', $profiles->get('arg')[0]);
-		$this->assertInternalType('integer', $profiles->get('arg')[1]);
-		$this->assertEquals('#id', $profiles->get('arg')[0]);
-		$this->assertEquals(3, $profiles->get('arg')[1]);
+		$this->assertTrue($profiles->has('map.stmt'));
+		$this->assertInternalType('string', $profiles->get('map.stmt'));
+		$this->assertEquals("profiles.findByUserId", $profiles->get('map.stmt'));
+		$this->assertTrue($profiles->has('map.arg'));
+		$this->assertInternalType('array', $profiles->get('map.arg'));
+		$this->assertCount(2, $profiles->get('map.arg'));
+		$this->assertInternalType('string', $profiles->get('map.arg')[0]);
+		$this->assertInternalType('integer', $profiles->get('map.arg')[1]);
+		$this->assertEquals('#id', $profiles->get('map.arg')[0]);
+		$this->assertEquals(3, $profiles->get('map.arg')[1]);
 		
 		//total profiles
 		$totalProfiles = $properties['totalProfiles'];
-		$this->assertTrue($totalProfiles->has('eval'));
-		$this->assertInternalType('string', $totalProfiles->get('eval'));
-		$this->assertEquals('(+ (count (#profiles)) (%0))', $totalProfiles->get('eval'));
-		$this->assertTrue($totalProfiles->has('arg-self'));
-		$this->assertTrue($totalProfiles->has('arg'));
-		$this->assertInternalType('integer', $totalProfiles->get('arg'));
-		$this->assertEquals(1, $totalProfiles->get('arg'));
+		$this->assertTrue($totalProfiles->has('map.eval'));
+		$this->assertInternalType('string', $totalProfiles->get('map.eval'));
+		$this->assertEquals('(+ (count (#profiles)) (%0))', $totalProfiles->get('map.eval'));
+		$this->assertTrue($totalProfiles->has('map.self-arg'));
+		$this->assertTrue($totalProfiles->has('map.arg'));
+		$this->assertInternalType('integer', $totalProfiles->get('map.arg'));
+		$this->assertEquals(1, $totalProfiles->get('map.arg'));
 		
 		//last connection
 		$lastConnection = $properties['lastConnection'];
-		$this->assertTrue($lastConnection->has('query'));
-		$this->assertInternalType('string', $lastConnection->get('query'));
-		$this->assertEquals("SELECT last_login FROM login WHERE user_id = %{i}", $lastConnection->get('query'));
-		$this->assertTrue($lastConnection->has('arg'));
-		$this->assertInternalType('string', $lastConnection->get('arg'));
-		$this->assertEquals('#id', $lastConnection->get('arg'));
-		$this->assertTrue($lastConnection->has('type'));
-		$this->assertEquals('dt', $lastConnection->get('type'));
+		$this->assertTrue($lastConnection->has('map.query'));
+		$this->assertInternalType('string', $lastConnection->get('map.query'));
+		$this->assertEquals("SELECT last_login FROM login WHERE user_id = %{i}", $lastConnection->get('map.query'));
+		$this->assertTrue($lastConnection->has('map.arg'));
+		$this->assertInternalType('string', $lastConnection->get('map.arg'));
+		$this->assertEquals('#id', $lastConnection->get('map.arg'));
+		$this->assertTrue($lastConnection->has('map.type'));
+		$this->assertEquals('dt', $lastConnection->get('map.type'));
 		
 		//favorites
 		$favorites = $properties['favorites'];
-		$this->assertTrue($favorites->has('query'));
-		$this->assertInternalType('string', $favorites->get('query'));
-		$this->assertEquals("SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}", $favorites->get('query'));
-		$this->assertTrue($favorites->has('arg-self'));
-		$this->assertTrue($favorites->has('arg'));
-		$this->assertInternalType('boolean', $favorites->get('arg'));
-		$this->assertTrue($favorites->has('type'));
-		$this->assertEquals('string[]', $favorites->get('type'));
+		$this->assertTrue($favorites->has('map.query'));
+		$this->assertInternalType('string', $favorites->get('map.query'));
+		$this->assertEquals("SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}", $favorites->get('map.query'));
+		$this->assertTrue($favorites->has('map.self-arg'));
+		$this->assertTrue($favorites->has('map.arg'));
+		$this->assertInternalType('boolean', $favorites->get('map.arg'));
+		$this->assertTrue($favorites->has('map.type'));
+		$this->assertEquals('string[]', $favorites->get('map.type'));
 	}
 }
 ?>

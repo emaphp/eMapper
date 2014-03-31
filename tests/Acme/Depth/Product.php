@@ -2,19 +2,19 @@
 namespace Acme\Depth;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  * @author emaphp
  */
 class Product {
 	/**
-	 * @column product_id
+	 * @map.column product_id
 	 * @var int
 	 */
 	public $id;
 	
 	/**
-	 * @column product_code
+	 * @map.column product_code
 	 * @var string
 	 */
 	public $code;
@@ -24,9 +24,9 @@ class Product {
 	public $price;
 	
 	/**
-	 * @stmt "findRelatedProducts"
-	 * @arg #category
-	 * @arg #id
+	 * @map.stmt "findRelatedProducts"
+	 * @map.arg #category
+	 * @map.arg #id
 	 */
 	public $related;
 }

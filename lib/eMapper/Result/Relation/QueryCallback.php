@@ -10,7 +10,7 @@ class QueryCallback extends DynamicAttribute {
 	
 	protected function parseAttribute($attribute) {
 		//obtain query
-		$this->query = $attribute->get('query');
+		$this->query = $attribute->get('map.query');
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {

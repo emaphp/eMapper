@@ -2,32 +2,32 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  */
 class Sale {
 	/**
-	 * @column product_id
+	 * @map.column product_id
 	 * @var integer
 	 */
 	public $productId;
 	
 	/**
-	 * @column user_id
+	 * @map.column user_id
 	 * @var integer
 	 */
 	public $userId;
 	
 	/**
-	 * @query "SELECT * FROM products WHERE product_id = %{i}"
-	 * @arg #productId
-	 * @type obj
+	 * @map.query "SELECT * FROM products WHERE product_id = %{i}"
+	 * @map.arg #productId
+	 * @map.type obj
 	 */
 	public $product;
 	
 	/**
-	 * @query "SELECT * FROM users WHERE user_id = #{userId}"
-	 * @type obj:Acme\Result\Attribute\User
+	 * @map.query "SELECT * FROM users WHERE user_id = #{userId}"
+	 * @map.type obj:Acme\Result\Attribute\User
 	 */
 	public $user;
 }

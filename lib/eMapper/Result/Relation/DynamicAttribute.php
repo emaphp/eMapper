@@ -54,11 +54,11 @@ abstract class DynamicAttribute extends PropertyProfile {
 	protected function parseArguments($attribute) {
 		$this->args = array();
 		
-		if ($attribute->has('arg-self')) {
+		if ($attribute->has('map.self-arg')) {
 			$this->useDefaultArgument = true;
 		}
 		
-		$arg_list = $attribute->getAsArray('arg');
+		$arg_list = $attribute->getAsArray('map.arg');
 				
 		foreach ($arg_list as $arg) {
 			if (is_string($arg)) {
@@ -97,16 +97,16 @@ abstract class DynamicAttribute extends PropertyProfile {
 			$this->config['map.type'] = $this->type;
 		}
 		
-		if ($attribute->has('result-map')) {
-			$this->config['map.result'] = $attribute->get('result-map');
+		if ($attribute->has('map.result-map')) {
+			$this->config['map.result'] = $attribute->get('map.result-map');
 		}
 		
-		if ($attribute->has('parameter-map')) {
-			$this->config['map.parameter'] = $attribute->get('parameter-map');
+		if ($attribute->has('map.parameter-map')) {
+			$this->config['map.parameter'] = $attribute->get('map.parameter-map');
 		}
 		
-		if ($attribute->has('cond')) {
-			$this->condition = new SimpleProgram($attribute->get('cond'));
+		if ($attribute->has('map.cond')) {
+			$this->condition = new SimpleProgram($attribute->get('map.cond'));
 		}
 	}
 	

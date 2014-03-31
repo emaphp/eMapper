@@ -25,7 +25,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	protected function parseAttribute($attribute) {
 		//obtain procedure name
-		$this->procedure = $attribute->get('procedure');
+		$this->procedure = $attribute->get('map.procedure');
 	}
 	
 	/**

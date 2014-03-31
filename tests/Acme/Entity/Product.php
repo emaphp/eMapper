@@ -2,29 +2,25 @@
 namespace Acme\Entity;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  */
 class Product {
 	/**
-	 * @column product_id
+	 * @map.column product_id
 	 * @var int
 	 */
 	public $id;
 	
 	/**
-	 * @column product_code
+	 * @map.column product_code
 	 */
 	public $code;
-	
-	/**
-	 * @setter setCategory
-	 * @getter getCategory
-	 */
+
 	protected $category;
 	
 	/**
-	 * @type Acme\RGBColor
+	 * @map.type Acme\RGBColor
 	 */
 	public $color;
 	

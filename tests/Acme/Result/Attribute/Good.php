@@ -2,12 +2,12 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  */
 class Good {
 	/**
-	 * @column product_id
+	 * @map.column product_id
 	 * @var int
 	 */
 	public $id;
@@ -15,13 +15,13 @@ class Good {
 	public $price;
 	
 	/**
-	 * @type boolean
+	 * @map.type boolean
 	 */
 	public $refurbished;
 	
 	/**
-	 * @cond (#refurbished)
-	 * @eval (<- "Special offer: 50% OFF!!!")
+	 * @map.cond (#refurbished)
+	 * @map.eval (<- "Special offer: 50% OFF!!!")
 	 */
 	public $specialDiscount;
 }

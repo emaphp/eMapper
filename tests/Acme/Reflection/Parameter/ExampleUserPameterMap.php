@@ -2,19 +2,19 @@
 namespace Acme\Reflection\Parameter;
 
 /**
- * @parser emapper\emapper
+ * @meta.parser emapper\emapper
  * @author emaphp
  */
 class ExampleUserPameterMap {
 	public $name;
 	
 	/**
-	 * @property lastname
+	 * @map.property lastname
 	 */
 	public $surname;
 	
 	/**
-	 * @property password
+	 * @map.property password
 	 */
 	public $pass;
 }

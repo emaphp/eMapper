@@ -43,11 +43,11 @@ class PropertyProfile {
 	public function __construct($name, AnnotationsBag $prop, \ReflectionProperty $reflectionProperty = null) {
 		$this->name = $name;
 		$this->reflectionProperty = $reflectionProperty;
-		$this->column = $prop->has('column') ? $prop->get('column') : $name;
-		$this->property = $prop->has('property') ? $prop->get('property') : $name;
+		$this->column = $prop->has('map.column') ? $prop->get('map.column') : $name;
+		$this->property = $prop->has('map.property') ? $prop->get('map.property') : $name;
 		
-		if ($prop->has('type')) {
-			$this->type = $prop->get('type');
+		if ($prop->has('map.type')) {
+			$this->type = $prop->get('map.type');
 		}
 		elseif ($prop->has('var')) {
 			$this->suggestedType = $prop->get('var');

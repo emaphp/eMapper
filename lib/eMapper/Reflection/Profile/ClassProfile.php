@@ -52,16 +52,16 @@ class ClassProfile {
 		$this->dynamicAttributes = $this->propertiesConfig = array();
 			
 		foreach ($this->propertiesAnnotations as $name => $attr) {
-			if ($attr->has('eval')) {
+			if ($attr->has('map.eval')) {
 				$this->dynamicAttributes[$name] = new MacroExpression($name, $attr, $this->reflectionClass->getProperty($name));
 			}
-			elseif ($attr->has('stmt')) {
+			elseif ($attr->has('map.stmt')) {
 				$this->dynamicAttributes[$name] = new StatementCallback($name, $attr, $this->reflectionClass->getProperty($name));
 			}
-			elseif ($attr->has('query')) {
+			elseif ($attr->has('map.query')) {
 				$this->dynamicAttributes[$name] = new QueryCallback($name, $attr, $this->reflectionClass->getProperty($name));
 			}
-			elseif ($attr->has('procedure')) {
+			elseif ($attr->has('map.procedure')) {
 				$this->dynamicAttributes[$name] = new StoredProcedureCallback($name, $attr, $this->reflectionClass->getProperty($name), $classname);
 			}
 			else {
@@ -71,11 +71,11 @@ class ClassProfile {
 	}
 	
 	public function isEntity() {
-		return $this->classAnnotations->has('entity');
+		return $this->classAnnotations->has('map.entity');
 	}
 	
 	public function isUnquoted() {
-		return $this->classAnnotations->has('unquoted');
+		return $this->classAnnotations->has('map.unquoted');
 	}
 }
 ?>

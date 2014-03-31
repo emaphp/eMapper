@@ -4,7 +4,7 @@ namespace eMapper\Type\Handler;
 use eMapper\Type\Handler\StringTypeHandler;
 
 /**
- * @unquoted
+ * @map.unquoted
  */
 class UnquotedStringTypeHandler extends StringTypeHandler {
 }

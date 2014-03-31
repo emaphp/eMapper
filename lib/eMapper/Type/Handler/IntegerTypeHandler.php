@@ -4,7 +4,7 @@ namespace eMapper\Type\Handler;
 use eMapper\Type\TypeHandler;
 
 /**
- * @unquoted
+ * @map.unquoted
  */
 class IntegerTypeHandler extends TypeHandler {
 	public function getValue($value) {

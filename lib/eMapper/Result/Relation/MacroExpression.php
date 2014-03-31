@@ -17,7 +17,7 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	protected function parseAttribute($attribute) {
 		//obtain program source
-		$this->program = new SimpleProgram($attribute->get('eval'));
+		$this->program = new SimpleProgram($attribute->get('map.eval'));
 	}
 	
 	/**

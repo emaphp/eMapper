@@ -2,32 +2,32 @@
 namespace Acme\Depth;
 
 /**
- * @parser emapper\emapper
- * @entity
+ * @meta.parser emapper\emapper
+ * @map.entity
  * @author emaphp
  */
 class User {
 	/**
-	 * @column user_id
+	 * @map.column user_id
 	 * @var int
 	 */
 	public $id;
 	
 	/**
-	 * @column user_name
+	 * @map.column user_name
 	 * @var string
 	 */
 	public $name;
 	
 	/**
-	 * @stmt "findBoughtProducts"
-	 * @arg #id
+	 * @map.stmt "findBoughtProducts"
+	 * @map.arg #id
 	 */
 	public $products;
 	
 	/**
-	 * @stmt "totalBoughtProducts"
-	 * @arg #id
+	 * @map.stmt "totalBoughtProducts"
+	 * @map.arg #id
 	 */
 	public $totalProducts;
 }
