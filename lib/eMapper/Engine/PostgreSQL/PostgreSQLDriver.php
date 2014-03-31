@@ -41,7 +41,7 @@ class PostgreSQLDriver extends Driver {
 		$conn_string = '';
 		
 		//validate database name
-		if (!array_key_exists('database', $config) && !empty($config['host'])) {
+		if (!array_key_exists('database', $config) || empty($config['database'])) {
 			throw new \InvalidArgumentException("Configuration value 'database' not found");
 		}
 		
