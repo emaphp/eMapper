@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ObjectMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
@@ -26,7 +26,7 @@ class EntityTest extends SQLiteTest {
 	public function testRow() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$product = $mapper->mapResult(new SQLiteResultInterface($result));
+		$product = $mapper->mapResult(new SQLiteResultIterator($result));
 	
 		$this->assertInstanceOf('Acme\Entity\Product', $product);
 	
@@ -47,7 +47,7 @@ class EntityTest extends SQLiteTest {
 	public function testList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result));
+		$products = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -78,7 +78,7 @@ class EntityTest extends SQLiteTest {
 	public function testIndexedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'id');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -109,7 +109,7 @@ class EntityTest extends SQLiteTest {
 	public function testCustomIndexList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'id', 'string');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', 'string');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -140,7 +140,7 @@ class EntityTest extends SQLiteTest {
 	public function testOverrideIndexList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -200,7 +200,7 @@ class EntityTest extends SQLiteTest {
 	public function testGroupedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -304,7 +304,7 @@ class EntityTest extends SQLiteTest {
 	public function testGroupedIndexedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'id', null, 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', null, 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -405,5 +405,4 @@ class EntityTest extends SQLiteTest {
 		$result->finalize();
 	}
 }
-
 ?>

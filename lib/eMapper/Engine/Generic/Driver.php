@@ -78,10 +78,10 @@ abstract class Driver {
 	public abstract function build_statement($typeManager, $parameterMap);
 	
 	/**
-	 * Returns a result interface for current engine
+	 * Returns a result iterator for the given result
 	 * @param mixed $result
 	 */
-	public abstract function build_result_interface($result);
+	public abstract function build_result_iterator($result);
 	
 	/**
 	 * Builds a procedure call

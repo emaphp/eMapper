@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ScalarMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use Acme\Type\RGBColorTypeHandler;
 
@@ -17,7 +17,7 @@ class CustomTypeTest extends SQLiteTest {
 	public function testCustomType() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT 'FF00ff'");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 	
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(255, $value->red);
@@ -26,7 +26,7 @@ class CustomTypeTest extends SQLiteTest {
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT color FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
 		$this->assertEquals(26, $value->green);
@@ -34,7 +34,7 @@ class CustomTypeTest extends SQLiteTest {
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT color FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result));
+		$values = $mapper->mapList(new SQLiteResultIterator($result));
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
 	
@@ -48,7 +48,7 @@ class CustomTypeTest extends SQLiteTest {
 	public function testCustomTypeColumn() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'color');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'color');
 	
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
@@ -61,7 +61,7 @@ class CustomTypeTest extends SQLiteTest {
 	public function testCustomTypeList() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT color FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result));
+		$values = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -94,7 +94,7 @@ class CustomTypeTest extends SQLiteTest {
 	public function testCustomTypeColumnList() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result), 'color');
+		$values = $mapper->mapList(new SQLiteResultIterator($result), 'color');
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

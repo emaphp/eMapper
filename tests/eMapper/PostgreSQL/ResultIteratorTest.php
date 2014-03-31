@@ -1,21 +1,21 @@
 <?php
 namespace eMapper\PostgreSQL;
 
-use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultInterface;
-use eMapper\Result\ResultInterface;
+use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
 /**
- * Test MySQLResultInterface fetching various types of data
+ * Test PostgreSQLResultIterator fetching various types of data
  * @author emaphp
  * @group postgre
- * @group interface
+ * @group iterator
  */
-class ResultInterfaceTest extends PostgreSQLTest {
+class ResultIteratorTest extends PostgreSQLTest {
 	public function testDefault() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected = array(1, 2, 3, 4, 5);
 	
 		for ($i = 0; $ri->valid(); $i++) {
@@ -33,11 +33,11 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testArray() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected = array(1, 2, 3, 4, 5);
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY);
+			$row = $ri->current(ResultIterator::AS_ARRAY);
 	
 			$this->assertEquals($expected[$i], (int) $row['user_id']);
 			$this->assertEquals($expected[$i], (int) $row[0]);
@@ -51,12 +51,12 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testArrayBoth() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_name, user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected_id = array(1, 2, 3, 4, 5);
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::BOTH);
+			$row = $ri->current(ResultIterator::AS_ARRAY, ArrayType::BOTH);
 	
 			$this->assertEquals($expected_name[$i], $row['user_name']);
 			$this->assertEquals($expected_name[$i], $row[0]);
@@ -73,12 +73,12 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testArrayAssoc() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_name, user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected_id = array(1, 2, 3, 4, 5);
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::ASSOC);
+			$row = $ri->current(ResultIterator::AS_ARRAY, ArrayType::ASSOC);
 	
 			$this->assertEquals($expected_name[$i], $row['user_name']);
 			$this->assertArrayNotHasKey(0, $row);
@@ -95,12 +95,12 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testArrayNum() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_name, user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected_id = array(1, 2, 3, 4, 5);
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
 		for ($i = 0; $ri->valid(); $i++) {
-			$row = $ri->current(ResultInterface::AS_ARRAY, ArrayType::NUM);
+			$row = $ri->current(ResultIterator::AS_ARRAY, ArrayType::NUM);
 	
 			$this->assertArrayNotHasKey('user_name', $row);
 			$this->assertEquals($expected_name[$i], $row[0]);
@@ -117,7 +117,7 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testFetchArray() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_name, user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected_id = array(1, 2, 3, 4, 5);
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	
@@ -139,7 +139,7 @@ class ResultInterfaceTest extends PostgreSQLTest {
 	public function testFetchObject() {
 		/////
 		$result = pg_query(self::$conn, "SELECT user_name, user_id FROM users ORDER BY user_id ASC");
-		$ri = new PostgreSQLResultInterface($result);
+		$ri = new PostgreSQLResultIterator($result);
 		$expected_id = array(1, 2, 3, 4, 5);
 		$expected_name = array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael');
 	

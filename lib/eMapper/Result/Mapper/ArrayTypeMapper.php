@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Result\Mapper;
 
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 use eMapper\Reflection\Profiler;
 
@@ -82,10 +82,10 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	
 	/**
 	 * Returns a mapped array from a mysqli_result object
-	 * @param ResultInterface $result
+	 * @param ResultIterator $result
 	 * @param int $resultType
 	 */
-	public function mapResult(ResultInterface $result, $resultType = ArrayType::BOTH) {
+	public function mapResult(ResultIterator $result, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return null;
@@ -105,7 +105,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	
 	/**
 	 * Returns a list of mapped arrays from a mysqli_result object
-	 * @param ResultInterface $result
+	 * @param ResultIterator $result
 	 * @param string $index
 	 * @param string $indexType
 	 * @param string $group
@@ -113,7 +113,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * @param int $resultType
 	 * @param \UnexpectedValueException
 	 */
-	public function mapList(ResultInterface $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ArrayType::BOTH) {
+	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return array();

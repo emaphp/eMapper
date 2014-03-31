@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\Engine\MySQL\Result;
 
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
-class MySQLResultInterface extends ResultInterface {
+class MySQLResultIterator extends ResultIterator {
 	public $resultTypes = array(ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM);
 	
 	public function columnTypes($resultType = ArrayType::ASSOC) {

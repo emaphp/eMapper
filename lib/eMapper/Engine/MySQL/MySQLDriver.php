@@ -4,7 +4,7 @@ namespace eMapper\Engine\MySQL;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 use eMapper\Engine\MySQL\Statement\MySQLStatement;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Exception\MySQLException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
@@ -94,7 +94,7 @@ class MySQLDriver extends Driver {
 		$charset = array_key_exists('charset', $config) ? $config['charset'] : null;
 		$autocommit = array_key_exists('autocommit', $config) ? $config['autocommit'] : null;
 		
-		return new MySQLDriver($database, $host, $username, $password, $port, $socket, $charset, $autocommit);
+		return new static($database, $host, $username, $password, $port, $socket, $charset, $autocommit);
 	}
 	
 	/*
@@ -221,8 +221,8 @@ class MySQLDriver extends Driver {
 		return new MySQLStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_interface($result) {
-		return new MySQLResultInterface($result);
+	public function build_result_iterator($result) {
+		return new MySQLResultIterator($result);
 	}
 	
 	public function build_call($procedure, $tokens, $config) {

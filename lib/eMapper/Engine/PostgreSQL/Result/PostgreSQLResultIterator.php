@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Result;
 
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
-class PostgreSQLResultInterface extends ResultInterface {
+class PostgreSQLResultIterator extends ResultIterator {
 	public $resultTypes = array(ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM);
 	
 	public function countRows() {

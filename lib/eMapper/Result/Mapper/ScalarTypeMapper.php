@@ -2,7 +2,7 @@
 namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeHandler;
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
 class ScalarTypeMapper {
@@ -16,7 +16,7 @@ class ScalarTypeMapper {
 		$this->typeHandler = $typeHandler;
 	}
 
-	public function mapResult(ResultInterface $result, $column = null) {
+	public function mapResult(ResultIterator $result, $column = null) {
 		if ($result->countRows() == 0) {
 			return null;
 		}
@@ -32,7 +32,7 @@ class ScalarTypeMapper {
 		return is_null($row[$column]) ? null : $this->typeHandler->getValue($row[$column]);
 	}
 	
-	public function mapList(ResultInterface $result, $column = null) {
+	public function mapList(ResultIterator $result, $column = null) {
 		if ($result->countRows() == 0) {
 			return array();
 		}

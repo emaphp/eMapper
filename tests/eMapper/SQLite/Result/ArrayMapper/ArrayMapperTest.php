@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ArrayMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ArrayTypeMapper;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 
@@ -20,7 +20,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result));
+		$user = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertInternalType('array', $user);
 		$this->assertArrayHasKey(0, $user);
 		$this->assertArrayHasKey(1, $user);
@@ -65,7 +65,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_ASSOC
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result), SQLITE3_ASSOC);
+		$user = $mapper->mapResult(new SQLiteResultIterator($result), SQLITE3_ASSOC);
 		$this->assertInternalType('array', $user);
 		$this->assertArrayNotHasKey(0, $user);
 		$this->assertArrayNotHasKey(1, $user);
@@ -85,7 +85,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_NUM
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result), SQLITE3_NUM);
+		$user = $mapper->mapResult(new SQLiteResultIterator($result), SQLITE3_NUM);
 		$this->assertInternalType('array', $user);
 		$this->assertArrayHasKey(0, $user);
 		$this->assertArrayHasKey(1, $user);
@@ -110,7 +110,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result));
+		$users = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -162,7 +162,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_NUM
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), null, null, null, null, SQLITE3_NUM);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), null, null, null, null, SQLITE3_NUM);
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -190,7 +190,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_ASSOC
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), null, null, null, null, SQLITE3_ASSOC);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), null, null, null, null, SQLITE3_ASSOC);
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 	
@@ -224,7 +224,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'integer');
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'integer');
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
 		$this->assertArrayHasKey(1, $users);
@@ -275,7 +275,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_ASSOC
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'integer', null, null, SQLITE3_ASSOC);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'integer', null, null, SQLITE3_ASSOC);
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey(1, $users);
@@ -302,7 +302,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_NUM
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 0, null, null, null, SQLITE3_NUM);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 0, null, null, null, SQLITE3_NUM);
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey(1, $users);
@@ -332,7 +332,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string');
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'string');
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -384,7 +384,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_ASSOC
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string', null, null, SQLITE3_ASSOC);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'string', null, null, SQLITE3_ASSOC);
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey('1', $users);
@@ -411,7 +411,7 @@ class ArrayMapperTest extends SQLiteTest {
 	
 		//SQLITE3_NUM
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 0, 'string', null, null, SQLITE3_NUM);
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 0, 'string', null, null, SQLITE3_NUM);
 		$this->assertInternalType('array', $users);
 	
 		$this->assertArrayHasKey('1', $users);
@@ -445,7 +445,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		$this->assertArrayHasKey('Clothes', $products);
@@ -580,7 +580,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_ASSOC
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category', null, null, null, SQLITE3_ASSOC);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category', null, null, null, SQLITE3_ASSOC);
 	
 		$this->assertArrayHasKey('product_id', $products['Clothes']);
 		$this->assertArrayHasKey('product_code', $products['Clothes']);
@@ -606,7 +606,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_NUM
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 5, null, null, null, SQLITE3_NUM);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 5, null, null, null, SQLITE3_NUM);
 	
 		$this->assertArrayNotHasKey('product_id', $products['Clothes']);
 		$this->assertArrayNotHasKey('product_code', $products['Clothes']);
@@ -637,7 +637,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
 		$this->assertArrayHasKey('Clothes', $products);
@@ -814,7 +814,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_ASSOC
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category', null, SQLITE3_ASSOC);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category', null, SQLITE3_ASSOC);
 	
 		$this->assertArrayHasKey('product_id', $products['Clothes'][0]);
 		$this->assertArrayHasKey('product_code', $products['Clothes'][0]);
@@ -841,7 +841,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_NUM
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 5, null, SQLITE3_NUM);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 5, null, SQLITE3_NUM);
 	
 		$this->assertArrayNotHasKey('product_id', $products['Clothes'][0]);
 		$this->assertArrayNotHasKey('product_code', $products['Clothes'][0]);
@@ -873,7 +873,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_BOTH
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'product_id', 'int', 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'product_id', 'int', 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -923,7 +923,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_ASSOC
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'product_id', 'i', 'category', null, SQLITE3_ASSOC);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'product_id', 'i', 'category', null, SQLITE3_ASSOC);
 	
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][1]);
@@ -951,7 +951,7 @@ class ArrayMapperTest extends SQLiteTest {
 		//SQLITE3_NUM
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 0, 'int', 5, null, SQLITE3_NUM);
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 0, 'int', 5, null, SQLITE3_NUM);
 	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);

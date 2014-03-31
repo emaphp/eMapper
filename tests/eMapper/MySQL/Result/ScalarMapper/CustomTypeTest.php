@@ -4,7 +4,7 @@ namespace eMapper\MySQL\Result\ScalarMapper;
 use eMapper\MySQL\MySQLTest;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 
 /**
  * Test ScalarTypeMapper with custom type columns
@@ -17,7 +17,7 @@ class CustomTypeTest extends MySQLTest {
 	public function testCustomType() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT 'FF00ff'");
-		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		$value = $mapper->mapResult(new MySQLResultIterator($result));
 	
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(255, $value->red);
@@ -26,7 +26,7 @@ class CustomTypeTest extends MySQLTest {
 		$result->free();
 	
 		$result = self::$conn->query("SELECT color FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		$value = $mapper->mapResult(new MySQLResultIterator($result));
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
 		$this->assertEquals(26, $value->green);
@@ -34,7 +34,7 @@ class CustomTypeTest extends MySQLTest {
 		$result->free();
 	
 		$result = self::$conn->query("SELECT color FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new MySQLResultInterface($result));
+		$values = $mapper->mapList(new MySQLResultIterator($result));
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
 	
@@ -48,7 +48,7 @@ class CustomTypeTest extends MySQLTest {
 	public function testCustomTypeColumn() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new MySQLResultInterface($result), 'color');
+		$value = $mapper->mapResult(new MySQLResultIterator($result), 'color');
 		
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
@@ -61,7 +61,7 @@ class CustomTypeTest extends MySQLTest {
 	public function testCustomTypeList() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT color FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new MySQLResultInterface($result));
+		$values = $mapper->mapList(new MySQLResultIterator($result));
 		
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -94,7 +94,7 @@ class CustomTypeTest extends MySQLTest {
 	public function testCustomTypeColumnList() {
 		$mapper = new ScalarTypeMapper(new RGBColorTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new MySQLResultInterface($result), 'color');
+		$values = $mapper->mapList(new MySQLResultIterator($result), 'color');
 		
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

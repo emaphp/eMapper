@@ -3,7 +3,7 @@ namespace eMapper\MySQL\Result\ScalarMapper;
 
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\Handler\StringTypeHandler;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\MySQL\MySQLTest;
 
 /**
@@ -17,27 +17,27 @@ class StringTypeTest extends MySQLTest {
 	public function testString() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT 'hello'");
-		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		$value = $mapper->mapResult(new MySQLResultIterator($result));
 		$this->assertEquals('hello', $value);
 		$result->free();
 		
 		$result = self::$conn->query("SELECT user_name FROM users WHERE user_id = 3");
-		$value = $mapper->mapResult(new MySQLResultInterface($result));
+		$value = $mapper->mapResult(new MySQLResultIterator($result));
 		$this->assertEquals('jkirk', $value);
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 5");
-		$value = $mapper->mapResult(new MySQLResultInterface($result), 'user_name');
+		$value = $mapper->mapResult(new MySQLResultIterator($result), 'user_name');
 		$this->assertEquals('ishmael', $value);
 		$result->free();
 		
 		$result = self::$conn->query("SELECT user_name FROM users ORDER BY user_id ASC");
-		$value = $mapper->mapList(new MySQLResultInterface($result));
+		$value = $mapper->mapList(new MySQLResultIterator($result));
 		$this->assertEquals(array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael'), $value);
 		$result->free();
 		
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id DESC");
-		$value = $mapper->mapList(new MySQLResultInterface($result), 'user_name');
+		$value = $mapper->mapList(new MySQLResultIterator($result), 'user_name');
 		$this->assertEquals(array('ishmael', 'egoldstein', 'jkirk', 'okenobi', 'jdoe'), $value);
 		$result->free();
 	}
@@ -45,7 +45,7 @@ class StringTypeTest extends MySQLTest {
 	public function testStringColumn() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$value = $mapper->mapResult(new MySQLResultInterface($result), 'user_name');
+		$value = $mapper->mapResult(new MySQLResultIterator($result), 'user_name');
 		
 		$this->assertEquals('jdoe', $value);
 		
@@ -55,7 +55,7 @@ class StringTypeTest extends MySQLTest {
 	public function testStringList() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT user_name FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new MySQLResultInterface($result));
+		$values = $mapper->mapList(new MySQLResultIterator($result));
 		
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -72,7 +72,7 @@ class StringTypeTest extends MySQLTest {
 	public function testStringColumnList() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new MySQLResultInterface($result), 'user_name');
+		$values = $mapper->mapList(new MySQLResultIterator($result), 'user_name');
 		
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

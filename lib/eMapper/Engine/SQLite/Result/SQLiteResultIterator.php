@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\Engine\SQLite\Result;
 
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
-class SQLiteResultInterface extends ResultInterface {
+class SQLiteResultIterator extends ResultIterator {
 	/**
 	 * Result types array
 	 * @var array
@@ -17,9 +17,6 @@ class SQLiteResultInterface extends ResultInterface {
 	 */
 	public $numRows;
 	
-	/* (non-PHPdoc)
-	 * @see \eMapper\Result\ResultInterface::countRows()
-	 */
 	public function countRows() {
 		if (is_null($this->numRows)) {
 			for ($this->numRows = 0; $this->result->fetchArray(); $this->numRows++) {
@@ -65,13 +62,9 @@ class SQLiteResultInterface extends ResultInterface {
 		return $this->result->fetchArray($this->resultTypes[$resultType]);
 	}
 	
-	/* (non-PHPdoc)
-	 * @see \eMapper\Result\ResultInterface::fetchObject()
-	 */
 	public function fetchObject() {
 		// TODO: Auto-generated method stub
 		return (object) $this->result->fetchArray(SQLITE3_ASSOC);
 	}
-
 }
 ?>

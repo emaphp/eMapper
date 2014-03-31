@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Result;
 
-abstract class ResultInterface implements \Iterator {
+abstract class ResultIterator implements \Iterator {
 	/**
 	 * RESULT TYPES
 	 */

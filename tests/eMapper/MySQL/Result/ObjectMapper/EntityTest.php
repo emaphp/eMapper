@@ -5,7 +5,7 @@ use eMapper\MySQL\MySQLTest;
 use eMapper\Engine\MySQL\MySQLMapper;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
 /**
@@ -28,7 +28,7 @@ class EntityTest extends MySQLTest {
 	public function testRow() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$product = $mapper->mapResult(new MySQLResultInterface($result));
+		$product = $mapper->mapResult(new MySQLResultIterator($result));
 		
 		$this->assertInstanceOf('Acme\Entity\Product', $product);
 		
@@ -49,7 +49,7 @@ class EntityTest extends MySQLTest {
 	public function testList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result));
+		$products = $mapper->mapList(new MySQLResultIterator($result));
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -80,7 +80,7 @@ class EntityTest extends MySQLTest {
 	public function testIndexedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'id');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'id');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -111,7 +111,7 @@ class EntityTest extends MySQLTest {
 	public function testCustomIndexList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'id', 'string');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'id', 'string');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -142,7 +142,7 @@ class EntityTest extends MySQLTest {
 	public function testOverrideIndexList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -202,7 +202,7 @@ class EntityTest extends MySQLTest {
 	public function testGroupedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -306,7 +306,7 @@ class EntityTest extends MySQLTest {
 	public function testGroupedIndexedList() {
 		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'id', null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'id', null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);

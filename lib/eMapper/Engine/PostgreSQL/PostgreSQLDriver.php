@@ -3,7 +3,7 @@ namespace eMapper\Engine\PostgreSQL;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
-use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultInterface;
+use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
 use eMapper\Engine\PostgreSQL\Statement\PostgreSQLStatement;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
@@ -77,7 +77,7 @@ class PostgreSQLDriver extends Driver {
 			$conn_string .= sprintf("options='--client_encoding=%s' ", strtoupper(addcslashes($config['charset'], "'\\")));
 		}
 		
-		return new PostgreSQLDriver(trim($conn_string));
+		return new static(trim($conn_string));
 	}
 	
 	/*
@@ -171,8 +171,8 @@ class PostgreSQLDriver extends Driver {
 		return new PostgreSQLStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_interface($result) {
-		return new PostgreSQLResultInterface($result);
+	public function build_result_iterator($result) {
+		return new PostgreSQLResultIterator($result);
 	}
 	
 	public function build_call($procedure, $tokens, $config) {

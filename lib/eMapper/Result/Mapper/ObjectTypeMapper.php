@@ -2,7 +2,7 @@
 namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeManager;
-use eMapper\Result\ResultInterface;
+use eMapper\Result\ResultIterator;
 use eMapper\Reflection\Profiler;
 
 class ObjectTypeMapper extends ComplexTypeMapper {
@@ -166,10 +166,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	
 	/**
 	 * Returns a mapped object from a mysqli_result object
-	 * @param ResultInterface $result
+	 * @param ResultIterator $result
 	 * @return NULL|object
 	 */
-	public function mapResult(ResultInterface $result) {
+	public function mapResult(ResultIterator $result) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return null;
@@ -192,7 +192,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	
 	/**
 	 * Returns a list of objects from a mysqli_result object
-	 * @param ResultInterface $result
+	 * @param ResultIterator $result
 	 * @param string $index
 	 * @param string $indexType
 	 * @param string $group
@@ -200,7 +200,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	 * @throws MySQLMapperException
 	 * @return NULL|array
 	 */
-	public function mapList(ResultInterface $result, $index = null, $indexType = null, $group = null, $groupType = null) {
+	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
 			return array();

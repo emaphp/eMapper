@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ScalarMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\Handler\StringTypeHandler;
 
@@ -17,27 +17,27 @@ class StringTypeTest extends SQLiteTest {
 	public function testString() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT 'hello'");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertEquals('hello', $value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT user_name FROM users WHERE user_id = 3");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertEquals('jkirk', $value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 5");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'user_name');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'user_name');
 		$this->assertEquals('ishmael', $value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT user_name FROM users ORDER BY user_id ASC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result));
+		$value = $mapper->mapList(new SQLiteResultIterator($result));
 		$this->assertEquals(array('jdoe', 'okenobi', 'jkirk', 'egoldstein', 'ishmael'), $value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id DESC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result), 'user_name');
+		$value = $mapper->mapList(new SQLiteResultIterator($result), 'user_name');
 		$this->assertEquals(array('ishmael', 'egoldstein', 'jkirk', 'okenobi', 'jdoe'), $value);
 		$result->finalize();
 	}
@@ -45,7 +45,7 @@ class StringTypeTest extends SQLiteTest {
 	public function testStringColumn() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'user_name');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'user_name');
 	
 		$this->assertEquals('jdoe', $value);
 	
@@ -55,7 +55,7 @@ class StringTypeTest extends SQLiteTest {
 	public function testStringList() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT user_name FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result));
+		$values = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -72,7 +72,7 @@ class StringTypeTest extends SQLiteTest {
 	public function testStringColumnList() {
 		$mapper = new ScalarTypeMapper(new StringTypeHandler());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result), 'user_name');
+		$values = $mapper->mapList(new SQLiteResultIterator($result), 'user_name');
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

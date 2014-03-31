@@ -441,7 +441,7 @@ class Mapper {
 			 */
 				
 			$cacheable = true;
-			$ri = $this->driver->build_result_interface($result);
+			$ri = $this->driver->build_result_iterator($result);
 				
 			//check if result is empty
 			if ($ri->countRows() === 0) {

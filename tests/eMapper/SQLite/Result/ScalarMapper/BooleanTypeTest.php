@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ScalarMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\Handler\BooleanTypeHandler;
 
@@ -17,32 +17,32 @@ class BooleanTypeTest extends SQLiteTest {
 	public function testBoolean() {
 		$mapper = new ScalarTypeMapper(new BooleanTypeHandler());
 		$result = self::$conn->query("SELECT 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertTrue($value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT 0");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertFalse($value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT refurbished FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertFalse($value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 5");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'refurbished');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'refurbished');
 		$this->assertTrue($value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT refurbished FROM products ORDER BY product_id ASC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result));
+		$value = $mapper->mapList(new SQLiteResultIterator($result));
 		$this->assertEquals(array(false, false, false, false, true), $value);
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id DESC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result), 'refurbished');
+		$value = $mapper->mapList(new SQLiteResultIterator($result), 'refurbished');
 		$this->assertEquals(array(true, false, false, false, false), $value);
 		$result->finalize();
 	}
@@ -50,7 +50,7 @@ class BooleanTypeTest extends SQLiteTest {
 	public function testBooleanColumn() {
 		$mapper = new ScalarTypeMapper(new BooleanTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'refurbished');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'refurbished');
 	
 		$this->assertInternalType('boolean', $value);
 		$this->assertFalse($value);
@@ -61,7 +61,7 @@ class BooleanTypeTest extends SQLiteTest {
 	public function testBooleanList() {
 		$mapper = new ScalarTypeMapper(new BooleanTypeHandler());
 		$result = self::$conn->query("SELECT refurbished FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result));
+		$values = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -78,7 +78,7 @@ class BooleanTypeTest extends SQLiteTest {
 	public function testBooleanColumnList() {
 		$mapper = new ScalarTypeMapper(new BooleanTypeHandler());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result), 'refurbished');
+		$values = $mapper->mapList(new SQLiteResultIterator($result), 'refurbished');
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -92,5 +92,4 @@ class BooleanTypeTest extends SQLiteTest {
 		$result->finalize();
 	}
 }
-
 ?>

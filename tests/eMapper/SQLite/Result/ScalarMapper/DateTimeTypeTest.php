@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ScalarMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\Handler\DatetimeTypeHandler;
 
@@ -17,25 +17,25 @@ class DateTimeTypeTest extends SQLiteTest {
 	public function testDatetime() {
 		$mapper = new ScalarTypeMapper(new DatetimeTypeHandler(new \DateTimeZone('America/Argentina/Buenos_Aires')));
 		$result = self::$conn->query("SELECT date('NOW')");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertInstanceOf('DateTime', $value);
 		$this->assertRegExp('/([\d]{4})-([\d]{2})-([\d]{2}) ([\d]{2}):([\d]{2}):([\d]{2})/', $value->format('Y-m-d H:i:s'));
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT last_login FROM users WHERE user_id = 1");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result));
+		$value = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertInstanceOf('DateTime', $value);
 		$this->assertEquals('2013-08-10 19:57:15', $value->format('Y-m-d H:i:s'));
 		$result->finalize();
 		
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'last_login');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'last_login');
 		$this->assertInstanceOf('DateTime', $value);
 		$this->assertEquals('2013-02-16 20:00:33', $value->format('Y-m-d H:i:s'));
 		$result->finalize();
 		
 		$result = self::$conn->query("SELECT last_login FROM users ORDER BY user_id ASC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result));
+		$value = $mapper->mapList(new SQLiteResultIterator($result));
 		$this->assertInternalType('array', $value);
 		$this->assertCount(5, $value);
 	
@@ -50,7 +50,7 @@ class DateTimeTypeTest extends SQLiteTest {
 		$result->finalize();
 	
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id DESC");
-		$value = $mapper->mapList(new SQLiteResultInterface($result), 'last_login');
+		$value = $mapper->mapList(new SQLiteResultIterator($result), 'last_login');
 		$this->assertInternalType('array', $value);
 		$this->assertCount(5, $value);
 	
@@ -68,7 +68,7 @@ class DateTimeTypeTest extends SQLiteTest {
 	public function testDatetimeColumn() {
 		$mapper = new ScalarTypeMapper(new DatetimeTypeHandler(new \DateTimeZone('America/Argentina/Buenos_Aires')));
 		$result = self::$conn->query("SELECT * FROM sales WHERE sale_id = 2");
-		$value = $mapper->mapResult(new SQLiteResultInterface($result), 'sale_date');
+		$value = $mapper->mapResult(new SQLiteResultIterator($result), 'sale_date');
 	
 		$this->assertInstanceOf('\DateTime', $value);
 		$this->assertEquals('2013-05-17 14:22:50', $value->format('Y-m-d H:i:s'));
@@ -79,7 +79,7 @@ class DateTimeTypeTest extends SQLiteTest {
 	public function testDatetimeList() {
 		$mapper = new ScalarTypeMapper(new DatetimeTypeHandler(new \DateTimeZone('America/Argentina/Buenos_Aires')));
 		$result = self::$conn->query("SELECT birth_date FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result));
+		$values = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -105,7 +105,7 @@ class DateTimeTypeTest extends SQLiteTest {
 	public function testDatetimeColumnList() {
 		$mapper = new ScalarTypeMapper(new DatetimeTypeHandler(new \DateTimeZone('America/Argentina/Buenos_Aires')));
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$values = $mapper->mapList(new SQLiteResultInterface($result), 'last_login');
+		$values = $mapper->mapList(new SQLiteResultIterator($result), 'last_login');
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

@@ -3,7 +3,7 @@ namespace eMapper\MySQL\Result\ObjectMapper;
 
 use eMapper\MySQL\MySQLTest;
 use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
@@ -17,7 +17,7 @@ class ResultMapTest extends MySQLTest {
 	public function testRow() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new MySQLResultInterface($result));
+		$user = $mapper->mapResult(new MySQLResultIterator($result));
 		
 		$this->assertInstanceOf('stdClass', $user);
 		
@@ -39,7 +39,7 @@ class ResultMapTest extends MySQLTest {
 	public function testList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result));
+		$users = $mapper->mapList(new MySQLResultIterator($result));
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -70,7 +70,7 @@ class ResultMapTest extends MySQLTest {
 	public function testIndexedList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
+		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id');
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -101,7 +101,7 @@ class ResultMapTest extends MySQLTest {
 	public function testCustomIndexList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 's');
+		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id', 's');
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -135,7 +135,7 @@ class ResultMapTest extends MySQLTest {
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -168,7 +168,7 @@ class ResultMapTest extends MySQLTest {
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -224,7 +224,7 @@ class ResultMapTest extends MySQLTest {
 		
 		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'code', null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'code', null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);

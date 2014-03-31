@@ -3,7 +3,7 @@ namespace eMapper\MySQL\Result\ObjectMapper;
 
 use eMapper\MySQL\MySQLTest;
 use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Engine\MySQL\Result\MySQLResultInterface;
+use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
 /**
@@ -16,7 +16,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testRow() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new MySQLResultInterface($result));
+		$user = $mapper->mapResult(new MySQLResultIterator($result));
 		
 		$this->assertInstanceOf('stdClass', $user);
 		
@@ -50,7 +50,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testNullColumnRow() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 4");
-		$product = $mapper->mapResult(new MySQLResultInterface($result));
+		$product = $mapper->mapResult(new MySQLResultIterator($result));
 	
 		$this->assertInstanceOf('stdClass', $product);
 		$this->assertObjectHasAttribute('color', $product);
@@ -62,7 +62,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result));
+		$users = $mapper->mapList(new MySQLResultIterator($result));
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -105,7 +105,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testIndexedList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id');
+		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id');
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -148,7 +148,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testCustomIndexList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new MySQLResultInterface($result), 'user_id', 'string');
+		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id', 'string');
 		
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -191,7 +191,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testOverrideIndexList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -255,7 +255,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testGroupedList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -339,7 +339,7 @@ class DefaultMapTest extends MySQLTest {
 	public function testGroupedIndexedList() {
 		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new MySQLResultInterface($result), 'product_id', null, 'category');
+		$products = $mapper->mapList(new MySQLResultIterator($result), 'product_id', null, 'category');
 		
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);

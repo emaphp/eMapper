@@ -2,7 +2,7 @@
 namespace eMapper\SQLite\Result\ArrayMapper;
 
 use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Result\Mapper\ArrayTypeMapper;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
@@ -21,7 +21,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testArrayTypeError() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result), ArrayType::NUM);
+		$user = $mapper->mapResult(new SQLiteResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
 	}
 	
@@ -31,7 +31,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testResultMapRow() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
-		$user = $mapper->mapResult(new SQLiteResultInterface($result));
+		$user = $mapper->mapResult(new SQLiteResultIterator($result));
 		$this->assertInternalType('array', $user);
 	
 		$this->assertArrayNotHasKey(0, $user);
@@ -59,7 +59,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testList() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result));
+		$users = $mapper->mapList(new SQLiteResultIterator($result));
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -87,7 +87,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testIndexedList() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'name');
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'name');
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -119,7 +119,7 @@ class ResultMapTest extends SQLiteTest {
 	public function testCustomIndexResultMapList() {
 		$mapper = new ArrayTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultInterface($result), 'user_id', 'string');
+		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'string');
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -149,7 +149,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -185,7 +185,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), null, null, 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -235,7 +235,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultInterface($result), 'code', null, 'category');
+		$products = $mapper->mapList(new SQLiteResultIterator($result), 'code', null, 'category');
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);

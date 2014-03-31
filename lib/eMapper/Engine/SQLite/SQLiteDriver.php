@@ -4,7 +4,7 @@ namespace eMapper\Engine\SQLite;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
 use eMapper\Engine\SQLite\Statement\SQLiteStatement;
-use eMapper\Engine\SQLite\Result\SQLiteResultInterface;
+use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
@@ -45,7 +45,7 @@ class SQLiteDriver extends Driver {
 		$flags = array_key_exists('flags', $config) ? $config['flags'] : 0;
 		$encription_key = array_key_exists('encription_key', $config) ? $config['encription_key'] : null;
 		
-		return new SQLiteDriver($database, $flags, $encription_key);
+		return new static($database, $flags, $encription_key);
 	}
 	
 	/*
@@ -139,8 +139,8 @@ class SQLiteDriver extends Driver {
 		return new SQLiteStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_interface($result) {
-		return new SQLiteResultInterface($result);
+	public function build_result_iterator($result) {
+		return new SQLiteResultIterator($result);
 	}
 	
 	public function build_call($procedure, $tokens, $config) {
