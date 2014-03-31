@@ -68,7 +68,7 @@ class SQLiteResultInterface extends ResultInterface {
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\ResultInterface::fetchObject()
 	 */
-	public function fetchObject($className = null) {
+	public function fetchObject() {
 		// TODO: Auto-generated method stub
 		return (object) $this->result->fetchArray(SQLITE3_ASSOC);
 	}

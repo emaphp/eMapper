@@ -85,8 +85,8 @@ class MySQLResultInterface extends ResultInterface {
 		return $this->result->fetch_array($this->resultTypes[$resultType]);
 	}
 	
-	public function fetchObject($className = null) {
-		return $this->result->fetch_object(is_null($className) ? 'stdClass' : $className);
+	public function fetchObject() {
+		return $this->result->fetch_object();
 	}
 }
 ?>

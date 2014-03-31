@@ -44,9 +44,8 @@ abstract class ResultInterface implements \Iterator {
 	
 	/**
 	 * Fetchs a row to an object
-	 * @param string $className
 	 */
-	public abstract function fetchObject($className = null);
+	public abstract function fetchObject();
 	
 	/**
 	 * ITERATOR METHODS
