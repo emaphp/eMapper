@@ -100,7 +100,7 @@ class PostgreSQLResultInterface extends ResultInterface {
 	}
 	
 	public function fetchObject($className = null) {
-		return pg_fetch_object($this->result, null, $classname);
+		return pg_fetch_object($this->result);
 	}
 }
 ?>
