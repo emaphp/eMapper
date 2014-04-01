@@ -6,7 +6,7 @@ use eMapper\Cache\MemcacheProvider;
 use eMapper\Mapper;
 
 /**
- * Test MemcacheProvider with MySQLMapper class
+ * Test MemcacheProvider with a MySQL connection
  * @author emaphp
  * @group mysql
  * @group cache
@@ -15,7 +15,7 @@ use eMapper\Mapper;
 class MemcacheTest extends MySQLTest {
 	/**
 	 * MySQL mapper
-	 * @var MySQLMapper
+	 * @var Mapper
 	 */
 	public $mysql;
 	
