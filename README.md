@@ -14,11 +14,14 @@ Latest modifications
 <br/>
 2014-04-02 - Version 3.0.0 
 
-  * Added: Drivers.
-  * Added: Mapper class.
-  * Modified: Array type constants in ArrayType class.
-  * Modified: Configuration values for stored procedures.
-  * Deprecated: MySQLMapper, SQLiteMapper and PostgreSQLMapper.
+  * Fixed: Mapping to objects using PostgreSQLDriver.
+  * Fixed: Boolean values in PostgreSQL not being converted correctly.
+  * Fixed: Columns of type 'date' and 'timestamp' not using the correct type handler.
+  * Modified: Annotations are now declared using the namespace 'map' (map.type, map.query, etc).
+  * Modified: Class ResultInterface renamed to ResultIterator.
+  * Added: Support for custom configuration annotations (map.option).
+  * Added: Appendix III - Annotations.
+  * Deprecated: @setter and @getter annotations.
 
 <br/>
 Dependencies
@@ -2206,6 +2209,82 @@ Configuration options are values that manage a mapper object behavior during a q
     </tbody>
 </table>
 
+<br/>
+Appendix III - Annotations
+----------------------------------
+
+<br/>
+**Classes**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>map.entity</td>
+            <td>-</td>
+            <td>Specifies that the current class must be treated as an entity</td>
+        </tr>
+        <tr>
+            <td>map.unquoted</td>
+            <td>-</td>
+            <td>Specifies that the value returned by <em>setParameter</em> must be inserted unquoted</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Attributes**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>map.query</td>
+            <td>String</td>
+            <td>Associates an attribute to the value returned from a query</td>
+        </tr>
+        <tr>
+            <td>map.stmt</td>
+            <td>String</td>
+            <td>Associates an attribute to the value returned from a previously declared statement</td>
+        </tr>
+        <tr>
+            <td>map.procedure</td>
+            <td>String</td>
+            <td>Associates an attribute to the value returned from a stored procedure</td>
+        </tr>
+        <tr>
+            <td>map.eval</td>
+            <td>String (Macro)</td>
+            <td>Associates an attribute to the value returned from an user macro</td>
+        </tr>
+        <tr>
+            <td>map.self-arg</td>
+            <td>-</td>
+            <td>Specifies that the current object instance must be treated as an argument for the given query/statement</td>
+        </tr>
+        <tr>
+            <td>map.arg</td>
+            <td>Mixed</td>
+            <td>Adds an argument for the specified query/statement/procedure</td>
+        </tr>
+        <tr>
+            <td>map.option.*</td>
+            <td>Mixed</td>
+            <td>Adds a customized configuration value</td>
+        </tr>
+    </tbody>
+</table>
 <br/>
 License
 --------------

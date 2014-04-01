@@ -14,11 +14,14 @@ Ultimas modificaciones
 <br/>
 2014-04-02 - Versión 3.0.0
 
-  * Agregado: Clases de conexión (Drivers).
-  * Agregado: Clase Mapper.
-  * Modificado: Constantes de tipos de arreglo en clases ArrayType.
-  * Modificado: Opciones de configuración de rutinas almacenadas.
-  * Obsoleto: Clases MySQLMapper, SQLiteMapper y PostgreSQLMapper.
+  * Corregido: Mapeo de objetos utilizando PostgreSQLDriver.
+  * Corregido: Valores booleanos no convirtiendose de manera correcta en PostgreSQL.
+  * Corregido: Columnas de tipo 'date' y 'timestamp' no utilizando el handler correcto.
+  * Modificado: Las annotations ahora son declaradas utilizando el namespace 'map' (map.type, map.query, etc).
+  * Modificado: Clase ResultInterface renombrada a ResultIterator.
+  * Agregado: Soporte para annotations de configuración customizadas (map.option).
+  * Agregado: Apéndice III - Annotations.
+  * Obsoleto: Annotations @setter y @getter.
 
 <br/>
 Dependencias
@@ -1428,7 +1431,7 @@ class Usuario {
     /**
      * @map.type string
      */
-     public $nombre;
+    public $nombre;
     
     /**
      * @map.query "SELECT * FROM perfiles WHERE id_usuario = #{id} ORDER BY tipo"
@@ -1461,7 +1464,7 @@ class Usuario {
     /**
      * @map.type string
      */
-     public $nombre;
+    public $nombre;
     
     /**
      * @map.query "SELECT * FROM perfiles WHERE id_usuario = #{id} AND tipo = %{1}"
@@ -1510,7 +1513,7 @@ class Usuario {
     /**
      * @map.type string
      */
-     public $nombre;
+    public $nombre;
     
     /**
      * @map.stmt 'profiles.findByUserIdAndType'
@@ -1544,7 +1547,7 @@ class Usuario {
     /**
      * @map.type string
      */
-     public $nombre;
+    public $nombre;
     
     /**
      * @map.procedure Profiles_FindByUserIdType
@@ -1579,7 +1582,7 @@ class Usuario {
     /**
      * @map.type string
      */
-     public $nombre;
+    public $nombre;
     
     /**
      * @map.column fecha_nacimiento
@@ -1618,7 +1621,7 @@ class Producto {
     /**
      * @map.type string
      */
-     public $categoria;
+    public $categoria;
     
     /**
      * @map.cond (== (#categoria) "software")
@@ -1627,6 +1630,40 @@ class Producto {
      * @map.type obj[]
      */
     public $sistemasSoportados;
+}
+```
+
+<br/>
+**Configuración**
+
+<br/>
+Las annotations declaradas bajo el namespace *map.option* se interpretan como valores de configuración. Estas deben declararse definiendo el nombre del valor a setear a continuación del namespace. Por ejemplo, la ejecución de una rutina que devuelve una tabla en PostgreSQL debe ser invocada agregando la opción *proc.as_table* seteada en *true*. Para setear este valor desde el atributo agregamos la annotation **@map.option.proc.as_table** como el ejemplo a continuación.
+
+```php
+namespace Acme\Entity;
+
+/**
+ * @meta.parser emapper/emapper
+ * @map.entity
+ */
+class Venta {
+    /**
+     * @map.column id_venta
+     */
+    public $id;
+    
+    /**
+     * @map.column id_producto
+     */
+    public $idProducto;
+    
+    /**
+     * @map.procedure Products_FindByPK
+     * @map.option.proc.as_table true
+     * @map.arg #idProducto
+     * @map.type obj
+     */
+    public $producto;
 }
 ```
 
@@ -2219,6 +2256,83 @@ Los valores de configuración son datos que manejan el funcionamiento interno de
             <td>Entero</td>
             <td>Nivel de anidamiento de instancia actual</td>
             <td>0</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+Apéndice III - Annotations
+----------------------------------
+
+<br/>
+**Clases**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>map.entity</td>
+            <td>-</td>
+            <td>Especifica que una clase es una entidad</td>
+        </tr>
+        <tr>
+            <td>map.unquoted</td>
+            <td>-</td>
+            <td>Determina que el valor retornado por el método <em>setParameter</em> debe ser insertado en una consulta sin utilizar comillas</td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+**Atributos**
+<table width="95%">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>map.query</td>
+            <td>Cadena</td>
+            <td>Asocia un atributo a la ejecución de una consulta SQL</td>
+        </tr>
+        <tr>
+            <td>map.stmt</td>
+            <td>Cadena</td>
+            <td>Asocia un atributo a la ejecución de una statement declarada previamente</td>
+        </tr>
+        <tr>
+            <td>map.procedure</td>
+            <td>Cadena</td>
+            <td>Asocia un atributo a la ejecución de una procedure/función</td>
+        </tr>
+        <tr>
+            <td>map.eval</td>
+            <td>Cadena (Macro)</td>
+            <td>Asocia un atributo a la ejecución de una macro de usuario</td>
+        </tr>
+        <tr>
+            <td>map.self-arg</td>
+            <td>-</td>
+            <td>Especifica que la consulta/statement recibe la instancia actual del objeto mapeado como primer argumento</td>
+        </tr>
+        <tr>
+            <td>map.arg</td>
+            <td>Mixed</td>
+            <td>Agrega un argumento a una consulta/statement/procedure</td>
+        </tr>
+        <tr>
+            <td>map.option.*</td>
+            <td>Mixed</td>
+            <td>Agrega un valor de configuración customizado</td>
         </tr>
     </tbody>
 </table>
