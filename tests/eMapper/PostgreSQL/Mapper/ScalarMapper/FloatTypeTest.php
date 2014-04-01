@@ -1,16 +1,16 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class with float values
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group float
  */
-class FloatTypeTest extends MySQLTest {
+class FloatTypeTest extends PostgreSQLTest {
 	public function testFloat() {
 		$value = self::$mapper->type('float')->query("SELECT 2.5");
 		$this->assertEquals(2.5, $value);
@@ -20,43 +20,43 @@ class FloatTypeTest extends MySQLTest {
 	
 		$value = self::$mapper->type('f', 'price')->query("SELECT * FROM products WHERE product_id = 5");
 		$this->assertEquals(300.3, $value);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT user_id FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(1.0, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT user_name FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(0, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT birth_date FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(1987, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT last_login FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(2013, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT newsletter_time FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(12, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(0, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT rating FROM products WHERE product_id = 1");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(4.5, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT refurbished FROM products WHERE product_id = 1");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(0, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(2011, $result);
-		
+	
 		$result = self::$mapper->type('f')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('float', $result);
 		$this->assertEquals(0.25, $result);
@@ -94,4 +94,5 @@ class FloatTypeTest extends MySQLTest {
 		$this->assertEquals(.1, $values[3]);
 	}
 }
+
 ?>

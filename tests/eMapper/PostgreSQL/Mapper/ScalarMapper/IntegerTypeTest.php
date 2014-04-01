@@ -1,16 +1,16 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class with integer values
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group integer
  */
-class IntegerTypeTest extends MySQLTest {
+class IntegerTypeTest extends PostgreSQLTest {
 	public function testInteger() {
 		$value = self::$mapper->type('integer')->query("SELECT 2");
 		$this->assertEquals(2, $value);
@@ -20,35 +20,35 @@ class IntegerTypeTest extends MySQLTest {
 	
 		$value = self::$mapper->type('i')->query("SELECT * FROM users WHERE user_name = 'ishmael'");
 		$this->assertEquals(5, $value);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT birth_date FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(1987, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT last_login FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(2013, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT newsletter_time FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(12, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(150, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT rating FROM products WHERE product_id = 1");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(4, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT refurbished FROM products WHERE product_id = 1");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(0, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(2011, $result);
-		
+	
 		$result = self::$mapper->type('i')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('integer', $result);
 		$this->assertEquals(0, $result);

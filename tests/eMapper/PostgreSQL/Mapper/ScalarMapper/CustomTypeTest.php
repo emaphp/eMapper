@@ -1,37 +1,37 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
-use Acme\Type\RGBColorTypeHandler;
-use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\PostgreSQL\PostgreSQLTest;
+use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
 use eMapper\Mapper;
+use Acme\Type\RGBColorTypeHandler;
 
 /**
  * Tests Mapper with custom type values
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group custom
  */
-class CustomTypeTest extends MySQLTest {
-	public $xmapper;
+class CustomTypeTest extends PostgreSQLTest {
+	public $pgsql;
 	
 	public function __construct() {
 		parent::__construct();
-		
-		$driver = new MySQLDriver(new \mysqli(self::$config['host'], self::$config['user'], self::$config['password'], self::$config['database']));
-		$this->xmapper = new Mapper($driver);
-		$this->xmapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
+	
+		$driver = new PostgreSQLDriver(pg_connect(self::$connstring));
+		$this->pgsql = new Mapper($driver);
+		$this->pgsql->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 	}
 	
 	public function testCustomType() {
-		$value = $this->xmapper->type('Acme\RGBColor')->query("SELECT 'FF00ff'");
+		$value = $this->pgsql->type('Acme\RGBColor')->query("SELECT 'FF00ff'");
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(255, $value->red);
 		$this->assertEquals(0, $value->green);
 		$this->assertEquals(255, $value->blue);
 	
-		$value = $this->xmapper->type('color')->query("SELECT color FROM products WHERE product_id = 1");
+		$value = $this->pgsql->type('color')->query("SELECT color FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
 		$this->assertEquals(26, $value->green);
@@ -39,7 +39,7 @@ class CustomTypeTest extends MySQLTest {
 	}
 	
 	public function testCustomTypeColumn() {
-		$value = $this->xmapper->type('Acme\RGBColor', 'color')->query("SELECT * FROM products WHERE product_id = 1");
+		$value = $this->pgsql->type('Acme\RGBColor', 'color')->query("SELECT * FROM products WHERE product_id = 1");
 	
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
@@ -48,7 +48,7 @@ class CustomTypeTest extends MySQLTest {
 	}
 	
 	public function testCustomTypeList() {
-		$values = $this->xmapper->type('Acme\RGBColor[]')->query("SELECT color FROM products ORDER BY product_id ASC");
+		$values = $this->pgsql->type('Acme\RGBColor[]')->query("SELECT color FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -77,7 +77,7 @@ class CustomTypeTest extends MySQLTest {
 	}
 	
 	public function testCustomTypeColumnList() {
-		$values = $this->xmapper->type('Acme\RGBColor[]', 'color')->query("SELECT * FROM products ORDER BY product_id ASC");
+		$values = $this->pgsql->type('Acme\RGBColor[]', 'color')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);

@@ -1,16 +1,16 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class with string values
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group string
  */
-class StringTypeTest extends MySQLTest {
+class StringTypeTest extends PostgreSQLTest {
 	public function testString() {
 		$value = self::$mapper->type('string')->query("SELECT 'hello'");
 		$this->assertEquals('hello', $value);
@@ -20,43 +20,39 @@ class StringTypeTest extends MySQLTest {
 	
 		$value = self::$mapper->type('s', 'user_name')->query("SELECT * FROM users WHERE user_id = 5");
 		$this->assertEquals('ishmael', $value);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT user_id FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('1', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT birth_date FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('1987-08-10', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT last_login FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('2013-08-10 19:57:15', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT newsletter_time FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('12:00:00', $result);
-		
-		$result = self::$mapper->type('s')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
-		$this->assertInternalType('string', $result);
-		$this->assertEquals(self::$blob, $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('150.65', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT rating FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('4.5', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT refurbished FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals('0', $result);
-		
+		$this->assertEquals('f', $result);
+	
 		$result = self::$mapper->type('s')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('2011', $result);
-		
+	
 		$result = self::$mapper->type('s')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('0.25', $result);
@@ -93,4 +89,5 @@ class StringTypeTest extends MySQLTest {
 		$this->assertEquals('ishmael', $values[4]);
 	}
 }
+
 ?>

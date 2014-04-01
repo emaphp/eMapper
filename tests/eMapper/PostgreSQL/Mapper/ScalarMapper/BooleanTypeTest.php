@@ -1,20 +1,20 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
- * Test Mapper class with boolean values using a MySQLDriver
+ * Test Mapper class with boolean values using a PostgreSQLDriver
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group boolean
  */
-class BooleanTypeTest extends MySQLTest {
+class BooleanTypeTest extends PostgreSQLTest {
 	public function testBoolean() {
 		$result = self::$mapper->type('boolean')->query("SELECT NULL");
 		$this->assertNull($result);
-		
+	
 		$value = self::$mapper->type('boolean')->query("SELECT TRUE");
 		$this->assertTrue($value);
 	
@@ -26,83 +26,83 @@ class BooleanTypeTest extends MySQLTest {
 	
 		$value = self::$mapper->type('boolean')->query("SELECT * FROM products WHERE product_id = 5");
 		$this->assertTrue($value);
-		
+	
 		$result = self::$mapper->type('bool')->query("SELECT 'T'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('bool')->query("SELECT 'F'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertFalse($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 't'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 'f'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertFalse($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 'true'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 'false'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertFalse($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 'TRUE'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 'FALSE'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertFalse($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 0");
 		$this->assertInternalType('boolean', $result);
 		$this->assertFalse($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT user_id FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT user_name FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT birth_date FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT last_login FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT newsletter_time FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT rating FROM products WHERE product_id = 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-		
+	
 		$result = self::$mapper->type('b')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
@@ -141,4 +141,5 @@ class BooleanTypeTest extends MySQLTest {
 		$this->assertTrue($values[4]);
 	}
 }
+
 ?>

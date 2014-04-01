@@ -1,16 +1,16 @@
 <?php
-namespace eMapper\MySQL\Mapper\ScalarMapper;
+namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Test Mapper class with date values
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  * @group date
  */
-class DatetimeTypeTest extends MySQLTest {
+class DatetimeTypeTest extends PostgreSQLTest {
 	public function testDatetime() {
 		$value = self::$mapper->type('DateTime')->query("SELECT NOW()");
 		$this->assertInstanceOf('DateTime', $value);
@@ -23,16 +23,16 @@ class DatetimeTypeTest extends MySQLTest {
 		$value = self::$mapper->type('date', 'last_login')->query("SELECT * FROM users WHERE user_id = 3");
 		$this->assertInstanceOf('DateTime', $value);
 		$this->assertEquals('2013-02-16 20:00:33', $value->format('Y-m-d H:i:s'));
-		
+	
 		$result = self::$mapper->type('timestamp')->query("SELECT sale_date FROM sales WHERE sale_id = 1");
 		$this->assertInstanceOf('DateTime', $result);
 		$this->assertEquals('2013-08-10 20:37:18', $result->format('Y-m-d H:i:s'));
-		
+	
 		///WARNING!!!!!! 2011 -> 20:11
 		$result = self::$mapper->type('DateTime')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('DateTime', $result);
 		$this->assertEquals('20:11', $result->format('H:i'));
-		
+	
 		$result = self::$mapper->type('DateTime')->query("SELECT newsletter_time FROM users WHERE user_id = 3");
 		$this->assertInstanceOf('DateTime', $result);
 		$this->assertEquals('17:00:00', $result->format('H:i:s'));
@@ -90,24 +90,25 @@ class DatetimeTypeTest extends MySQLTest {
 	}
 	
 	/**
-	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
+	 * @expectedException \eMapper\Engine\PostgreSQL\Exception\PostgreSQLException
 	 */
 	public function testDatetimeError1() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_id FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
+	 * @expectedException \eMapper\Engine\PostgreSQL\Exception\PostgreSQLException
 	 */
 	public function testDatetimeError2() {
 		$result = self::$mapper->type('DateTime')->query("SELECT user_name FROM users WHERE user_id = 1");
 	}
 	
 	/**
-	 * @expectedException \eMapper\Engine\MySQL\Exception\MySQLException
+	 * @expectedException \eMapper\Engine\PostgreSQL\Exception\PostgreSQLException
 	 */
 	public function testDatetimeError3() {
 		$result = self::$mapper->type('DateTime')->query("SELECT avatar FROM users WHERE user_id = 1");
 	}
 }
+
 ?>
