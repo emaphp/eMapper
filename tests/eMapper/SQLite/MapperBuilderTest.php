@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\SQLite;
 
-use eMapper\Engine\SQLite\SQLiteMapper;
 use eMapper\Engine\SQLite\SQLiteDriver;
 use eMapper\Mapper;
 /**
