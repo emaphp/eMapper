@@ -133,43 +133,43 @@ class StatementTest extends SQLiteTest {
 	 */
 	public function testBoolean() {
 		$result = $this->statement->build('CONN_%{boolean}', array('1'), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{bool}', array('0'), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array('T'), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{bool}', array('F'), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array('t'), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{bool}', array('f'), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(''), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(6), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(0), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(3.65), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(0.0), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(true), array());
-		$this->assertEquals('CONN_TRUE', $result);
+		$this->assertEquals('CONN_1', $result);
 	
 		$result = $this->statement->build('CONN_%{b}', array(false), array());
-		$this->assertEquals('CONN_FALSE', $result);
+		$this->assertEquals('CONN_0', $result);
 	}
 	
 	/**
@@ -177,13 +177,13 @@ class StatementTest extends SQLiteTest {
 	 */
 	public function testBooleanArray() {
 		$result = $this->statement->build('CONN_%{b}', array(array(false,true,false)), array());
-		$this->assertEquals('CONN_FALSE,TRUE,FALSE', $result);
+		$this->assertEquals('CONN_0,1,0', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array(array('1', '0', '', 'F', 't', 'f', 'T')), array());
-		$this->assertEquals('CONN_TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE', $result);
+		$this->assertEquals('CONN_1,0,0,0,1,0,1', $result);
 	
 		$result = $this->statement->build('CONN_%{boolean}', array(array(10, 1, 0, 0.0, 3.65)), array());
-		$this->assertEquals('CONN_TRUE,TRUE,FALSE,FALSE,TRUE', $result);
+		$this->assertEquals('CONN_1,1,0,0,1', $result);
 	}
 	
 	/**
@@ -286,7 +286,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_0', $result);
 	
 		$result = $this->statement->build('PROD_#{code:b}', array(array('code' => 'XYZ123')), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{code:null}', array(array('code' => 'XYZ123')), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -311,7 +311,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_0', $result);
 	
 		$result = $this->statement->build('PROD_#{code:b}', array($prod), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{code:null}', array($prod), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -338,7 +338,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_42', $result);
 	
 		$result = $this->statement->build('PROD_#{id:b}', array(array('id' => 42)), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{id:null}', array(array('id' => 42)), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -363,7 +363,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_42', $result);
 	
 		$result = $this->statement->build('PROD_#{id:b}', array($prod), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{id:null}', array($prod), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -390,7 +390,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_39.95', $result);
 	
 		$result = $this->statement->build('PROD_#{price:b}', array(array('price' => 39.95)), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{price:null}', array(array('price' => 39.95)), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -415,7 +415,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_39.95', $result);
 	
 		$result = $this->statement->build('PROD_#{price:b}', array($prod), array());
-		$this->assertEquals('PROD_TRUE', $result);
+		$this->assertEquals('PROD_1', $result);
 	
 		$result = $this->statement->build('PROD_#{price:null}', array($prod), array());
 		$this->assertEquals('PROD_NULL', $result);
@@ -427,7 +427,7 @@ class StatementTest extends SQLiteTest {
 	public function testBooleanPropertyReplace() {
 		//as array
 		$result = $this->statement->build('PROD_%{0[refurbished]}_%{0[available]}', array(array('refurbished' => false, 'available' => true)), array());
-		$this->assertEquals('PROD_FALSE_TRUE', $result);
+		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:s}_#{available:s}', array(array('refurbished' => false, 'available' => true)), array());
 		$this->assertEquals("PROD_''_'1'", $result);
@@ -442,7 +442,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:b}_#{available:b}', array(array('refurbished' => false, 'available' => true)), array());
-		$this->assertEquals('PROD_FALSE_TRUE', $result);
+		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:null}_#{available:null}', array(array('refurbished' => false, 'available' => true)), array());
 		$this->assertEquals('PROD_NULL_NULL', $result);
@@ -453,7 +453,7 @@ class StatementTest extends SQLiteTest {
 		$prod->available = true;
 	
 		$result = $this->statement->build('PROD_%{0[refurbished]}_%{0[available]}', array($prod), array());
-		$this->assertEquals('PROD_FALSE_TRUE', $result);
+		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:s}_#{available:s}', array($prod), array());
 		$this->assertEquals("PROD_''_'1'", $result);
@@ -468,7 +468,7 @@ class StatementTest extends SQLiteTest {
 		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:b}_#{available:b}', array($prod), array());
-		$this->assertEquals('PROD_FALSE_TRUE', $result);
+		$this->assertEquals('PROD_0_1', $result);
 	
 		$result = $this->statement->build('PROD_#{refurbished:null}_#{available:null}', array($prod), array());
 		$this->assertEquals('PROD_NULL_NULL', $result);
@@ -486,7 +486,7 @@ class StatementTest extends SQLiteTest {
 		$arr['available'] = 'f';
 	
 		$result = $this->statement->build('PROD_#{id}_#{code}_#{price:f}_%{0[refurbished]}_#{available:b}', array($arr), array());
-		$this->assertEquals("PROD_4_'ZYX987'_99.65_TRUE_FALSE", $result);
+		$this->assertEquals("PROD_4_'ZYX987'_99.65_1_0", $result);
 	}
 	
 	/**

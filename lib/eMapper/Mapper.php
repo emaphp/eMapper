@@ -684,7 +684,7 @@ class Mapper {
 		$query = array_shift($args);
 	
 		//build statement
-		$stmt = $this->driver->build_statement($this->typeManager);
+		$stmt = $this->driver->build_statement($this->typeManager, array_key_exists('map.parameter', $this->config) ? $this->config['map.parameter'] : null);
 	
 		//run query
 		$result = $this->driver->query($stmt->build($query, $args, $this->config));

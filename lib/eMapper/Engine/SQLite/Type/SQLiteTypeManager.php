@@ -4,7 +4,7 @@ namespace eMapper\Engine\SQLite\Type;
 use eMapper\Type\TypeManager;
 use eMapper\Engine\SQLite\Type\Handler\DefaultTypeHandler;
 use eMapper\Type\Handler\StringTypeHandler;
-use eMapper\Type\Handler\BooleanTypeHandler;
+use eMapper\Engine\SQLite\Type\Handler\BooleanTypeHandler;
 use eMapper\Type\Handler\IntegerTypeHandler;
 use eMapper\Type\Handler\FloatTypeHandler;
 use eMapper\Type\Handler\BlobTypeHandler;
