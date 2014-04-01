@@ -1,24 +1,24 @@
 <?php
-namespace eMapper\MySQL\Mapper\ArrayMapper;
+namespace eMapper\PostgreSQL\Mapper\ArrayMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class obtaining array values using result maps
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  */
-class ResultMapTest extends MySQLTest {
+class ResultMapTest extends PostgreSQLTest {
 	/**
-	 * @expectedException eMapper\Engine\MySQL\Exception\MySQLException
+	 * @expectedException eMapper\Engine\PostgreSQL\Exception\PostgreSQLException
 	 */
 	public function testArrayTypeError() {
 		$user = self::$mapper
-		->type('array', MYSQLI_NUM)
+		->type('array', PGSQL_NUM)
 		->result_map('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users WHERE user_id = 3");
-		
+	
 		$this->assertInternalType('array', $user);
 	}
 	
@@ -29,7 +29,7 @@ class ResultMapTest extends MySQLTest {
 		$user = self::$mapper->type('array')
 		->result_map('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users WHERE user_id = 3");
-		
+	
 		$this->assertInternalType('array', $user);
 	
 		$this->assertArrayNotHasKey(0, $user);
@@ -148,19 +148,19 @@ class ResultMapTest extends MySQLTest {
 		$this->assertEquals('IND00232', $products['Clothes']['code']);
 	
 		$this->assertArrayHasKey('description', $products['Clothes']);
-		$this->assertInternalType('string', $products['Clothes']['description']);
-		$this->assertEquals('Green shirt', $products['Clothes']['description']);
+				$this->assertInternalType('string', $products['Clothes']['description']);
+				$this->assertEquals('Green shirt', $products['Clothes']['description']);
 	
-		$this->assertArrayHasKey('color', $products['Clothes']);
-		$this->assertInstanceOf('Acme\RGBColor', $products['Clothes']['color']);
+				$this->assertArrayHasKey('color', $products['Clothes']);
+				$this->assertInstanceOf('Acme\RGBColor', $products['Clothes']['color']);
 	
-		$this->assertArrayHasKey('price', $products['Clothes']);
-		$this->assertInternalType('float', $products['Clothes']['price']);
-		$this->assertEquals(70.9, $products['Clothes']['price']);
+				$this->assertArrayHasKey('price', $products['Clothes']);
+				$this->assertInternalType('float', $products['Clothes']['price']);
+				$this->assertEquals(70.9, $products['Clothes']['price']);
 	
-		$this->assertArrayHasKey('category', $products['Clothes']);
-		$this->assertInternalType('string', $products['Clothes']['category']);
-		$this->assertEquals('Clothes', $products['Clothes']['category']);
+				$this->assertArrayHasKey('category', $products['Clothes']);
+				$this->assertInternalType('string', $products['Clothes']['category']);
+				$this->assertEquals('Clothes', $products['Clothes']['category']);
 	}
 	
 	public function testGroupedList() {
@@ -255,4 +255,5 @@ class ResultMapTest extends MySQLTest {
 		$this->assertEquals('Clothes', $products['Clothes']['IND00232']['category']);
 	}
 }
+
 ?>
