@@ -26,7 +26,8 @@ abstract class PostgreSQLTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public static function tearDownAfterClass() {
-		pg_close(self::$conn);
+		//TODO: this breaks some tests, try running --debug
+		//pg_close(self::$conn);
 		self::$mapper->close();
 	}
 }

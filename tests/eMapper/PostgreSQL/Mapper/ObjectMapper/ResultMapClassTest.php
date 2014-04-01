@@ -1,15 +1,15 @@
 <?php
-namespace eMapper\MySQL\Mapper\ObjectMapper;
+namespace eMapper\PostgreSQL\Mapper\ObjectMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper mapping to objects using result maps
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  */
-class ResultMapClassTest extends MySQLTest {
+class ResultMapClassTest extends PostgreSQLTest {
 	public function testRow() {
 		$product = self::$mapper->type('obj:Acme\Generic\GenericProduct')
 		->result_map('Acme\Result\GenericProductResultMap')
@@ -259,4 +259,5 @@ class ResultMapClassTest extends MySQLTest {
 		$this->assertInstanceOf('Acme\RGBColor', $product->getColor());
 	}
 }
+
 ?>

@@ -1,15 +1,15 @@
 <?php
-namespace eMapper\MySQL\Mapper\ObjectMapper;
+namespace eMapper\PostgreSQL\Mapper\ObjectMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class mapping to objects
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  */
-class ObjectMapperTest extends MySQLTest {
+class ObjectMapperTest extends PostgreSQLTest {
 	public function testRow() {
 		$user = self::$mapper->type('obj:Acme\Generic\GenericUser')
 		->query("SELECT * FROM users WHERE user_id = 1");
@@ -246,4 +246,5 @@ class ObjectMapperTest extends MySQLTest {
 		$this->assertEquals('Clothes', $product->category);
 	}
 }
+
 ?>

@@ -1,16 +1,15 @@
 <?php
+namespace eMapper\PostgreSQL\Mapper\ObjectMapper;
 
-namespace eMapper\MySQL\Mapper\ObjectMapper;
-
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class mapping to entities
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  */
-class EntityTest extends MySQLTest {
+class EntityTest extends PostgreSQLTest {
 	public function testRow() {
 		$product = self::$mapper->type('obj:Acme\Entity\Product')
 		->query("SELECT * FROM products WHERE product_id = 1");
@@ -371,4 +370,5 @@ class EntityTest extends MySQLTest {
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
 	}
 }
+
 ?>

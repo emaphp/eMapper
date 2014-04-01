@@ -1,20 +1,20 @@
 <?php
-namespace eMapper\MySQL\Mapper\ObjectMapper;
+namespace eMapper\PostgreSQL\Mapper\ObjectMapper;
 
-use eMapper\MySQL\MySQLTest;
+use eMapper\PostgreSQL\PostgreSQLTest;
 
 /**
  * Tests Mapper class with object values using result maps
  * @author emaphp
- * @group mysql
+ * @group postgre
  * @group mapper
  */
-class ResultMapTest extends MySQLTest {
+class ResultMapTest extends PostgreSQLTest {
 	public function testRow() {
 		$user = self::$mapper->type('object')
 		->result_map('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users WHERE user_id = 1");
-		
+	
 		$this->assertInstanceOf('stdClass', $user);
 	
 		$this->assertObjectHasAttribute('user_id', $user);
@@ -247,4 +247,5 @@ class ResultMapTest extends MySQLTest {
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
 	}
 }
+
 ?>
