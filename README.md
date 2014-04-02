@@ -1619,7 +1619,7 @@ class Product {
 ```
 
 <br/>
-**Configuración**
+**Configuration**
 
 <br/>
 Annotations declared under the *map.option* namespace are treated as customized configuration values. These must be defined adding their respective names after the namespace. Fox example, in PostgreSQL, routines returning values with more than one column must be called adding the *proc.as_table* option setted to *true*. In order to define this option we add an annotation called **@map.option.proc.as_table**. The following example shows an attribute *product* that is associated to the value returned by the function *Products_FindByPK* which requires the option *proc.as_table*.

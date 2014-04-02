@@ -8,7 +8,7 @@ use eMapper\Type\TypeHandler;
  */
 class BooleanTypeHandler extends TypeHandler {
 	protected function cast_to_boolean($value) {
-		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false' || $value == '0')) {
+		if (is_string($value) && (strtolower($value) == 'f' || strtolower($value) == 'false')) {
 			return false;
 		}
 	
