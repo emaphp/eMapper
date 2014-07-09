@@ -35,14 +35,19 @@ class PropertyProfile {
 	public $suggestedType;
 	
 	/**
+	 * Defines if the current property is the primary key
+	 * @var boolean
+	 */
+	public $isPrimaryKey;
+	
+	/**
 	 * Reflection property instance
 	 * @var \ReflectionProperty
 	 */
 	public $reflectionProperty;
 	
-	public function __construct($name, AnnotationsBag $prop, \ReflectionProperty $reflectionProperty = null) {
+	public function __construct($name, AnnotationsBag $prop, \ReflectionProperty $reflectionProperty) {
 		$this->name = $name;
-		$this->reflectionProperty = $reflectionProperty;
 		$this->column = $prop->has('map.column') ? $prop->get('map.column') : $name;
 		$this->property = $prop->has('map.property') ? $prop->get('map.property') : $name;
 		
@@ -52,6 +57,11 @@ class PropertyProfile {
 		elseif ($prop->has('var')) {
 			$this->suggestedType = $prop->get('var');
 		}
+		
+		$this->isPrimaryKey = $prop->has('map.pk');
+		
+		$this->reflectionProperty = $reflectionProperty;
+		$this->reflectionProperty->setAccessible(true);
 	}
 }
 ?>
