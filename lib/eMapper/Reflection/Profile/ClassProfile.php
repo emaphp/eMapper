@@ -44,6 +44,12 @@ class ClassProfile {
 	 */
 	public $primaryKey;
 	
+	/**
+	 * Entity field names
+	 * @var array
+	 */
+	public $fieldNames;
+	
 	public function __construct($classname) {
 		//store class annotations
 		$this->reflectionClass = new \ReflectionClass($classname);
@@ -82,6 +88,16 @@ class ClassProfile {
 				}
 			}
 		}
+		
+		//build field list
+		foreach ($this->propertiesConfig as $name => $property) {
+			if (isset($property->column)) {
+				$this->fieldNames[$name] = $property->column;
+			}
+			else {
+				$this->fieldNames[$name] = $name;
+			}
+		}
 	}
 	
 	public function isEntity() {
@@ -106,21 +122,6 @@ class ClassProfile {
 		}
 		
 		return null;
-	}
-	
-	public function getFieldNames() {
-		$fields = [];
-		
-		foreach ($this->propertiesConfig as $name => $property) {
-			if (isset($property->column)) {
-				$fields[$name] = $property->column;
-			}
-			else {
-				$fields[$name] = $name;
-			}
-		}
-		
-		return $fields;
 	}
 }
 ?>

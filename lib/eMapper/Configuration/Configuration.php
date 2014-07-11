@@ -92,5 +92,24 @@ trait Configuration {
 		
 		return null;
 	}
+	
+	/**
+	 * Pushes a configuration value
+	 * @param string $key
+	 * @param mixed $value
+	 * @return Configuration
+	 */
+	public function push($key, $value) {
+		$obj = clone $this;
+		
+		if (array_key_exists($key, $obj->config)) {
+			array_push($obj->config, $value);
+		}
+		else {
+			$obj->config[$key] = [$value];
+		}
+		
+		return $obj;
+	}
 }
 ?>
