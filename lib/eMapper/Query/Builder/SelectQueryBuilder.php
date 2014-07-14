@@ -2,6 +2,7 @@
 namespace eMapper\Query\Builder;
 
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Engine\Generic\Driver;
 
 class SelectQueryBuilder extends QueryBuilder {
 	/**
@@ -88,7 +89,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		return implode(' ', $clauses);
 	}
 	
-	public function build($config = null) {
+	public function build(Driver $driver, $config = null) {
 		$table = $this->entity->getReferencedTable();
 		
 		$columns = $this->getColumns($config);

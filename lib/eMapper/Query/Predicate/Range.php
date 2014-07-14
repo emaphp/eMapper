@@ -3,6 +3,7 @@ namespace eMapper\Query\Predicate;
 
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Field;
+use eMapper\Engine\Generic\Driver;
 
 class Range extends SQLPredicate {
 	public function __construct(Field$field, $from, $to) {
@@ -11,7 +12,7 @@ class Range extends SQLPredicate {
 		$this->to = $to;
 	}
 	
-	public function evaluate(ClassProfile $profile, $args, $arg_index = 0) {
+	public function evaluate(Driver $driver, ClassProfile $profile, $args, $arg_index = 0) {
 	}
 }
 ?>

@@ -200,5 +200,17 @@ class PostgreSQLDriver extends Driver {
 	public function throw_query_exception($query) {
 		throw new PostgreSQLQueryException(pg_last_error($this->connection), $query);
 	}
+	
+	/*
+	 * SQL PREDICATES
+	 */
+	
+	public function regex_expression($column, $expression) {
+		return sprintf("%s ~ '%s'", $column, pg_escape_string($this->connection, $expression));
+	}
+	
+	public function iregex_expression($column, $expression) {
+		return sprintf("%s ~* '%s'", $column, pg_escape_string($this->connection, strtolower($expression)));
+	}
 }
 ?>

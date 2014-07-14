@@ -3,6 +3,7 @@ namespace eMapper\Query\Predicate;
 
 use eMapper\Query\Field;
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Engine\Generic\Driver;
 
 class Equal extends SQLPredicate {
 	/**
@@ -22,7 +23,7 @@ class Equal extends SQLPredicate {
 		$this->right_expression = $right_expr;
 	}
 	
-	public function evaluate(ClassProfile $profile, &$args, $arg_index = 0) {
+	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
 		$left_expr = $this->left_expression->getColumnName($profile);
 		
 		if ($this->right_expression instanceof Field) {

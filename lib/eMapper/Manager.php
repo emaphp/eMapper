@@ -89,6 +89,9 @@ class Manager {
 	 * @return object
 	 */
 	public function findByPK($pk) {
+		//connect to database
+		$this->mapper->connect();
+		
 		//get primary key field
 		$primaryKey = $this->entity->primaryKey;
 	
@@ -99,7 +102,7 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($primaryKey)->eq($pk));
-		list($query, $args) = $query->build($this->config);
+		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->expression]);
@@ -112,10 +115,13 @@ class Manager {
 	 * @return mixed
 	 */
 	public function find(SQLPredicate $condition = null) {
+		//connect to database
+		$this->mapper->connect();
+		
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->config);
+		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->getTypeExpression()]);
@@ -128,10 +134,13 @@ class Manager {
 	 * @return NULL|object
 	 */
 	public function get(SQLPredicate $condition = null) {
+		//connect to database
+		$this->mapper->connect();
+		
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->config);
+		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->expression]);
@@ -162,20 +171,23 @@ class Manager {
 	 * @return boolean|integer
 	 */
 	public function save($entity) {
+		//connect to database
+		$this->mapper->connect();
+		
 		//get primary key
 		$pk = $this->getPrimaryKeyValue($entity);
 		
 		if (is_null($pk)) {
 			//build insert query
 			$query = new InsertQueryBuilder($this->entity);
-			list($query, $_) = $query->build();
+			list($query, $_) = $query->build($this->mapper->driver);
 			return $this->mapper->query($query, $entity);
 		}
 		
 		//build create query
 		$query = new CreateQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($this->entity->primaryKey)->eq($pk));
-		list($query, $args) = $query->build();
+		list($query, $args) = $query->build($this->mapper->driver);
 		$this->mapper->query($query, $entity, $args);
 		return $this->mapper->lastId();
 	}
@@ -186,14 +198,17 @@ class Manager {
 	 * @throws \RuntimeException
 	 * @return boolean
 	 */
-	public function delete($entity) {		
+	public function delete($entity) {
+		//connect to database
+		$this->mapper->connect();
+		
 		$pk = $this->getPrimaryKeyValue($entity);
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
 		$condition = Attr::__callStatic($this->entity->primaryKey)->eq($pk);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build();
+		list($query, $args) = $query->build($this->mapper->driver);
 		
 		//run query
 		return $this->mapper->query($query, $args);
@@ -205,10 +220,13 @@ class Manager {
 	 * @return boolean
 	 */
 	public function deleteWhere(SQLPredicate $condition) {
+		//connect to database
+		$this->mapper->connect();
+		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build();
+		list($query, $args) = $query->build($this->mapper->driver);
 		
 		//run query
 		return $this->mapper->query($query, $args);

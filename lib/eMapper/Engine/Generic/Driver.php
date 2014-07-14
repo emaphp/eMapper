@@ -103,5 +103,12 @@ abstract class Driver {
 	 * @param string $query
 	 */
 	public abstract function throw_query_exception($query);
+	
+	/*
+	 * SQL PREDICATES
+	 */
+	
+	public abstract function regex_expression($column, $expression);
+	public abstract function iregex_expression($column, $expression);
 }
 ?>

@@ -3,6 +3,7 @@ namespace eMapper\Query\Builder;
 
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Predicate\SQLPredicate;
+use eMapper\Engine\Generic\Driver;
 
 abstract class QueryBuilder {
 	/**
@@ -27,8 +28,9 @@ abstract class QueryBuilder {
 
 	/**
 	 * Builds the query
+	 * @param Driver $driver
 	 * @param array $config
 	 */
-	public abstract function build($config = null);
+	public abstract function build(Driver $driver, $config = null);
 }
 ?>

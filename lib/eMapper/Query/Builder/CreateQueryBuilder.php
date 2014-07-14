@@ -1,8 +1,10 @@
 <?php
 namespace eMapper\Query\Builder;
 
+use eMapper\Engine\Generic\Driver;
+
 class CreateQueryBuilder extends QueryBuilder {
-	public function build() {
+	public function build(Driver $driver, $config = null) {
 		$table = $this->entity->getReferencedTable();
 		$fields = implode(', ', $this->entity->fieldNames);
 		$values = [];

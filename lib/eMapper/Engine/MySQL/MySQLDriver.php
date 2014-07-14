@@ -240,6 +240,18 @@ class MySQLDriver extends Driver {
 	public function throw_query_exception($query) {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
 	}
+	
+	/*
+	 * SQL PREDICATES
+	 */
+	
+	public function regex_expression($column, $expression) {
+		return sprintf("%s REGEXP BINARY '%s'", $column, $this->connection->real_escape_string($xpression));
+	}
+	
+	public function iregex_expression($column, $expression) {
+		return sprintf("%s REGEXP '%s'", $column, $this->connection->real_escape_string(strtolower($xpression)));
+	}
 }
 
 ?>

@@ -158,5 +158,17 @@ class SQLiteDriver extends Driver {
 	public function throw_query_exception($query) {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
 	}
+	
+	/*
+	 * SQL PREDICATES
+	 */
+	
+	public function regex_expression($column, $expression) {
+		return sprintf("%s REGEXP '%s'". $column, $this->connection->escapeString($expression));
+	}
+	
+	public function iregex_expression($column, $expression) {
+		return sprintf("%s REGEXP '(?i)%s'". $column, $this->connection->escapeString(strtolower($expression)));
+	}
 }
 ?>

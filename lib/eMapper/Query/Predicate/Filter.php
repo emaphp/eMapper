@@ -1,6 +1,9 @@
 <?php
 namespace eMapper\Query\Predicate;
 
+use eMapper\Engine\Generic\Driver;
+use eMapper\Reflection\Profile\ClassProfile;
+
 class Filter extends SQLPredicate {
 	protected $predicates;
 	
@@ -9,7 +12,7 @@ class Filter extends SQLPredicate {
 		$this->negate = $negate;
 	}
 	
-	public function evaluate(ClassProfile $profile, &$args, $arg_index = 0) {
+	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
 	}
 }
 ?>

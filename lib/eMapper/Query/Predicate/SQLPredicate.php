@@ -2,6 +2,7 @@
 namespace eMapper\Query\Predicate;
 
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Engine\Generic\Driver;
 
 abstract class SQLPredicate {
 	protected static $counter = 0;
@@ -11,6 +12,6 @@ abstract class SQLPredicate {
 		return self::$counter++;
 	}
 	
-	public abstract function evaluate(ClassProfile $profile, &$args, $arg_index = 0);
+	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0);
 }
 ?>
