@@ -5,6 +5,11 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\SQL\Configuration\StatementConfiguration;
 use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
+use eMapper\Query\Builder\DeleteQueryBuilder;
+use eMapper\Query\Attr;
+use eMapper\Query\Builder\InsertQueryBuilder;
+use eMapper\Query\Builder\CreateQueryBuilder;
+use eMapper\Query\Builder\SelectQueryBuilder;
 
 class Manager {
 	use StatementConfiguration {
@@ -61,94 +66,13 @@ class Manager {
 		
 		return $mappingExpression;
 	}
-	
-	/**
-	 * Returns current query column list
-	 * @throws \RuntimeException
-	 * @return string
-	 */
-	protected function getColumns() {
-		$columns = '*';
-		
-		if (array_key_exists('query.columns', $this->config)) {
-			if (!empty($this->config['query.columns'])) {
-				return implode(', ', $this->config['query.columns']);
-			}
-		}
-		elseif (array_key_exists('query.attrs', $this->config)) {
-			if (!empty($this->config['query.attrs'])) {
-				$columns = [];
-				
-				foreach ($this->config['query.attrs'] as $attr) {
-					if (!array_key_exists($attr, $this->entity->fieldNames)) {
-						throw new \RuntimeException(sprintf("Attribute $attr not declared in class %s", $this->entity->reflectionClass->getName()));
-					}
-					
-					$columns[] = $this->entity->fieldNames[$attr];
-				}
-				
-				return implode(', ', $columns);
-			}
-		}
-		
-		return $columns;
-	}
-	
-	/**
-	 * Builds ordering and limit clauses
-	 * @throws \RuntimeException
-	 * @return string
-	 */
-	protected function getAdditionalClauses() {
-		$clauses = [];
-		
-		//add order
-		if (array_key_exists('query.order_by', $this->config)) {
-			$order_by = 'ORDER BY';
-				
-			foreach ($this->config['query.order_by'] as $order) {
-				$regex = '/^([\w]+)\s+([ASC|DESC])$/';
-		
-				if (preg_match($regex, $order, $matches)) {
-					if (!array_key_exists($matches[1], $this->fields)) {
-						throw new \RuntimeException();
-					}
-						
-					$column = $this->fields[$matches[1]] . ' ' . $matches[2];
-				}
-				else {
-					if (!array_key_exists($order, $this->fields)) {
-						throw new \RuntimeException();
-					}
-						
-					$column = $this->fields[$order];
-				}
-		
-				$order_by .= " $column,";
-			}
-		
-			$clauses[] = substr($order_by, 0, -1);
-		}
-		
-		//add limit
-		if (array_key_exists('query.left_limit', $this->config)) {
-			if (array_key_exists('query.right_limit', $this->config)) {
-				$clauses[] = sprintf("LIMIT %d, %d", $this->config['query.left_limit'], $this->config['query.right_limit']);
-			}
-			else {
-				$clauses[] = sprintf("LIMIT %d", $this->config['query.left_limit']);
-			}
-		}
-		
-		return implode(' ', $clauses);
-	}
-	
+
 	/**
 	 * Removes manager-only options from configuration values
 	 * @param string $values
 	 * @return multitype:
 	 */
-	protected function cleanOptions($values = null) {
+	protected function clean_options($values = null) {
 		$clean = array_diff_key($this->config, array_flip(['query.filter', 'query.index', 'query.group', 'query.distinct', 'query.columns', 'query.attrs', 'query.lefT_limit', 'query.right_limit', 'query.order_by']));
 		
 		if (is_array($values)) {
@@ -165,63 +89,37 @@ class Manager {
 	 * @return object
 	 */
 	public function findByPK($pk) {
+		//get primary key field
 		$primaryKey = $this->entity->primaryKey;
 	
 		if (is_null($primaryKey)) {
 			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
 		}
 	
-		//get columns
-		$columns = $this->getColumns();
-	
-		//get referenced table
-		$table = $this->entity->getReferencedTable();
-	
-		//build condition
-		$condition = $this->fields[$primaryKey] . ' = %{0}';
-	
-		//build config and run query
-		$options = array_merge($this->config, ['map.type' => $this->expression]);
-		return $this->mapper->merge($options)->query(sprintf("SELECT %s FROM %s WHERE %s", $columns, $table, $condition), $pk);
+		//build query
+		$query = new SelectQueryBuilder($this->entity);
+		$query->setCondition(Attr::__callstatic($primaryKey)->eq($pk));
+		list($query, $args) = $query->build($this->config);
+		
+		//run query
+		$options = $this->clean_options(['map.type' => $this->expression]);
+		return $this->mapper->merge($options)->query($query, $args);
 	}
 	
+	/**
+	 * Obtains a list of entities by the given condition
+	 * @param SQLPredicate $condition
+	 * @return mixed
+	 */
 	public function find(SQLPredicate $condition = null) {
-		//get referenced table
-		$table = $this->entity->getReferencedTable();
+		//build query
+		$query = new SelectQueryBuilder($this->entity);
+		$query->setCondition($condition);
+		list($query, $args) = $query->build($this->config);
 		
-		//get columns
-		$columns = $this->getColumns();
-		
-		if (array_key_exists('query.distinct', $this->config) && $this->config['query.distinct']) {
-			$columns = 'DISTINCT ' . $columns;
-		}
-		
-		//get clauses
-		$clauses = $this->getAdditionalClauses();
-		
-		//get current query options
-		$options = $this->cleanOptions(['map.type' => $this->getTypeExpression()]);
-		
-		if (isset($condition)) {
-			$args = [];
-			$condition = $condition->evaluate($this->entity, $args);
-			return $this->mapper->merge($options)->query(sprintf("SELECT %s WHERE %s FROM %s %s", $columns, $condition, $table, $clauses), $args);
-		}
-		elseif (array_key_exists('query.filter', $this->config) && !empty($this->config['query.filter'])) {
-			$args = [];
-			$filters = [];
-			
-			foreach ($this->config['query.filter'] as $filter) {
-				$filters[] = $filter->evaluate($this->entity, $args);
-			}
-			
-			$condition = implode(' AND ', $filters);
-			
-			return $this->mapper->merge($options)->query(sprintf("SELECT %s WHERE %s FROM %s %s", $columns, $condition, $table, $clauses), $args);
-		}
-		else {
-			return $this->mapper->merge($options)->query(sprintf("SELECT %s FROM %s %s", $columns, $table, $clauses));
-		}
+		//run query
+		$options = $this->clean_options(['map.type' => $this->getTypeExpression()]);
+		return $this->mapper->merge($options)->query($query, $args);
 	}
 	
 	/**
@@ -230,66 +128,56 @@ class Manager {
 	 * @return NULL|object
 	 */
 	public function get(SQLPredicate $condition = null) {
-		$result = $this->find($condition);
+		//build query
+		$query = new SelectQueryBuilder($this->entity);
+		$query->setCondition($condition);
+		list($query, $args) = $query->build($this->config);
 		
-		if (empty($result)) {
-			return null;
+		//run query
+		$options = $this->clean_options(['map.type' => $this->expression]);
+		return $this->mapper->merge($options)->query($query, $args);
+	}
+	
+	/**
+	 * Obtains an entity primary key value
+	 * @param object $entity
+	 * @throws \RuntimeException
+	 */
+	protected function getPrimaryKeyValue($entity) {
+		$primaryKey = $this->entity->primaryKey;
+			
+		if (is_null($primaryKey)) {
+			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
 		}
 		
-		return current($result);
+		//get primary key value
+		$pkProperty = $this->entity->getReflectionProperty($property);
+		return $pkProperty->getValue($entity);
 	}
 	
 	/**
 	 * Stores an instance into the database
 	 * @param object $entity
 	 * @throws \RuntimeException
-	 * @return boolean
+	 * @return boolean|integer
 	 */
 	public function save($entity) {
-		$primaryKey = $this->entity->primaryKey;
-		
-		if (is_null($primaryKey)) {
-			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
-		}
-		
-		//get table
-		$table = $this->entity->getReferencedTable();
-		
-		//get primary key value
-		$pkProperty = $this->entity->propertiesConfig[$primaryKey]->reflectionProperty;
-		$pk = $pkProperty->getValue($entity);
+		//get primary key
+		$pk = $this->getPrimaryKeyValue($entity);
 		
 		if (is_null($pk)) {
-			//insert new entity
-			$fields = implode(',', $fields);
-			
-			//create insertion expression
-			$expressions = [];
-			
-			foreach (array_keys($fields) as $property) {
-				$expressions[] = '#{' . $property . '}';
-			}
-			
-			$expressions = implode(',', $expressions);
-			
-			return $this->mapper->query(sprintf("INSERT INTO %s (%s) VALUES (%s)", $table, $fields, $expressions), $entity);
+			//build insert query
+			$query = new InsertQueryBuilder($this->entity);
+			list($query, $_) = $query->build();
+			return $this->mapper->query($query, $entity);
 		}
 		
-		//build values expression
-		$expressions = [];
-		
-		foreach ($fields as $property => $column) {
-			$expressions = $column . ' = #{' . $property . '}';
-		}
-		
-		//build values list
-		$values = implode(',', $expressions);
-		
-		//build condition
-		$condition = $this->fields[$primaryKey] . ' = %{1}';
-		
-		//update entity
-		return $this->mapper->query(sprintf("UPDATE %s SET %s WHERE %s", $table, $values, $condition), $entity, $pk);
+		//build create query
+		$query = new CreateQueryBuilder($this->entity);
+		$query->setCondition(Attr::__callstatic($this->entity->primaryKey)->eq($pk));
+		list($query, $args) = $query->build();
+		$this->mapper->query($query, $entity, $args);
+		return $this->mapper->lastId();
 	}
 	
 	/**
@@ -298,33 +186,32 @@ class Manager {
 	 * @throws \RuntimeException
 	 * @return boolean
 	 */
-	public function delete($entity) {
-		//get table
-		$table = $this->entity->getReferencedTable();
+	public function delete($entity) {		
+		$pk = $this->getPrimaryKeyValue($entity);
 		
-		if ($entity instanceof SQLPredicate) {
-			$args = [];
-			
-			//evaluate condition
-			$condition = $entity->evaluate($this->entity, $args);
-			
-			//delete entity
-			return $this->mapper->query(sprintf("DELETE FROM %s WHERE %s", $table, $condition), $args);
-		}
-		else {
-			$primaryKey = $this->entity->primaryKey;
-			
-			if (is_null($primaryKey)) {
-				throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
-			}
-			
-			//get primary key value
-			$pkProperty = $this->entity->propertiesConfig[$primaryKey]->reflectionProperty;
-			$pk = $pkProperty->getValue($entity);
-			
-			//delete entity
-			return $this->mapper->query(sprintf("DELETE FROM %s WHERE %s", $table, $this->fields[$pkProperty] . ' = %{0}'), $pk);
-		}
+		//build query
+		$query = new DeleteQueryBuilder($this->entity);
+		$condition = Attr::__callStatic($this->entity->primaryKey)->eq($pk);
+		$query->setCondition($condition);
+		list($query, $args) = $query->build();
+		
+		//run query
+		return $this->mapper->query($query, $args);
+	}
+	
+	/**
+	 * Removes a set of entities by a given condition
+	 * @param SQLPredicate $condition
+	 * @return boolean
+	 */
+	public function deleteWhere(SQLPredicate $condition) {
+		//build query
+		$query = new DeleteQueryBuilder($this->entity);
+		$query->setCondition($condition);
+		list($query, $args) = $query->build();
+		
+		//run query
+		return $this->mapper->query($query, $args);
 	}
 	
 	/**

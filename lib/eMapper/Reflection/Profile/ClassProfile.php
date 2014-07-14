@@ -5,7 +5,7 @@ use eMapper\Result\Relation\MacroExpression;
 use eMapper\Result\Relation\StatementCallback;
 use eMapper\Result\Relation\QueryCallback;
 use eMapper\Result\Relation\StoredProcedureCallback;
-use eMapper\Reflection\Facade;
+use Minime\Annotations\Facade;
 
 class ClassProfile {
 	/**
@@ -49,6 +49,12 @@ class ClassProfile {
 	 * @var array
 	 */
 	public $fieldNames;
+	
+	/**
+	 * Column names
+	 * @var array
+	 */
+	public $columnNames;
 	
 	public function __construct($classname) {
 		//store class annotations
@@ -98,6 +104,8 @@ class ClassProfile {
 				$this->fieldNames[$name] = $name;
 			}
 		}
+		
+		$this->columnNames = array_flip($this->fieldNames);
 	}
 	
 	public function isEntity() {
@@ -122,6 +130,27 @@ class ClassProfile {
 		}
 		
 		return null;
+	}
+	
+	public function getPropertyType($property) {
+		if (!array_key_exists($property, $this->fieldNames)) {
+			throw new \RuntimeException(sprintf("Property %s does not exists in class %s", $property, $this->reflectionClass->getName()));
+		}
+		
+		return $this->propertiesConfig[$property]->type;
+	}
+	
+	public function getColumnType($column) {		
+		if (!array_key_exists($column, $this->columnNames)) {
+			throw new \RuntimeException(sprintf("Column %s does not exists in class %s", $column, $this->reflectionClass->getName()));
+		}
+		
+		$attr = $this->columnNames[$column];
+		return $this->propertiesConfig[$attr]->type;
+	}
+	
+	public function getReflectionProperty($property) {
+		return $this->entity->propertiesConfig[$primaryKey]->reflectionProperty;
 	}
 }
 ?>

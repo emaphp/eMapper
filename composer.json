@@ -15,13 +15,12 @@
 		"BSD-2-Clause"
 	],
 	"require" : {
-		"minime/annotations" : "1.12.16",
+		"minime/annotations" : "1.13.*",
 		"emacros/emacros" : "1.0.*"
 	},
 	"autoload" : {
 		"psr-0" : {
 			"eMapper" : "lib"
 		}
-	},
-	"minimum-stability" : "beta"
+	}
 }
