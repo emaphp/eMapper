@@ -132,12 +132,12 @@ class ClassProfile {
 		return null;
 	}
 	
-	public function getPropertyType($property) {
-		if (!array_key_exists($property, $this->fieldNames)) {
-			throw new \RuntimeException(sprintf("Property %s does not exists in class %s", $property, $this->reflectionClass->getName()));
+	public function getFieldType($field) {
+		if (!array_key_exists($field, $this->fieldNames)) {
+			throw new \RuntimeException(sprintf("Field %s does not exists in class %s", $field, $this->reflectionClass->getName()));
 		}
 		
-		return $this->propertiesConfig[$property]->type;
+		return $this->propertiesConfig[$field]->type;
 	}
 	
 	public function getColumnType($column) {		

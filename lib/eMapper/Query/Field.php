@@ -13,6 +13,7 @@ use eMapper\Query\Predicate\StartsWith;
 use eMapper\Query\Predicate\EndsWith;
 use eMapper\Query\Predicate\Range;
 use eMapper\Query\Predicate\Regex;
+use eMapper\Query\Predicate\IsNull;
 
 abstract class Field {
 	/**
@@ -31,9 +32,28 @@ abstract class Field {
 		$this->name = $name;
 	}
 	
+	/**
+	 * Initializes a new Field instance
+	 * @param string $method
+	 * @param null $args
+	 */
 	public abstract static function __callstatic($method, $args = null);
+	
+	/**
+	 * Obtains the referenced column of this field
+	 * @param ClassProfile $profile
+	 */
 	public abstract function getColumnName(ClassProfile $profile);
 	
+	public function getName() {
+		return $this->name;
+	}
+	
+	/**
+	 * Sets field type
+	 * @param string $type
+	 * @return \eMapper\Query\Field
+	 */
 	public function type($type) {
 		$this->type = $type;
 		return $this;
@@ -89,6 +109,10 @@ abstract class Field {
 	
 	public function regex($expression) {
 		return new Regex($this, $expression);
+	}
+	
+	public function isNull($condition = true) {
+		return new IsNull($field, !$condition);
 	}
 }
 ?>

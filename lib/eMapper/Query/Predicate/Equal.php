@@ -5,77 +5,34 @@ use eMapper\Query\Field;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 
-class Equal extends SQLPredicate {
-	/**
-	 * Left expression
-	 * @var Field
-	 */
-	protected $left_expression;
-	
-	/**
-	 * Right expression
-	 * @var mixed
-	 */
-	protected $right_expression;
-	
-	public function __construct(Field $left_expr, $right_expr) {
-		$this->left_expression = $left_expr;
-		$this->right_expression = $right_expr;
+class Equal extends ComparisonPredicate {
+	protected function comparisonExpression(Driver $driver, &$args, $index) {
+		return '%s = %s';
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
-		$left_expr = $this->left_expression->getColumnName($profile);
+		$column = $this->field->getColumnName($profile);
 		
-		if ($this->right_expression instanceof Field) {
-			$right_expr = $this->right_expression->getColumnName($profile);
+		if ($this->expression instanceof Field) {
+			$expression = $this->expression->getColumnName($profile);
 		}
 		else {
-			if ($arg_index != 0) {
-				$index = self::argNumber();
-				$args[$index] = $this->right_expression;
-					
-				if (isset($this->left_expression->hasType())) {
-					$index = $arg_index . '[' . $index . ':' . $this->left_expression->getType() . ']';
-				}
-				else {
-					$type = $profile->getColumnType($left_expr);
-				
-					if (isset($type)) {
-						$index = $arg_index . '[' . $index . ':' . $type .  ']';
-					}
-					else {
-						$index = $arg_index . '[' . $index . ']';
-					}
-				}
-					
-				$right_expr = '%{' . $index . '}';
-			}
-			else {
-				$index = 'arg' . self::argNumber();
-				$args[$index] = $this->right_expression;
-					
-				if (isset($this->left_expression->hasType())) {
-					$index = $index . ':' . $this->left_expression->getType();
-				}
-				else {
-					$type = $profile->getColumnType($left_expr);
-				
-					if (isset($type)) {
-						$index = $index . ':' . $type;
-					}
-				}
-					
-				$right_expr = '#{' . $index . '}';
-			}
-		}
-				
-		$expr = $left_expr . ' = ' . $right_expr;
-		
-		if ($this->negate) {
-			$expr = 'NOT ' . $expr;
+			//store expression in argument list
+			$index = $this->getArgumentIndex($arg_index);
+			$args[$index] = $this->expression;
+			
+			//build expression
+			$expression = $this->buildArgumentExpression($profile, $index, $arg_index);
 		}
 		
-		return $expr;
+		//build predicate expression
+		$predicate = sprintf($this->comparisonExpression($driver, $args, $index), $column, $expression);
+		
+		if ($this->negate) { 
+			return 'NOT ' . $predicate;
+		}
+		
+		return $predicate;
 	}
 }
 ?>
