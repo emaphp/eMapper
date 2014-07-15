@@ -4,9 +4,11 @@ namespace eMapper\Query\Predicate;
 use eMapper\Engine\Generic\Driver;
 
 class StartsWith extends StringComparisonPredicate {
-	protected function comparisonExpression(Driver $driver, &$args, $index) {
-		$args[$index] = $args[$index] . '%';
-		
+	protected function formatExpression(Driver $driver, $expression) {
+		return $expression . '%';
+	}
+	
+	protected function buildComparisonExpression(Driver $driver) {
 		if ($this->case_sensitive) {
 			return '%s LIKE %s';
 		}

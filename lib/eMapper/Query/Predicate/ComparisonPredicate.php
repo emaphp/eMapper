@@ -50,14 +50,14 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		else {
 			//store expression in argument list
 			$index = $this->getArgumentIndex($arg_index);
-			$args[$index] = $this->expression;
-	
+			$args[$index] = $this->formatExpression($driver, $this->expression);
+			
 			//build expression
 			$expression = $this->buildArgumentExpression($profile, $index, $arg_index);
 		}
 	
 		//build predicate expression
-		$predicate = sprintf($this->comparisonExpression($driver, $args, $index), $column, $expression);
+		$predicate = sprintf($this->buildComparisonExpression($driver), $column, $expression);
 	
 		if ($this->negate) {
 			return 'NOT ' . $predicate;
@@ -66,6 +66,7 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return $predicate;
 	}
 	
-	protected abstract function comparisonExpression(Driver $driver, &$args, $index);
+	protected abstract function formatExpression(Driver $driver, $expression);
+	protected abstract function buildComparisonExpression(Driver $driver);
 }
 ?>

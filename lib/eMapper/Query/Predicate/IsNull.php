@@ -7,7 +7,7 @@ use eMapper\Query\Field;
 
 class IsNull extends SQLPredicate {
 	public function __construct(Field $field, $negate) {
-		parent::__construct($field, null);
+		parent::__construct($field);
 		$this->negate = $negate;
 	}
 	
