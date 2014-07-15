@@ -3,6 +3,7 @@ namespace eMapper\Query\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Query\Field;
 
 abstract class ComparisonPredicate extends SQLPredicate {
 	/**

@@ -75,6 +75,10 @@ abstract class Field {
 		return new Contains($this, $expression);
 	}
 	
+	public function icontains($expression) {
+		return new Contains($this, $expression, false);
+	}
+	
 	public function in($expression) {
 		return new In($this, $expression);
 	}
@@ -99,8 +103,16 @@ abstract class Field {
 		return new StartsWith($this, $expression);
 	}
 	
+	public function istartswith($expression) {
+		return new StartsWith($this, $expression, false);
+	}
+	
 	public function endswith($expression) {
 		return new EndsWith($this, $expression);
+	}
+	
+	public function iendswith($expression) {
+		return new EndsWith($this, $expression, false);
 	}
 	
 	public function range($from, $to) {
