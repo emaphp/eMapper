@@ -202,6 +202,7 @@ class Manager {
 		//connect to database
 		$this->mapper->connect();
 		
+		//get primary key
 		$pk = $this->getPrimaryKeyValue($entity);
 		
 		//build query
@@ -219,14 +220,14 @@ class Manager {
 	 * @param SQLPredicate $condition
 	 * @return boolean
 	 */
-	public function deleteWhere(SQLPredicate $condition) {
+	public function deleteWhere(SQLPredicate $condition = null) {
 		//connect to database
 		$this->mapper->connect();
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->driver);
+		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
 		//run query
 		return $this->mapper->query($query, $args);

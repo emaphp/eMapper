@@ -109,8 +109,8 @@ class SelectQueryBuilder extends QueryBuilder {
 			$args = [];
 			$filters = [];
 				
-			foreach ($this->config['query.filter'] as $filter) {
-				$filters[] = $filter->evaluate($this->entity, $args);
+			foreach ($config['query.filter'] as $filter) {
+				$filters[] = $filter->evaluate($driver, $this->entity, $args);
 			}
 				
 			$condition = implode(' AND ', $filters);
