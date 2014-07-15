@@ -13,6 +13,33 @@ class Filter extends SQLPredicate {
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
+		if (empty($this->predicates)) {
+			return '';
+		}
+		
+		if (count($this->predicates) == 1) {
+			$condition = $this->predicates->evaluate($driver, $profile, $args, $arg_index);
+			
+			if ($this->negate) {
+				return 'NOT ' . $condition;
+			}
+			
+			return $condition;
+		}
+		
+		$predicates = [];
+		
+		foreach ($this->predicates as $predicate) {
+			$predicates[] = $predicate->evaluate($driver, $profile, $args, $arg_index);
+		}
+		
+		$condition = '( ' . implode(' AND ', $predicates) . ' )';
+		
+		if ($this->negate) {
+			return 'NOT ' . $condition;
+		}
+		
+		return $condition;
 	}
 }
 ?>
