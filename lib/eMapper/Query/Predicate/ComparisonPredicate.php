@@ -17,30 +17,6 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		$this->expression = $expression;	
 	}
 	
-	protected function buildArgumentExpression(ClassProfile $profile, $index, $arg_index) {
-		if ($arg_index != 0) {			
-			//check type
-			$type = $this->getFieldType($profile);
-			
-			//build expression
-			if (isset($type)) {
-				return '%{' . $arg_index . "[$index:$type]" . '}';
-			}
-			
-			return '%{' . $arg_index . "[$index]" . '}';
-		}
-		
-		//check type
-		$type = $this->getFieldType($profile);
-		
-		//build expression
-		if (isset($type)) {
-			return '#{' . "$index:$type" . '}';
-		}
-		
-		return '#{' . $index . '}';
-	}
-	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
 		$column = $this->field->getColumnName($profile);
 	
