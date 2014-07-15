@@ -164,8 +164,8 @@ class SQLiteDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex() {
-		return new SQLiteRegex();
+	public function regex($case_sensitive) {
+		return new SQLiteRegex($case_sensitive);
 	}
 }
 ?>

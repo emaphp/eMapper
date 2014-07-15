@@ -2,6 +2,7 @@
 namespace eMapper\Engine\Generic;
 
 use eMapper\Configuration\Configuration;
+use eMapper\Engine\Generic\Regex\GenericRegex;
 
 abstract class Driver {
 	use Configuration;
@@ -108,6 +109,11 @@ abstract class Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public abstract function regex();
+	/**
+	 * Obtains a regex predicate builder for the current engine
+	 * @param boolean $case_sensitive
+	 * @return GenericRegex
+	 */
+	public abstract function regex($case_sensitive);
 }
 ?>

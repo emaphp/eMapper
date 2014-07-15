@@ -1,19 +1,21 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Regex;
 
-use eMapper\Engine\Generic\Regex\iRegex;
+use eMapper\Engine\Generic\Regex\GenericRegex;
 
-class PostgreSQLRegex implements iRegex {
-	public function filter($expression, $case_sensitive) {
+class PostgreSQLRegex extends GenericRegex {
+	public function filter($expression) {
 		return $case_sensitive ? $expression : strtolower($expression);
 	}
 	
-	public function comparisonExpression($case_sensitive) {
-		if ($case_sensitive) {
-			return '%s ~ %s';
+	public function comparisonExpression($negate) {
+		if ($this->case_sensitive) {
+			$op = $negate ? '!~' : '~';
+			return "%s $op %s";
 		}
 		
-		return '%s ~* %s';
+		$op = $negate ? '!~*' : '~*';
+		return "%s $op %s";
 	}
 }
 ?>

@@ -246,9 +246,8 @@ class MySQLDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex() {
-		return new MySQLRegex();
+	public function regex($case_sensitive) {
+		return new MySQLRegex($case_sensitive);
 	}
 }
-
 ?>

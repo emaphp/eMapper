@@ -206,8 +206,8 @@ class PostgreSQLDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex() {
-		return new PostgreSQLRegex();
+	public function regex($case_sensitive) {
+		return new PostgreSQLRegex($case_sensitive);
 	}
 }
 ?>

@@ -1,18 +1,22 @@
 <?php
 namespace eMapper\Engine\SQLite\Regex;
 
-use eMapper\Engine\Generic\Regex\iRegex;
+use eMapper\Engine\Generic\Regex\GenericRegex;
 
-class SQLiteRegex implements iRegex {
-	public function filter($expression, $case_sensitive) {
-		if ($case_sensitive) {
+class SQLiteRegex extends GenericRegex {
+	public function filter($expression) {
+		if ($this->case_sensitive) {
 			return $expression;
 		}
 		
 		return '(?i)' . strtolower($expression);
 	}
 	
-	public function comparisonExpression($case_sensitive) {
+	public function comparisonExpression($negate) {
+		if ($negate) {
+			return '%s NOT REGEXP %s';
+		}
+		
 		return '%s REGEXP %s';
 	}
 }

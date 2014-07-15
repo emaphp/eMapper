@@ -1,19 +1,21 @@
 <?php
 namespace eMapper\Engine\MySQL\Regex;
 
-use eMapper\Engine\Generic\Regex\iRegex;
+use eMapper\Engine\Generic\Regex\GenericRegex;
 
-class MySQLRegex implements iRegex {
-	public function filter($expression, $case_sensitive) {
-		return $case_sensitive ? $expression : strtolower($expression);
+class MySQLRegex extends GenericRegex {
+	public function filter($expression) {
+		return $this->case_sensitive ? $expression : strtolower($expression);
 	}
 	
-	public function comparisonExpression($case_sensitive) {
-		if ($case_sensitive) {
-			return "%s REGEXP BINARY %s";
+	public function comparisonExpression($negate) {
+		if ($this->case_sensitive) {
+			$op = $negate ? 'NOT REGEXP BINARY' : 'REGEXP BINARY';
+			return "%s $op %s";
 		}
 		
-		return "%s REGEXP %s";
+		$op = $negate ? 'NOT REGEXP' : 'REGEXP'';
+		return "%s $op %s";
 	}
 }
 ?>
