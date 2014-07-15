@@ -59,72 +59,84 @@ abstract class Field {
 		return $this;
 	}
 	
+	/**
+	 * Determines if the field has an associated type
+	 * @return boolean
+	 */
 	public function hasType() {
 		return isset($this->type);
 	}
 	
+	/**
+	 * Obtains current field type
+	 * @return string
+	 */
 	public function getType() {
 		return $this->type;
 	}
 	
-	public function eq($expression) {
-		return new Equal($this, $expression);
+	/*
+	 * PREDICATES
+	 */
+	
+	public function eq($expression, $condition = true) {
+		return new Equal($this, $expression, !$condition);
 	}
 	
-	public function contains($expression) {
-		return new Contains($this, $expression);
+	public function contains($expression, $condition = true) {
+		return new Contains($this, $expression, true, !$condition);
 	}
 	
-	public function icontains($expression) {
-		return new Contains($this, $expression, false);
+	public function icontains($expression, $condition = true) {
+		return new Contains($this, $expression, false, !$condition);
 	}
 	
-	public function in($expression) {
-		return new In($this, $expression);
+	public function in($expression, $condition = true) {
+		return new In($this, $expression, !$condition);
 	}
 	
-	public function gt($expression) {
-		return new GreaterThan($this, $expression);
+	public function gt($expression, $condition = true) {
+		return new GreaterThan($this, $expression, !$condition);
 	}
 	
-	public function gte($expression) {
-		return new GreaterThanEqual($this, $expression);
+	public function gte($expression, $condition = true) {
+		return new GreaterThanEqual($this, $expression, !$condition);
 	}
 	
-	public function lt($expression) {
-		return new LessThan($this, $expression);
+	public function lt($expression, $condition = true) {
+		return new LessThan($this, $expression, !$condition);
 	}
 	
-	public function lte($expression) {
-		return new LessThanEqual($this, $expression);
+	public function lte($expression, $condition = true) {
+		return new LessThanEqual($this, $expression, !$condition);
 	}
 	
-	public function startswith($expression) {
-		return new StartsWith($this, $expression);
+	public function startswith($expression, $condition = true) {
+		return new StartsWith($this, $expression, true, !$condition);
 	}
 	
-	public function istartswith($expression) {
-		return new StartsWith($this, $expression, false);
+	public function istartswith($expression, $condition = true) {
+		return new StartsWith($this, $expression, false, !$condition);
 	}
 	
-	public function endswith($expression) {
-		return new EndsWith($this, $expression);
+	public function endswith($expression, $condition = true) {
+		return new EndsWith($this, $expression, true, !$condition);
 	}
 	
-	public function iendswith($expression) {
-		return new EndsWith($this, $expression, false);
+	public function iendswith($expression, $condition = true) {
+		return new EndsWith($this, $expression, false, !$condition);
 	}
 	
-	public function range($from, $to) {
-		return new Range($this, $from, $to);
+	public function range($from, $to, $condition = true) {
+		return new Range($this, $from, $to, !$condition);
 	}
 	
-	public function regex($expression) {
-		return new Regex($this, $expression);
+	public function regex($expression, $condition = true) {
+		return new Regex($this, $expression, true, !$condition);
 	}
 	
-	public function iregex($expression) {
-		return new Regex($this, $expression, false);
+	public function iregex($expression, $condition = true) {
+		return new Regex($this, $expression, false, !$condition);
 	}
 	
 	public function isnull($condition = true) {

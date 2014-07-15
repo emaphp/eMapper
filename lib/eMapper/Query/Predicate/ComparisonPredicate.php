@@ -12,8 +12,8 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	 */
 	protected $expression;
 	
-	public function __construct(Field $field, $expression) {
-		parent::__construct($field);
+	public function __construct(Field $field, $expression, $negate) {
+		parent::__construct($field, $negate);
 		$this->expression = $expression;	
 	}
 	
@@ -36,7 +36,10 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return sprintf($this->buildComparisonExpression($driver), $column, $expression);
 	}
 	
-	protected abstract function formatExpression(Driver $driver, $expression);
+	protected function formatExpression(Driver $driver, $expression) {
+		return $expression;
+	}
+	
 	protected abstract function buildComparisonExpression(Driver $driver);
 }
 ?>

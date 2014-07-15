@@ -6,8 +6,8 @@ use eMapper\Query\Field;
 use eMapper\Engine\Generic\Driver;
 
 class Range extends SQLPredicate {
-	public function __construct(Field$field, $from, $to) {
-		parent::__construct($field);
+	public function __construct(Field$field, $from, $to, $negate) {
+		parent::__construct($field, $negate);
 		$this->from = $from;
 		$this->to = $to;
 	}

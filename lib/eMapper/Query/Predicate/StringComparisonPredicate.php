@@ -10,8 +10,8 @@ abstract class StringComparisonPredicate extends ComparisonPredicate {
 	 */
 	protected $case_sensitive;
 	
-	public function __construct($field, $expression, $case_sensitive = true) {
-		parent::__construct($field, $expression);
+	public function __construct($field, $expression, $case_sensitive, $negate) {
+		parent::__construct($field, $expression, $negate);
 		$this->case_sensitive = $case_sensitive;
 	}
 	

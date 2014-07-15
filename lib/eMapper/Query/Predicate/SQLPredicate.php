@@ -16,7 +16,7 @@ abstract class SQLPredicate {
 	 * Indicates if the predicate must be negated
 	 * @var boolean
 	 */
-	protected $negate = false;
+	protected $negate;
 	
 	/**
 	 * Argument counter (used for additional parameters in query)
@@ -24,8 +24,9 @@ abstract class SQLPredicate {
 	 */
 	protected static $counter = 0;
 	
-	public function __construct(Field $field) {
+	public function __construct(Field $field, $negate = false) {
 		$this->field = $field;
+		$this->negate = $negate;
 	}
 	
 	/**
