@@ -8,6 +8,7 @@ use eMapper\Engine\PostgreSQL\Statement\PostgreSQLStatement;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
+use eMapper\Engine\PostgreSQL\Regex\PostgreSQLRegex;
 
 class PostgreSQLDriver extends Driver {
 	/**
@@ -205,12 +206,8 @@ class PostgreSQLDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex_expression($column, $expression) {
-		return sprintf("%s ~ '%s'", $column, pg_escape_string($this->connection, $expression));
-	}
-	
-	public function iregex_expression($column, $expression) {
-		return sprintf("%s ~* '%s'", $column, pg_escape_string($this->connection, strtolower($expression)));
+	public function regex() {
+		return new PostgreSQLRegex();
 	}
 }
 ?>

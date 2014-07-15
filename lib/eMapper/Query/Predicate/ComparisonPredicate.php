@@ -40,6 +40,31 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return '#{' . $index . '}';
 	}
 	
+	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
+		$column = $this->field->getColumnName($profile);
+	
+		if ($this->expression instanceof Field) {
+			$expression = $this->expression->getColumnName($profile);
+		}
+		else {
+			//store expression in argument list
+			$index = $this->getArgumentIndex($arg_index);
+			$args[$index] = $this->expression;
+	
+			//build expression
+			$expression = $this->buildArgumentExpression($profile, $index, $arg_index);
+		}
+	
+		//build predicate expression
+		$predicate = sprintf($this->comparisonExpression($driver, $args, $index), $column, $expression);
+	
+		if ($this->negate) {
+			return 'NOT ' . $predicate;
+		}
+	
+		return $predicate;
+	}
+	
 	protected abstract function comparisonExpression(Driver $driver, &$args, $index);
 }
 ?>

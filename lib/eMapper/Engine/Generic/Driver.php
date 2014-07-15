@@ -108,7 +108,6 @@ abstract class Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public abstract function regex_expression($column, $expression);
-	public abstract function iregex_expression($column, $expression);
+	public abstract function regex();
 }
 ?>

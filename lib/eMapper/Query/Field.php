@@ -111,7 +111,11 @@ abstract class Field {
 		return new Regex($this, $expression);
 	}
 	
-	public function isNull($condition = true) {
+	public function iregex($expression) {
+		return new Regex($this, $expression, false);
+	}
+	
+	public function isnull($condition = true) {
 		return new IsNull($field, !$condition);
 	}
 }

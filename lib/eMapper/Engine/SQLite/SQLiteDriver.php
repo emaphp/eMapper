@@ -8,6 +8,7 @@ use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
+use eMapper\Engine\SQLite\Regex\SQLiteRegex;
 
 class SQLiteDriver extends Driver {
 	public function __construct($database, $flags = 0, $encription_key = null) {
@@ -163,12 +164,8 @@ class SQLiteDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex_expression($column, $expression) {
-		return sprintf("%s REGEXP '%s'". $column, $this->connection->escapeString($expression));
-	}
-	
-	public function iregex_expression($column, $expression) {
-		return sprintf("%s REGEXP '(?i)%s'". $column, $this->connection->escapeString(strtolower($expression)));
+	public function regex() {
+		return new SQLiteRegex();
 	}
 }
 ?>

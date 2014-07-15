@@ -8,6 +8,7 @@ use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Exception\MySQLException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
+use eMapper\Engine\MySQL\Regex\MySQLRegex;
 
 class MySQLDriver extends Driver {
 	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = 'UTF-8', $autocommit = true) {
@@ -245,12 +246,8 @@ class MySQLDriver extends Driver {
 	 * SQL PREDICATES
 	 */
 	
-	public function regex_expression($column, $expression) {
-		return sprintf("%s REGEXP BINARY '%s'", $column, $this->connection->real_escape_string($xpression));
-	}
-	
-	public function iregex_expression($column, $expression) {
-		return sprintf("%s REGEXP '%s'", $column, $this->connection->real_escape_string(strtolower($xpression)));
+	public function regex() {
+		return new MySQLRegex();
 	}
 }
 
