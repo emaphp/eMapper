@@ -1,8 +1,6 @@
 <?php
 namespace eMapper\Query\Predicate;
 
-use eMapper\Query\Field;
-use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 
 class Equal extends ComparisonPredicate {
@@ -11,6 +9,18 @@ class Equal extends ComparisonPredicate {
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
+		if (is_null($this->expression)) {
+			if ($this->negate) {
+				return '%s IS NOT %s';
+			}
+			
+			return '%s IS %s';
+		}
+		
+		if ($this->negate) {
+			return '%s <> %s';
+		}
+		
 		return '%s = %s';
 	}
 }

@@ -234,6 +234,17 @@ class Manager {
 	}
 	
 	/**
+	 * Truncates a table
+	 * @return boolean
+	 */
+	public function truncate() {
+		//build query
+		$query = new DeleteQueryBuilder($this->entity, true);
+		list($query, $_) = $query->build($this->mapper->driver);
+		return $this->mapper->query($query);
+	}
+	
+	/**
 	 * Sets indexation column/callback
 	 * @param mixed $index
 	 * @return Manager

@@ -7,13 +7,5 @@ class Contains extends StringComparisonPredicate {
 	protected function formatExpression($expression) {
 		return '%' . $expression . '%';
 	}
-	
-	protected function buildComparisonExpression(Driver $driver) {
-		if ($this->case_sensitive) {
-			return '%s LIKE %s';
-		}
-		
-		return '%s ILIKE %s';
-	}
 }
 ?>

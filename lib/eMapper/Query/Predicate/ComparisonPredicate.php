@@ -33,13 +33,7 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		}
 	
 		//build predicate expression
-		$predicate = sprintf($this->buildComparisonExpression($driver), $column, $expression);
-	
-		if ($this->negate) {
-			return 'NOT ' . $predicate;
-		}
-	
-		return $predicate;
+		return sprintf($this->buildComparisonExpression($driver), $column, $expression);
 	}
 	
 	protected abstract function formatExpression(Driver $driver, $expression);

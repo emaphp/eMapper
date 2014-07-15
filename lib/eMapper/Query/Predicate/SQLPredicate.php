@@ -54,6 +54,13 @@ abstract class SQLPredicate {
 		return $profile->getFieldType($this->field->getName());
 	}
 	
+	/**
+	 * Builds an argument expression for the current query
+	 * @param ClassProfile $profile
+	 * @param mixed $index Argument relative index
+	 * @param unknown $arg_index Argument global index
+	 * @return string
+	 */
 	protected function buildArgumentExpression(ClassProfile $profile, $index, $arg_index) {
 		if ($arg_index != 0) {
 			//check type
