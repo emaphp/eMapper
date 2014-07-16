@@ -49,12 +49,9 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('', $attr->getColumnName($this->profile));
 	}
 	
-	/**
-	 * @expectedException \RuntimeException
-	 */
 	public function testMissingColumnName() {
 		$column = Column::notfound();
-		$this->assertEquals('', $column->getColumnName($this->profile));
+		$this->assertEquals('notfound', $column->getColumnName($this->profile));
 	}
 	
 	public function testAttributeMissingType() {

@@ -38,7 +38,7 @@ class Filter extends SQLPredicate {
 		}
 		
 		if (count($this->predicates) == 1) {
-			$condition = $this->predicates->evaluate($driver, $profile, $args, $arg_index);
+			$condition = $this->predicates[0]->evaluate($driver, $profile, $args, $arg_index);
 			
 			if ($this->negate) {
 				return 'NOT ' . $condition;

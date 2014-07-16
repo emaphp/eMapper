@@ -102,7 +102,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		
 		if (isset($this->condition)) {
 			$args = [];
-			$condition = $this->condition->evaluate($this->entity, $args);
+			$condition = $this->condition->evaluate($driver, $this->entity, $args);
 			return [sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses), $args];
 		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {

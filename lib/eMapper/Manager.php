@@ -43,6 +43,14 @@ class Manager {
 		$this->expression = 'obj:' . $entity->reflectionClass->getName();
 	}
 	
+	public function getMapper() {
+		return $this->mapper;
+	}
+	
+	public function getEntity() {
+		return $this->entity;
+	}
+	
 	/**
 	 * Obtains current query mapping expression
 	 * @return string

@@ -135,20 +135,16 @@ class ClassProfile {
 	}
 	
 	public function getFieldType($field) {
-		if (!array_key_exists($field, $this->fieldNames)) {
-			throw new \RuntimeException(sprintf("Field %s does not exists in class %s", $field, $this->reflectionClass->getName()));
+		if (array_key_exists($field, $this->fieldNames)) {
+			return $this->propertiesConfig[$field]->type;
 		}
-		
-		return $this->propertiesConfig[$field]->type;
 	}
 	
 	public function getColumnType($column) {		
-		if (!array_key_exists($column, $this->columnNames)) {
-			throw new \RuntimeException(sprintf("Column %s does not exists in class %s", $column, $this->reflectionClass->getName()));
+		if (array_key_exists($column, $this->columnNames)) {
+			$attr = $this->columnNames[$column];
+			return $this->propertiesConfig[$attr]->type;
 		}
-		
-		$attr = $this->columnNames[$column];
-		return $this->propertiesConfig[$attr]->type;
 	}
 	
 	public function getReflectionProperty($property) {

@@ -2,11 +2,12 @@
 namespace Acme\Entity;
 
 /**
- * @meta.parser emapper\emapper
  * @map.entity
+ * @map.table products
  */
 class Product {
 	/**
+	 * @map.pk
 	 * @map.column product_id
 	 * @var int
 	 */

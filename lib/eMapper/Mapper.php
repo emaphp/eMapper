@@ -741,6 +741,15 @@ class Mapper {
 	}
 	
 	/**
+	 * Returns a manager instance for the given class name
+	 * @param string $classname
+	 * @return \eMapper\Manager
+	 */
+	public function buildManager($classname) {
+		return new Manager($this, Profiler::getClassProfile($classname));
+	}
+	
+	/**
 	 * Closes a database connection
 	 */
 	public function close() {

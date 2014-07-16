@@ -22,7 +22,7 @@ abstract class QueryBuilder {
 		$this->entity = $entity;
 	}
 	
-	public function setCondition(SQLPredicate $condition) {
+	public function setCondition(SQLPredicate $condition = null) {
 		$this->condition = $condition;
 	}
 
