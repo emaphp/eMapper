@@ -95,6 +95,8 @@ class ClassProfile {
 			}
 		}
 		
+		$this->fieldNames = [];
+		
 		//build field list
 		foreach ($this->propertiesConfig as $name => $property) {
 			if (isset($property->column)) {

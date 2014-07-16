@@ -8,7 +8,7 @@ use eMapper\Mapper;
 
 abstract class PostgreSQLTest extends \PHPUnit_Framework_TestCase {
 	public static $env_config = ['environment.id' => 'default', 'environment.class' => 'eMapper\Dynamic\Environment\DynamicSQLEnvironment'];
-	public static $connstring = 'host=localhost port=5432 dbname=emapper_testing user=postgres password=b0ls0d10s';
+	public static $connstring = 'host=localhost port=5432 dbname=emapper_testing user=postgres password=c4lpurn14';
 	public static $conn;
 	public static $driver;
 	public static $mapper;

@@ -17,7 +17,7 @@ abstract class MySQLTest extends \PHPUnit_Framework_TestCase {
 	 * MySQL configuration
 	 * @var array
 	 */
-	public static $config = array('host' => 'localhost', 'user' => 'root', 'password' => 'b0ls0d10s', 'database' => 'emapper_testing');
+	public static $config = array('host' => 'localhost', 'user' => 'root', 'password' => 'c4lpurn14', 'database' => 'emapper_testing');
 	
 	/**
 	 * Environment configuration

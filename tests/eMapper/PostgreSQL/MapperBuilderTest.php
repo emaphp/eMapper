@@ -21,7 +21,7 @@ class MapperBuilderTest extends PostgreSQLTest {
 	}
 	
 	public function testArrayBuild() {
-		$config = ['database' => 'emapper_testing', 'host' => 'localhost', 'port' => '5432', 'username' => 'postgres', 'password' => 'b0ls0d10s'];
+		$config = ['database' => 'emapper_testing', 'host' => 'localhost', 'port' => '5432', 'username' => 'postgres', 'password' => 'c4lpurn14'];
 		$driver = PostgreSQLDriver::build($config);
 		$this->assertInstanceOf('eMapper\Engine\PostgreSQL\PostgreSQLDriver', $driver);
 		
