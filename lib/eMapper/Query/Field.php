@@ -140,7 +140,7 @@ abstract class Field {
 	}
 	
 	public function isnull($condition = true) {
-		return new IsNull($field, !$condition);
+		return new IsNull($this, !$condition);
 	}
 }
 ?>

@@ -15,6 +15,10 @@ abstract class StringComparisonPredicate extends ComparisonPredicate {
 		$this->case_sensitive = $case_sensitive;
 	}
 	
+	public function getCaseSensitive() {
+		return $this->case_sensitive;
+	}
+	
 	protected function buildComparisonExpression(Driver $driver) {
 		if ($this->case_sensitive) {
 			$op = $this->negate ? 'NOT LIKE' : 'LIKE';

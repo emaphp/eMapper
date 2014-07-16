@@ -17,6 +17,10 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		$this->expression = $expression;	
 	}
 	
+	public function getExpression() {
+		return $this->expression;
+	}
+	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
 		$column = $this->field->getColumnName($profile);
 	

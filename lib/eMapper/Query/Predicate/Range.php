@@ -6,10 +6,30 @@ use eMapper\Query\Field;
 use eMapper\Engine\Generic\Driver;
 
 class Range extends SQLPredicate {
+	/**
+	 * From expression
+	 * @var mixed
+	 */
+	protected $from;
+	
+	/**
+	 * To expression
+	 * @var mixed
+	 */
+	protected $to;
+	
 	public function __construct(Field$field, $from, $to, $negate) {
 		parent::__construct($field, $negate);
 		$this->from = $from;
 		$this->to = $to;
+	}
+	
+	public function getFrom() {
+		return $this->from;
+	}
+	
+	public function getTo() {
+		return $this->to;
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {

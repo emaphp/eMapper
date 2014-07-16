@@ -29,6 +29,14 @@ abstract class SQLPredicate {
 		$this->negate = $negate;
 	}
 	
+	public function getField() {
+		return $this->field;
+	}
+	
+	public function getNegate() {
+		return $this->negate;
+	}
+	
 	/**
 	 * Obtains an index for the current argument
 	 * @param integer $arg_index
