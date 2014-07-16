@@ -57,6 +57,30 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('', $column->getColumnName($this->profile));
 	}
 	
+	public function testAttributeMissingType() {
+		$name = Attr::name();
+		$this->assertFalse($name->hasType());
+		$this->assertNull($name->getType());
+	}
+	
+	public function testAttributeType() {
+		$birthDate = Attr::birthDate('string');
+		$this->assertTrue($birthDate->hasType());
+		$this->assertEquals('string', $birthDate->getType());
+	}
+	
+	public function testColumnMissingType() {
+		$name = Column::name();
+		$this->assertFalse($name->hasType());
+		$this->assertNull($name->getType());
+	}
+	
+	public function testColumnType() {
+		$birth_date = Column::birth_date('string');
+		$this->assertTrue($birth_date->hasType());
+		$this->assertEquals('string', $birth_date->getType());
+	}
+	
 	//lookup methods
 	public function testEqual() {
 		$eq = Attr::id()->eq(1);

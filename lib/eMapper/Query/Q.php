@@ -7,11 +7,11 @@ abstract class Q {
 	const LOGICAL_OR = 'OR';
 	const LOGICAL_AND = 'AND';
 	
-	public static function when() {
+	public static function where() {
 		return new Filter(func_get_args(), false, self::LOGICAL_OR);
 	}
 	
-	public static function when_not() {
+	public static function where_not() {
 		return new Filter(func_get_args(), true, self::LOGICAL_OR);
 	}
 	

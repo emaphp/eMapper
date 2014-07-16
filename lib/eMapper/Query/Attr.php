@@ -5,6 +5,10 @@ use eMapper\Reflection\Profile\ClassProfile;
 
 class Attr extends Field {
 	public static function __callstatic($method, $args = null) {
+		if (!empty($args)) {
+			return new Attr($method, $args[0]);
+		}
+		
 		return new Attr($method);
 	}
 	

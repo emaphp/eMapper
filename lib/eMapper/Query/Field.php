@@ -28,8 +28,9 @@ abstract class Field {
 	 */
 	protected $type;
 	
-	public function __construct($name) {
+	public function __construct($name, $type = null) {
 		$this->name = $name;
+		$this->type = $type;
 	}
 	
 	/**
@@ -47,16 +48,6 @@ abstract class Field {
 	
 	public function getName() {
 		return $this->name;
-	}
-	
-	/**
-	 * Sets field type
-	 * @param string $type
-	 * @return \eMapper\Query\Field
-	 */
-	public function type($type) {
-		$this->type = $type;
-		return $this;
 	}
 	
 	/**

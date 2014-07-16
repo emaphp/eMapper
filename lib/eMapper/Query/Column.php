@@ -5,6 +5,10 @@ use eMapper\Reflection\Profile\ClassProfile;
 
 class Column extends Field {
 	public static function __callstatic($method, $args = null) {
+		if (!empty($args)) {
+			return new Column($method, $args[0]);
+		}
+		
 		return new Column($method);
 	}
 	
