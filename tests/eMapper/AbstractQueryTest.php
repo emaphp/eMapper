@@ -366,6 +366,23 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(4, $args[$to_index]);
 	}
 	
+	//SELECT isnull
+	public function testSelectIsNull() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::color()->isnull());
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE color IS NULL/", $query, $matches);
+		$this->assertEmpty($args);
+	}
+	
+	public function testSelectIsNotNull() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::color()->isnull(false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE color IS NOT NULL/", $query, $matches);
+		$this->assertEmpty($args);
+	}
+	
 	//INSERT
 	public function testInsert() {
 		$query = new InsertQueryBuilder($this->profile);
@@ -379,11 +396,9 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new UpdateQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->eq(2));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExp('/UPDATE products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query);
+		$this->assertRegExpMatch('/UPDATE products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query, $matches);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
-		
-		preg_match('/UPDATE products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query, $matches);
 		$index = intval($matches[1]);
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(2, $args[$index]);
@@ -394,12 +409,10 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->eq(1));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExp("/DELETE FROM products WHERE product_id = #\{(arg[\d]+)\}/", $query);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE product_id = #\{(arg[\d]+)\}/", $query, $matches);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertContains(1, $args);
-		
-		preg_match("/DELETE FROM products WHERE product_id = #\{(arg[\d]+)\}/", $query, $matches);
 		$key = $matches[1];
 		$this->assertArrayHasKey($key, $args);
 	}
@@ -426,9 +439,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$query->setCondition(Q::filter(Attr::category()->eq('Clothes'), Column::year()->lt(2012)));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExp("/DELETE FROM products WHERE \( category = #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\}\ \)/", $query);
-		
-		preg_match("/DELETE FROM products WHERE \( category = #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\}\ \)/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE \( category = #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\}\ \)/", $query, $matches);
 		$category_key = $matches[1];
 		$year_key = $matches[2];
 		$this->assertArrayHasKey($category_key, $args);
@@ -441,9 +452,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$query->setCondition(Q::where(Attr::category()->eq('Clothes', false), Column::year()->gte(2012)));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExp("/DELETE FROM products WHERE \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query);
-	
-		preg_match("/DELETE FROM products WHERE \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query, $matches);
 		$category_key = $matches[1];
 		$year_key = $matches[2];
 		$this->assertArrayHasKey($category_key, $args);
@@ -452,13 +461,11 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(2012, $args[$year_key]);
 	}
 	
-	public function testDeleteByWhereNOT() {
+	public function testDeleteByWhereNot() {
 		$query = new DeleteQueryBuilder($this->profile);
 		$query->setCondition(Q::where_not(Attr::category()->eq('Clothes', false), Column::year()->gte(2012)));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExp("/DELETE FROM products WHERE NOT \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query);
-	
-		preg_match("/DELETE FROM products WHERE NOT \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE NOT \( category <> #\{(arg[\d]+)\} OR year >= #\{(arg[\d]+)\}\ \)/", $query, $matches);
 		$category_key = $matches[1];
 		$year_key = $matches[2];
 		$this->assertArrayHasKey($category_key, $args);
@@ -471,8 +478,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$config = ['query.filter' => [Attr::code()->eq('XXX001')]];
 		list($query, $args) = $query->build($this->driver, $config);
-		$this->assertRegExp("/DELETE FROM products WHERE product_code = #\{(arg[\d]+)\}/", $query);
-		preg_match("/DELETE FROM products WHERE product_code = #\{(arg[\d]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE product_code = #\{(arg[\d]+)\}/", $query, $matches);
 		$code_key = $matches[1];
 		$this->assertArrayHasKey($code_key, $args);
 		$this->assertEquals('XXX001', $args[$code_key]);
@@ -482,8 +488,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$config = ['query.filter' => [Attr::code()->eq('XXX001', false), Column::year()->lt(2012)]];
 		list($query, $args) = $query->build($this->driver, $config);
-		$this->assertRegExp("/DELETE FROM products WHERE \( product_code <> #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\} \)/", $query);
-		preg_match("/DELETE FROM products WHERE \( product_code <> #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\} \)/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM products WHERE \( product_code <> #\{(arg[\d]+)\} AND year < #\{(arg[\d]+)\} \)/", $query, $matches);
 		$code_key = $matches[1];
 		$year_key = $matches[2];
 		$this->assertArrayHasKey($code_key, $args);

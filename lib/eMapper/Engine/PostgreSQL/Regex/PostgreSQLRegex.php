@@ -5,7 +5,7 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
 
 class PostgreSQLRegex extends GenericRegex {
 	public function filter($expression) {
-		return $case_sensitive ? $expression : strtolower($expression);
+		return $this->case_sensitive ? $expression : strtolower($expression);
 	}
 	
 	public function comparisonExpression($negate) {

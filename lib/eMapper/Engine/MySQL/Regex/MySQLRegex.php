@@ -14,7 +14,7 @@ class MySQLRegex extends GenericRegex {
 			return "%s $op %s";
 		}
 		
-		$op = $negate ? 'NOT REGEXP' : 'REGEXP'';
+		$op = $negate ? 'NOT REGEXP' : 'REGEXP';
 		return "%s $op %s";
 	}
 }
