@@ -3,6 +3,7 @@ namespace eMapper\Query\Builder;
 
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
+use eMapper\Query\Field;
 
 class SelectQueryBuilder extends QueryBuilder {
 	/**
@@ -12,31 +13,78 @@ class SelectQueryBuilder extends QueryBuilder {
 	 * @return string
 	 */
 	protected function getColumns($config) {
-		$columns = '*';
-		
-		if (array_key_exists('query.columns', $config)) {
-			if (!empty($config['query.columns'])) {
-				return implode(', ', $config['query.columns']);
-			}
-		}
-		elseif (array_key_exists('query.attrs', $config)) {
-			if (!empty($config['query.attrs'])) {
-				$columns = [];
-		
-				foreach ($config['query.attrs'] as $attr) {
-					if (!array_key_exists($attr, $this->entity->fieldNames)) {
-						throw new \RuntimeException(sprintf("Attribute $attr not declared in class %s", $this->entity->reflectionClass->getName()));
-					}
-					
-					//get column name
-					$columns[] = $this->entity->fieldNames[$attr];
+		if (array_key_exists('query.columns', $config) && !empty($config['query.columns'])) {
+			$columns = [];
+			
+			foreach ($config['query.columns'] as $column) {
+				if ($column instanceof Field) {
+					$columns[] = $column->getColumnName($this->entity);
 				}
+			}
+			
+			if (empty($columns)) {
+				return '*';
+			}
+			
+			return implode(', ', $columns);
+		}
 		
-				return implode(', ', $columns);
+		return '*';
+	}
+	
+	/**
+	 * Returns the order clause for the current query
+	 * @param array $config
+	 * @return string
+	 */
+	protected function getOrderClause($config) {
+		$order_list = [];
+		
+		if (array_key_exists('query.order', $config)) {
+			foreach ($config['query.order'] as $order) {
+				if ($order instanceof Field) {
+					$column = $order->getColumnName($this->entity);
+						
+					if ($order->hasType()) {
+						$type = strtolower($order->getType());
+		
+						if ($type == 'asc' || $type == 'desc') {
+							$order_list[] = $column . ' ' . strtoupper($type);
+						}
+						else {
+							$order_list[] = $column;
+						}
+					}
+					else {
+						$order_list[] = $column;
+					}
+				}
 			}
 		}
 		
-		return $columns;
+		if (empty($order)) {
+			return '';
+		}
+		
+		return 'ORDER BY ' . implode(', ', $order_list);
+	}
+	
+	/**
+	 * Returns the limit clause for the current query
+	 * @param array $config
+	 * @return string
+	 */
+	protected function getLimitClause($config) {
+		if (array_key_exists('query.from', $config)) {
+			if (array_key_exists('query.to', $config)) {
+				return sprintf("LIMIT %d, %d", $config['query.from'], $config['query.to']);
+			}
+			else {
+				return sprintf("LIMIT %d", $config['query.from']);
+			}
+		}
+		
+		return '';
 	}
 	
 	/**
@@ -46,47 +94,7 @@ class SelectQueryBuilder extends QueryBuilder {
 	 * @return string
 	 */
 	protected function getAdditionalClauses($config) {
-		$clauses = [];
-		
-		//add order
-		if (array_key_exists('query.order_by', $config)) {
-			$order_by = 'ORDER BY';
-		
-			foreach ($config['query.order_by'] as $order) {
-				$regex = '/^([\w]+)\s+([ASC|DESC])$/';
-		
-				if (preg_match($regex, $order, $matches)) {
-					if (!array_key_exists($matches[1], $this->entity->fieldNames)) {
-						throw new \RuntimeException();
-					}
-		
-					$column = $this->entity->fieldNames[$matches[1]] . ' ' . $matches[2];
-				}
-				else {
-					if (!array_key_exists($order, $this->entity->fieldNames)) {
-						throw new \RuntimeException();
-					}
-		
-					$column = $this->entity->fieldNames[$order];
-				}
-		
-				$order_by .= " $column,";
-			}
-		
-			$clauses[] = substr($order_by, 0, -1);
-		}
-		
-		//add limit
-		if (array_key_exists('query.left_limit', $config)) {
-			if (array_key_exists('query.right_limit', $config)) {
-				$clauses[] = sprintf("LIMIT %d, %d", $config['query.left_limit'], $config['query.right_limit']);
-			}
-			else {
-				$clauses[] = sprintf("LIMIT %d", $config['query.left_limit']);
-			}
-		}
-		
-		return implode(' ', $clauses);
+		return trim(implode(' ', [$this->getOrderClause($config), $this->getLimitClause($config)]));
 	}
 	
 	public function build(Driver $driver, $config = null) {
@@ -103,7 +111,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		if (isset($this->condition)) {
 			$args = [];
 			$condition = $this->condition->evaluate($driver, $this->entity, $args);
-			return [sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses), $args];
+			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
 			$args = [];
@@ -114,10 +122,10 @@ class SelectQueryBuilder extends QueryBuilder {
 			}
 				
 			$condition = implode(' AND ', $filters);
-			return [sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses), $args];
+			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		
-		return [sprintf("SELECT %s FROM %s %s", $columns, $table, $clauses), null];
+		return [trim(sprintf("SELECT %s FROM %s %s", $columns, $table, $clauses)), null];
 	}
 }
 

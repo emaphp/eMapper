@@ -9,6 +9,7 @@ use eMapper\Query\Q;
 use eMapper\Query\Column;
 use eMapper\Query\Builder\InsertQueryBuilder;
 use eMapper\Query\Builder\UpdateQueryBuilder;
+use eMapper\Query\Builder\SelectQueryBuilder;
 
 abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 	/**
@@ -28,6 +29,231 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public abstract function build();
+	
+	protected function assertRegExpMatch($regex, $actual, &$matches) {
+		$this->assertRegExp($regex, $actual);
+		preg_match($regex, $actual, $matches);
+	}
+	
+	//SELECT
+	public function testSelectAll() {
+		$query = new SelectQueryBuilder($this->profile);
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertEquals("SELECT * FROM products", $query);
+		$this->assertNull($args);
+	}
+	
+	public function testSelectAllColumns() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.columns' => [Attr::code(), Attr::category()]];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT product_code, category FROM products", $query);
+		$this->assertNull($args);
+	}
+	
+	public function testSelectAllOrder() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.order' => [Attr::id(), Attr::code('DESC')]];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT * FROM products ORDER BY product_id, product_code DESC", $query);
+	}
+	
+	public function testSelectAllLimit() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.from' => 10];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT * FROM products LIMIT 10", $query);
+	}
+	
+	public function testSelectAllLimits() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.from' => 5, 'query.to' => 10];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT * FROM products LIMIT 5, 10", $query);
+	}
+	
+	public function testSelectAllOrderLimits() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.order' => [Attr::id(), Attr::code('DESC')], 'query.from' => 5, 'query.to' => 10];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT * FROM products ORDER BY product_id, product_code DESC LIMIT 5, 10", $query);
+	}
+	
+	public function testSelectAllDistinct() {
+		$query = new SelectQueryBuilder($this->profile);
+		$config = ['query.distinct' => true, 'query.columns' => [Attr::code(), Attr::category()]];
+		list($query, $args) = $query->build($this->driver, $config);
+		$this->assertEquals("SELECT DISTINCT product_code, category FROM products", $query);
+		$this->assertNull($args);
+	}
+	
+	//SELECT eq
+	public function testSelectEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->eq('XXX001'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code = #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('XXX001', $args[$index]);
+	}
+	
+	public function testSelectNotEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->eq('XXX001', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code <> #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('XXX001', $args[$index]);
+	}
+	
+	//SELECT contains
+	public function testSelectContains() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->contains('GFX'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%GFX%', $args[$index]);
+	}
+	
+	public function testSelectNotContains() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->contains('GFX', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code NOT LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%GFX%', $args[$index]);
+	}
+	
+	//SELECT icontains
+	public function testSelectIContains() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->icontains('GFX'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%GFX%', $args[$index]);
+	}
+	
+	public function testSelectNotIContains() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->icontains('GFX', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/^SELECT \* FROM products WHERE product_code NOT ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%GFX%', $args[$index]);
+	}
+	
+	//SELECT in
+	public function testSelectIn() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->in([3, 4]));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id IN \(#\{([\w]+)\}\)/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals([3, 4], $args[$index]);
+	}
+	
+	public function testSelectNotIn() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->in([3, 4], false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id NOT IN \(#\{([\w]+)\}\)/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals([3, 4], $args[$index]);
+	}
+	
+	//SELECT gt
+	public function testSelectGreaterThan() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->gt(3));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id > #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	public function testSelectNotGreaterThan() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->gt(3, false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id <= #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	//SELECT gte
+	public function testSelectGreaterThanEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->gte(3));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id >= #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	public function testSelectNotGreaterThanEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->gte(3, false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id < #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	//SELECT lt
+	public function testSelectLessThan() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->lt(3));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id < #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	public function testSelectNotLessThan() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->lt(3, false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id >= #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	//SELECT lte
+	public function testSelectLessThanEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->lte(3));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id <= #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
+	
+	public function testSelectNotLessThanEqual() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->lte(3, false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch('/SELECT \* FROM products WHERE product_id > #\{([\w]+)\}/', $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(3, $args[$index]);
+	}
 	
 	//INSERT
 	public function testInsert() {

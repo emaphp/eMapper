@@ -294,29 +294,21 @@ class Manager {
 	 * @return Manager
 	 */
 	public function order_by() {
-		return $this->merge(['query.order_by' => func_get_args()]);
+		return $this->merge(['query.order' => func_get_args()]);
 	}
 	
 	/**
 	 * Sets query row limit
-	 * @param int $leftLimit
-	 * @param int $rightLimit
+	 * @param int $from
+	 * @param int $to
 	 * @return Manager
 	 */
-	public function limit($leftLimit, $rightLimit = null) {
-		if (isset($rightLimit)) {
-			return $this->merge(['query.left_limit' => intval($leftLimit), 'query.right_limit' => intval($rightLimit)]);
+	public function limit($from, $to = null) {
+		if (isset($to)) {
+			return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
 		}
 		
-		return $this->merge(['query.left_limit' => intval($leftLimit)]);
-	}
-	
-	/**
-	 * Sets attributes to obtain
-	 * @return Manager
-	 */
-	public function attrs() {
-		return $this->merge(['query.attrs' => func_get_args()]);
+		return $this->merge(['query.from' => intval($from)]);
 	}
 	
 	/**
