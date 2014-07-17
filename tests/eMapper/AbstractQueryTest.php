@@ -7,6 +7,8 @@ use eMapper\Query\Builder\DeleteQueryBuilder;
 use eMapper\Query\Attr;
 use eMapper\Query\Q;
 use eMapper\Query\Column;
+use eMapper\Query\Builder\InsertQueryBuilder;
+use eMapper\Query\Builder\UpdateQueryBuilder;
 
 abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 	/**
@@ -26,6 +28,29 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public abstract function build();
+	
+	//INSERT
+	public function testInsert() {
+		$query = new InsertQueryBuilder($this->profile);
+		list($query, $args) = $query->build($this->driver);
+		$this->assertNull($args);
+		$this->assertEquals("INSERT INTO products (product_id, product_code, category, color) VALUES (#{id}, #{code}, #{category}, #{color:Acme\RGBColor})", $query);
+	}
+	
+	//UPDATE
+	public function testUpdate() {
+		$query = new UpdateQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->eq(2));
+		list($query, $args) = $query->build($this->driver);
+		$this->assertRegExp('/UPDATE products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query);
+		$this->assertInternalType('array', $args);
+		$this->assertCount(1, $args);
+		
+		preg_match('/UPDATE products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query, $matches);
+		$index = intval($matches[1]);
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals(2, $args[$index]);
+	}
 	
 	//DELETE
 	public function testDeleteByPK() {

@@ -22,7 +22,7 @@ class UpdateQueryBuilder extends QueryBuilder {
 		
 		//evaluate condition
 		$args = [];
-		$condition = $this->condition->evaluate($this->entity, $args, 1);
+		$condition = $this->condition->evaluate($driver, $this->entity, $args, 1);
 		
 		return [sprintf("UPDATE %s SET %s WHERE %s", $table, implode(', ', $values), $condition), $args];
 	}
