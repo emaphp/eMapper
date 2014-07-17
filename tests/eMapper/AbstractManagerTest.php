@@ -127,6 +127,10 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount(2, $products);
 	}
 	
+	/*
+	 * INDEXATION
+	 */
+	
 	public function testIndex() {
 		$products = $this->productsManager->index(Attr::id())->find();
 		$this->assertCount(5, $products);
@@ -248,5 +252,92 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_5']);
 		$this->assertEquals('PHN00098', $products['prod_5']->code);
 	}
+	
+	/*
+	 * GROUPING
+	 */
+	public function testGroup() {
+		$products = $this->productsManager->group(Attr::category())->find();
+		$this->assertCount(3, $products);
+		
+		//assert groups
+		$this->assertArrayHasKey('Clothes', $products);
+		$this->assertArrayHasKey('Hardware', $products);
+		$this->assertArrayHasKey('Smartphones', $products);
+		
+		//assert values
+		$this->assertCount(3, $products['Clothes']);
+		$this->assertCount(1, $products['Hardware']);
+		$this->assertCount(1, $products['Smartphones']);
+	}
+	
+	public function testGroupIndex() {
+		$products = $this->productsManager
+		->group(Attr::category())
+		->index(Attr::id())
+		->find();
+		
+		$this->assertCount(3, $products);
+		
+		//assert groups
+		$this->assertArrayHasKey('Clothes', $products);
+		$this->assertArrayHasKey('Hardware', $products);
+		$this->assertArrayHasKey('Smartphones', $products);
+		
+		//assert values
+		$this->assertCount(3, $products['Clothes']);
+		$this->assertArrayHasKey(1, $products['Clothes']);
+		$this->assertArrayHasKey(2, $products['Clothes']);
+		$this->assertArrayHasKey(3, $products['Clothes']);
+		
+		$this->assertCount(1, $products['Hardware']);
+		$this->assertArrayHasKey(4, $products['Hardware']);
+		
+		$this->assertCount(1, $products['Smartphones']);
+		$this->assertArrayHasKey(5, $products['Smartphones']);
+		
+		//assert objects
+		$this->assertEquals(1, $products['Clothes'][1]->id);
+		$this->assertEquals(2, $products['Clothes'][2]->id);
+		$this->assertEquals(3, $products['Clothes'][3]->id);
+		$this->assertEquals(4, $products['Hardware'][4]->id);
+		$this->assertEquals(5, $products['Smartphones'][5]->id);
+	}
+	
+	public function testGroupColumn() {
+		$products = $this->productsManager->group(Column::category())->find();
+		$this->assertCount(3, $products);
+	
+		//assert groups
+		$this->assertArrayHasKey('Clothes', $products);
+		$this->assertArrayHasKey('Hardware', $products);
+		$this->assertArrayHasKey('Smartphones', $products);
+	
+		//assert values
+		$this->assertCount(3, $products['Clothes']);
+		$this->assertCount(1, $products['Hardware']);
+		$this->assertCount(1, $products['Smartphones']);
+	}
+	
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testGroupMissingColumn() {
+		$products = $this->productsManager->group(Column::manufacture_year())->find();
+	}
+	
+	public function testGroupCallback() {
+		$products = $this->productsManager
+		->group(function ($product) {
+			return substr($product->code, 0, 3);
+		})
+		->find();
+		$this->assertCount(3, $products);
+		
+		$this->assertArrayHasKey('IND', $products);
+		$this->assertArrayHasKey('GFX', $products);
+		$this->assertArrayHasKey('PHN', $products);
+	}
+	
 }
 ?>

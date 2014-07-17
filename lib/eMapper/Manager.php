@@ -310,7 +310,7 @@ class Manager {
 			return $this->group_callback($group);
 		}
 		elseif ($group instanceof Attr) {
-			$type = $index->getType();
+			$type = $group->getType();
 				
 			if (isset($type)) {
 				return $this->merge(['query.group' => $group->getName() . ':' . $type]);
