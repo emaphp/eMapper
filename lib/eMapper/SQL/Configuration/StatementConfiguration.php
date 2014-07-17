@@ -149,7 +149,7 @@ trait StatementConfiguration {
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
 	 */
-	public function index($callable) {
+	public function index_callback($callable) {
 		if (!is_callable($callable)) {
 			throw new \InvalidArgumentException("Method index expects a callable value");
 		}
@@ -163,7 +163,7 @@ trait StatementConfiguration {
 	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
-	public function group($callable) {
+	public function group_callback($callable) {
 		if (!is_callable($callable)) {
 			throw new \InvalidArgumentException("Method group expects a callable value");
 		}

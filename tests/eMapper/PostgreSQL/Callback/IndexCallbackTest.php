@@ -12,7 +12,7 @@ use eMapper\PostgreSQL\PostgreSQLTest;
  */
 class IndexCallbackTest extends PostgreSQLTest {
 	public function testClosureIndex() {
-		$list = self::$mapper->index(function ($user) {
+		$list = self::$mapper->index_callback(function ($user) {
 			return intval($user->birth_date->format('Y'));
 		})
 		->type('obj[]')->query("SELECT * FROM users");
@@ -46,7 +46,7 @@ class IndexCallbackTest extends PostgreSQLTest {
 	}
 	
 	public function testMethodIndex() {
-		$list = self::$mapper->index([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
+		$list = self::$mapper->index_callback([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
 	
 		$this->assertInternalType('array', $list);
 		$this->assertCount(5, $list);

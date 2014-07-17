@@ -12,7 +12,7 @@ use eMapper\MySQL\MySQLTest;
  */
 class GroupCallbackTest extends MySQLTest {
 	public function testClosureGroup() {
-		$list = self::$mapper->group(function ($product) {
+		$list = self::$mapper->group_callback(function ($product) {
 			return substr($product->manufacture_year, 2);
 		})
 		->type('obj[]')->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -48,7 +48,7 @@ class GroupCallbackTest extends MySQLTest {
 	}
 	
 	public function testMethodGroup() {
-		$list = self::$mapper->group([$this, 'createGroup'])->type('arr[]')->query("SELECT * FROM products ORDER BY product_id ASC");
+		$list = self::$mapper->group_callback([$this, 'createGroup'])->type('arr[]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $list);
 		$this->assertCount(2, $list);

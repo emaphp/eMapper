@@ -223,7 +223,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexCallback() {
-		$products = $this->productsManager->index(function($product) {
+		$products = $this->productsManager->index_callback(function($product) {
 			return "prod_{$product->id}";
 		})->find();
 		
@@ -328,7 +328,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testGroupCallback() {
 		$products = $this->productsManager
-		->group(function ($product) {
+		->group_callback(function ($product) {
 			return substr($product->code, 0, 3);
 		})
 		->find();
@@ -338,6 +338,5 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('GFX', $products);
 		$this->assertArrayHasKey('PHN', $products);
 	}
-	
 }
 ?>

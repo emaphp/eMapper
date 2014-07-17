@@ -14,10 +14,7 @@ use eMapper\Query\Field;
 use eMapper\Query\Column;
 
 class Manager {
-	use StatementConfiguration {
-		index as index_callback;
-		group as group_callback;
-	}
+	use StatementConfiguration;
 	
 	/**
 	 * Database mapper
@@ -267,14 +264,11 @@ class Manager {
 	
 	/**
 	 * Sets indexation column/callback
-	 * @param mixed $index
+	 * @param Field $index
 	 * @return Manager
 	 */
-	public function index($index) {
-		if ($index instanceof \Closure) {
-			return $this->index_callback($index);
-		}
-		elseif ($index instanceof Attr) {
+	public function index(Field $index) {
+		if ($index instanceof Attr) {
 			$type = $index->getType();
 			
 			if (isset($type)) {
@@ -297,19 +291,16 @@ class Manager {
 			return $this->merge(['query.index' => $property]);
 		}
 		
-		throw new \InvalidArgumentException("Index must be specified as a Field or Closure instance");
+		throw new \InvalidArgumentException("Index must be specified as valid Field instance");
 	}
 	
 	/**
 	 * Sets grouping column/callback
-	 * @param mixed $group
+	 * @param Field $group
 	 * @return Manager
 	 */
-	public function group($group) {
-		if ($group instanceof \Closure) {
-			return $this->group_callback($group);
-		}
-		elseif ($group instanceof Attr) {
+	public function group(Field $group) {
+		if ($group instanceof Attr) {
 			$type = $group->getType();
 				
 			if (isset($type)) {
@@ -332,7 +323,7 @@ class Manager {
 			return $this->merge(['query.group' => $property]);
 		}
 		
-		throw new \InvalidArgumentException("Group must be specified as a Attr or Closure instance");
+		throw new \InvalidArgumentException("Group must be specified as a valid Field instance");
 	}
 	
 	/**

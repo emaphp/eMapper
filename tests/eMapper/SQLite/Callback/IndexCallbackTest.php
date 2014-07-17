@@ -11,7 +11,7 @@ use eMapper\SQLite\SQLiteTest;
  */
 class IndexCallbackTest extends SQLiteTest {
 	public function testClosureIndex() {
-		$list = self::$mapper->index(function ($user) {
+		$list = self::$mapper->index_callback(function ($user) {
 			$dt = new \DateTime($user->birth_date);
 			return intval($dt->format('Y'));
 		})
@@ -46,7 +46,7 @@ class IndexCallbackTest extends SQLiteTest {
 	}
 	
 	public function testMethodIndex() {
-		$list = self::$mapper->index([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
+		$list = self::$mapper->index_callback([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
 	
 		$this->assertInternalType('array', $list);
 		$this->assertCount(5, $list);
