@@ -14,7 +14,7 @@ use eMapper\Query\Builder\SelectQueryBuilder;
 class Manager {
 	use StatementConfiguration {
 		index as index_callback;
-		group as group_callbak;
+		group as group_callback;
 	}
 	
 	/**
@@ -43,10 +43,18 @@ class Manager {
 		$this->expression = 'obj:' . $entity->reflectionClass->getName();
 	}
 	
+	/**
+	 * Obtains current mapper instance
+	 * @return \eMapper\Mapper
+	 */
 	public function getMapper() {
 		return $this->mapper;
 	}
 	
+	/**
+	 * Obtains associated entity profile
+	 * @return \eMapper\Reflection\Profile\ClassProfile
+	 */
 	public function getEntity() {
 		return $this->entity;
 	}
@@ -246,6 +254,9 @@ class Manager {
 	 * @return boolean
 	 */
 	public function truncate() {
+		//connect to database
+		$this->mapper->connect();
+		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity, true);
 		list($query, $_) = $query->build($this->mapper->driver);
@@ -282,7 +293,7 @@ class Manager {
 	 * Sets query order
 	 * @return Manager
 	 */
-	public function orderBy() {
+	public function order_by() {
 		return $this->merge(['query.order_by' => func_get_args()]);
 	}
 	

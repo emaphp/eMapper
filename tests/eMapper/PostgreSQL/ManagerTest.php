@@ -1,24 +1,24 @@
 <?php
-namespace eMapper\MySQL;
+namespace eMapper\PostgreSQL;
 
 use eMapper\AbstractManagerTest;
-use eMapper\Mapper;
-use eMapper\Engine\MySQL\MySQLDriver;
+use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
 use Acme\Type\RGBColorTypeHandler;
+use eMapper\Mapper;
 
 /**
- * MySQL manager test
+ * PostgreSQL manager test
  * @author emaphp
- * @group mysql
+ * @group postgres
  * @group manager
  */
 class ManagerTest extends AbstractManagerTest {
 	public function build() {
-		$config = MySQLTest::$config;
-		$this->driver = new MySQLDriver($config['database'], $config['host'], $config['user'], $config['password']);
+		$connection_string = PostgreSQLTest::$connstring;
+		$this->driver = new PostgreSQLDriver($connection_string);
 		$this->mapper = new Mapper($this->driver);
 		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
 		$this->productsManager = $this->mapper->buildManager('Acme\Entity\Product');
 	}
-}	
+}
 ?>
