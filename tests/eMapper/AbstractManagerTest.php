@@ -126,5 +126,127 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$products = $this->productsManager->find(Q::where(Attr::id()->eq(5), Attr::id()->eq(3)));
 		$this->assertCount(2, $products);
 	}
+	
+	public function testIndex() {
+		$products = $this->productsManager->index(Attr::id())->find();
+		$this->assertCount(5, $products);
+		
+		//assert indexes
+		$this->assertArrayHasKey(1, $products);
+		$this->assertArrayHasKey(2, $products);
+		$this->assertArrayHasKey(3, $products);
+		$this->assertArrayHasKey(4, $products);
+		$this->assertArrayHasKey(5, $products);
+		
+		//assert objects
+		$this->assertInstanceOf('Acme\Entity\Product', $products[1]);
+		$this->assertEquals('IND00054', $products[1]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[2]);
+		$this->assertEquals('IND00043', $products[2]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[3]);
+		$this->assertEquals('IND00232', $products[3]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[4]);
+		$this->assertEquals('GFX00067', $products[4]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[5]);
+		$this->assertEquals('PHN00098', $products[5]->code);
+	}
+	
+	public function testIndexType() {
+		$products = $this->productsManager->index(Attr::id('string'))->find();
+		$this->assertCount(5, $products);
+	
+		//assert indexes
+		$this->assertArrayHasKey('1', $products);
+		$this->assertArrayHasKey('2', $products);
+		$this->assertArrayHasKey('3', $products);
+		$this->assertArrayHasKey('4', $products);
+		$this->assertArrayHasKey('5', $products);
+	
+		//assert objects
+		$this->assertInstanceOf('Acme\Entity\Product', $products['1']);
+		$this->assertEquals('IND00054', $products['1']->code);
+	
+		$this->assertInstanceOf('Acme\Entity\Product', $products['2']);
+		$this->assertEquals('IND00043', $products['2']->code);
+	
+		$this->assertInstanceOf('Acme\Entity\Product', $products['3']);
+		$this->assertEquals('IND00232', $products['3']->code);
+	
+		$this->assertInstanceOf('Acme\Entity\Product', $products['4']);
+		$this->assertEquals('GFX00067', $products['4']->code);
+	
+		$this->assertInstanceOf('Acme\Entity\Product', $products['5']);
+		$this->assertEquals('PHN00098', $products['5']->code);
+	}
+	
+	public function testIndexColumn() {
+		$products = $this->productsManager->index(Column::product_code())->find();
+		$this->assertCount(5, $products);
+		
+		//assert indexes
+		$this->assertArrayHasKey('IND00054', $products);
+		$this->assertArrayHasKey('IND00043', $products);
+		$this->assertArrayHasKey('IND00232', $products);
+		$this->assertArrayHasKey('GFX00067', $products);
+		$this->assertArrayHasKey('PHN00098', $products);
+		
+		//assert objects
+		$this->assertInstanceOf('Acme\Entity\Product', $products['IND00054']);
+		$this->assertEquals(1, $products['IND00054']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['IND00043']);
+		$this->assertEquals(2, $products['IND00043']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['IND00232']);
+		$this->assertEquals(3, $products['IND00232']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['GFX00067']);
+		$this->assertEquals(4, $products['GFX00067']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['PHN00098']);
+		$this->assertEquals(5, $products['PHN00098']->id);
+	}
+	
+	/**
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function testIndexMissingColumn() {
+		$products = $this->productsManager->index(Column::description())->find();
+	}
+	
+	public function testIndexCallback() {
+		$products = $this->productsManager->index(function($product) {
+			return "prod_{$product->id}";
+		})->find();
+		
+		$this->assertCount(5, $products);
+		
+		//assert indexes
+		$this->assertArrayHasKey('prod_1', $products);
+		$this->assertArrayHasKey('prod_2', $products);
+		$this->assertArrayHasKey('prod_3', $products);
+		$this->assertArrayHasKey('prod_4', $products);
+		$this->assertArrayHasKey('prod_5', $products);
+		
+		//assert objects
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_1']);
+		$this->assertEquals('IND00054', $products['prod_1']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_2']);
+		$this->assertEquals('IND00043', $products['prod_2']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_3']);
+		$this->assertEquals('IND00232', $products['prod_3']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_4']);
+		$this->assertEquals('GFX00067', $products['prod_4']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_5']);
+		$this->assertEquals('PHN00098', $products['prod_5']->code);
+	}
 }
 ?>

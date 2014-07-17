@@ -10,6 +10,8 @@ use eMapper\Query\Attr;
 use eMapper\Query\Builder\InsertQueryBuilder;
 use eMapper\Query\Builder\UpdateQueryBuilder;
 use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\Query\Field;
+use eMapper\Query\Column;
 
 class Manager {
 	use StatementConfiguration {
@@ -272,8 +274,30 @@ class Manager {
 		if ($index instanceof \Closure) {
 			return $this->index_callback($index);
 		}
+		elseif ($index instanceof Attr) {
+			$type = $index->getType();
+			
+			if (isset($type)) {
+				return $this->merge(['query.index' => $index->getName() . ':' . $type]);
+			}
+			
+			return $this->merge(['query.index' => $index->getName()]);
+		}
+		elseif ($index instanceof Column) {
+			if (!in_array($index->getName(), $this->entity->fieldNames)) {
+				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $index->getName(), $this->entity->reflectionClass->getName()));
+			}
+			
+			$property = $this->entity->columnNames[$index->getName()];
+			
+			if (isset($type)) {
+				return $this->merge(['query.index' => $property . ':' . $type]);
+			}
+				
+			return $this->merge(['query.index' => $property]);
+		}
 		
-		return $this->merge(['query.index' => $index]);
+		throw new \InvalidArgumentException("Index must be specified as a Field or Closure instance");
 	}
 	
 	/**
@@ -285,8 +309,30 @@ class Manager {
 		if ($group instanceof \Closure) {
 			return $this->group_callback($group);
 		}
+		elseif ($group instanceof Attr) {
+			$type = $index->getType();
+				
+			if (isset($type)) {
+				return $this->merge(['query.group' => $group->getName() . ':' . $type]);
+			}
+				
+			return $this->merge(['query.group' => $group->getName()]);
+		}
+		elseif ($group instanceof Column) {
+			if (!in_array($group->getName(), $this->entity->fieldNames)) {
+				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $group->getName(), $this->entity->reflectionClass->getName()));
+			}
+			
+			$property = $this->entity->columnNames[$group->getName()];
+				
+			if (isset($type)) {
+				return $this->merge(['query.group' => $property . ':' . $type]);
+			}
+			
+			return $this->merge(['query.group' => $property]);
+		}
 		
-		return $this->merge(['query.group' => $group]);
+		throw new \InvalidArgumentException("Group must be specified as a Attr or Closure instance");
 	}
 	
 	/**
