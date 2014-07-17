@@ -8,7 +8,7 @@ use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Query\Builder\DeleteQueryBuilder;
 use eMapper\Query\Attr;
 use eMapper\Query\Builder\InsertQueryBuilder;
-use eMapper\Query\Builder\CreateQueryBuilder;
+use eMapper\Query\Builder\UpdateQueryBuilder;
 use eMapper\Query\Builder\SelectQueryBuilder;
 
 class Manager {
@@ -200,8 +200,8 @@ class Manager {
 			return $this->mapper->query($query, $entity);
 		}
 		
-		//build create query
-		$query = new CreateQueryBuilder($this->entity);
+		//build update query
+		$query = new UpdateQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($this->entity->primaryKey)->eq($pk));
 		list($query, $args) = $query->build($this->mapper->driver);
 		$this->mapper->query($query, $entity, $args);
