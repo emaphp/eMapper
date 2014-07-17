@@ -255,6 +255,117 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(3, $args[$index]);
 	}
 	
+	//SELECT startswith
+	public function testSelectStartsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->startswith('IND'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('IND%', $args[$index]);
+	}
+	
+	public function testSelectNotStartsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->startswith('IND', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code NOT LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('IND%', $args[$index]);
+	}
+	
+	//SELECT istartswith
+	public function testSelectIStartsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->istartswith('IND'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('IND%', $args[$index]);
+	}
+	
+	public function testSelectNotIStartsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->istartswith('IND', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code NOT ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('IND%', $args[$index]);
+	}
+	
+	//SELECT endswith
+	public function testSelectEndsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->endswith('232'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%232', $args[$index]);
+	}
+	
+	public function testSelectNotEndsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->endswith('232', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code NOT LIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%232', $args[$index]);
+	}
+	
+	//SELECT iendswith
+	public function testSelectIEndsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->iendswith('232'));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%232', $args[$index]);
+	}
+	
+	public function testSelectNotIEndsWith() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::code()->iendswith('232', false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_code NOT ILIKE #\{([\w]+)\}/", $query, $matches);
+		$index = $matches[1];
+		$this->assertArrayHasKey($index, $args);
+		$this->assertEquals('%232', $args[$index]);
+	}
+	
+	//SELECT range
+	public function testSelectRange() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->range(2, 4));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_id BETWEEN #\{([\w]+)\} AND #\{([\w]+)\}/", $query, $matches);
+		$from_index = $matches[1];
+		$to_index = $matches[2];
+		$this->assertArrayHasKey($from_index, $args);
+		$this->assertArrayHasKey($to_index, $args);
+		$this->assertEquals(2, $args[$from_index]);
+		$this->assertEquals(4, $args[$to_index]);
+	}
+	
+	public function testSelectNotRange() {
+		$query = new SelectQueryBuilder($this->profile);
+		$query->setCondition(Attr::id()->range(2, 4, false));
+		list($query, $args) = $query->build($this->driver, []);
+		$this->assertRegExpMatch("/SELECT \* FROM products WHERE product_id NOT BETWEEN #\{([\w]+)\} AND #\{([\w]+)\}/", $query, $matches);
+		$from_index = $matches[1];
+		$to_index = $matches[2];
+		$this->assertArrayHasKey($from_index, $args);
+		$this->assertArrayHasKey($to_index, $args);
+		$this->assertEquals(2, $args[$from_index]);
+		$this->assertEquals(4, $args[$to_index]);
+	}
+	
 	//INSERT
 	public function testInsert() {
 		$query = new InsertQueryBuilder($this->profile);
