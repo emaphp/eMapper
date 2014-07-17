@@ -2,6 +2,8 @@
 namespace eMapper\Query\Builder;
 
 use eMapper\Engine\Generic\Driver;
+use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Query\Predicate\Filter;
 
 class DeleteQueryBuilder extends QueryBuilder {
 	/**
@@ -26,16 +28,11 @@ class DeleteQueryBuilder extends QueryBuilder {
 			return [sprintf("DELETE FROM %s", $table), null];
 		}
 		elseif (isset($this->condition)) {
-			$condition = $this->condition->evaluate($this->entity, $args);
+			$condition = $this->condition->evaluate($driver, $this->entity, $args);
 		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
-			$filters = [];
-			
-			foreach ($config['query.filter'] as $filter) {
-				$filters[] = $filter->evaluate($driver, $this->entity, $args);
-			}
-			
-			$condition = implode(' AND ', $filters);
+			$filter = new Filter($config['query.filter']);
+			$condition = $filter->evaluate($driver, $this->entity, $args);
 		}
 		
 		if (isset($condition)) {
