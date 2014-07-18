@@ -4,6 +4,12 @@ namespace eMapper\Query;
 use eMapper\Reflection\Profile\ClassProfile;
 
 class Attr extends Field {
+	/**
+	 * Returns a new Attr instance
+	 * @param string $method
+	 * @param array $args
+	 * @return \eMapper\Query\Attr
+	 */
 	public static function __callstatic($method, $args = null) {
 		if (!empty($args)) {
 			return new Attr($method, $args[0]);

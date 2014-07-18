@@ -163,6 +163,50 @@ class Manager {
 	}
 	
 	/**
+	 * Executes a declared statement
+	 * @param string $statementId
+	 * @return mixed
+	 */
+	public function execute($statementId) {
+		//obtain parameters
+		$args = func_get_args();
+		$statementId = array_shift($args);
+		
+		if (!is_string($statementId) || empty($statementId)) {
+			$this->driver->throw_exception("Statement id is not a valid string");
+		}
+		
+		//get current namespace
+		$ns = $this->entity->getNamespace();
+		
+		//build statement id
+		if (isset($ns)) {
+			$route = explode('.', $statementId);
+			array_unshift($route, $ns);
+			$statementId = implode('.', $route);
+		}
+		
+		//obtain statement
+		$stmt = $this->mapper->getStatement($statementId);
+		
+		if ($stmt === false) {
+			$this->mapper->driver->throw_exception("Statement '$statementId' could not be found");
+		}
+		
+		//get statement config
+		$query = $stmt->query;
+		$options = is_null($stmt->options) ? [] : $stmt->options->config;
+		
+		//add query to method parameters
+		array_unshift($args, $query);
+		
+		//merge options
+		$options = array_merge($options, $this->clean_options());
+		
+		return call_user_func_array([$this->mapper->merge($options), 'query'], $args);
+	}
+	
+	/**
 	 * Obtains an entity primary key value
 	 * @param object $entity
 	 * @throws \RuntimeException

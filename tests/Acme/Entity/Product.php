@@ -4,6 +4,7 @@ namespace Acme\Entity;
 /**
  * @map.entity
  * @map.table products
+ * @map.namespace products
  */
 class Product {
 	/**

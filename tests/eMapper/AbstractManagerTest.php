@@ -5,6 +5,8 @@ use eMapper\Query\Attr;
 use eMapper\Query\Column;
 use eMapper\Query\Q;
 use eMapper\Engine\Generic\Driver;
+use eMapper\SQL\Statement;
+use Acme\Entity\Product;
 
 abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	/**
@@ -27,6 +29,11 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function setUp() {
 		$this->build();
+		
+		//add statements
+		$this->mapper->ns('products')
+		->stmt('count', "SELECT COUNT(*) FROM products", Statement::type('i'))
+		->stmt('findByCode', "SELECT * FROM products WHERE product_code = %{s}", Statement::type('obj:Acme\Entity\Product')); 
 	}
 	
 	public abstract function build();
@@ -337,6 +344,28 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('IND', $products);
 		$this->assertArrayHasKey('GFX', $products);
 		$this->assertArrayHasKey('PHN', $products);
+	}
+	
+	/*
+	 * STATEMENTS
+	 */
+	public function testValue() {
+		$total = $this->productsManager->execute('count');
+		$this->assertInternalType('integer', $total);
+		$this->assertEquals(5, $total);
+	}
+	
+	public function testObject() {
+		$product = $this->productsManager->execute('findByCode', 'IND00232');
+		$this->assertInstanceOf('Acme\Entity\Product', $product);
+		$this->assertEquals(3, $product->id);
+	}
+	
+	public function testArray() {
+		$product = $this->productsManager->type('array')->execute('findByCode', 'IND00232');
+		$this->assertInternalType('array', $product);
+		$this->assertArrayHasKey('product_id', $product);
+		$this->assertEquals(3, $product['product_id']);
 	}
 }
 ?>

@@ -4,6 +4,12 @@ namespace eMapper\Query;
 use eMapper\Reflection\Profile\ClassProfile;
 
 class Column extends Field {
+	/**
+	 * Returns a new Column instance
+	 * @param string $method
+	 * @param array $args
+	 * @return \eMapper\Query\Column
+	 */
 	public static function __callstatic($method, $args = null) {
 		if (!empty($args)) {
 			return new Column($method, $args[0]);
