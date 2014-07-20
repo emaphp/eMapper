@@ -11,13 +11,13 @@ class PropertyProfile {
 	public $name;
 	
 	/**
-	 * Referenced property
+	 * Referred property
 	 * @var string
 	 */
 	public $property;
 	
 	/**
-	 * Referenced column
+	 * Referred column
 	 * @var string
 	 */
 	public $column;
@@ -27,13 +27,7 @@ class PropertyProfile {
 	 * @var string
 	 */
 	public $type;
-	
-	/**
-	 * Suggested type
-	 * @var string
-	 */
-	public $suggestedType;
-	
+
 	/**
 	 * Defines if the current property is the primary key
 	 * @var boolean
@@ -46,19 +40,16 @@ class PropertyProfile {
 	 */
 	public $reflectionProperty;
 	
-	public function __construct($name, AnnotationsBag $prop, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		$this->name = $name;
-		$this->column = $prop->has('map.column') ? $prop->get('map.column') : $name;
-		$this->property = $prop->has('map.property') ? $prop->get('map.property') : $name;
+		$this->column = $annotations->has('Column') ? $annotations->get('Column') : $name;
+		$this->property = $annotations->has('Property') ? $annotations->get('Property') : $name;
 		
-		if ($prop->has('map.type')) {
-			$this->type = $prop->get('map.type');
-		}
-		elseif ($prop->has('var')) {
-			$this->suggestedType = $prop->get('var');
+		if ($annotations->has('Type')) {
+			$this->type = $annotations->get('Type');
 		}
 		
-		$this->isPrimaryKey = $prop->has('map.pk');
+		$this->isPrimaryKey = $annotations->has('Id');
 		
 		$this->reflectionProperty = $reflectionProperty;
 		$this->reflectionProperty->setAccessible(true);

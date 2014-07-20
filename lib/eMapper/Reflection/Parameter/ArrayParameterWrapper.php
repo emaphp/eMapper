@@ -4,56 +4,78 @@ namespace eMapper\Reflection\Parameter;
 use eMapper\Reflection\Profiler;
 
 class ArrayParameterWrapper extends ParameterWrapper {
-	public function __construct($value, $parameterMap = null) {
-		parent::__construct($value, $parameterMap);
-		
-		if (isset($parameterMap)) {
-			$this->config = Profiler::getClassProfile($parameterMap)->propertiesConfig;
+	public function getValueAsArray() {
+		if (isset($this->parameterMap)) {
+			$value = [];
 			
-			foreach ($this->config as $property => $config) {
+			foreach ($this->parameterMap->propertiesConfig as $property => $config) {
 				$key = $config->property;
 				
-				if (!array_key_exists($key, $value)) {
-					throw new \UnexpectedValueException("Key '$key' defined in class $parameterMap was not found on given parameter");
+				if (array_key_exists($key, $this->value)) {
+					$value[$property] = $this->value[$key];
 				}
 			}
+			
+			return $value;
+		}
+		
+		return $this->value;
+	}
+	
+	/*
+	 * ARRAY ACCESS METHODS
+	 */
+	
+	public function offsetSet($offset, $value) {
+		if (isset($this->parameterMap)) {
+			$key = $this->getPropertyName($offset);
+			$this->value[$key] = $value;
 		}
 		else {
-			$this->config = array();
+			$this->value[$offset] = $value;
 		}
 	}
 	
-	public function getParameterVars() {
-		if (is_null($this->parameterMap)) {
-			return $this->value;
-		}
-		else {
-			$vars = array();
-	
-			foreach ($this->config as $name => $config) {
-				$key = $config->property;
-				$vars[$name] = $this->value[$key];
+	public function offsetUnset($offset) {
+		if (isset($this->parameterMap)) {
+			$key = $this->getPropertyName($offset, false);
+			
+			if ($key === false) {
+				return;
 			}
-	
-			return $vars;
+			
+			unset($this->value[$key]);
+		}
+		elseif (array_key_exists($offset, $this->value)) {
+			unset($this->value[$offset]);
 		}
 	}
 	
 	public function offsetExists($offset) {
-		if (is_null($this->parameterMap)) {
-			return array_key_exists($offset, $this->value);
+		if (isset($this->parameterMap)) {
+			$key = $this->getPropertyName($offset, false);
+			
+			if ($key === false) {
+				return false;
+			}
+			
+			return array_key_exists($key, $this->value);
 		}
 		
-		return array_key_exists($offset, $this->config);
+		return array_key_exists($offset, $this->value);
 	}
 	
 	public function offsetGet($offset) {
-		if (is_null($this->parameterMap)) {
-			return $this->value[$offset];
+		if (isset($this->parameterMap)) {
+			$key = $this->getPropertyName($offset);
+			return $this->value[$key];
 		}
 		
-		$key = $this->config[$offset]->property;
-		return $this->value[$key];
+		if (!array_key_exists($offset, $this->value)) {
+			throw new \UnexpectedValueException();
+		}
+
+		return $this->value[$offset];
 	}
 }
 ?>

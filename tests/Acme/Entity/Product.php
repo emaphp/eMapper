@@ -2,27 +2,26 @@
 namespace Acme\Entity;
 
 /**
- * @map.entity
- * @map.table products
- * @map.namespace products
+ * @Entity products
+ * @DefaultNamespace products
  */
 class Product {
 	/**
-	 * @map.pk
-	 * @map.column product_id
-	 * @var int
+	 * @Id
+	 * @Column product_id
+	 * @Type int
 	 */
 	public $id;
 	
 	/**
-	 * @map.column product_code
+	 * @Column product_code
 	 */
 	public $code;
 
 	protected $category;
 	
 	/**
-	 * @map.type Acme\RGBColor
+	 * @Type Acme\RGBColor
 	 */
 	public $color;
 	

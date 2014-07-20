@@ -3,7 +3,7 @@ namespace eMapper\Result\Relation;
 
 use eMacros\Program\SimpleProgram;
 use eMapper\Reflection\Parameter\ParameterWrapper;
-use eMapper\Result\Argument\PropertyReader;
+use Minime\Annotations\AnnotationsBag;
 
 class MacroExpression extends DynamicAttribute {
 	/**
@@ -15,9 +15,9 @@ class MacroExpression extends DynamicAttribute {
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()
 	 */
-	protected function parseAttribute($attribute) {
+	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain program source
-		$this->program = new SimpleProgram($attribute->get('map.eval'));
+		$this->program = new SimpleProgram($annotations->get('Eval'));
 	}
 	
 	/**
@@ -26,7 +26,7 @@ class MacroExpression extends DynamicAttribute {
 	 * @return array
 	 */
 	protected function evaluateArgs($row, $parameterMap) {
-		$args = array();
+		$args = [];
 		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
@@ -34,12 +34,7 @@ class MacroExpression extends DynamicAttribute {
 		}
 	
 		foreach ($this->args as $arg) {
-			if ($arg instanceof PropertyReader) {
-				$args[] = $wrapper[$arg->property];
-			}
-			else {
-				$args[] = $arg;
-			}
+			$args[] = $arg instanceof Attr ? $wrapper[$arg->getName()] : $arg;
 		}
 	
 		return $args;

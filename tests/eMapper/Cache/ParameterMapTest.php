@@ -59,7 +59,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$user->birthDate = \DateTime::createFromFormat('Y-m-d', "1986-12-22");
 		$user->setName('emma');
 		
-		$result = $cacheKey->build("ID: #{id:s}, #{birthDate:date}, #{name}", array($user), []);
+		$result = $cacheKey->build("ID: #{id:s}, #{birthDate:date}, #{name}", [$user], []);
 		$this->assertEquals("ID: 4123, 1986-12-22, emma", $result);
 	}
 }

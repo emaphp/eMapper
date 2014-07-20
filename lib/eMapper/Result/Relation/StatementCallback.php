@@ -1,6 +1,8 @@
 <?php
 namespace eMapper\Result\Relation;
 
+use Minime\Annotations\AnnotationsBag;
+
 class StatementCallback extends DynamicAttribute {
 	/**
 	 * Statement ID
@@ -8,9 +10,9 @@ class StatementCallback extends DynamicAttribute {
 	 */
 	public $statement;
 	
-	protected function parseAttribute($attribute) {
+	protected function parseMetadata(AnnotationsBag $attribute) {
 		//obtain statement id
-		$this->statement = $attribute->get('map.stmt');
+		$this->statement = $attribute->get('StatementId');
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {
@@ -23,8 +25,8 @@ class StatementCallback extends DynamicAttribute {
 		$args = $this->evaluateArgs($row, $parameterMap);
 		array_unshift($args, $this->statement);
 		
-		//apply configuration
-		$this->applyConfig($mapper->config);
+		//update configuration
+		$this->updateConfig($mapper->config);
 		
 		//invoke statement
 		return call_user_func_array([$mapper->merge($this->config), 'execute'], $args);

@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use eMapper\Result\Argument\PropertyReader;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profile\PropertyProfile;
 use eMacros\Program\Program;
@@ -9,11 +8,14 @@ use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
+use Minime\Annotations\AnnotationsBag;
+use eMapper\Query\Attr;
 
 abstract class DynamicAttribute extends PropertyProfile {
 	use EnvironmentBuilder;
 	
-	const PROPERTY_REGEX = '/^[^\\\\]([\w]+)(?::([A-z]{1}[\w|\\\\]*))?$/';
+	//Ex: Parameter(name), Parameter(userId:string)
+	const PARAMETER_PROPERTY_REGEX = '/Parameter(?:\(([A-z|_]{1}[\w|\\\\]*)(:[A-z]{1}[\w|\\\\]*)?\))/';
 	
 	/**
 	 * Attribute arguments
@@ -39,44 +41,48 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	public $condition;
 	
-	public function __construct($name, $attribute, \ReflectionProperty $reflectionProperty) {
-		parent::__construct($name, $attribute, $reflectionProperty);
+	/**
+	 * Determines if the condition value must be reversed
+	 * @var boolean
+	 */
+	public $reverseCondition = false;
+	
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct($name, $annotations, $reflectionProperty);
 
-		$this->parseAttribute($attribute);
-		$this->parseArguments($attribute);
-		$this->parseConfig($attribute);
+		$this->parseMetadata($annotations);
+		$this->parseArguments($annotations);
+		$this->parseConfig($annotations);
 	}
 	
 	/**
-	 * Parse attribute arguments
+	 * Parses attribute arguments
 	 * @param AnnotationBag $attribute
 	 */
-	protected function parseArguments($attribute) {
-		$this->args = array();
+	protected function parseArguments(AnnotationsBag $annotations) {
+		$this->args = [];
 		
-		if ($attribute->has('map.self-arg')) {
+		//use object as argument
+		if ($annotations->has('Self')) {
 			$this->useDefaultArgument = true;
 		}
 		
-		$arg_list = $attribute->getAsArray('map.arg');
-				
-		foreach ($arg_list as $arg) {
-			if (is_string($arg)) {
-				//check if argument is a reference to a instance property
-				if (preg_match(self::PROPERTY_REGEX, $arg, $matches)) {
-					if (isset($matches[2])) {
-						$this->args[] = new PropertyReader($matches[1], $matches[2]);
-					}
-					else {
-						$this->args[] = new PropertyReader($matches[1]);
-					}
+		//parse additional arguments
+		$parameters = $annotations->grep('^Parameter')->export();
+		
+		foreach ($parameters as $name => $param) {
+			//check if the parameter defines a property
+			if (preg_match(self::PARAMETER_PROPERTY_REGEX, $name, $matches)) {
+				//check if a type has been added
+				if (array_key_exists(2, $matches)) {
+					$this->args[] = Attr::__callstatic($matches[1], [substr($matches[2], 1)]);
 				}
 				else {
-					$this->args[] = str_replace('\\#', '#', $arg);
+					$this->args[] = Attr::__callstatic($matches[1]);
 				}
 			}
 			else {
-				$this->args[] = $arg;
+				$this->args[] = $param;
 			}
 		}
 		
@@ -87,33 +93,39 @@ abstract class DynamicAttribute extends PropertyProfile {
 	}
 	
 	/**
-	 * Parse attribute configuration
-	 * @param AnnotationBag $attribute
+	 * Parses attribute configuration
+	 * @param AnnotationBag $annotations
 	 */
-	protected function parseConfig($attribute) {
-		$this->config = array();
+	protected function parseConfig(AnnotationsBag $annotations) {
+		$this->config = [];
 		
 		if (isset($this->type)) {
 			$this->config['map.type'] = $this->type;
 		}
 		
-		if ($attribute->has('map.result-map')) {
-			$this->config['map.result'] = $attribute->get('map.result-map');
+		if ($annotations->has('ResultMap')) {
+			$this->config['map.result'] = $annotations->get('ResultMap');
 		}
 		
-		if ($attribute->has('map.parameter-map')) {
-			$this->config['map.parameter'] = $attribute->get('map.parameter-map');
+		if ($annotations->has('ParameterMap')) {
+			$this->config['map.parameter'] = $annotations->get('ParameterMap');
 		}
 		
-		if ($attribute->has('map.cond')) {
-			$this->condition = new SimpleProgram($attribute->get('map.cond'));
+		if ($annotations->has('If')) {
+			$this->condition = new SimpleProgram($annotations->get('If'));
+		}
+		elseif ($annotations->has('IfNot')) {
+			$this->condition = new SimpleProgram($annotations->get('IfNot'));
+			$this->reverseCondition = true;
 		}
 		
-		//get additional options
-		$options = $attribute->useNamespace('map.option');
+		//get additional options [Option(KEY) VALUE]
+		$options = $annotations->grep('^Option\([\w|\.]+\)')->export();
 		
-		if ($options->count() != 0) {
-			$this->config = array_merge($this->config, $options->export());
+		foreach ($options as $name => $value) {
+			if (is_string($option) && preg_match('/Option\(([\w|\.]+)\)/', $name, $matches)) {
+				$this->config[$matches[1]] = $value;
+			}
 		}
 	}
 	
@@ -123,7 +135,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * @return array
 	 */
 	protected function evaluateArgs($row, $parameterMap) {
-		$args = array();
+		$args = [];
 		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
@@ -131,12 +143,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		foreach ($this->args as $arg) {
-			if ($arg instanceof PropertyReader) {
-				$args[] = $wrapper[$arg->property];
-			}
-			else {
-				$args[] = $arg;
-			}
+			$args[] = $arg instanceof Attr ? $wrapper[$arg->getName()] : $arg;
 		}
 		
 		return $args;
@@ -151,21 +158,27 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	protected function checkCondition($row, $parameterMap, $config) {
 		if (isset($this->condition)) {
-			return (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrap($row, $parameterMap));
+			$condition = (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrap($row, $parameterMap));
+			
+			if ($this->reverseCondition) {
+				return !$condition;
+			}
+			
+			return $condition;
 		}
 		
 		return true;
 	}
 	
 	/**
-	 * Applies configuration values for attribute evaluation
+	 * Updates configuration values before evaluation
 	 * @param array $config
 	 */
-	protected function applyConfig($config) {
+	protected function updateConfig($config) {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
 	}
 	
-	protected abstract function parseAttribute($attribute);
+	protected abstract function parseMetadata(AnnotationsBag $annotations);
 	public abstract function evaluate($row, $parameterMap, $mapper);
 }
 

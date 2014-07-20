@@ -4,7 +4,7 @@ namespace eMapper\Type\Handler;
 use eMapper\Type\TypeHandler;
 
 /**
- * @map.unquoted
+ * @Safe
  */
 class BooleanTypeHandler extends TypeHandler {
 	protected function cast_to_boolean($value) {

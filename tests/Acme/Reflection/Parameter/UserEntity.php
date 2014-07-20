@@ -2,16 +2,14 @@
 namespace Acme\Reflection\Parameter;
 
 /**
- * @meta.parser emapper\emapper
- * @map.entity
- * @author emaphp
+ * @Entity users
  */
 class UserEntity {
 	public $name;
 	public $surname;
 	
 	/**
-	 * @var string
+	 * @Type string
 	 */
 	private $password;
 	

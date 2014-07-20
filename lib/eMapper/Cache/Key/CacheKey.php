@@ -29,18 +29,24 @@ class CacheKey {
 	 * @var object
 	 */
 	public $parameterMap;
-	
-	/**
-	 * First argument property list
-	 * @var array
-	 */
-	public $propertyList;
-	
+		
 	/**
 	 * Key arguments
 	 * @var array
 	 */
 	public $args;
+	
+	/**
+	 * Counfiguration values
+	 * @var array
+	 */
+	public $config;
+	
+	/**
+	 * Internal counter
+	 * @var integer
+	 */
+	public $counter;
 	
 	/**
 	 * Wrapped argument
@@ -62,7 +68,7 @@ class CacheKey {
 	 * @return string
 	 */
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
-		$list = array();
+		$list = [];
 
 		//build expression list
 		foreach ($value as $val) {
@@ -78,7 +84,7 @@ class CacheKey {
 					$new_elem = 'NULL';
 				}
 				elseif (!is_string($new_elem)) {
-					$new_elem = (string) $new_elem;
+					$new_elem = strval($new_elem);
 				}
 			}
 			
@@ -135,9 +141,10 @@ class CacheKey {
 		if (is_null($value)) {
 			return 'NULL';
 		}
+		
 		//cast to string
-		elseif (!is_string($value)) {
-			$value = (string) $value;
+		if (!is_string($value)) {
+			$value = strval($value);
 		}
 	
 		return $value;
@@ -152,17 +159,9 @@ class CacheKey {
 	protected function getDefaultType(ParameterWrapper $arg, $property) {
 		$type = null;
 		
-		if (array_key_exists($property, $arg->config)) {
-			if (isset($arg->config[$property]->type)) {
-				$type = $arg->config[$property]->type;
-			}
-			elseif (isset($arg->config[$property]->suggestedType)) {
-				$type = $arg->config[$property]->suggestedType;
-				
-				if ($this->typeManager->getTypeHandler($type) === false) {
-					$type = null;
-				}
-			}
+		//obtain property type from parameter map (if any)
+		if (isset($arg->parameterMap)) {
+			$type = $arg->parameterMap->propertiesConfig[$property]->type;
 		}
 		
 		return $type;
@@ -195,7 +194,7 @@ class CacheKey {
 		}
 		
 		$value = $arg[$property];
-		
+
 		//check value type
 		if (is_array($value)) {
 			//search for string index
@@ -203,8 +202,8 @@ class CacheKey {
 				return $this->castParameter($value[$index], $type);
 			}
 			//try numeric index instead
-			elseif (is_numeric($index) && array_key_exists((int) $index, $value)) {
-				return $this->castParameter($value[(int) $index], $type);
+			elseif (is_numeric($index) && array_key_exists(intval($index), $value)) {
+				return $this->castParameter($value[intval($index)], $type);
 			}
 		
 			throw new \UnexpectedValueException("Index '$index' does not exists in property '$property'");
@@ -227,12 +226,14 @@ class CacheKey {
 	 * @param mixed $value
 	 * @param string $subindex
 	 * @param string $type
+	 * @param int $argn
 	 * @throws \InvalidArgumentException
 	 * @throws \UnexpectedValueException
 	 * @throws \OutOfBoundsException
 	 * @return string
 	 */
-	protected function getSubIndex($value, $subindex = null, $type = null) {
+	protected function getSubIndex($value, $subindex = null, $type = null, $argn = 0) {
+		//if no subindex is specified just cast main argument
 		if (is_null($subindex)) {
 			return is_null($value) ? 'NULL' : $this->castParameter($value, $type);
 		}
@@ -242,12 +243,18 @@ class CacheKey {
 			throw new \InvalidArgumentException("Trying to obtain a value from NULL parameter on index $index");
 		}
 		
+		//check whether this value is the first argument
 		if (is_array($value) || is_object($value)) {
-			//build wrapper
-			if (!($value instanceof ParameterWrapper)) {
-				$value = ParameterWrapper::wrap($value);
+			//first verify if we already wrapped the first argument
+			if ($argn == 0 && isset($this->wrappedArg)) {
+				$value = $this->wrappedArg;
+			}
+			else {
+				//build wrapper
+				$value = ParameterWrapper::wrapValue($value);
 			}
 			
+			//check if the requested property exists
 			if (!$value->offsetExists($subindex)) {
 				throw new \UnexpectedValueException("Property '$subindex' not found on given parameter");
 			}
@@ -256,8 +263,16 @@ class CacheKey {
 			return $this->castParameter($value[$subindex], $type);
 		}
 		elseif (($value = $this->toString($value)) !== false) {
+			//check that subindex is numeric
+			if (!is_numeric($subindex)) {
+				throw new \InvalidArgumentException("Subindex '$subindex' is not a number");
+			}
+			
+			//convert subindex to a number
+			$subindex = intval($subindex);
+			
 			//check string length against index
-			if ($subindex < strlen($value)) {
+			if ($subindex < strlen($value) && $subindex >= 0) {
 				return $this->castParameter($value[$subindex], $type);
 			}
 		
@@ -298,16 +313,16 @@ class CacheKey {
 		//check value type
 		if (is_array($value)) {
 			//get array slice
-			$right_index = strlen($right_index) == 0 ? null : (int) $right_index;
-			return $this->castParameter(array_slice($value, (int) $left_index, $right_index), $type);
+			$right_index = strlen($right_index) == 0 ? null : intval($right_index);
+			return $this->castParameter(array_slice($value, intval($left_index), $right_index), $type);
 		}
 		//try to convert value to string
 		elseif (($value = $this->toString($value)) !== false) {
 			if (strlen($right_index) == 0) {
-				return $this->castParameter(substr($value, (int) $left_index), $type);
+				return $this->castParameter(substr($value, intval($left_index)), $type);
 			}
 				
-			return $this->castParameter(substr($value, (int) $left_index, (int) $right_index), $type);
+			return $this->castParameter(substr($value, intval($left_index), intval($right_index)), $type);
 		}
 			
 		throw new \InvalidArgumentException("Cannot obtain indexes from non-array property '$property'");
@@ -339,15 +354,15 @@ class CacheKey {
 		
 		//check value type
 		if (is_array($value) || $value instanceof \ArrayObject) {
-			$right_index = strlen($right_index) == 0 ? null : (int) $right_index;
-			return $this->castParameter(array_slice($value, (int) $left_index, $right_index), $type);
+			$right_index = strlen($right_index) == 0 ? null : intval($right_index);
+			return $this->castParameter(array_slice($value, intval($left_index), $right_index), $type);
 		}
 		elseif (($value = $this->toString($value)) !== false) {
 			if (strlen($right_index) == 0) {
-				return $this->castParameter(substr($value, (int) $left_index), $type);
+				return $this->castParameter(substr($value, intval($left_index)), $type);
 			}
 			else {
-				return $this->castParameter(substr($value, (int) $left_index, (int) $right_index), $type);
+				return $this->castParameter(substr($value, intval($left_index), intval($right_index)), $type);
 			}
 		}
 			
@@ -422,6 +437,132 @@ class CacheKey {
 	}
 	
 	/**
+	 * Returns a string that replaces a configuration expression inside a string
+	 * @param array $matches
+	 * @return string
+	 */
+	protected function replaceConfigExpression($matches) {
+		$property = $matches[1];
+		
+		//check key existence
+		if (!array_key_exists($property, $this->config)) {
+			return '';
+		}
+		
+		//convert to string, if possible
+		if (($str = $this->toString($this->config[$property])) === false) {
+			return '';
+		}
+		
+		return $str;
+	}
+	
+	/**
+	 * Returns a string that replaces a property expression
+	 * @param array $matches
+	 * @return string
+	 */
+	protected function replacePropertyExpression($matches) {
+		//count available matches
+		//this indicates the type of expression to replace
+		$total_matches = count($matches);
+		$type = $subindex = null;
+		
+		switch ($total_matches) {
+			/**
+			 * Property
+			 */
+			case 4: //#{PROPERTY@1[INDEX]@2?:TYPE@3}
+				$type = substr($matches[3], 1);
+			case 3: //#{PROPERTY@1[INDEX]@2}
+				$subindex = empty($matches[2]) ? null : substr($matches[2], 1, -1);
+			case 2: //#{PROPERTY@1}
+				$key = $matches[1];
+				
+				if (is_null($type) && isset($this->parameterMap)) {
+					$type = $this->getDefaultType($this->wrappedArg, $key);
+				}
+				
+				return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
+				break;
+				
+			/**
+			 * Interval
+			 */
+			case 9: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}
+				$type = substr($matches[8], 1);
+			case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
+				$key = $matches[4];
+			
+				if (is_null($type) && isset($this->parameterMap)) {
+					$type = $this->getDefaultType($this->wrappedArg, $key);
+				}
+			
+				return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
+				break;
+		}
+	}
+	
+	/**
+	 * Returns a string that replaces an argument expression
+	 * @param array$matches
+	 * @throws \OutOfBoundsException
+	 * @throws \InvalidArgumentException
+	 * @return string
+	 */
+	protected function replaceArgumentExpression($matches) {
+		//count available matches
+		//this indicates the type of expression to replace
+		$total_matches = count($matches);
+		$type = $subindex = null;
+		
+		//%{TYPE@1 | CLASS@1}
+		if ($total_matches == 2) {
+			//check if there are arguments left
+			if ($this->counter >= count($this->args)) {
+				throw new \OutOfBoundsException("No arguments left for expression '{$matches[0]}'");
+			}
+			
+			return $this->castParameter($this->args[$this->counter++], $matches[1]);
+		}
+		
+		switch ($total_matches) {
+			/**
+			 * Simple index
+			 */
+			case 5: //%{NUMBER@2[INDEX]@3?:TYPE@4}
+				$type = substr($matches[4], 1);
+			case 4: //%{NUMBER@2[INDEX]@3}
+				$subindex = empty($matches[3]) ? null : substr($matches[3], 1, -1);
+			case 3: //%{NUMBER@2}
+				$index = intval($matches[2]);
+					
+				if (!array_key_exists($index, $this->args)) {
+					throw new \InvalidArgumentException("No value found on index $index");
+				}
+					
+				return $this->getSubIndex($this->args[$index], $subindex, $type, $index);
+					
+				break;
+				
+			/**
+			 * Interval
+			 */
+			case 10: //%{NUMBER@5[LEFT@7?..RIGHT@8?]:TYPE@9}
+				$type = substr($matches[9], 1);
+			case 9: //%{NUMBER@5[LEFT@7?..RIGHT@8?]}
+				$index = intval($matches[5]);
+					
+				if (!array_key_exists($index, $this->args)) {
+					throw new \InvalidArgumentException("No value found on index $index");
+				}
+					
+				return $this->getSubRange($this->args[$index], $matches[7], $matches[8], $type);
+				break;
+		}
+	}
+	
+	/**
 	 * Parses a string and replaces all references to arguments
 	 * @param string $expr
 	 * @param array $args
@@ -432,35 +573,24 @@ class CacheKey {
 	 * @return string
 	 */
 	public function build($expr, $args, $config) {
+		//store arguments
 		$this->args = $args;
-		$counter_start = 0;
 		
+		//store configuration
+		$this->config = $config;
+		
+		//initialize counter
+		$this->counter = 0;
+
 		//replace configuration propeties expressions
 		if (preg_match(self::CONFIG_REGEX, $expr)) {
-			$expr = preg_replace_callback(self::CONFIG_REGEX,
-					function ($matches) use ($config) {
-						$property = $matches[1];
-			
-						//check key existence
-						if (!array_key_exists($property, $config)) {
-							throw new \InvalidArgumentException("Unknown configuration value '$property'");
-						}
-			
-						//convert to string, if possible
-						if (($str = $this->toString($config[$property])) === false) {
-							throw new \InvalidArgumentException("Configuration property '$property' could not be converted to string");
-						}
-			
-						return $str;
-					}, $expr);
+			$expr = preg_replace_callback(self::CONFIG_REGEX, [$this, 'replaceConfigExpression'], $expr);
 		}
 
 		//replace database prefix (short form)
-		if (array_key_exists('db.prefix', $config)) {
-			$expr = str_replace(self::SHORT_PREFIX, $config['db.prefix'], $expr);
-		}
+		$expr = str_replace(self::SHORT_PREFIX, array_key_exists('db.prefix', $config) ? $config['db.prefix'] : '', $expr);
 		
-		//replace properties references
+		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
 			if (empty($args[0])) {
@@ -471,107 +601,17 @@ class CacheKey {
 			}
 			
 			//move default counter to 1
-			$counter_start = 1;
+			$this->counter = 1;
 			
 			//wrap first argument
-			$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
+			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
 
-			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, 
-					function ($matches) {
-						$total_matches = count($matches);
-						$type = $subindex = null;
-						
-						switch ($total_matches) {
-							/**
-							 * Property
-							 */
-							case 4: //#{PROPERTY@1[INDEX]@2?:TYPE@3}
-								$type = substr($matches[3], 1);
-							case 3: //#{PROPERTY@1[INDEX]@2}
-								$subindex = empty($matches[2]) ? null : substr($matches[2], 1, -1);
-							case 2: //#{PROPERTY@1}
-								$key = $matches[1];
-								
-								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->wrappedArg, $key);
-								}
-								
-								return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
-								break;
-							
-							/**
-							 * Interval
-							 */
-							case 9: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}
-								$type = substr($matches[8], 1);
-							case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
-								$key = $matches[4];
-								
-								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->wrappedArg, $key);
-								}
-								
-								return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
-								break;
-						}
-						
-					}, $expr);
+			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		
-		//replace inline parameter
+		//replace inline parameters
 		if (!empty($args) && preg_match(self::INLINE_PARAM_REGEX, $expr)) {
-			$total_args = count($this->args);
-			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX,
-					function ($matches) use ($counter_start, $total_args) {
-						$total_matches = count($matches);
-						
-						if ($total_matches == 2) { //%{TYPE@1 | CLASS@1}
-							//check if there is arguments left
-							if ($counter_start >= $total_args) {
-								throw new \OutOfBoundsException("No arguments left for expression '{$matches[0]}'");
-							}
-								
-							return $this->castParameter($this->args[$counter_start++], $matches[1]);
-						}
-						else {
-							$subindex = $type = null;
-							
-							switch ($total_matches) {
-								/**
-								 * Simple index
-								 */
-								case 5: //%{NUMBER@2[INDEX]@3?:TYPE@4}
-									$type = substr($matches[4], 1);
-								case 4: //%{NUMBER@2[INDEX]@3}
-									$subindex = empty($matches[3]) ? null : substr($matches[3], 1, -1);
-								case 3: //%{NUMBER@2}
-									$index = intval($matches[2]);
-									
-									if (!array_key_exists($index, $this->args)) {
-										throw new \InvalidArgumentException("No value found on index $index");
-									}
-									
-									return $this->getSubIndex($this->args[$index], $subindex, $type);
-									
-									break;
-								
-								/**
-								 * Interval
-								 */
-								case 10: //%{NUMBER@5[LEFT@7?..RIGHT@8?]:TYPE@9}
-									$type = substr($matches[9], 1);
-								case 9: //%{NUMBER@5[LEFT@7?..RIGHT@8?]}
-									$index = intval($matches[5]);
-									
-									if (!array_key_exists($index, $this->args)) {
-										throw new \InvalidArgumentException("No value found on index $index");
-									}
-									
-									return $this->getSubRange($this->args[$index], $matches[7], $matches[8], $type);
-									break;
-							}
-						}
-					}, $expr);
+			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX, [$this, 'replaceArgumentExpression'], $expr);
 		}
 		
 		return $expr;

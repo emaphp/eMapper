@@ -4,6 +4,9 @@ namespace Acme\Type;
 use eMapper\Type\TypeHandler;
 use Acme\RGBColor;
 
+/**
+ * @TypeHandler
+ */
 class RGBColorTypeHandler extends TypeHandler {
 	public function getValue($value) {
 		$color = new RGBColor(hexdec(substr($value, 0, 2)), hexdec(substr($value, 2, 2)),  hexdec(substr($value, 4, 2)));

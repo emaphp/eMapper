@@ -2,39 +2,39 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @meta.parser emapper\emapper
- * @map.entity
+ * @Entity users
  */
 class User {
 	public $user_name;
 	
 	/**
-	 * @map.column user_id
-	 * @var int
+	 * @Id
+	 * @Column user_id
+	 * @Type int
 	 */
 	public $id;
 	
 	/**
-	 * @map.column birth_date
-	 * @map.type dt
+	 * @Column birth_date
+	 * @Type dt
 	 */
 	protected $birthDate;
 	
 	/**
-	 * @map.eval (strtoupper (#user_name))
-	 * @var string
+	 * @Eval (strtoupper (#user_name))
+	 * @Type string
 	 */
 	public $uppercase_name;
 	
 	/**
-	 * @map.eval (+ (%0) (%1))
-	 * @map.arg #id
-	 * @map.arg 5
+	 * @Eval (+ (%0) (%1))
+	 * @Parameter(id)
+	 * @Parameter 5
 	 */
 	public $fakeId;
 	
 	/**
-	 * @map.eval (->format (->diff (#birthDate) (now)) "%y")
+	 * @Eval (->format (->diff (#birthDate) (now)) "%y")
 	 */
 	public $age;
 	

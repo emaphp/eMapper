@@ -2,23 +2,23 @@
 namespace Acme\Result;
 
 /**
- * @meta.parser emapper\emapper
- * @author emaphp
+ * @ResultMap
  */
 class UserResultMap {
 	/**
-	 * @map.type integer
+	 * @Id
+	 * @Type integer
 	 */
 	public $user_id;
 	
 	/**
-	 * @map.column user_name
+	 * @Column user_name
 	 */
 	public $name;
 	
 	/**
-	 * @map.type string
-	 * @map.column last_login
+	 * @Type string
+	 * @Column last_login
 	 */
 	public $lastLogin;
 }

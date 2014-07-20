@@ -2,50 +2,49 @@
 namespace Acme\Result\Attribute;
 
 /**
- * @meta.parser emapper\emapper
- * @map.entity
- * @author emaphp
+ * @Entity products
  */
 class Product {
 	/**
-	 * @map.column product_id
-	 * @var integer
+	 * @Id
+	 * @Column product_id
+	 * @Type integer
 	 */
 	public $id;
 	
 	/**
-	 * @map.type string
+	 * @Type string
 	 */
 	public $category;
 	
 	/**
-	 * @map.type color
+	 * @Type color
 	 */
 	public $color;
 	
 	/**
-	 * @map.procedure Sales_FindLastByProductId
-	 * @map.arg #id
-	 * @map.type obj:Acme\Result\Attribute\Sale
-	 * @map.option.proc.as_table true
-	 * @map.option.proc.wrap false
+	 * @Procedure Sales_FindLastByProductId
+	 * @Parameter(id)
+	 * @Type obj:Acme\Result\Attribute\Sale
+	 * @Option(proc.as_table) true
+	 * @Option(proc.wrap) false
 	 */
 	public $lastSale;
 	
 	/**
-	 * @map.procedure Products_FindBestByCategory
-	 * @map.arg #category
-	 * @map.type obj:Acme\Result\Attribute\Product
-	 * @map.option.proc.as_table true
-	 * @map.option.proc.wrap false
+	 * @Procedure Products_FindBestByCategory
+	 * @Parameter(category)
+	 * @Type obj:Acme\Result\Attribute\Product
+	 * @Option(proc.as_table) true
+	 * @Option(proc.wrap) false
 	 */
 	public $bestInCategory;
 	
 	/**
-	 * @map.procedure Products_FindAvgPriceByCategory
-	 * @map.arg #category
-	 * @map.type float
-	 * @map.option.proc.wrap false
+	 * @Procedure Products_FindAvgPriceByCategory
+	 * @Parameter(category)
+	 * @Type float
+	 * @Option(proc.wrap) false
 	 */
 	public $avgPrice;
 }

@@ -2,39 +2,39 @@
 namespace Acme\Result;
 
 /**
- * @meta.parser emapper\emapper
- * @author emaphp
+ * @ResultMap
  */
 class GenericProductResultMap {
 	/**
-	 * @map.column product_id
-	 * @var int
+	 * @Id
+	 * @Column product_id
+	 * @Type integer
 	 */
 	protected $id;
 	
 	/**
-	 * @var string
+	 * @Type string
 	 */
 	protected $description;
 	
 	/**
-	 * @map.column product_code
-	 * @var string
+	 * @Column product_code
+	 * @Type string
 	 */
 	protected $code;
 	
 	/**
-	 * @var float
+	 * @Type float
 	 */
 	protected $price;
 	
 	/**
-	 * @var string
+	 * @Type string
 	 */
 	protected $category;
 	
 	/**
-	 * @var Acme\RGBColor
+	 * @Type Acme\RGBColor
 	 */
 	protected $color;
 }

@@ -18,12 +18,6 @@ abstract class GenericStatement extends CacheKey {
 	//Ex: {{ (null? (#order)) }} {{:int (#limit)) }}
 	const DYNAMIC_SQL_REGEX = '/\{\{(?::([\w|\\\\]+)\s+)?(.+?)\}\}/';
 	
-	/**
-	 * Current mapper configuration
-	 * @var array
-	 */
-	public $config;
-	
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
 		$list = array();
 	
@@ -43,10 +37,8 @@ abstract class GenericStatement extends CacheKey {
 				elseif (!is_string($new_elem)) {
 					$new_elem = strval($new_elem);
 				}
-				else {
-					if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
-						$new_elem = "'" . $this->escapeString($val) . "'";
-					}
+				elseif (!Profiler::getClassProfile(get_class($typeHandler))->isSafe()) {
+					$new_elem = "'" . $this->escapeString($val) . "'";
 				}
 			}
 	
@@ -97,7 +89,6 @@ abstract class GenericStatement extends CacheKey {
 		}
 	
 		//get parameter expression
-		
 		$value = $typeHandler->setParameter($value);
 		
 		if (is_null($value)) {
@@ -105,18 +96,22 @@ abstract class GenericStatement extends CacheKey {
 		}
 		//cast to string
 		elseif (!is_string($value)) {
-			$value = (string) $value;
+			$value = strval($value);
 		}
 		//escape string if necessary
-		else {
-			if (!Profiler::getClassProfile(get_class($typeHandler))->isUnquoted()) {
-				$value = "'" . $this->escapeString($value) . "'";
-			}
+		elseif (!Profiler::getClassProfile(get_class($typeHandler))->isSafe()) {
+			$value = "'" . $this->escapeString($value) . "'";
 		}
 	
 		return $value;
 	}
 	
+	/**
+	 * Executes a captured string as a program
+	 * @param Environment $env
+	 * @param string $expr
+	 * @return mixed
+	 */
 	protected function executeDynamicSQL($env, $expr) {	
 		//run program
 		$program = new SimpleProgram($expr);
@@ -124,12 +119,18 @@ abstract class GenericStatement extends CacheKey {
 	}
 	
 	public function build($expr, $args, $config) {
+		//store arguments
 		$this->args = $args;
+		
+		//store configuration
 		$this->config = $config;
+		
+		//initialize counter
+		$this->counter = 0;
 		
 		//wrap first parameter
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
-			$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
+			//$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
 		}
 		
 		//replace dynamic sql expressions (unescaped)
@@ -160,27 +161,13 @@ abstract class GenericStatement extends CacheKey {
 		
 		//replace configuration propeties expressions
 		if (preg_match(self::CONFIG_REGEX, $expr)) {
-			$expr = preg_replace_callback(self::CONFIG_REGEX,
-					function ($matches) use ($config) {
-						$property = $matches[1];
-							
-						//check key existence
-						if (!array_key_exists($property, $config)) {
-							throw new \InvalidArgumentException("Unknown configuration value '$property'");
-						}
-							
-						//convert to string, if possible
-						if (($str = $this->toString($config[$property])) === false) {
-							throw new \InvalidArgumentException("Configuration property '$property' could not be converted to string");
-						}
-							
-						return $str;
-					}, $expr);
+			$expr = preg_replace_callback(self::CONFIG_REGEX, [$this, 'replaceConfigExpression'], $expr);
 		}
 		
 		//replace database prefix (short form)
 		$expr = str_replace(self::SHORT_PREFIX, array_key_exists('db.prefix', $config) ? strval($config['db.prefix']) : '', $expr);
 		
+		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
 			if (empty($args[0])) {
@@ -190,104 +177,18 @@ abstract class GenericStatement extends CacheKey {
 				throw new \InvalidArgumentException("Specified parameter is not an array/object");
 			}
 		
-			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX,
-					function ($matches) {
-						$total_matches = count($matches);
-						$type = $subindex = null;
-		
-						switch ($total_matches) {
-							/**
-							 * Property
-							 */
-							case 4: //#{PROPERTY@1[INDEX]@2?:TYPE@3}
-								$type = substr($matches[3], 1);
-							case 3: //#{PROPERTY@1[INDEX]@2}
-								$subindex = empty($matches[2]) ? null : substr($matches[2], 1, -1);
-							case 2: //#{PROPERTY@1}
-								$key = $matches[1];
-		
-								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->wrappedArg, $key);
-								}
-		
-								return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
-								break;
-									
-								/**
-								 * Interval
-								 */
-							case 9: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}
-								$type = substr($matches[8], 1);
-							case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
-								$key = $matches[4];
-		
-								if (is_null($type) && isset($this->parameterMap)) {
-									$type = $this->getDefaultType($this->wrappedArg, $key);
-								}
-		
-								return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
-								break;
-						}
-		
-					}, $expr);
+			//move default counter to 1
+			$this->counter = 1;
+			
+			//wrap first argument
+			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
+
+			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		
-		//replace inline parameter
+		//replace inline parameters
 		if (!empty($args) && preg_match(self::INLINE_PARAM_REGEX, $expr)) {
-			$this->args[0] = $args[0];
-			$total_args = count($this->args);
-			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX,
-					function ($matches) use ($total_args) {
-						static $n = 0;
-						$total_matches = count($matches);
-		
-						if ($total_matches == 2) { //%{TYPE@1 | CLASS@1}
-							//check if there is arguments left
-							if ($n >= $total_args) {
-								throw new \OutOfBoundsException("No arguments left for expression '{$matches[0]}'");
-							}
-
-							return $this->castParameter($this->args[$n++], $matches[1]);
-						}
-						else {
-							$subindex = $type = null;
-								
-							switch ($total_matches) {
-								/**
-								 * Simple index
-								 */
-								case 5: //%{NUMBER@2[INDEX]@3?:TYPE@4}
-									$type = substr($matches[4], 1);
-								case 4: //%{NUMBER@2[INDEX]@3}
-									$subindex = empty($matches[3]) ? null : substr($matches[3], 1, -1);
-								case 3: //%{NUMBER@2}
-									$index = intval($matches[2]);
-										
-									if (!array_key_exists($index, $this->args)) {
-										throw new \InvalidArgumentException("No value found on index $index");
-									}
-										
-									return $this->getSubIndex($this->args[$index], $subindex, $type);
-										
-									break;
-		
-									/**
-									 * Interval
-									 */
-								case 10: //%{NUMBER@5[LEFT@7?..RIGHT@8?]:TYPE@9}
-									$type = substr($matches[9], 1);
-								case 9: //%{NUMBER@5[LEFT@7?..RIGHT@8?]}
-									$index = intval($matches[5]);
-										
-									if (!array_key_exists($index, $this->args)) {
-										throw new \InvalidArgumentException("No value found on index $index");
-									}
-										
-									return $this->getSubRange($this->args[$index], $matches[7], $matches[8], $type);
-									break;
-							}
-						}
-					}, $expr);
+			$expr = preg_replace_callback(self::INLINE_PARAM_REGEX, [$this, 'replaceArgumentExpression'], $expr);
 		}
 		
 		return $expr;

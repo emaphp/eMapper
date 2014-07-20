@@ -4,8 +4,8 @@ namespace Acme\Type;
 use eMapper\Type\TypeHandler;
 
 /**
- * @meta.parser emapper\emapper
- * @map.unquoted
+ * @TypeHandler
+ * @Safe
  */
 class DummyTypeHandler extends TypeHandler {
 	public function getValue($value) {

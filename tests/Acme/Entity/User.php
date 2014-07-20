@@ -2,12 +2,12 @@
 namespace Acme\Entity;
 
 /**
- * @meta.parser emapper\emapper
- * @map.entity
+ * @Entity users
  */
 class User {
 	/**
-	 * @map.type int
+	 * @Id
+	 * @Type integer
 	 */
 	public $id;
 	

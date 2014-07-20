@@ -19,13 +19,7 @@ class ClassProfile {
 	 * @var AnnotationsBag
 	 */
 	public $classAnnotations;
-	
-	/**
-	 * Property annotations
-	 * @var array
-	 */
-	public $propertiesAnnotations;
-	
+		
 	/**
 	 * Dynamic attributes
 	 * @var array
@@ -62,35 +56,34 @@ class ClassProfile {
 		$this->classAnnotations = Facade::getAnnotations($this->reflectionClass);
 		
 		//get properties annotations
+		$this->propertiesConfig = $this->dynamicAttributes = [];
 		$propertyList = $this->reflectionClass->getProperties();
-		$this->propertiesAnnotations = [];
 		
 		foreach ($propertyList as $reflectionProperty) {
-			$this->propertiesAnnotations[$reflectionProperty->getName()] = Facade::getAnnotations($reflectionProperty);
-		}
-		
-		//store properties metadata
-		$this->dynamicAttributes = $this->propertiesConfig = [];
+			//get property annotations
+			$annotations = Facade::getAnnotations($reflectionProperty);
 			
-		foreach ($this->propertiesAnnotations as $name => $attr) {
-			if ($attr->has('map.eval')) {
-				$this->dynamicAttributes[$name] = new MacroExpression($name, $attr, $this->reflectionClass->getProperty($name));
+			//get property name for indexation
+			$propertyName = $reflectionProperty->getName();
+			
+			//determiny property type
+			if ($annotations->has('Eval')) {
+				$this->dynamicAttributes[$propertyName] = new MacroExpression($propertyName, $annotations, $reflectionProperty);
 			}
-			elseif ($attr->has('map.stmt')) {
-				$this->dynamicAttributes[$name] = new StatementCallback($name, $attr, $this->reflectionClass->getProperty($name));
+			elseif ($annotations->has('StatementId')) {
+				$this->dynamicAttributes[$propertyName] = new StatementCallback($propertyName, $annotations, $reflectionProperty);
 			}
-			elseif ($attr->has('map.query')) {
-				$this->dynamicAttributes[$name] = new QueryCallback($name, $attr, $this->reflectionClass->getProperty($name));
+			elseif ($annotations->has('Query')) {
+				$this->dynamicAttributes[$propertyName] = new QueryCallback($propertyName, $annotations, $reflectionProperty);
 			}
-			elseif ($attr->has('map.procedure')) {
-				$this->dynamicAttributes[$name] = new StoredProcedureCallback($name, $attr, $this->reflectionClass->getProperty($name), $classname);
+			elseif ($annotations->has('Procedure')) {
+				$this->dynamicAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
 			}
 			else {
-				$this->propertiesConfig[$name] = new PropertyProfile($name, $attr, $this->reflectionClass->getProperty($name));
+				$this->propertiesConfig[$propertyName] = new PropertyProfile($propertyName, $annotations, $reflectionProperty);
 				
-				//determine if the current property is primary key
-				if ($this->propertiesConfig[$name]->isPrimaryKey && is_null($this->primaryKey)) {
-					$this->primaryKey = $name;
+				if ($this->propertiesConfig[$propertyName]->isPrimaryKey) {
+					$this->primaryKey = $propertyName;
 				}
 			}
 		}
@@ -111,24 +104,41 @@ class ClassProfile {
 	}
 	
 	public function isEntity() {
-		return $this->classAnnotations->has('map.entity');
+		return $this->classAnnotations->has('Entity');
 	}
 	
-	public function isUnquoted() {
-		return $this->classAnnotations->has('map.unquoted');
+	public function isResultMap() {
+		return $this->classAnnotations->has('ResultMap');
 	}
 	
-	public function getReferencedTable() {
-		if ($this->classAnnotations->has('map.table')) {
-			return $this->classAnnotations->get('map.table');
+	public function isParameterMap() {
+		return $this->classAnnotations->has('ParameterMap');
+	}
+	
+	public function isTypeHandler() {
+		return $this->classAnnotations->has('TypeHandler');
+	}
+	
+	public function isSafe() {
+		if ($this->classAnnotations->has('Safe')) {
+			return (bool) $this->classAnnotations->get('Safe');
 		}
 		
-		return strtolower($this->reflectionClass->getShortName());
+		return false;
+	}
+	
+	public function getReferredTable() {
+		if ($this->classAnnotations->has('Entity')) {
+			return $this->classAnnotations->get('Entity');
+		}
+		
+		//return default table
+		return strtolower($this->reflectionClass->getShortName()) . 's';
 	}
 	
 	public function getNamespace() {
-		if ($this->classAnnotations->has('map.namespace')) {
-			return $this->classAnnotations->get('map.namespace');
+		if ($this->classAnnotations->has('DefaultNamespace')) {
+			return $this->classAnnotations->get('DefaultNamespace');
 		}
 		
 		return null;

@@ -4,7 +4,7 @@ namespace eMapper\Type\Handler;
 use eMapper\Type\TypeHandler;
 
 /**
- * @map.unquoted
+ * @Safe
  */
 class FloatTypeHandler extends TypeHandler {
 	public function getValue($value) {

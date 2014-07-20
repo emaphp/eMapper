@@ -2,6 +2,7 @@
 namespace eMapper\Reflection\Parameter;
 
 use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Profile\ClassProfile;
 
 abstract class ParameterWrapper implements \ArrayAccess {
 	/**
@@ -11,24 +12,27 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	public $value;
 	
 	/**
-	 * Value parameter map
-	 * @var string | NULL
+	 * Parameter map profile
+	 * @var ClassProfile
 	 */
 	public $parameterMap;
 	
-	/**
-	 * Parameter map configuration
-	 * @var array
-	 */
-	public $config;
+	public function __construct($value, $parameterMap = null) {
+		$this->value = $value;
 	
+		if (isset($parameterMap)) {
+			//initialize parameter map
+			$this->parameterMap = Profiler::getClassProfile($parameterMap);
+		}
+	}
+		
 	/**
 	 * Generates a new wrapper instance for the given value
 	 * @param mixed $value
 	 * @param string $parameterMap
 	 * @return ParameterWrapper
 	 */
-	public static function wrap($value, $parameterMap = null) {
+	public static function wrapValue($value, $parameterMap = null) {
 		if (is_array($value)) {
 			return new ArrayParameterWrapper($value, $parameterMap);
 		}
@@ -41,6 +45,7 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		elseif (is_object($value)) {
 			$classname = get_class($value);
 			
+			//use class as parameter map
 			if (is_null($parameterMap) && Profiler::getClassProfile($classname)->isEntity()) {
 				$parameterMap = $classname;
 			}
@@ -51,30 +56,39 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		throw new \InvalidArgumentException("Parameter is nor an object or array");
 	}
 	
-	public function __construct($value, $parameterMap) {
-		$this->value = $value;
-		$this->parameterMap = $parameterMap;
-	}
-		
-	public function getPropertyConfig($property) {
-		if (array_key_exists($property, $this->config)) {
-			return $this->config[$property];
+	/**
+	 * Returns the referred property name by the given offset
+	 * @param string $offset
+	 * @param boolean $strict
+	 * @throws \UnexpectedValueException
+	 */
+	protected function getPropertyName($offset, $strict = true) {
+		//check if offset is valid
+		if (!array_key_exists($offset, $this->parameterMap->propertiesConfig)) {
+			if ($strict) {
+				throw new \UnexpectedValueException();
+			}
+			
+			return false;
 		}
 		
-		return false;
+		return $this->parameterMap->propertiesConfig[$offset]->property;
 	}
 	
-	public function offsetSet($offset, $value) {
-		return;
-	}
+	/*
+	 * ARRAY ACCESS METHODS
+	 */
 	
-	public function offsetUnset($offset) {
-		return;
-	}
-	
+	public abstract function offsetSet($offset, $value);
+	public abstract function offsetUnset($offset);
 	public abstract function offsetExists($offset);
 	public abstract function offsetGet($offset);
-	public abstract function getParameterVars();
+	
+	/**
+	 * Returns wrapped value as an array
+	 * @return array
+	 */
+	public abstract function getValueAsArray();
 
 }
 ?>

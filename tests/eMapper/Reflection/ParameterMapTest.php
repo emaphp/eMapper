@@ -13,8 +13,8 @@ use Acme\Reflection\Parameter\UserEntity;
  */
 class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 	public function testArray() {
-		$value = array('name' => 'joe', 'lastname' => 'doe');
-		$wrapper = ParameterWrapper::wrap($value);
+		$value = ['name' => 'joe', 'lastname' => 'doe'];
+		$wrapper = ParameterWrapper::wrapValue($value);
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -22,7 +22,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['lastname']);
 		
-		$vars = $wrapper->getParameterVars();
+		$vars = $wrapper->getValueAsArray();
 		$this->assertInternalType('array', $vars);
 		$this->assertArrayHasKey('name', $vars);
 		$this->assertArrayHasKey('lastname', $vars);
@@ -31,8 +31,8 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testArrayParameterMap() {
-		$value = array('name' => 'joe', 'lastname' => 'doe');
-		$wrapper = ParameterWrapper::wrap($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
+		$value = ['name' => 'joe', 'lastname' => 'doe'];
+		$wrapper = ParameterWrapper::wrapValue($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -42,12 +42,11 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('doe', $wrapper['surname']);
 		
 		$this->assertEquals('str', $wrapper->config['name']->type);
-		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testArrayObject() {
-		$value = new \ArrayObject(array('name' => 'joe', 'lastname' => 'doe'));
-		$wrapper = ParameterWrapper::wrap($value);
+		$value = new \ArrayObject(['name' => 'joe', 'lastname' => 'doe']);
+		$wrapper = ParameterWrapper::wrapValue($value);
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -55,7 +54,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['lastname']);
 		
-		$vars = $wrapper->getParameterVars();
+		$vars = $wrapper->getValueAsArray();
 		$this->assertInternalType('array', $vars);
 		$this->assertArrayHasKey('name', $vars);
 		$this->assertArrayHasKey('lastname', $vars);
@@ -64,8 +63,8 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testArrayObjectParameterMap() {
-		$value = new \ArrayObject(array('name' => 'joe', 'lastname' => 'doe'));
-		$wrapper = ParameterWrapper::wrap($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
+		$value = new \ArrayObject(['name' => 'joe', 'lastname' => 'doe']);
+		$wrapper = ParameterWrapper::wrapValue($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -83,7 +82,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$value->name = 'joe';
 		$value->lastname = 'doe';
 		
-		$wrapper = ParameterWrapper::wrap($value);
+		$wrapper = ParameterWrapper::wrapValue($value);
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -91,7 +90,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['lastname']);
 		
-		$vars = $wrapper->getParameterVars();
+		$vars = $wrapper->getValueAsArray();
 		$this->assertInternalType('array', $vars);
 		$this->assertArrayHasKey('name', $vars);
 		$this->assertArrayHasKey('lastname', $vars);
@@ -104,7 +103,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$value->name = 'joe';
 		$value->lastname = 'doe';
 		
-		$wrapper = ParameterWrapper::wrap($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
+		$wrapper = ParameterWrapper::wrapValue($value, 'Acme\Reflection\Parameter\UserArrayParameterMap');
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ArrayParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -114,12 +113,11 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('doe', $wrapper['surname']);
 		
 		$this->assertEquals('str', $wrapper->config['name']->type);
-		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testObject() {
 		$value = new ExampleUser('joe', 'doe', '123456');
-		$wrapper = ParameterWrapper::wrap($value);
+		$wrapper = ParameterWrapper::wrapValue($value);
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ObjectParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -128,7 +126,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['lastname']);
 		
-		$vars = $wrapper->getParameterVars();
+		$vars = $wrapper->getValueAsArray();
 		$this->assertInternalType('array', $vars);
 		$this->assertArrayHasKey('name', $vars);
 		$this->assertArrayHasKey('lastname', $vars);
@@ -138,7 +136,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testObjectParameterMap() {
 		$value = new ExampleUser('joe', 'doe', '123456');
-		$wrapper = ParameterWrapper::wrap($value, 'Acme\Reflection\Parameter\ExampleUserPameterMap');
+		$wrapper = ParameterWrapper::wrapValue($value, 'Acme\Reflection\Parameter\ExampleUserPameterMap');
 		
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ObjectParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
@@ -157,7 +155,7 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$value->surname = 'doe';
 		$value->setPassword('123456');
 		
-		$wrapper = ParameterWrapper::wrap($value);
+		$wrapper = ParameterWrapper::wrapValue($value);
 		$this->assertInstanceOf('eMapper\Reflection\Parameter\ObjectParameterWrapper', $wrapper);
 		$this->assertTrue($wrapper->offsetExists('name'));
 		$this->assertTrue($wrapper->offsetExists('surname'));

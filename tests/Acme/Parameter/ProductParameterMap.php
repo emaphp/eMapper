@@ -2,22 +2,21 @@
 namespace Acme\Parameter;
 
 /**
- * @meta.parser emapper\emapper
- * @author emaphp
+ * @ParameterMap
  */
 class ProductParameterMap {
 	/**
-	 * @map.property pcod
+	 * @Property pcod
 	 */
 	public $code;
 	
 	/**
-	 * @map.property price
+	 * @Property price
 	 */
 	public $cost;
 	
 	/**
-	 * @map.type boolean
+	 * @Type boolean
 	 */
 	public $refurbished;
 }

@@ -1,77 +1,62 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use eMapper\Result\Argument\PropertyReader;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
+use Minime\Annotations\AnnotationsBag;
+use eMapper\Query\Attr;
 
 class StoredProcedureCallback extends DynamicAttribute {
-	/**
-	 * Class which declares this attribute
-	 * @var string
-	 */
-	public $classname;
-	
 	/**
 	 * Stored procedure name
 	 * @var string
 	 */
 	public $procedure;
 	
-	public function __construct($name, $attribute, \ReflectionProperty $reflectionProperty, $classname) {
-		parent::__construct($name, $attribute, $reflectionProperty);
-		$this->classname = $classname;
-	}
-	
-	protected function parseAttribute($attribute) {
+	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain procedure name
-		$this->procedure = $attribute->get('map.procedure');
+		$this->procedure = $annotations->get('Procedure');
 	}
-	
-	/**
-	 * Returns a value type
-	 * @param mixed $value
-	 * @throws \UnexpectedValueException
-	 * @return string
-	 */
-	protected function getType($value, $property) {
-		if (is_array($value)) {
-			throw new \UnexpectedValueException("Property '$property' is an array and cannot be used as stored procedure argument");
-		}
 		
-		if (is_object($value)) {
-			return get_class($value);
-		}
-		
-		return strtolower(gettype($value));
-	}
-	
 	protected function evaluateArgs($row, $parameterMap, &$proc_types) {
-		$args = array();
+		$args = [];
 		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
 	
+		//get class profile
+		$classname = $this->reflectionProperty->getDeclaringClass()->getName();
+		$profile = Profiler::getClassProfile($classname);
+	
 		foreach ($this->args as $arg) {
-			if ($arg instanceof PropertyReader) {
-				$value = $wrapper[$arg->property];
+			if ($arg instanceof Attr) {
+				//get attribute name
+				$name = $arg->getName();
 				
-				if (!isset($arg->type)) {
-					//try getting type from class annotation
-					$profile = Profiler::getClassProfile($this->classname);
-					
-					if (!array_key_exists($arg->property, $profile->propertiesConfig)) {
-						throw new \UnexpectedValueException("Property '{$arg->property}' not found in class '{$this->classname}'");
-					}
-					
-					if (isset($profile->propertiesConfig[$arg->property]->type)) {
-						$type = $profile->propertiesConfig[$arg->property]->type;
+				//check if property is declared
+				if (!in_array($name, $profile->columnNames)) {
+					throw new \RuntimeException();
+				}
+				
+				//get attribute value and type
+				$value = $wrapper[$name];
+				$type = $arg->getType();
+				
+				if (is_null($type)) {
+					if (isset($profile->propertiesConfig[$name]->type)) {
+						$type = $profile->propertiesConfig[$name]->type;
 					}
 					else {
-						//get value type
-						$type = $this->getType($value, $arg->property);
+						//determine type by original value
+						if (is_array($value)) {
+							throw new \RuntimeException();
+						}
+						
+						if (is_object($value)) {
+							$type = get_class($value);
+						}
+						else {
+							strtolower(gettype($value));
+						}
 					}
-				}
-				else {
-					$type = $arg->type;
 				}
 				
 				$args[] = $value;
@@ -85,7 +70,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return $args;
 	}
 	
-	protected function applyConfig($config, $proc_types) {
+	protected function updateConfig($config, $proc_types) {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
 		$this->config['proc.types'] = $proc_types;
 	}
@@ -97,11 +82,11 @@ class StoredProcedureCallback extends DynamicAttribute {
 		}
 		
 		//build argument list
-		$proc_types = array();
+		$proc_types = [];
 		$args = $this->evaluateArgs($row, $parameterMap, $proc_types);
 		
 		//apply configuration
-		$this->applyConfig($mapper->config, $proc_types);
+		$this->updateConfig($mapper->config, $proc_types);
 		
 		//call stored procedure
 		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);

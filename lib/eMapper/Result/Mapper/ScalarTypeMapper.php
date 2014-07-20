@@ -34,10 +34,10 @@ class ScalarTypeMapper {
 	
 	public function mapList(ResultIterator $result, $column = null) {
 		if ($result->countRows() == 0) {
-			return array();
+			return [];
 		}
 		
-		$list = array();
+		$list = [];
 		
 		if (is_null($column) || empty($column)) {
 			$column = 0;
