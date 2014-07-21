@@ -11,12 +11,9 @@ use eMacros\Program\SimpleProgram;
 
 abstract class GenericStatement extends CacheKey {
 	use EnvironmentBuilder;
-	
-	//Ex: [[ (null? (#order)) ]]
-	const UNESCAPED_DYNAMIC_SQL_REGEX = '/\[\[(.+?)\]\]/';
-	
-	//Ex: {{ (null? (#order)) }} {{:int (#limit)) }}
-	const DYNAMIC_SQL_REGEX = '/\{\{(?::([\w|\\\\]+)\s+)?(.+?)\}\}/';
+
+	//Ex: [? (null? (#order)) ?] [?int (#limit) ?]
+	const DYNAMIC_SQL_REGEX = '/(?>\\[\?)([A-z]{1}[\w|\\\\]*)?\s+(.+?)\?\]/';
 	
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
 		$list = array();
@@ -118,6 +115,20 @@ abstract class GenericStatement extends CacheKey {
 		return $program->executeWith($env, $this->args);
 	}
 	
+	protected function replaceDynamicExpression($matches) {
+		//run program
+		$program = new SimpleProgram($matches[2]);
+		$value = $program->executeWith($this->buildEnvironment($this->config), $this->args);
+		
+		//cast return type to the specified type (if any)
+		if (!empty($matches[1])) {
+			return $this->castParameter($value, $matches[1]);
+		}
+		
+		//return unsafe string
+		return $this->toString($value);
+	}
+	
 	public function build($expr, $args, $config) {
 		//store arguments
 		$this->args = $args;
@@ -132,31 +143,10 @@ abstract class GenericStatement extends CacheKey {
 		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
 			//$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
 		}
-		
-		//replace dynamic sql expressions (unescaped)
-		if (preg_match(self::UNESCAPED_DYNAMIC_SQL_REGEX, $expr)) {
-			//set environment config
-			$env = $this->buildEnvironment($config);
-			
-			$expr = preg_replace_callback(self::UNESCAPED_DYNAMIC_SQL_REGEX,
-					function ($matches) use ($env) {
-						return $this->toString($this->executeDynamicSQL($env, $matches[1]));
-					},
-					$expr);
-		}
-		
+				
 		//replace dynamic sql expressions
 		if (preg_match(self::DYNAMIC_SQL_REGEX, $expr)) {
-			//set environment config
-			$env = $this->buildEnvironment($config);
-			
-			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX,
-					function ($matches) use ($env) {
-						$value = $this->executeDynamicSQL($env, $matches[2]);
-						$type = !empty($matches[1]) ? $matches[1] : 'string';
-						return $this->castParameter($value, $type);
-					},
-					$expr);
+			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX, [$this, 'replaceDynamicExpression'], $expr);
 		}
 		
 		//replace configuration propeties expressions
