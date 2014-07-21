@@ -12,6 +12,12 @@ use eMapper\Query\Builder\UpdateQueryBuilder;
 use eMapper\Query\Builder\SelectQueryBuilder;
 use eMapper\Query\Field;
 use eMapper\Query\Column;
+use eMapper\Query\Aggregate\SQLCount;
+use eMapper\Query\Aggregate\SQLFunction;
+use eMapper\Query\Aggregate\SQLAverage;
+use eMapper\Query\Aggregate\SQLMax;
+use eMapper\Query\Aggregate\SQLMin;
+use eMapper\Query\Aggregate\SQLSum;
 
 class Manager {
 	use StatementConfiguration;
@@ -304,6 +310,45 @@ class Manager {
 		$query = new DeleteQueryBuilder($this->entity, true);
 		list($query, $_) = $query->build($this->mapper->driver);
 		return $this->mapper->query($query);
+	}
+	
+	/*
+	 * FUNCTIONS
+	 */
+	
+	protected function sqlFunction(SQLFunction $function, $type) {
+		//connect to database
+		$this->mapper->connect();
+		
+		//build query
+		$query = new SelectQueryBuilder($this->entity);
+		$query->setCondition($condition);
+		$query->setFunction($function);
+		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		
+		//run query
+		$options = $this->clean_options(['map.type' => $type]);
+		return $this->mapper->merge($options)->query($query, $args);
+	}
+	
+	public function count() {
+		return $this->sqlFunction(new SQLCount(), 'int');
+	}
+	
+	public function avg(Field $field) {
+		return $this->sqlFunction(new SQLAverage($field), $field->hasType() ? $field->getType() : 'float');
+	}
+	
+	public function max(Field $field) {
+		return $this->sqlFunction(new SQLMax($field), $field->hasType() ? $field->getType() : 'float');
+	}
+	
+	public function min(Field $field) {
+		return $this->sqlFunction(new SQLMin($field), $field->hasType() ? $field->getType() : 'float');
+	}
+	
+	public function sum(Field $field) {
+		return $this->sqlFunction(new SQLSum($field), $field->hasType() ? $field->getType() : 'float');
 	}
 	
 	/**

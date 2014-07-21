@@ -4,8 +4,19 @@ namespace eMapper\Query\Builder;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
+use eMapper\Query\Aggregate\SQLFunction;
 
 class SelectQueryBuilder extends QueryBuilder {
+	/**
+	 * SQL function
+	 * @var SQLFunction
+	 */
+	protected $function;
+	
+	public function setFunction(SQLFunction $function) {
+		$this->function = $function;
+	}
+	
 	/**
 	 * Obtains columns expression for this query
 	 * @param array $config
@@ -99,6 +110,13 @@ class SelectQueryBuilder extends QueryBuilder {
 	
 	public function build(Driver $driver, $config = null) {
 		$table = '@@' . $this->entity->getReferredTable();
+		
+		if (isset($this->function)) {
+			$function = $this->function->getExpression($this->entity);
+			$args = [];
+			$condition = $this->condition->evaluate($driver, $this->entity, $args);
+			return [trim(sprintf("SELECT %s FROM %s WHERE %s", $function, $table, $condition)), $args];
+		}
 		
 		$columns = $this->getColumns($config);
 		
