@@ -15,6 +15,6 @@ abstract class SQLFunction {
 		$this->field = $field;
 	}
 	
-	protected function getExpression(ClassProfile $profile);
+	public abstract function getExpression(ClassProfile $profile);
 }
 ?>

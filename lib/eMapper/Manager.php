@@ -322,7 +322,6 @@ class Manager {
 		
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
-		$query->setCondition($condition);
 		$query->setFunction($function);
 		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
@@ -331,24 +330,53 @@ class Manager {
 		return $this->mapper->merge($options)->query($query, $args);
 	}
 	
-	public function count() {
-		return $this->sqlFunction(new SQLCount(), 'int');
+	/**
+	 * Obtains the total amount of rows
+	 * @param string $type
+	 * @return integer
+	 */
+	public function count($type = 'int') {
+		return $this->sqlFunction(new SQLCount(), $type);
 	}
 	
-	public function avg(Field $field) {
-		return $this->sqlFunction(new SQLAverage($field), $field->hasType() ? $field->getType() : 'float');
+	/**
+	 * Obtains the average value for the given field
+	 * @param Field $field
+	 * @param string $type
+	 * @return float
+	 */
+	public function avg(Field $field, $type = 'float') {
+		return $this->sqlFunction(new SQLAverage($field), $type);
 	}
 	
-	public function max(Field $field) {
-		return $this->sqlFunction(new SQLMax($field), $field->hasType() ? $field->getType() : 'float');
+	/**
+	 * Obtains the maximum value for the given field
+	 * @param Field $field
+	 * @param string $type
+	 * @return float
+	 */
+	public function max(Field $field, $type = 'float') {
+		return $this->sqlFunction(new SQLMax($field), $type);
 	}
 	
-	public function min(Field $field) {
-		return $this->sqlFunction(new SQLMin($field), $field->hasType() ? $field->getType() : 'float');
+	/**
+	 * Obtains the minimum value for the given field
+	 * @param Field $field
+	 * @param string $type
+	 * @return float
+	 */
+	public function min(Field $field, $type = 'float') {
+		return $this->sqlFunction(new SQLMin($field), $type);
 	}
 	
-	public function sum(Field $field) {
-		return $this->sqlFunction(new SQLSum($field), $field->hasType() ? $field->getType() : 'float');
+	/**
+	 * Obtains the sum of the given field
+	 * @param Field $field
+	 * @param string $type
+	 * @return float
+	 */
+	public function sum(Field $field, $type = 'float') {
+		return $this->sqlFunction(new SQLSum($field), $type);
 	}
 	
 	/**

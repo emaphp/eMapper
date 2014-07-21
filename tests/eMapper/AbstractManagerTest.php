@@ -367,5 +367,63 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('product_id', $product);
 		$this->assertEquals(3, $product['product_id']);
 	}
+	
+	/**
+	 * AGGREGATE FUNCTIONS
+	 */
+	
+	public function testCount() {
+		$totalProducts = $this->productsManager->count();
+		$this->assertInternalType('integer', $totalProducts);
+		$this->assertEquals(5, $totalProducts);
+		
+		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->count();
+		$this->assertEquals(3, $total);
+		
+		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->count('float');
+		$this->assertInternalType('float', $total);
+		$this->assertEquals(3, $total);
+	}
+	
+	public function testAverage() {
+		$avg = $this->productsManager->avg(Column::price());
+		$this->assertInternalType('float', $avg);
+		$this->assertEquals(175, floor($avg));
+		
+		$avg = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->avg(Column::price(), 'int');
+		$this->assertInternalType('integer', $avg);
+		$this->assertEquals(210, $avg);
+	}
+	
+	public function testMax() {
+		$max = $this->productsManager->max(Column::price());
+		$this->assertInternalType('float', $max);
+		$this->assertEquals(300, floor($max));
+		
+		$max = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->max(Column::price(), 'int');
+		$this->assertInternalType('integer', $max);
+		$this->assertEquals(300, $max);
+	}
+	
+	public function testMin() {
+		$min = $this->productsManager->min(Column::price());
+		$this->assertInternalType('float', $min);
+		$this->assertEquals(70, floor($min));
+		
+		$min = $this->productsManager->filter(Attr::category()->eq('Clothes'))->min(Column::rating(), 'int');
+		$this->assertInternalType('integer', $min);
+		$this->assertEquals(3, $min);
+	}
+	
+	public function testSum() {
+		$sum = $this->productsManager->sum(Column::price());
+		$this->assertInternalType('float', $sum);
+		$this->assertEquals(878, floor($sum));
+		
+		$sum = $this->productsManager->filter(Attr::category()->eq('Clothes'))->sum(Column::price(), 'integer');
+		$this->assertInternalType('integer', $sum);
+		$this->assertEquals(457, floor($sum));
+	}
+	
 }
 ?>

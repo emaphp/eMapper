@@ -113,9 +113,20 @@ class SelectQueryBuilder extends QueryBuilder {
 		
 		if (isset($this->function)) {
 			$function = $this->function->getExpression($this->entity);
-			$args = [];
-			$condition = $this->condition->evaluate($driver, $this->entity, $args);
-			return [trim(sprintf("SELECT %s FROM %s WHERE %s", $function, $table, $condition)), $args];
+			
+			if (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
+				$args = [];
+				$filters = [];
+					
+				foreach ($config['query.filter'] as $filter) {
+					$filters[] = $filter->evaluate($driver, $this->entity, $args);
+				}
+					
+				$condition = implode(' AND ', $filters);
+				return [trim(sprintf("SELECT %s FROM %s WHERE %s", $function, $table, $condition)), $args];
+			}
+			
+			return [trim(sprintf("SELECT %s FROM %s", $function, $table)), null];
 		}
 		
 		$columns = $this->getColumns($config);
