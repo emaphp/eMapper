@@ -40,8 +40,6 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($wrapper->offsetExists('lastname'));
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
-		
-		$this->assertEquals('str', $wrapper->config['name']->type);
 	}
 	
 	public function testArrayObject() {
@@ -72,9 +70,6 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($wrapper->offsetExists('lastname'));
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
-		
-		$this->assertEquals('str', $wrapper->config['name']->type);
-		$this->assertEquals('string', $wrapper->config['surname']->suggestedType);
 	}
 	
 	public function testStdClass() {
@@ -111,8 +106,6 @@ class ParameterMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($wrapper->offsetExists('lastname'));
 		$this->assertEquals('joe', $wrapper['name']);
 		$this->assertEquals('doe', $wrapper['surname']);
-		
-		$this->assertEquals('str', $wrapper->config['name']->type);
 	}
 	
 	public function testObject() {

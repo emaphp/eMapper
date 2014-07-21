@@ -5,7 +5,7 @@ use eMapper\Result\Relation\MacroExpression;
 use eMapper\Result\Relation\StatementCallback;
 use eMapper\Result\Relation\QueryCallback;
 use eMapper\Result\Relation\StoredProcedureCallback;
-use Minime\Annotations\Facade;
+use eMapper\Annotations\Facade;
 
 class ClassProfile {
 	/**
@@ -121,7 +121,7 @@ class ClassProfile {
 	
 	public function isSafe() {
 		if ($this->classAnnotations->has('Safe')) {
-			return (bool) $this->classAnnotations->get('Safe');
+			return (bool) $this->classAnnotations->get('Safe')->getValue();
 		}
 		
 		return false;
@@ -129,7 +129,7 @@ class ClassProfile {
 	
 	public function getReferredTable() {
 		if ($this->classAnnotations->has('Entity')) {
-			return $this->classAnnotations->get('Entity');
+			return $this->classAnnotations->get('Entity')->getValue();
 		}
 		
 		//return default table
@@ -138,7 +138,7 @@ class ClassProfile {
 	
 	public function getNamespace() {
 		if ($this->classAnnotations->has('DefaultNamespace')) {
-			return $this->classAnnotations->get('DefaultNamespace');
+			return $this->classAnnotations->get('DefaultNamespace')->getValue();
 		}
 		
 		return null;

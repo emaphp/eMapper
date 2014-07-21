@@ -3,7 +3,7 @@ namespace eMapper\Result\Relation;
 
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
 
 class StoredProcedureCallback extends DynamicAttribute {
@@ -15,12 +15,12 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain procedure name
-		$this->procedure = $annotations->get('Procedure');
+		$this->procedure = $annotations->get('Procedure')->getValue();
 	}
 		
 	protected function evaluateArgs($row, $parameterMap, &$proc_types) {
 		$args = [];
-		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
+		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
 	
 		//get class profile
 		$classname = $this->reflectionProperty->getDeclaringClass()->getName();

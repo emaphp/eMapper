@@ -1,19 +1,14 @@
 <?php
 namespace Acme\Reflection\Parameter;
 
-/**
- * @meta.parser emapper\emapper
- * @author emaphp
- */
 class UserArrayParameterMap {
 	/**
-	 * @map.type str
+	 * @Type string
 	 */
 	public $name;
 	
 	/**
-	 * @map.property lastname
-	 * @var string
+	 * @Property lastname
 	 */
 	public $surname;
 }

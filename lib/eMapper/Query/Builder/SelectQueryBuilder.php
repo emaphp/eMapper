@@ -98,7 +98,7 @@ class SelectQueryBuilder extends QueryBuilder {
 	}
 	
 	public function build(Driver $driver, $config = null) {
-		$table = '@@' . $this->entity->getReferencedTable();
+		$table = '@@' . $this->entity->getReferredTable();
 		
 		$columns = $this->getColumns($config);
 		

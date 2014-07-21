@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Profile;
 
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
 
 class PropertyProfile {
 	/**
@@ -42,11 +42,11 @@ class PropertyProfile {
 	
 	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		$this->name = $name;
-		$this->column = $annotations->has('Column') ? $annotations->get('Column') : $name;
-		$this->property = $annotations->has('Property') ? $annotations->get('Property') : $name;
+		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : $name;
+		$this->property = $annotations->has('Property') ? $annotations->get('Property')->getValue() : $name;
 		
 		if ($annotations->has('Type')) {
-			$this->type = $annotations->get('Type');
+			$this->type = $annotations->get('Type')->getValue();
 		}
 		
 		$this->isPrimaryKey = $annotations->has('Id');

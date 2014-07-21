@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\Reflection;
 
-use Minime\Annotations\AnnotationsBag;
 use eMapper\Reflection\Profile\ClassProfile;
 
 abstract class Profiler {

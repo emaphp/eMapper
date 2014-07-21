@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
 
 class StatementCallback extends DynamicAttribute {
 	/**
@@ -12,7 +12,7 @@ class StatementCallback extends DynamicAttribute {
 	
 	protected function parseMetadata(AnnotationsBag $attribute) {
 		//obtain statement id
-		$this->statement = $attribute->get('StatementId');
+		$this->statement = $attribute->get('StatementId')->getValue();
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {

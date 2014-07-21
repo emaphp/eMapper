@@ -8,14 +8,15 @@ use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
+use eMapper\Annotations\Filter;
 
 abstract class DynamicAttribute extends PropertyProfile {
 	use EnvironmentBuilder;
 	
-	//Ex: Parameter(name), Parameter(userId:string)
-	const PARAMETER_PROPERTY_REGEX = '/Parameter(?:\(([A-z|_]{1}[\w|\\\\]*)(:[A-z]{1}[\w|\\\\]*)?\))/';
+	//Ex: name, userId:string
+	const PARAMETER_PROPERTY_REGEX = '/([A-z|_]{1}[\w|\\\\]*)(:[A-z]{1}[\w|\\\\]*)?/';
 	
 	/**
 	 * Attribute arguments
@@ -68,21 +69,23 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		//parse additional arguments
-		$parameters = $annotations->grep('^Parameter')->export();
+		$parameters = $annotations->find('Parameter');
 		
-		foreach ($parameters as $name => $param) {
-			//check if the parameter defines a property
-			if (preg_match(self::PARAMETER_PROPERTY_REGEX, $name, $matches)) {
-				//check if a type has been added
-				if (array_key_exists(2, $matches)) {
-					$this->args[] = Attr::__callstatic($matches[1], [substr($matches[2], 1)]);
-				}
-				else {
-					$this->args[] = Attr::__callstatic($matches[1]);
+		foreach ($parameters as $param) {
+			if ($param->hasArgument()) {
+				$arg = $param->getArgument();
+				
+				if (preg_match(self::PARAMETER_PROPERTY_REGEX, $arg, $matches)) {
+					if (array_key_exists(2, $matches)) {
+						$this->args[] = Attr::__callstatic($matches[1], [substr($matches[2], 1)]);
+					}
+					else {
+						$this->args[] = Attr::__callstatic($matches[1]);
+					}
 				}
 			}
 			else {
-				$this->args[] = $param;
+				$this->args[] = $param->getValue();
 			}
 		}
 		
@@ -104,28 +107,26 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		if ($annotations->has('ResultMap')) {
-			$this->config['map.result'] = $annotations->get('ResultMap');
+			$this->config['map.result'] = $annotations->get('ResultMap')->getValue();
 		}
 		
 		if ($annotations->has('ParameterMap')) {
-			$this->config['map.parameter'] = $annotations->get('ParameterMap');
+			$this->config['map.parameter'] = $annotations->get('ParameterMap')->getValue();
 		}
 		
 		if ($annotations->has('If')) {
-			$this->condition = new SimpleProgram($annotations->get('If'));
+			$this->condition = new SimpleProgram($annotations->get('If')->getValue());
 		}
 		elseif ($annotations->has('IfNot')) {
-			$this->condition = new SimpleProgram($annotations->get('IfNot'));
+			$this->condition = new SimpleProgram($annotations->get('IfNot')->getValue());
 			$this->reverseCondition = true;
 		}
 		
 		//get additional options [Option(KEY) VALUE]
-		$options = $annotations->grep('^Option\([\w|\.]+\)')->export();
+		$options = $annotations->find('Option', Filter::HAS_ARGUMENT);
 		
-		foreach ($options as $name => $value) {
-			if (is_string($option) && preg_match('/Option\(([\w|\.]+)\)/', $name, $matches)) {
-				$this->config[$matches[1]] = $value;
-			}
+		foreach ($options as $option) {
+			$this->config[$option->getArgument()] = $option->getValue();
 		}
 	}
 	
@@ -136,7 +137,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	protected function evaluateArgs($row, $parameterMap) {
 		$args = [];
-		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
+		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
 			$args[] = $row;
@@ -158,7 +159,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	protected function checkCondition($row, $parameterMap, $config) {
 		if (isset($this->condition)) {
-			$condition = (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrap($row, $parameterMap));
+			$condition = (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrapValue($row, $parameterMap));
 			
 			if ($this->reverseCondition) {
 				return !$condition;

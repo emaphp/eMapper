@@ -155,7 +155,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->in([3, 4]));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id IN \(#\{([\w]+)\}\)/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id IN \(#\{([\w]+):int\}\)/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals([3, 4], $args[$index]);
@@ -165,7 +165,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->in([3, 4], false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id NOT IN \(#\{([\w]+)\}\)/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id NOT IN \(#\{([\w]+):int\}\)/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals([3, 4], $args[$index]);
@@ -176,7 +176,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->gt(3));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id > #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id > #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -186,7 +186,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->gt(3, false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id <= #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id <= #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -197,7 +197,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->gte(3));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id >= #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id >= #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -207,7 +207,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->gte(3, false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id < #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id < #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -218,7 +218,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->lt(3));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id < #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id < #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -228,7 +228,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->lt(3, false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id >= #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id >= #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -239,7 +239,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->lte(3));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id <= #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id <= #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -249,7 +249,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->lte(3, false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id > #\{([\w]+)\}/', $query, $matches);
+		$this->assertRegExpMatch('/SELECT \* FROM @@products WHERE product_id > #\{([\w]+):int\}/', $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals(3, $args[$index]);
@@ -344,7 +344,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->range(2, 4));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_id BETWEEN #\{([\w]+)\} AND #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_id BETWEEN #\{([\w]+):int\} AND #\{([\w]+):int\}/", $query, $matches);
 		$from_index = $matches[1];
 		$to_index = $matches[2];
 		$this->assertArrayHasKey($from_index, $args);
@@ -357,7 +357,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->range(2, 4, false));
 		list($query, $args) = $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_id NOT BETWEEN #\{([\w]+)\} AND #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_id NOT BETWEEN #\{([\w]+):int\} AND #\{([\w]+):int\}/", $query, $matches);
 		$from_index = $matches[1];
 		$to_index = $matches[2];
 		$this->assertArrayHasKey($from_index, $args);
@@ -388,7 +388,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new InsertQueryBuilder($this->profile);
 		list($query, $args) = $query->build($this->driver);
 		$this->assertNull($args);
-		$this->assertEquals("INSERT INTO @@products (product_id, product_code, category, color) VALUES (#{id}, #{code}, #{category}, #{color:Acme\RGBColor})", $query);
+		$this->assertEquals("INSERT INTO @@products (product_id, product_code, category, color) VALUES (#{id:int}, #{code}, #{category}, #{color:Acme\RGBColor})", $query);
 	}
 	
 	//UPDATE
@@ -396,7 +396,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new UpdateQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->eq(2));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExpMatch('/UPDATE @@products SET product_id = #\{\w+\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]\}/', $query, $matches);
+		$this->assertRegExpMatch('/UPDATE @@products SET product_id = #\{\w+:int\}, product_code = #\{\w+\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+):int\]\}/', $query, $matches);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$index = intval($matches[1]);
@@ -409,12 +409,14 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new DeleteQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->eq(1));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExpMatch("/DELETE FROM @@products WHERE product_id = #\{(arg[\d]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/DELETE FROM @@products WHERE product_id = #\{(arg[\d]+)(:[\w]+)?\}/", $query, $matches);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
-		$this->assertContains(1, $args);
+		$this->assertCount(3, $matches);
 		$key = $matches[1];
 		$this->assertArrayHasKey($key, $args);
+		$this->assertEquals(1, $args[$key]);
+		$this->assertEquals(':int', $matches[2]);
 	}
 	
 	public function testDeleteByColor() {

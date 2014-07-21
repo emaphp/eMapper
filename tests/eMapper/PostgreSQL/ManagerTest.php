@@ -9,7 +9,7 @@ use eMapper\Mapper;
 /**
  * PostgreSQL manager test
  * @author emaphp
- * @group postgres
+ * @group postgre
  * @group manager
  */
 class ManagerTest extends AbstractManagerTest {

@@ -3,7 +3,8 @@ namespace eMapper\Result\Relation;
 
 use eMacros\Program\SimpleProgram;
 use eMapper\Reflection\Parameter\ParameterWrapper;
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
+use eMapper\Query\Attr;
 
 class MacroExpression extends DynamicAttribute {
 	/**
@@ -17,7 +18,7 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain program source
-		$this->program = new SimpleProgram($annotations->get('Eval'));
+		$this->program = new SimpleProgram($annotations->get('Eval')->getValue());
 	}
 	
 	/**
@@ -27,7 +28,7 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	protected function evaluateArgs($row, $parameterMap) {
 		$args = [];
-		$wrapper = ParameterWrapper::wrap($row, $parameterMap);
+		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
 		
 		if ($this->useDefaultArgument) {
 			$args[] = $wrapper;

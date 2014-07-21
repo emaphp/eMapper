@@ -21,7 +21,7 @@ class DeleteQueryBuilder extends QueryBuilder {
 		$args = [];
 		
 		//get table name
-		$table = '@@' . $this->entity->getReferencedTable();
+		$table = '@@' . $this->entity->getReferredTable();
 		
 		//evaluate condition
 		if ($this->truncate) {

@@ -5,7 +5,7 @@ use eMapper\Engine\Generic\Driver;
 
 class InsertQueryBuilder extends QueryBuilder {
 	public function build(Driver $driver, $config = null) {
-		$table = '@@' . $this->entity->getReferencedTable();
+		$table = '@@' . $this->entity->getReferredTable();
 		$fields = implode(', ', $this->entity->fieldNames);
 		$values = [];
 		

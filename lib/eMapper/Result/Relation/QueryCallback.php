@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use Minime\Annotations\AnnotationsBag;
+use eMapper\Annotations\AnnotationsBag;
 
 class QueryCallback extends DynamicAttribute {
 	/**
@@ -12,7 +12,7 @@ class QueryCallback extends DynamicAttribute {
 	
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain query
-		$this->query = $annotations->get('Query');
+		$this->query = $annotations->get('Query')->getValue();
 	}
 	
 	public function evaluate($row, $parameterMap, $mapper) {
