@@ -170,7 +170,7 @@ $movie = $mapper->type('array', ArrayType::ASSOC)->query("SELECT * FROM movies W
 //mapping to a stdClass instance ('obj', 'object')
 $book = $mapper->type('obj')->query("SELECT * FROM books WHERE isbn = %{s}", "9789507315428");
 
-//setting to a custom class
+//using a custom class
 $book = $mapper->type('obj:Acme\\Library\\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "9788437604183");
 ```
 
@@ -181,20 +181,191 @@ Lists
 -----------
 
 <br/>
+#####Simple types
+
+```php
+//just add brackets at the end of the expression and you're done
+$id_list = $mapper->type('int[]')->query("SELECT id FROM users");
+
+$prices = $mapper->type('float[]')->query("SELECT price FROM products");
+
+$isbn_list = $mapper->type('string[]')->query("SELECT isbn FROM books");
+
+$creation_dates = $mapper->type('dt[]')->query("SELECT created_at FROM posts");
+
+//again, a second argument could be provided to define which column to fetch
+$refurbished = $mapper->type('bool[]', 'refurbished')->query("SELECT * FROM products");
+```
+
+<br/>
+#####Arrays and Objects
+
+```php
+//same rule applies to arrays and objects
+$users = $mapper->type('obj[]')->query("SELECT * FROM users");
+
+//an array type could also be provided when mapping to lists
+use eMapper\Result\ArrayType;
+
+$users = $mapper->type('arr[]', ArrayType::ASSOC)->query("SELECT * FROM users");
+```
+
+<br/>
 Indexation and Grouping
 -----------------------
+
+<br/>
+#####Indexes
+```php
+//the column goes between brackets
+$books = $mapper->type('array[id]')->query("SELECT * FROM books");
+
+//a default type could be added in the following way
+$products = $mapper->type('arr[id:string]')->query("SELECT * FROM products");
+
+//make sure the column is present in the result (this shouldn't work)
+$books = $mapper->type('obj[isbn]')->query("SELECT id, name, price FROM books");
+
+//when mapping to arrays, the index should be represented appropiatedly
+use eMapper\Result\ArrayType;
+
+$products = $mapper->type('arr[0]', ArrayType::NUM)->query("SELECT * FROM products");
+```
+
+<br/>
+#####Groups
+```php
+//group by a known column
+$products = $mapper->type('arr<category>')->query("SELECT * FROM products");
+
+//a type could also be specified
+$books = $mapper->type('obj<publisher:string>')->query("SELECT * FROM books");
+
+//both expressions can be mixed to obtain interesting results
+$products = $mapper->type('obj<category>[id:int]')->query("SELECT * FROM products");
+```
+
+<br/>
+#####Callbacks
+```php
+//lists could also be indexed using a closure
+$products = $mapper->type('array[]')
+->index_callback(function ($product) {
+    //return a custom made index
+    return $product['code'] . '_' . $product['id'];
+})
+->query("SELECT * FROM products");
+
+// a group callback does what you expect and can also be combined with indexation
+$products = $mapper->type('obj[id]')
+->group_callback(function ($product) {
+    return substr($product->category, 0, 3);
+})
+->query("SELECT * FROM products");
+```
 
 <br/>
 Queries
 -------
 
+```php
+//arguments the easy way
+$products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE price < %{f} AND category = %{s}", 699.99, 'Laptops');
+
+//argument by position (plus type)
+$products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE category = %{1} AND price < %{0:f}", 699.99, 'Laptops');
+
+//array as parameter
+$parameter = ['password' => sha1('qwerty'), 'modified_at' => new \DateTime];
+$mapper->query("UPDATE users SET password = #{password}, modified_at = #{modified_at:dt} WHERE name = %{1:string}", $parameter, 'emaphp');
+
+//syntax works with objects as well
+use Acme\CMS\Comment;
+
+$comment = new Comment();
+$comment->setUserId(100);
+$comment->setBody("Hello World");
+
+$mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body});", $comment);
+```
+
 <br/>
-Statements
-----------
+Named Queries
+-------------
+
+#####Statements
+
+```php
+```
+#####Configuration
+
+```php
+```
+
+#####Namespaces
+
+```php
+```
 
 <br/>
 Entity Managers
 ---------------
+
+```php
+namespace Acme\Factory;
+
+/**
+ * @Entity products
+ */
+class Product {
+    /**
+     * @Id
+     * @Type integer
+     */
+    private $id;
+    
+    /**
+     * @Column desc
+     */
+    private $description;
+
+    /**
+     * @Type string
+     */
+    private $category;
+    
+    private $price;
+    
+    public function getId() {
+        return $this->id;
+    }
+    
+    public function getDescription() {
+        return $this->description;
+    }
+    
+    public function getCategory(){
+        return $this->category;
+    }
+    
+    public function getPrice() {
+        return $this->price;
+    }
+}
+```
+
+```php
+//create a products manager (a useful one)
+$products = $manager->buildManager('Acme\\Factory\\Product');
+
+//get by id
+$product = $products->findByPk(4);
+
+//get by code
+use eMapper\Query\Attr;
+
+$product = $products->get(Attr::code()->eq('XXX098'));
+```
 
 <br/>
 Stored procedures
@@ -205,7 +376,133 @@ Cache
 -----
 
 <br/>
+Currently, eMapper supports APC, Memcache and Memcached. Before setting a cache provider make sure the extension is correctly installed.
+
+#####Providers
+```php
+//APC
+use eMapper\Cache\APCProvider;
+
+$provider = new APCProvider;
+$mapper->setCacheProvider($provider);
+
+//Memcache
+use eMapper\Cache\MemcacheProvider;
+
+$provider = new MemcacheProvider('localhost', 11211);
+$mapper->setCacheProvider($provider);
+
+//Memcached
+use eMapper\Cache\MemcachedProvider;
+
+$provider = new MemcachedProvider('mem');
+$mapper->setProvider($provider);
+```
+
+#####Storing values
+```php
+//get users and store values with the key 'USERS_ALL' (time to live: 60 sec)
+//if the key is found in cache no query takes place (write once, run forever)
+$users = $mapper->cache('USERS_ALL', 60)->query("SELECT * FROM users");
+
+//cache keys also receive query arguments
+//store values with the key 'USER_6'
+$user = $mapper->type('obj')->cache('USER_%{i}', 120)->query("SELECT * FROM users WHERE id = %{i}", 6);
+```
+
+<br/>
 Dynamic SQL
+-----------
+
+<br/>
+#####Introduction
+Queries could also contain logic expressions that are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on lisphp. Dynamic expressions are included between the delimiters [? and ?]. The following query sets the condition according to argument type.
+```sql
+SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
+```
+
+```php
+//add named query
+$mapper->stmt('findUser', "SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]");
+
+//find by id
+$user = $mapper->type('obj')->execute('findUser', 99);
+
+//find by name
+$user = $mapper->type('obj')->execute('findUser', 'emaphp');
+```
+
+<br/>
+#####eMacros 101
+
+Just to give you a basic approach of how S-expressions work here's a list of small examples. Refer to eMacros documentation for more.
+```lisp
+; simple math
+(+ 4 10) ; 14
+(- 10 4) ; 6
+(* 5 3 2) ; 30
+
+; sum first two arguments
+(+ (%0) (%1))
+
+; concat
+(. "Hello" " " "World!")
+
+; is int?
+(int? 6) ; true
+
+; is string?
+(string? true) ; false
+
+; cast to float
+(as-float "65.32")
+
+; get property value
+(#description)
+
+; get configuration value
+(@default_order)
+
+; if the else
+(if (null? (#id)) "No id found!" (#id)) ; return id if is not null
+```
+
+<br/>
+#####Configuration values
+
+This example adds an ORDER clause if the configuration key 'order' is set.
+```sql
+SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]
+```
+
+```php
+//add named query
+$mapper->stmt('obtainUsers', "SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]");
+
+//get all users
+$mapper->type('obj[]')->execute('obtainUsers');
+
+//get ordered users
+$mapper->type('obj[]')->option('order', 'last_login')->execute('obtainUsers');
+```
+
+<br/>
+#####Typed expressions
+A value returned by a dynamix sql expression can be associated to a type by adding the type indentifier right after the first delimiter. This examples simulates a search using the LIKE operator.
+```sql
+SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]
+```
+
+```php
+//add named query
+$mapper->stmt('searchUsers', "SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]");
+
+//search by name
+$users = $mapper->map('obj[]')->execute('searchUsers', 'ema');
+```
+
+<br/>
+Entities: Dynamic Attributes
 -----------
 
 <br/>
