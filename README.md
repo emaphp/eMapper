@@ -61,13 +61,13 @@ Introduction
 <br/>
 >Step 1: Pick an engine
 
-eMapper supports SQLite, MySQL and PostgreSQL (for now). Creating a connection requires creating an instance of the corresponding driver.
+eMapper supports SQLite, MySQL (or MariaDB if you prefer) and PostgreSQL. Creating a connection requires creating an instance of the corresponding driver.
 
 ```php
 //MYSQL
 use eMapper\Engine\MySQL\MySQLDriver;
 
-$driver = new MySQLDriver('database', 'localhost', 'mysql', '123456');
+$driver = new MySQLDriver('database', 'localhost', 'user', 'passw');
 //...
 
 //SQLite
@@ -226,7 +226,7 @@ $products = $mapper->type('arr[id:string]')->query("SELECT * FROM products");
 //make sure the column is present in the result (this shouldn't work)
 $books = $mapper->type('obj[isbn]')->query("SELECT id, name, price FROM books");
 
-//when mapping to arrays, the index should be represented appropiatedly
+//when mapping to arrays, the index should be represented appropriately
 use eMapper\Result\ArrayType;
 
 $products = $mapper->type('arr[0]', ArrayType::NUM)->query("SELECT * FROM products");
@@ -268,13 +268,22 @@ $products = $mapper->type('obj[id]')
 Queries
 -------
 
+
+<br/>
+#####Query arguments
+
 ```php
 //arguments the easy way
 $products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE price < %{f} AND category = %{s}", 699.99, 'Laptops');
 
 //argument by position (plus type)
 $products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE category = %{1} AND price < %{0:f}", 699.99, 'Laptops');
+```
 
+<br/>
+#####Arrays/Objects as argument
+
+```php
 //array as parameter
 $parameter = ['password' => sha1('qwerty'), 'modified_at' => new \DateTime];
 $mapper->query("UPDATE users SET password = #{password}, modified_at = #{modified_at:dt} WHERE name = %{1:string}", $parameter, 'emaphp');
@@ -288,6 +297,7 @@ $comment->setBody("Hello World");
 
 $mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body});", $comment);
 ```
+*Note*: The syntax for array/object attributes work as long as you provide the array/object as the first argument.
 
 <br/>
 Named Queries
@@ -296,20 +306,105 @@ Named Queries
 #####Statements
 
 ```php
+//declaring a statement
+$mapper->stmt("findUserByPk", "SELECT * FROM users WHERE user_id = %{i}");
+
+//statements are invoked with the execute method
+$mapper->type('obj[]')->execute('findUserByPk', 100);
 ```
 #####Configuration
 
 ```php
+//the stmt method supports a third argument with the predefined configuration for that query
+use eMapper\SQL\Statement;
+
+//declare statement
+$mapper->stmt('findProductsByCategory',
+              "SELECT * FROM products WHERE category = %{s}",
+              Statement::type('obj[]'));
+
+//get products as an object list
+$products = $mapper->execute('findProductsByCategory', 'Audio');
+
+//override default configuration and return result as an indexed list of arrays
+$products = $mapper->type('array[id]')->execute('findProductsByCategory', 'Smartphones');
 ```
 
 #####Namespaces
 
 ```php
+//namespaces provide a more organized way of declaring statements
+use eMapper\SQL\SQLNamespace;
+use eMapper\SQL\Statement;
+
+class UsersNamespace extends SQLNamespace {
+    public function __construct() {
+        //set namespace id through parent constructor
+        parent::__construct('users');
+        
+        $this->stmt('findByPk',
+                    "SELECT * FROM users WHERE id = %{i}",
+                    Statement::type('obj'));
+                    
+        $this->stmt('findByName',
+                    "SELECT * FROM users WHERE name = %{s}",
+                    Statement::type('obj'));
+                    
+        $this->stmt('findRecent'
+                    "SELECT * FROM users WHERE created_at >= subdate(NOW(), INTERVAL 3 DAY)",
+                    Statement::type('obj[id:int]'));
+    }
+}
+
+//add namespace
+$mapper->addNamespace(new UsersNamespace());
+
+//namespace id must be specified as a prefix
+$user = $mapper->execute('users.findByPK', 4);
+```
+
+<br/>
+Stored procedures
+-----------------
+
+<br/>
+#####Invoking stored procedures
+
+The *Mapper* class uses [method overloading](http://php.net//manual/en/language.oop5.overloading.php "") to translate an invokation to an unexistant method into a stored procedure call.
+
+```php
+//MySQL: CALL Users_Clean()
+//PostgreSQL: SELECT Users_Clean()
+$mapper->Users_Clean();
+
+//if database prefix is set then is used as a prefix
+$mapper->setPrefix('COM_');
+//MySQL: CALL COM_Users_Clean()
+//PostgreSQL: CALL COM_Users_Clean()
+$mapper->Users_Clean();
+```
+
+<br/>
+#####Mapping values
+```php
+//simple values con be obtained like usual
+$total = $mapper->type('i')->Users_CountActive();
+
+//engines may differ in how to treat a structured value
+$user = $mapper->type('obj')->Users_FindByPK(3); //works in MySQL only
+
+//PostgreSQL needs an additional configuration value
+//SQL: SELECT * FROM Users_FindByPK(3)
+$user = $mapper->type('obj')->option('proc.as_table', true)->Users_FindByPK(3);
 ```
 
 <br/>
 Entity Managers
 ---------------
+
+<br/>
+#####Entities
+Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows a class called *Product*. This class defines 5 attributes, each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can add a *@Column* annotation telling the exact column name. As a general rule, all entities must defined a primary key attribute. The *Product* class sets its id attribute as primary key using the *@Id* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -325,7 +420,13 @@ class Product {
     private $id;
     
     /**
-     * @Column desc
+     * @Type string
+     * @Column pcod
+     */
+    private $code;
+
+    /**
+     * @Type string
      */
     private $description;
 
@@ -334,42 +435,126 @@ class Product {
      */
     private $category;
     
+    /**
+     * @Type float
+     */
     private $price;
     
     public function getId() {
         return $this->id;
     }
     
+    public function setCode($code) {
+        $this->code = $code;
+    }
+    
+    public function getCode()  {
+        return $this->code;
+    }
+    
+    public function setDescription($description) {
+        $this->description = $description;
+    }
+
     public function getDescription() {
         return $this->description;
     }
     
+    public function setCategory($category) {
+        $this->category = $category;
+    }
+
     public function getCategory(){
         return $this->category;
     }
     
+    public function setPrice($price) {
+        $this->price = $price;
+    }
+
     public function getPrice() {
         return $this->price;
     }
 }
 ```
+Managers are created through the *buildManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually.
 
 ```php
-//create a products manager (a useful one)
-$products = $manager->buildManager('Acme\\Factory\\Product');
+//create a products manager
+$products = $mapper->buildManager('Acme\\Factory\\Product');
 
 //get by id
 $product = $products->findByPk(4);
 
-//get by code
+//obtain a product by code
 use eMapper\Query\Attr;
 
 $product = $products->get(Attr::code()->eq('XXX098'));
+
+//get a list of products by a given category
+$list = $products->find(Attr::category()->eq('Laptops'));
+
+//define a filter (category = 'E-Books' AND price < 799.99)
+$list = $products
+->filter(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99))
+->find();
+
+//OR condition (category = 'E-Books' OR price < 799.99)
+use eMapper\Query\Q;
+
+$list = $products->find(Q::where(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99)));
+
+//exclude (category <> 'Fitness')
+$list = $products->exclude(Attr::category()->eq('Fitness'))->find();
+
+//reverse condition (description NOT LIKE '%Apple%')
+$list = $products->filter(Attr::description()->contains('Apple', false))->find();
 ```
 
 <br/>
-Stored procedures
------------------
+#####Utilities
+
+```php
+use eMapper\Query\Attr;
+
+//getting all products indexed by id
+$list = $products->index(Attr::id())->find();
+
+//or grouped by category
+$list = $products->group(Attr::category())->find();
+
+//callbacks work as well
+$list = $products
+->index_callback(function ($product) {
+    return $product->getId() . substr($product->getCode(), 0, 5);
+})
+->find();
+
+//order and limit clauses
+$list = $products->order_by(Attr::id())->limit(15)->find();
+
+//setting the order type
+$list = $products->order_by(Attr::id('ASC'), Attr::category())->find();
+
+//count products of a given category
+$total = $products->filter(Attr::category()->eq('Audio'))->count();
+
+//average price
+$avg = $products->exclude(Attr::category()->eq('Laptops'))->avg(Attr::price());
+
+//max price (returns as integer)
+```
+
+<br/>
+#####Storing objects
+
+<br/>
+#####Deleting objects
+
+
+<br/>
+Dynamic Attributes
+-----------
 
 <br/>
 Cache
@@ -416,7 +601,7 @@ Dynamic SQL
 
 <br/>
 #####Introduction
-Queries could also contain logic expressions that are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on lisphp. Dynamic expressions are included between the delimiters [? and ?]. The following query sets the condition according to argument type.
+Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on lisphp. Dynamic expressions are included between the delimiters [? and ?]. The next example shows a query that sets the condition dynamically according to the argument type.
 ```sql
 SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
 ```
@@ -482,13 +667,14 @@ $mapper->stmt('obtainUsers', "SELECT * FROM users [? (if (@order?) (. 'ORDER BY 
 //get all users
 $mapper->type('obj[]')->execute('obtainUsers');
 
+//the option method creates an instance with an additional configuration value
 //get ordered users
 $mapper->type('obj[]')->option('order', 'last_login')->execute('obtainUsers');
 ```
 
 <br/>
 #####Typed expressions
-A value returned by a dynamix sql expression can be associated to a type by adding the type indentifier right after the first delimiter. This examples simulates a search using the LIKE operator.
+A value returned by a dynamic SQL expression can be associated to a type by adding the type identifier right after the first delimiter. This examples simulates a search using the LIKE operator.
 ```sql
 SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]
 ```
@@ -500,10 +686,6 @@ $mapper->stmt('searchUsers', "SELECT * FROM users WHERE name LIKE [?string (. '%
 //search by name
 $users = $mapper->map('obj[]')->execute('searchUsers', 'ema');
 ```
-
-<br/>
-Entities: Dynamic Attributes
------------
 
 <br/>
 License
