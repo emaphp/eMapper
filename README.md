@@ -12,7 +12,7 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-07-XX - Version 3.1.0 
+2014-07-24 - Version 3.1.0 
 
   * Added: Entity Managers (ORM).
   * Modified: Class annotations. Now eMapper depends on emapper/annotations, a slightly modified version of minime/annotations. 
@@ -95,7 +95,7 @@ $mapper = new Mapper($driver);
 <br/>
 >Step 3: Have fun
 
-eMapper is not ORM-oriented but type-oriented. Everything revolves around queries an *mapping expressions*. The following examples try to give you an idea of how the data mapping engine works.
+eMapper is not ORM-oriented but type-oriented. Everything revolves around queries and *mapping expressions*. The following examples try to give you an idea of how the data mapping engine works.
 
 ```php
 //by default, results are mapped to an array of arrays
@@ -137,9 +137,9 @@ $suscribed = $mapper->type('b')->query("SELECT is_suscribed FROM users WHERE id 
 $price = $mapper->type('f')->query("SELECT MAX(price) FROM products WHERE refurbished = {b}", false);
 
 //mapping to a string ('s', 'str', 'string')
-$body = $mapper->type('s')->query("SELECT message FROM messages WHERE slug = %{s}", 'emapper_rocks');
+$body = $mapper->type('s')->query("SELECT message FROM posts WHERE slug = %{s}", 'emapper_rocks');
 
-//dates ('DateTime', 'dt', 'timestamp', 'datetime'
+//dates ('DateTime', 'dt', 'timestamp', 'datetime')
 $lastLogin = $mapper->type('dt')->query("SELECT last_login FROM users WHERE id = %{i}", 1984);
 
 //finally, you can tell the exact column to fetch by providing a second argument
@@ -171,7 +171,7 @@ $movie = $mapper->type('array', ArrayType::ASSOC)->query("SELECT * FROM movies W
 $book = $mapper->type('obj')->query("SELECT * FROM books WHERE isbn = %{s}", "9789507315428");
 
 //using a custom class
-$book = $mapper->type('obj:Acme\\Library\\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "9788437604183");
+$book = $mapper->type('obj:Acme\Library\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "9788437604183");
 ```
 
 *Note*: One important thing to remember when mapping to a structure is that values contained in columns declared using the DATE or DATETIME types are converted to instances of [DateTime](http://ar2.php.net/manual/en/class.datetime.php "").
@@ -217,13 +217,13 @@ Indexation and Grouping
 <br/>
 #####Indexes
 ```php
-//the column goes between brackets
+//the index column goes between brackets
 $books = $mapper->type('array[id]')->query("SELECT * FROM books");
 
-//a default type could be added in the following way
+//a default type could be added right next to it
 $products = $mapper->type('arr[id:string]')->query("SELECT * FROM products");
 
-//make sure the column is present in the result (this shouldn't work)
+//make sure the column is present in the result (this won't work)
 $books = $mapper->type('obj[isbn]')->query("SELECT id, name, price FROM books");
 
 //when mapping to arrays, the index should be represented appropriately
@@ -273,10 +273,10 @@ Queries
 #####Query arguments
 
 ```php
-//arguments the easy way
+//arguments the easy way (type identifier between braces)
 $products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE price < %{f} AND category = %{s}", 699.99, 'Laptops');
 
-//argument by position (plus type)
+//argument by position (and optional type)
 $products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE category = %{1} AND price < %{0:f}", 699.99, 'Laptops');
 ```
 
@@ -303,6 +303,7 @@ $mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body})
 Named Queries
 -------------
 
+<br/>
 #####Statements
 
 ```php
@@ -312,6 +313,8 @@ $mapper->stmt("findUserByPk", "SELECT * FROM users WHERE user_id = %{i}");
 //statements are invoked with the execute method
 $mapper->type('obj[]')->execute('findUserByPk', 100);
 ```
+
+<br/>
 #####Configuration
 
 ```php
@@ -330,6 +333,7 @@ $products = $mapper->execute('findProductsByCategory', 'Audio');
 $products = $mapper->type('array[id]')->execute('findProductsByCategory', 'Smartphones');
 ```
 
+<br/>
 #####Namespaces
 
 ```php
@@ -377,10 +381,11 @@ The *Mapper* class uses [method overloading](http://php.net//manual/en/language.
 //PostgreSQL: SELECT Users_Clean()
 $mapper->Users_Clean();
 
-//if database prefix is set then is used as a prefix
+//if database prefix is set it is used as a prefix
 $mapper->setPrefix('COM_');
+
 //MySQL: CALL COM_Users_Clean()
-//PostgreSQL: CALL COM_Users_Clean()
+//PostgreSQL: SELECT COM_Users_Clean()
 $mapper->Users_Clean();
 ```
 
@@ -403,8 +408,8 @@ Entity Managers
 ---------------
 
 <br/>
-#####Entities
-Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows a class called *Product*. This class defines 5 attributes, each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can add a *@Column* annotation telling the exact column name. As a general rule, all entities must defined a primary key attribute. The *Product* class sets its id attribute as primary key using the *@Id* annotation.
+#####Entities and Annotations
+Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows a class called *Product*. This class defines 5 attributes, each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can add a *@Column* annotation specifying the correct one. As a general rule, all entities must define a primary key attribute. The *Product* class sets its **id** attribute as primary key using the *@Id* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -502,17 +507,23 @@ $list = $products
 //OR condition (category = 'E-Books' OR price < 799.99)
 use eMapper\Query\Q;
 
-$list = $products->find(Q::where(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99)));
+$list = $products
+->filter(Q::where(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99)))
+->find();
 
 //exclude (category <> 'Fitness')
-$list = $products->exclude(Attr::category()->eq('Fitness'))->find();
+$list = $products
+->exclude(Attr::category()->eq('Fitness'))
+->find();
 
 //reverse condition (description NOT LIKE '%Apple%')
-$list = $products->filter(Attr::description()->contains('Apple', false))->find();
+$list = $products
+->filter(Attr::description()->contains('Apple', false))
+->find();
 ```
 
 <br/>
-#####Utilities
+#####Manager utilities
 
 ```php
 use eMapper\Query\Attr;
@@ -531,68 +542,98 @@ $list = $products
 ->find();
 
 //order and limit clauses
-$list = $products->order_by(Attr::id())->limit(15)->find();
+$list = $products
+->order_by(Attr::id())
+->limit(15)
+->find();
 
 //setting the order type
-$list = $products->order_by(Attr::id('ASC'), Attr::category())->find();
+$list = $products
+->order_by(Attr::id('ASC'), Attr::category())
+->limit(10, 20)
+->find();
 
 //count products of a given category
-$total = $products->filter(Attr::category()->eq('Audio'))->count();
+$total = $products
+->filter(Attr::category()->eq('Audio'))
+->count();
 
 //average price
-$avg = $products->exclude(Attr::category()->eq('Laptops'))->avg(Attr::price());
+$avg = $products
+->exclude(Attr::category()->eq('Laptops'))
+->avg(Attr::price());
 
 //max price (returns as integer)
+$max = $products
+->filter(Attr::code()->startswith('SONY'))
+->max(Attr::price(), 'int');
 ```
 
 <br/>
 #####Storing objects
 
+```php
+use Acme\Factory\Product;
+
+//create manager
+$products = $mapper->buildManager('Acme\Factory\Product');
+
+$product = new Product;
+$product->setCode('ACM001');
+$product->setDescription('Test product');
+$product->setCategory('Explosives');
+$product->setPrice(149.90);
+
+//save object
+$products->save($product);
+
+//if the entity already has an id 'save' produces an UPDATE query
+$product = $products->get(Attr::code()->eq('ACM001'));
+$product->setPrice(129.90);
+$products->save($product);
+```
+
+
 <br/>
 #####Deleting objects
 
-
-<br/>
-Dynamic Attributes
------------
-
-<br/>
-Cache
------
-
-<br/>
-Currently, eMapper supports APC, Memcache and Memcached. Before setting a cache provider make sure the extension is correctly installed.
-
-#####Providers
 ```php
-//APC
-use eMapper\Cache\APCProvider;
+//create manager
+$products = $mapper->buildManager('Acme\Factory\Product');
 
-$provider = new APCProvider;
-$mapper->setCacheProvider($provider);
+//delete expects an entity as parameter
+$product = $products->findByPk(20);
+$products->delete($product);
 
-//Memcache
-use eMapper\Cache\MemcacheProvider;
+//reduced version
+$products->deleteWhere(Attr::id()->eq(20));
 
-$provider = new MemcacheProvider('localhost', 11211);
-$mapper->setCacheProvider($provider);
-
-//Memcached
-use eMapper\Cache\MemcachedProvider;
-
-$provider = new MemcachedProvider('mem');
-$mapper->setProvider($provider);
+//for security reasions, truncating a table requires a special method
+$products->truncate();
 ```
 
-#####Storing values
-```php
-//get users and store values with the key 'USERS_ALL' (time to live: 60 sec)
-//if the key is found in cache no query takes place (write once, run forever)
-$users = $mapper->cache('USERS_ALL', 60)->query("SELECT * FROM users");
+<br/>
+#####Default namespace
+Managers can also execute statements stored in the parent mapper. A defaul namespace could be defined using the *@DefaultNamespace* annotation.
 
-//cache keys also receive query arguments
-//store values with the key 'USER_6'
-$user = $mapper->type('obj')->cache('USER_%{i}', 120)->query("SELECT * FROM users WHERE id = %{i}", 6);
+```php
+/**
+ * @Entity users
+ * @DefaultNamespace users
+ */
+class User {
+    //...
+}
+
+//add namespace
+use Acme\SQL\UsersNamespace;
+$mapper->addNamespace(new UsersNamespace);
+
+//create manager
+$users = $mapper->buildManager('Acme\\User');
+
+//invoke 'users.findSuperAdmin'
+$user = $users->execute('findSuperAdmin');
 ```
 
 <br/>
@@ -648,8 +689,8 @@ Just to give you a basic approach of how S-expressions work here's a list of sma
 ; get configuration value
 (@default_order)
 
-; if the else
-(if (null? (#id)) "No id found!" (#id)) ; return id if is not null
+; if then else
+(if (null? (#id)) "No id found!" (#id)) ; returns id when not null
 ```
 
 <br/>
@@ -674,7 +715,7 @@ $mapper->type('obj[]')->option('order', 'last_login')->execute('obtainUsers');
 
 <br/>
 #####Typed expressions
-A value returned by a dynamic SQL expression can be associated to a type by adding the type identifier right after the first delimiter. This examples simulates a search using the LIKE operator.
+A value returned by a dynamic SQL expression can be associated to a type by adding the type identifier right after the first delimiter. This example simulates a search using the LIKE operator with the value returned by a dynamic expression that returns a string.
 ```sql
 SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]
 ```
@@ -686,6 +727,308 @@ $mapper->stmt('searchUsers', "SELECT * FROM users WHERE name LIKE [?string (. '%
 //search by name
 $users = $mapper->map('obj[]')->execute('searchUsers', 'ema');
 ```
+
+<br/>
+Dynamic Attributes
+------------------
+
+<br/>
+#####Introduction
+eMapper does not introduce the concept of association in entity classes (yet). In the meantime, obtaining data related to an entity (or a series of entities) requires adding dynamic attributes. A dynamic attibute is a property that is the result of a query or calculation. Dynamic attributes are specified through a special set of annotations.
+
+<br/>
+#####Querys
+
+This example introduces a new entity class named *Sale*. A sale is obviously related to a product. Let's say that we want to obtain that product using the corresponding column. In order to do this, we add a **product** property which includes a special *@Query* annotation. This annotation expects a string containing the query that solves this association. Notice that *Sale* must define a **productId** property in order to store the value sent to the query.
+
+```php
+namespace Acme\Factory;
+
+/**
+ * @Entity sales
+ */
+class Sale {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Column product_id
+     */
+    private $productId;
+    
+    /**
+     * @Query "SELECT * FROM products WHERE id = #{productId}"
+     * @Type obj:Acme\Factory\Product
+     */
+    private $product;
+    
+    //...
+}
+```
+When used along with *@Query*, the *@Type* annotation specifies the mapping expression to use.
+
+<br/>
+#####Adding parameters
+
+The *@Parameter* annotation can be used to define a list of arguments for a dynamic attribute. These arguments can be either a property of the current entity or a constant value. A special annotation *@Self* indicates that the current instance is used as first argument. Knowing this we can redefine the product property in two ways.
+
+```php
+/**
+ * @Query "SELECT * FROM products WHERE id = #{productId}"
+ * @Self
+ * @Type obj:Acme\Factory\Product
+ */
+private $product; //Here @Self is not required because the default
+                  //behaviour already uses the entity as unique argument
+                  
+/**
+ * @Query "SELECT * FROM products WHERE id = %{i}"
+ * @Parameter(productId)
+ * @Type obj:Acme\Factory\Product
+ */
+private $product; //Here productId is the only argument for this query
+                  //This requires a modification in the query argument expression
+```
+
+In other words, *@Self* must be added if the specified query receives the current instance and another additional parameter. The next example adds a **relatedProducts** property in the *Product* class that includes 2 arguments: the current partial instance and a integer value that sets the amount of objects to return.
+
+```php
+namespace Acme\Factory;
+
+class Product {
+    //...
+    
+    /**
+     * @Query "SELECT * FROM products WHERE category = #{category} LIMIT %{i}"
+     * @Self
+     * @Parameter 10
+     * @Type obj::Acme\Factory\Product[id]
+     */
+    private $relatedProducts;
+}
+```
+
+<br/>
+#####Statements
+
+Named queries could also be called from a dynamic attribute by adding the *@StatementId* annotation.
+
+```php
+namespace Acme\Factory;
+
+/**
+ * @Entity sales
+ */
+class Sale {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Column product_id
+     */
+    private $productId;
+    
+    /**
+     * @StatementId products.FindByPk
+     * @Parameter(productId)
+     * @Type obj:Acme\Factory\Product
+     */
+    private $product;
+    
+    //...
+}
+```
+
+<br/>
+#####Stored procedures
+
+Procedures are defined through the *@Procedure* annotation. There's not much to say about them except that they ignore the *@Self* annotation for obvious reasons.
+
+```php
+/**
+ * @Entity products
+ */
+class Product {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $category;
+    
+    /**
+     * @Procedure Products_AvgPriceByCategory
+     * @Parameter(category)
+     * @Type float
+     */
+    private $averagePrice;
+    
+    //...
+}
+```
+
+<br/>
+#####Macros
+*@Eval* evaluates an *eMacros* program against current entity. Examples of usage of these type of attributes are getting a person's fullname or calculating his age.
+```php
+/**
+ * @Entity people
+ */
+class Person {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $name;
+    
+    /**
+     * @Column surname
+     */
+    private $lastname;
+    
+    /**
+     * @Column birth_date
+     * @Type dt
+     */
+    private $birthDate;
+    
+    /**
+     * @Eval (. (#name) ' ' (#lastname))
+     */
+    private $fullname; //build person's full name
+    
+    /**
+     * @Eval (as-int (diff-format (#birthDate) (now) "%y"))
+     */
+    private $age; //calculate person's age
+    
+    //...
+}
+```
+
+<br/>
+#####Conditional attributes
+
+The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Just like *@Eval*, these annotations receive an *eMacros* program as a value.
+
+```php
+/**
+ * @Entity users
+ */
+class User {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @If (== (#type) 'member')
+     * @StatementId "..."
+     * @Parameter(id)
+     */
+    private $loginHistory; //get login history if user is a member
+    
+    /**
+     * @IfNot (or (== (#type) 'member') (== (#type) 'guest'))
+     * @StatementId '...'
+     * @Parameter(id)
+     */
+    private $abuseNotifications; //get admin notifications if not a member nor guest
+}
+```
+
+
+<br/>
+#####Options
+The *@Option* annotation set a custom option value for the current attribute. An option must define its name by setting it between parentheses just before the value.
+```php
+/**
+ * @Entity users
+ */
+class User {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Query "SELECT * FROM contacts WHERE user_id = %{i} [? (if (@order?) (. 'ORDER BY ' (@order))) ?]"
+     * @Parameter(id)
+     * @Option(order) 'contact_type'
+     */
+    private $contacts;
+    
+    //...
+}
+```
+
+<br/>
+Cache
+-----
+
+<br/>
+Currently, eMapper supports APC, Memcache and Memcached. Before setting a cache provider make sure the required extension is correctly installed.
+
+<br/>
+#####Providers
+```php
+//APC
+use eMapper\Cache\APCProvider;
+
+$provider = new APCProvider;
+$mapper->setCacheProvider($provider);
+
+//Memcache
+use eMapper\Cache\MemcacheProvider;
+
+$provider = new MemcacheProvider('localhost', 11211);
+$mapper->setCacheProvider($provider);
+
+//Memcached
+use eMapper\Cache\MemcachedProvider;
+
+$provider = new MemcachedProvider('mem');
+$mapper->setProvider($provider);
+```
+
+<br/>
+#####Storing values
+```php
+//get users and store values with the key 'USERS_ALL' (time to live: 60 sec)
+//if the key is found in cache no query takes place (write once, run forever)
+$users = $mapper->cache('USERS_ALL', 60)->query("SELECT * FROM users");
+
+//cache keys also receive query arguments
+//store values with the key 'USER_6'
+$user = $mapper->type('obj')->cache('USER_%{i}', 120)->query("SELECT * FROM users WHERE id = %{i}", 6);
+```
+
+<br/>
+Custom types
+------------
+
+<br/>
+#####Introduction
+
+<br/>
+#####The RGBColor type
+
+<br/>
+#####Type handlers
+
+<br/>
+#####Types and aliases
 
 <br/>
 License
