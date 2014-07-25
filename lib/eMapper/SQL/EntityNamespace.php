@@ -12,6 +12,9 @@ use eMapper\SQL\Builder\EqualStatementBuilder;
 use eMapper\SQL\Builder\ContainStatementBuilder;
 use eMapper\SQL\Builder\InStatementBuilder;
 use eMapper\SQL\Builder\GreaterThanStatementBuilder;
+use eMapper\SQL\Builder\LessThanStatementBuilder;
+use eMapper\SQL\Builder\StartsWithStatementBuilder;
+use eMapper\SQL\Builder\EndsWithStatementBuilder;
 
 class EntityNamespace extends SQLNamespace {
 	use EntityMapper;
@@ -120,24 +123,30 @@ class EntityNamespace extends SQLNamespace {
 		
 		//less than (equal) [FIELD][Not]LessThan[Equal]
 		if (preg_match('/^(\w+?)(Not)?LessThan(Equal)?$/', $statementId, $matches)) {
+			$stmt = new LessThanStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//starts with [FIELD][Not][I]StartsWith
 		if (preg_match('/^(\w+?)(Not)?(I)?StartsWith$/', $statementId, $matches)) {
+			$stmt = new StartsWithStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//ends with [FIELD][Not][I]EndsWith
 		if (preg_match('/^(\w+?)(Not)?(I)?EndsWith$/', $statementId, $matches)) {
-				
+			$stmt = new EndsWithStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//is null [FIELD][Not]IsNull
 		if (preg_match('/^(\w+?)(Not)?IsNull$/', $statementId, $matches)) {
-		
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//matches [FIELD][Not]Matches
 		if (preg_match('/^(\w+?)(Not)?Matches$/', $statementId, $matches)) {
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//range [FIELD][Not]Between
