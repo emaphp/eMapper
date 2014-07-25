@@ -12,6 +12,7 @@ use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Result\Mapper\ArrayTypeMapper;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
+use eMapper\SQL\EntityNamespace;
 
 class Mapper {
 	use StatementConfiguration;
@@ -747,6 +748,15 @@ class Mapper {
 	 */
 	public function buildManager($classname) {
 		return new Manager($this, Profiler::getClassProfile($classname));
+	}
+	
+	/**
+	 * Adds a new entity namespace to current instance
+	 * @param EntityNamespace $namespace
+	 */
+	public function addEntityNamespace(EntityNamespace $namespace) {
+		$namespace->setDriver($this->driver);
+		$this->addNamespace($namespace);
 	}
 	
 	/**

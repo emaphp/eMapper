@@ -3,6 +3,7 @@ namespace eMapper;
 
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\SQL\Configuration\StatementConfiguration;
+use eMapper\Reflection\EntityMapper;
 use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Query\Builder\DeleteQueryBuilder;
@@ -21,6 +22,7 @@ use eMapper\Query\Aggregate\SQLSum;
 
 class Manager {
 	use StatementConfiguration;
+	use EntityMapper;
 	
 	/**
 	 * Database mapper
@@ -45,7 +47,7 @@ class Manager {
 		$this->entity = $entity;
 		
 		//default mapping expression
-		$this->expression = 'obj:' . $entity->reflectionClass->getName();
+		$this->expression = $this->buildExpression($entity);
 	}
 	
 	/**
@@ -68,24 +70,10 @@ class Manager {
 	 * Obtains current query mapping expression
 	 * @return string
 	 */
-	protected function getTypeExpression() {
-		//build mapping expression
-		$mappingExpression = $this->expression;
-		
-		//add grouping expression
-		if (array_key_exists('query.group', $this->config)) {
-			$mappingExpression .= '<' . $this->config['query.group'] . '>';
-		}
-		
-		//add index expression
-		if (array_key_exists('query.index', $this->config)) {
-			$mappingExpression .= '[' . $this->config['query.index'] . ']';
-		}
-		else {
-			$mappingExpression .= '[]';
-		}
-		
-		return $mappingExpression;
+	protected function getMappingExpression() {
+		$group = array_key_exists('query.group', $this->config) ? $this->config['query.group'] : null;
+		$index = array_key_exists('query.index', $this->config) ? $this->config['query.index'] : null;
+		return $this->buildListExpression($this->entity, $index, $group);
 	}
 
 	/**
@@ -145,7 +133,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->driver, $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->getTypeExpression()]);
+		$options = $this->clean_options(['map.type' => $this->getMappingExpression()]);
 		return $this->mapper->merge($options)->query($query, $args);
 	}
 	

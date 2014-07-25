@@ -11,14 +11,18 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	 * @var mixed
 	 */
 	protected $expression;
-	
-	public function __construct(Field $field, $expression, $negate) {
-		parent::__construct($field, $negate);
-		$this->expression = $expression;	
+		
+	public function setExpression($expression) {
+		$this->expression = $expression;
 	}
 	
 	public function getExpression() {
 		return $this->expression;
+	}
+	
+	public function render() {
+		$op = $this->negate ? "NOT" : "";
+		return "$op ( %s [? (if (null? (%0)) 'IS NULL' '= %s') ?])";
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {

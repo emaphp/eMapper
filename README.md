@@ -117,6 +117,9 @@ $user = $mapper->type('arr')->query("SELECT * FROM users WHERE name = %{s}", 'em
 
 //using 'obj' as mapping expression will convert a row to an instance of stdClass
 $user = $mapper->type('obj')->query("SELECT * FROM users WHERE id = %{i}", 42);
+
+//close connection
+$mapper->close();
 ```
 
 <br/>

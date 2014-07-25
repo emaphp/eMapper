@@ -35,6 +35,12 @@ class PropertyProfile {
 	public $isPrimaryKey;
 	
 	/**
+	 * Determines if the property is unique
+	 * @var boolean
+	 */
+	public $isUnique;
+	
+	/**
 	 * Reflection property instance
 	 * @var \ReflectionProperty
 	 */
@@ -50,6 +56,7 @@ class PropertyProfile {
 		}
 		
 		$this->isPrimaryKey = $annotations->has('Id');
+		$this->isUnique = $annotations->has('Unique');
 		
 		$this->reflectionProperty = $reflectionProperty;
 		$this->reflectionProperty->setAccessible(true);

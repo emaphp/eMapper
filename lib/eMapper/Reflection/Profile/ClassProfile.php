@@ -103,6 +103,10 @@ class ClassProfile {
 		$this->columnNames = array_flip($this->fieldNames);
 	}
 	
+	public function propertyExists($property) {
+		return array_key_exists($property, $this->fieldNames);
+	}
+	
 	public function isEntity() {
 		return $this->classAnnotations->has('Entity');
 	}
