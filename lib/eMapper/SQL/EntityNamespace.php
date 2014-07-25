@@ -10,6 +10,8 @@ use eMapper\SQL\Builder\FindByPkStatementBuilder;
 use eMapper\SQL\Builder\FindByStatementBuilder;
 use eMapper\SQL\Builder\EqualStatementBuilder;
 use eMapper\SQL\Builder\ContainStatementBuilder;
+use eMapper\SQL\Builder\InStatementBuilder;
+use eMapper\SQL\Builder\GreaterThanStatementBuilder;
 
 class EntityNamespace extends SQLNamespace {
 	use EntityMapper;
@@ -106,10 +108,14 @@ class EntityNamespace extends SQLNamespace {
 		
 		//in [FIELD][Not]In
 		if (preg_match('/^(\w+?)(Not)?In$/', $statementId, $matches)) {
+			$stmt = new InStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//greater than (equal) [FIELD][Not]GreaterThan[Equal]
 		if (preg_match('/^(\w+?)(Not)?GreaterThan(Equal)?$/', $statementId, $matches)) {
+			$stmt = new GreaterThanStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//less than (equal) [FIELD][Not]LessThan[Equal]

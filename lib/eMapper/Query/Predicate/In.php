@@ -4,7 +4,12 @@ namespace eMapper\Query\Predicate;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 
-class In extends ComparisonPredicate {	
+class In extends ComparisonPredicate {
+	public function render() {
+		$op = $this->negate ? 'NOT' : '';
+		return "%s $op IN (%s)";	
+	}
+	
 	protected function buildComparisonExpression(Driver $driver) {
 		if ($this->negate) {
 			return "%s NOT IN (%s)";

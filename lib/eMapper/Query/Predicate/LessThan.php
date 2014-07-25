@@ -3,7 +3,12 @@ namespace eMapper\Query\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 
-class LessThan extends ComparisonPredicate {	
+class LessThan extends ComparisonPredicate {
+	public function render() {
+		$op = $this->negate ? '>=' : '<';
+		return "%s $op %s";
+	}
+	
 	protected function buildComparisonExpression(Driver $driver) {
 		 if ($this->negate) {
 		 	return '%s >= %s';

@@ -1,3 +1,9 @@
+2014-07-25 - Version 3.1
+
+  Added: Entity Managers (ORM).
+  Modified: Annotations. Now eMapper depends on emapper/annotations, a slightly modified version of minime/annotations. 
+  Modified: Dynamic SQL syntax delimiters.
+
 2014-04-02 - Version 3.0.0
   
   Fixed: Mapping to objects using PostgreSQLDriver.
