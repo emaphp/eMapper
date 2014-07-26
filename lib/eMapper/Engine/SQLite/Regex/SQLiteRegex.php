@@ -19,5 +19,9 @@ class SQLiteRegex extends GenericRegex {
 		
 		return '%s REGEXP %s';
 	}
+	
+	public function argumentExpression() {
+		return "[?s (. '(?i)' (%0)) ?]";
+	}
 }
 ?>

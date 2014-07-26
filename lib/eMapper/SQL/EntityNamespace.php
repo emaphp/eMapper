@@ -15,6 +15,9 @@ use eMapper\SQL\Builder\GreaterThanStatementBuilder;
 use eMapper\SQL\Builder\LessThanStatementBuilder;
 use eMapper\SQL\Builder\StartsWithStatementBuilder;
 use eMapper\SQL\Builder\EndsWithStatementBuilder;
+use eMapper\SQL\Builder\IsNullStatementBuilder;
+use eMapper\SQL\Builder\RegexStatementBuilder;
+use eMapper\SQL\Builder\RangeStatementBuilder;
 
 class EntityNamespace extends SQLNamespace {
 	use EntityMapper;
@@ -141,17 +144,20 @@ class EntityNamespace extends SQLNamespace {
 		
 		//is null [FIELD][Not]IsNull
 		if (preg_match('/^(\w+?)(Not)?IsNull$/', $statementId, $matches)) {
+			$stmt = new IsNullStatementBuilder($this->driver, $this->entity);
 			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//matches [FIELD][Not]Matches
-		if (preg_match('/^(\w+?)(Not)?Matches$/', $statementId, $matches)) {
+		if (preg_match('/^(\w+?)(Not)?(I)?Matches$/', $statementId, $matches)) {
+			$stmt = new RegexStatementBuilder($this->driver, $this->entity);
 			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 		
 		//range [FIELD][Not]Between
 		if (preg_match('/^(\w+?)(Not)?Between$/', $statementId, $matches)) {
-			
+			$between = new RangeStatementBuilder($this->driver, $this->entity);
+			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
 		}
 	}
 }

@@ -14,5 +14,9 @@ abstract class GenericRegex {
 	
 	public abstract function filter($expression);
 	public abstract function comparisonExpression($negate);
+	
+	public function argumentExpression() {
+		return '[?s (%0) ?]';
+	}
 }
 ?>

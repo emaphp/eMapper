@@ -18,14 +18,20 @@ class Range extends SQLPredicate {
 	 */
 	protected $to;
 	
-	public function __construct(Field$field, $from, $to, $negate) {
+	public function __construct(Field$field, $negate) {
 		parent::__construct($field, $negate);
+	}
+	
+	public function setFrom($from) {
 		$this->from = $from;
-		$this->to = $to;
 	}
 	
 	public function getFrom() {
 		return $this->from;
+	}
+	
+	public function setTo($to) {
+		$this->to = $to;
 	}
 	
 	public function getTo() {
@@ -50,6 +56,14 @@ class Range extends SQLPredicate {
 		}
 		
 		return sprintf("%s BETWEEN %s AND %s", $column, $from_expression, $to_expression);
+	}
+	
+	public function render() {
+		if ($this->negate) {
+			return "%s NOT BETWEEN %s AND %s";
+		}
+		
+		return "%s BETWEEN %s AND %s";
 	}
 }
 ?>

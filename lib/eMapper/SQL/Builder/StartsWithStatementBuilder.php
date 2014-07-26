@@ -3,6 +3,7 @@ namespace eMapper\SQL\Builder;
 
 use eMapper\Query\Predicate\StartsWith;
 use eMapper\Query\Attr;
+
 class StartsWithStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[0];
@@ -11,9 +12,7 @@ class StartsWithStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$startswith = new StartsWith(Attr::__callstatic($property), $case_sensitive, $negate);
-		$condition = sprintf($startswith->render(), $this->getColumnName($property));
-		
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return $this->buildQuery(sprintf($startswith->render(), $this->getColumnName($property)));
 	}
 }
 ?>

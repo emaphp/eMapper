@@ -11,9 +11,7 @@ class ContainStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$contains = new Contains(Attr::__callstatic($property), $case_sensitive, $negate);
-		$condition = sprintf($contains->render(), $this->getColumnName($property));
-		
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return $this->buildQuery(sprintf($contains->render(), $this->getColumnName($property)));
 	}
 }
 ?>

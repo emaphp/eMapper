@@ -11,9 +11,7 @@ class EndsWithStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$endswith = new EndsWith(Attr::__callstatic($property), $case_sensitive, $negate);
-		$condition = sprintf($endswith->render(), $this->getColumnName($property));
-		
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return $this->buildQuery(sprintf($endswith->render(), $this->getColumnName($property)));
 	}
 }
 ?>

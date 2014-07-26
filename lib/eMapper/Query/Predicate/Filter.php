@@ -61,5 +61,9 @@ class Filter extends SQLPredicate {
 		
 		return $condition;
 	}
+	
+	public function render() {
+		return '';
+	}
 }
 ?>

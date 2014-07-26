@@ -18,8 +18,7 @@ class GreaterThanStatementBuilder extends StatementBuilder {
 			$gt = new GreaterThan(Attr::__callstatic($property), $negate);
 		}
 		
-		$condition = sprintf($gt->render(), $this->getColumnName($property), $this->getExpression($property));
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return $this->buildQuery(sprintf($gt->render(), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
 ?>

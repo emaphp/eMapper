@@ -18,8 +18,7 @@ class LessThanStatementBuilder extends StatementBuilder {
 			$lt = new LessThan(Attr::__callstatic($property), $negate);
 		}
 		
-		$condition = sprintf($lt->render(), $this->getColumnName($property), $this->getExpression($property));
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return $this->buildQuery(sprintf($lt->render(), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
 ?>

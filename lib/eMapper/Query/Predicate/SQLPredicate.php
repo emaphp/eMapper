@@ -95,6 +95,7 @@ abstract class SQLPredicate {
 	}
 	
 	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0);
+	public abstract function render();
 	
 	public static function argNumber() {
 		return self::$counter++;

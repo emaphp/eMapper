@@ -34,9 +34,13 @@ abstract class StatementBuilder {
 		return $attr->getColumnName($this->entity);
 	}
 	
-	protected function getExpression($property) {
+	protected function getExpression($property, $argn = 0) {
 		$type = $this->entity->getFieldType($property);
-		return isset($type) ? "{0:$type}" : '{0}';
+		return isset($type) ? "\{$argn:$type}" : "\{$argn}";
+	}
+	
+	protected function buildQuery($condition) {
+		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
 	}
 }
 ?>
