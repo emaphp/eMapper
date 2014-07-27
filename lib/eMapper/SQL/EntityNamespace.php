@@ -18,6 +18,7 @@ use eMapper\SQL\Builder\EndsWithStatementBuilder;
 use eMapper\SQL\Builder\IsNullStatementBuilder;
 use eMapper\SQL\Builder\RegexStatementBuilder;
 use eMapper\SQL\Builder\RangeStatementBuilder;
+use eMapper\SQL\Configuration\StatementConfigurationContainer;
 
 class EntityNamespace extends SQLNamespace {
 	use EntityMapper;
@@ -34,6 +35,18 @@ class EntityNamespace extends SQLNamespace {
 	 */
 	protected $driver;
 	
+	/**
+	 * Default mapping type expression
+	 * @var StatementConfigurationContainer
+	 */
+	protected $statementReturnType;
+	
+	/**
+	 * Default mapping type expression (list)
+	 * @var StatementConfigurationContainer
+	 */
+	protected $statementReturnTypeList;
+	
 	public function __construct($classname) {
 		//get class profile
 		$this->entity = Profiler::getClassProfile($classname);
@@ -47,10 +60,27 @@ class EntityNamespace extends SQLNamespace {
 		$namespaceId = $this->entity->getNamespace();
 		$this->validateNamespaceId($namespaceId);
 		$this->id = $namespaceId;
+		
+		//generate default mapping type
+		$this->statementReturnType = Statement::type($this->buildExpression($this->entity));
+		$this->statementReturnTypeList = Statement::type($this->buildListExpression($this->entity));
 	}
 	
 	public function setDriver(Driver $driver) {
 		$this->driver = $driver;
+	}
+	
+	/**
+	 * Builds an Statement instance and stores it
+	 * @param string $id
+	 * @param string $query
+	 * @param boolean $as_list
+	 * @return \eMapper\SQL\Statement
+	 */
+	protected function buildAndStore($id, $query, $as_list = true) {
+		$stmt = new Statement($id, $query, $as_list ? $this->statementReturnTypeList : $this->statementReturnType);
+		$this->addStatement($stmt);
+		return $stmt;
 	}
 	
 	public function getStatement($statementId) {
@@ -59,105 +89,84 @@ class EntityNamespace extends SQLNamespace {
 			return parent::getStatement($statementId);
 		}
 		
-		//get table name
-		$table = '@@' . $this->entity->getReferredTable();
-		
 		//find all
 		if ($statementId == 'findAll') {
 			//FindAllStatementBuilder
 			$stmt = new FindAllStatemetBuilder($this->driver, $this->entity);
-			return $this->stmt('findAll', $stmt->build(), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore('findAll', $stmt->build());
 		}
 		
 		//find by primary key
 		if ($statementId == 'findByPk') {
 			//FindByPkStatementBuilder
 			$stmt = new FindByPkStatementBuilder($this->driver, $this->entity);
-			return $this->stmt('findByPk', $stmt->build(), Statement::type($this->buildExpression($this->entity)));
+			return $this->buildAndStore('finsByPk', $stmt->build(), false);
 		}
 		
 		//find by
 		if (preg_match('/^findBy([\w]+)/', $statementId, $matches)) {
-			$stmt = new FindByStatementBuilder($this->driver, $this->entity);
-			
-			//check if the property is declared as unique
-			if ($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey) {
-				$config = Statement::type($this->buildExpression($this->entity));
-			}
-			else {
-				$config = Statement::type($this->buildListExpression($this->entity));
-			}
-			
-			return $this->stmt($matches[0], $stmt->build($matches), $config);
+			$stmt = new FindByStatementBuilder($this->driver, $this->entity);			
+			return $this->buildAndStore($matches[0], $stmt->build($matches), !($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey));
 		}
 		
 		//eq [FIELD][Not]Equals
 		if (preg_match('/^(\w+?)(Not)?Equals$/', $statementId, $matches)) {
 			$stmt = new EqualStatementBuilder($this->driver, $this->entity);
-			
-			//check if the property is declared as unique
-			if ($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey) {
-				$config = Statement::type($this->buildExpression($this->entity));
-			}
-			else {
-				$config = Statement::type($this->buildListExpression($this->entity));
-			}
-			
-			return $this->stmt($matches[0], $stmt->build($matches), $config);
+			return $this->buildAndStore($matches[0], $stmt->build($matches), !($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey));
 		}
 		
 		//contains/icontains [FIELD][Not][I]Contains
 		if (preg_match('/^(\w+?)(Not)?(I)?Contains$/', $statementId, $matches)) {
 			$stmt = new ContainStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//in [FIELD][Not]In
 		if (preg_match('/^(\w+?)(Not)?In$/', $statementId, $matches)) {
 			$stmt = new InStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//greater than (equal) [FIELD][Not]GreaterThan[Equal]
 		if (preg_match('/^(\w+?)(Not)?GreaterThan(Equal)?$/', $statementId, $matches)) {
 			$stmt = new GreaterThanStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//less than (equal) [FIELD][Not]LessThan[Equal]
 		if (preg_match('/^(\w+?)(Not)?LessThan(Equal)?$/', $statementId, $matches)) {
 			$stmt = new LessThanStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//starts with [FIELD][Not][I]StartsWith
 		if (preg_match('/^(\w+?)(Not)?(I)?StartsWith$/', $statementId, $matches)) {
 			$stmt = new StartsWithStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//ends with [FIELD][Not][I]EndsWith
 		if (preg_match('/^(\w+?)(Not)?(I)?EndsWith$/', $statementId, $matches)) {
 			$stmt = new EndsWithStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//is null [FIELD][Not]IsNull
 		if (preg_match('/^(\w+?)(Not)?IsNull$/', $statementId, $matches)) {
 			$stmt = new IsNullStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//matches [FIELD][Not]Matches
 		if (preg_match('/^(\w+?)(Not)?(I)?Matches$/', $statementId, $matches)) {
 			$stmt = new RegexStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 		
 		//range [FIELD][Not]Between
 		if (preg_match('/^(\w+?)(Not)?Between$/', $statementId, $matches)) {
 			$between = new RangeStatementBuilder($this->driver, $this->entity);
-			return $this->stmt($matches[0], $stmt->build($matches), Statement::type($this->buildListExpression($this->entity)));
+			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
 	}
 }

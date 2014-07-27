@@ -8,15 +8,25 @@ abstract class GenericRegex {
 	 */
 	protected $case_sensitive;
 	
-	public function __construct($case_sensitive) {
+	/**
+	 * Indicates if the predicate must be negate
+	 * @var boolean
+	 */
+	protected $negate;
+	
+	public function setOptions($case_sensitive, $negate) {
 		$this->case_sensitive = $case_sensitive;
+		$this->negate = $negate;
 	}
 	
-	public abstract function filter($expression);
-	public abstract function comparisonExpression($negate);
+	public function filter($expression) {
+		return $expression;
+	}
 	
 	public function argumentExpression() {
 		return '[?s (%0) ?]';
 	}
+	
+	public abstract function comparisonExpression();
 }
 ?>

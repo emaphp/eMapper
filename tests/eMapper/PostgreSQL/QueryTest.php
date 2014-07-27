@@ -23,7 +23,7 @@ class QueryTest extends AbstractQueryTest {
 	//SELECT regex
 	public function testRegex() {
 		$query = new SelectQueryBuilder($this->profile);
-		$query->setCondition(Attr::code()->regex('^(An?|The) +'));
+		$query->setCondition(Attr::code()->matches('^(An?|The) +'));
 		list($query, $args) =  $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code ~ #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
@@ -33,7 +33,7 @@ class QueryTest extends AbstractQueryTest {
 	
 	public function testNotRegex() {
 		$query = new SelectQueryBuilder($this->profile);
-		$query->setCondition(Attr::code()->regex('^(An?|The) +', false));
+		$query->setCondition(Attr::code()->matches('^(An?|The) +', false));
 		list($query, $args) =  $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code !~ #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
@@ -44,7 +44,7 @@ class QueryTest extends AbstractQueryTest {
 	//SELECT iregex
 	public function testIRegex() {
 		$query = new SelectQueryBuilder($this->profile);
-		$query->setCondition(Attr::code()->iregex('^(an?|the) +'));
+		$query->setCondition(Attr::code()->imatches('^(an?|the) +'));
 		list($query, $args) =  $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code ~\* #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
@@ -54,7 +54,7 @@ class QueryTest extends AbstractQueryTest {
 	
 	public function testNotIRegex() {
 		$query = new SelectQueryBuilder($this->profile);
-		$query->setCondition(Attr::code()->iregex('^(an?|the) +', false));
+		$query->setCondition(Attr::code()->imatches('^(an?|the) +', false));
 		list($query, $args) =  $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code !~\* #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];

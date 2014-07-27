@@ -32,6 +32,8 @@ class PostgreSQLDriver extends Driver {
 				$this->config['db.connect_type'] = $connect_type;
 			}
 		}
+		
+		$this->regex = new PostgreSQLRegex();
 	}
 	
 	public static function build($config) {
@@ -200,14 +202,6 @@ class PostgreSQLDriver extends Driver {
 	
 	public function throw_query_exception($query) {
 		throw new PostgreSQLQueryException(pg_last_error($this->connection), $query);
-	}
-	
-	/*
-	 * SQL PREDICATES
-	 */
-	
-	public function regex($case_sensitive) {
-		return new PostgreSQLRegex($case_sensitive);
 	}
 }
 ?>

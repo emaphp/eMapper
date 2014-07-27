@@ -29,6 +29,8 @@ class SQLiteDriver extends Driver {
 			$this->config['db.flags'] = $flags;
 			$this->config['db.encription_key'] = $encription_key;
 		}
+		
+		$this->regex = new SQLiteRegex();
 	}
 	
 	public static function build($config) {
@@ -158,14 +160,6 @@ class SQLiteDriver extends Driver {
 	
 	public function throw_query_exception($query) {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
-	}
-	
-	/*
-	 * SQL PREDICATES
-	 */
-	
-	public function regex($case_sensitive) {
-		return new SQLiteRegex($case_sensitive);
 	}
 }
 ?>

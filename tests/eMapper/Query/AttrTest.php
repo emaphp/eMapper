@@ -302,7 +302,7 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testRegex() {
-		$regex = Attr::content()->regex('^The');
+		$regex = Attr::content()->matches('^The');
 		$this->assertInstanceOf('eMapper\Query\Predicate\Regex', $regex);
 		$this->assertEquals('content', $regex->getField()->getName());
 		$this->assertFalse($regex->getNegate());
@@ -311,7 +311,7 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testNotRegex() {
-		$regex = Attr::content()->regex('^The', false);
+		$regex = Attr::content()->matches('^The', false);
 		$this->assertInstanceOf('eMapper\Query\Predicate\Regex', $regex);
 		$this->assertEquals('content', $regex->getField()->getName());
 		$this->assertTrue($regex->getNegate());
@@ -320,7 +320,7 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIRegex() {
-		$regex = Attr::content()->iregex('^The');
+		$regex = Attr::content()->imatches('^The');
 		$this->assertInstanceOf('eMapper\Query\Predicate\Regex', $regex);
 		$this->assertEquals('content', $regex->getField()->getName());
 		$this->assertFalse($regex->getNegate());
@@ -329,7 +329,7 @@ class AttrTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testNotIRegex() {
-		$regex = Attr::content()->iregex('^The', false);
+		$regex = Attr::content()->imatches('^The', false);
 		$this->assertInstanceOf('eMapper\Query\Predicate\Regex', $regex);
 		$this->assertEquals('content', $regex->getField()->getName());
 		$this->assertTrue($regex->getNegate());

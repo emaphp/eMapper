@@ -14,6 +14,20 @@ abstract class Driver {
 	public $connection;
 	
 	/**
+	 * Regex builder
+	 * @var GenericRegex
+	 */
+	protected $regex;
+	
+	/**
+	 * Returns a regex builder for the current engine
+	 * @return \eMapper\Engine\Generic\Regex\GenericRegex
+	 */
+	public function getRegex() {
+		return $this->regex;
+	}
+	
+	/**
 	 * Builds a driver from a configuration array
 	 * @param unknown $config
 	 */
@@ -104,16 +118,5 @@ abstract class Driver {
 	 * @param string $query
 	 */
 	public abstract function throw_query_exception($query);
-	
-	/*
-	 * SQL PREDICATES
-	 */
-	
-	/**
-	 * Obtains a regex predicate builder for the current engine
-	 * @param boolean $case_sensitive
-	 * @return GenericRegex
-	 */
-	public abstract function regex($case_sensitive);
 }
 ?>

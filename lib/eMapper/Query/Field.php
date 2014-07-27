@@ -143,10 +143,10 @@ abstract class Field {
 	}
 	
 	public function range($from, $to, $condition = true) {
-		$range = Range($this, !$condition);
+		$range = new Range($this, !$condition);
 		$range->setFrom($from);
 		$range->setTo($to);
-		return $tange;
+		return $range;
 	}
 	
 	public function matches($expression, $condition = true) {

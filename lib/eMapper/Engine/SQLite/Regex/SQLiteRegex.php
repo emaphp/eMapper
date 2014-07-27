@@ -9,11 +9,11 @@ class SQLiteRegex extends GenericRegex {
 			return $expression;
 		}
 		
-		return '(?i)' . strtolower($expression);
+		return '(?i)' . $expression;
 	}
 	
-	public function comparisonExpression($negate) {
-		if ($negate) {
+	public function comparisonExpression() {
+		if ($this->negate) {
 			return '%s NOT REGEXP %s';
 		}
 		

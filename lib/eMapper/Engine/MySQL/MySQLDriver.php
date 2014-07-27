@@ -73,6 +73,9 @@ class MySQLDriver extends Driver {
 				
 			//aet autocommit option
 			$this->config['db.autocommit'] = (bool) $autocommit;
+			
+			//build regex
+			$this->regex = new MySQLRegex();
 		}
 	}
 	
@@ -240,14 +243,6 @@ class MySQLDriver extends Driver {
 	
 	public function throw_query_exception($query) {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
-	}
-	
-	/*
-	 * SQL PREDICATES
-	 */
-	
-	public function regex($case_sensitive) {
-		return new MySQLRegex($case_sensitive);
 	}
 }
 ?>

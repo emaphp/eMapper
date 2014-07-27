@@ -5,7 +5,8 @@ use eMapper\Engine\Generic\Driver;
 
 class Regex extends StringComparisonPredicate {
 	public function render() {
-		$regex = $driver->regex($this->case_sensitive);
+		$regex = $driver->getRegex();
+		$regex->setOptions($this->case_sensitive, $this->negate);
 
 		//get regex operator
 		$op = trim(sprintf($regex->comparisonExpression(), '', ''));
@@ -14,13 +15,15 @@ class Regex extends StringComparisonPredicate {
 	}
 	
 	protected function formatExpression(Driver $driver, $expression) {
-		$regex = $driver->regex($this->case_sensitive);
+		$regex = $driver->getRegex();
+		$regex->setOptions($this->case_sensitive, $this->negate);
 		return $regex->filter($expression);
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
-		$regex = $driver->regex($this->case_sensitive);
-		return $regex->comparisonExpression($this->negate);
+		$regex = $driver->getRegex();
+		$regex->setOptions($this->case_sensitive, $this->negate);
+		return $regex->comparisonExpression();
 	}
 }
 ?>
