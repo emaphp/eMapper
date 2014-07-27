@@ -105,14 +105,24 @@ class EntityNamespace extends SQLNamespace {
 		
 		//find by
 		if (preg_match('/^findBy([\w]+)/', $statementId, $matches)) {
-			$stmt = new FindByStatementBuilder($this->driver, $this->entity);			
+			$stmt = new FindByStatementBuilder($this->driver, $this->entity);
+			$property = strtolower($matches[1]);
 			return $this->buildAndStore($matches[0], $stmt->build($matches), !($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey));
 		}
 		
 		//eq [FIELD][Not]Equals
 		if (preg_match('/^(\w+?)(Not)?Equals$/', $statementId, $matches)) {
 			$stmt = new EqualStatementBuilder($this->driver, $this->entity);
-			return $this->buildAndStore($matches[0], $stmt->build($matches), !($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey));
+			$property = strtolower($matches[1]);
+			
+			if ($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey) {
+				$as_table = array_key_exists(2, $matches);
+			}
+			else {
+				$as_table = true;
+			}
+			
+			return $this->buildAndStore($matches[0], $stmt->build($matches), $as_table);
 		}
 		
 		//contains/icontains [FIELD][Not][I]Contains

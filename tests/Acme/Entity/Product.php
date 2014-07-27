@@ -14,6 +14,7 @@ class Product {
 	public $id;
 	
 	/**
+	 * @Unique
 	 * @Column product_code
 	 */
 	public $code;
