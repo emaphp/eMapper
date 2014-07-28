@@ -18,6 +18,12 @@ class Product {
 	 * @Column product_code
 	 */
 	public $code;
+	
+	/**
+	 * 
+	 * @Type float
+	 */
+	public $price;
 
 	protected $category;
 	

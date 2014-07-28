@@ -12,10 +12,10 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-07-24 - Version 3.1.0 
+2014-07-30 - Version 3.1.0 
 
-  * Added: Entity Managers (ORM).
-  * Modified: Class annotations. Now eMapper depends on emapper/annotations, a slightly modified version of minime/annotations. 
+  * Added: Entity Managers and Entity Namespaces (ORM).
+  * Modified: Annotation syntax. Now eMapper depends on emapper/annotations, a slightly modified version of minime/annotations. 
   * Modified: Dynamic SQL syntax delimiters.
 
 <br/>
@@ -214,7 +214,7 @@ $users = $mapper->type('arr[]', ArrayType::ASSOC)->query("SELECT * FROM users");
 ```
 
 <br/>
-Indexation and Grouping
+Indexes and Groups
 -----------------------
 
 <br/>
@@ -232,6 +232,7 @@ $books = $mapper->type('obj[isbn]')->query("SELECT id, name, price FROM books");
 //when mapping to arrays, the index should be represented appropriately
 use eMapper\Result\ArrayType;
 
+//use first column as index
 $products = $mapper->type('arr[0]', ArrayType::NUM)->query("SELECT * FROM products");
 ```
 
@@ -259,7 +260,8 @@ $products = $mapper->type('array[]')
 })
 ->query("SELECT * FROM products");
 
-// a group callback does what you expect and can also be combined with indexation
+// a group callback does what you expect
+//it can also be combined with indexes if needes
 $products = $mapper->type('obj[id]')
 ->group_callback(function ($product) {
     return substr($product->category, 0, 3);
@@ -377,7 +379,7 @@ Stored procedures
 <br/>
 #####Invoking stored procedures
 
-The *Mapper* class uses [method overloading](http://php.net//manual/en/language.oop5.overloading.php "") to translate an invokation to an unexistant method into a stored procedure call.
+The *Mapper* class uses [method overloading](http://php.net//manual/en/language.oop5.overloading.php "") to translate an invokation to an non-existant method into a stored procedure call.
 
 ```php
 //MySQL: CALL Users_Clean()
@@ -616,28 +618,155 @@ $products->truncate();
 ```
 
 <br/>
-#####Default namespace
-Managers can also execute statements stored in the parent mapper. A defaul namespace could be defined using the *@DefaultNamespace* annotation.
+Entity Namespaces
+-----------------
+
+<br/>
+#####Introduction
+
+Entity namespaces are classes that generate statements from an entity class automatically. These classes receive their respective ids from the *@DefaultNamespace* annotation in the entity class declaration.
 
 ```php
+namespace Acme\Factory;
+
 /**
- * @Entity users
- * @DefaultNamespace users
+ * @Entity products
+ * @DefaultNamespace products
  */
-class User {
+class Product {
+    /**
+     * @Id
+     * @Type integer
+     */
+    private $id;
+    
+    /**
+     * @Unique
+     * @Type string
+     */
+    private $code;
+    
+    /**
+     * @Type string
+     */
+    private $description;
+    
+    /**
+     * @Type string
+     */
+    private $category;
+    
+    /**
+     * @Type float
+     */
+    private $price;
+    
     //...
 }
 
-//add namespace
-use Acme\SQL\UsersNamespace;
-$mapper->addNamespace(new UsersNamespace);
-
-//create manager
-$users = $mapper->buildManager('Acme\\User');
-
-//invoke 'users.findSuperAdmin'
-$user = $users->execute('findSuperAdmin');
 ```
+
+<br/>
+#####Adding a entity namespace
+
+```php
+//add an entity namespace
+use eMapper\SQL\EntityNamespace;
+$mapper->addEntityNamespace(new EntityNamespace('Acme\Factory\Product'));
+
+//find by primary key
+$product = $mapper->execute('products.findByPk', 2);
+
+//find all
+$products = $mapper->execute('products.findAll');
+
+//find by
+$products = $mapper->execute('products.findByCategory', 'Laptops');
+
+//override mapping expression
+$products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('descriptionIsNull');
+```
+
+<br/>
+#####Statement list
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Statement ID</th>
+            <th>Example</th>
+            <th>Returned Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>findByPk</td>
+            <td><em>products.findByPk</em></td>
+            <td>Instance (NULL if not found)</td>
+        </tr>
+        <tr>
+            <td>findAll</td>
+            <td><em>products.findAll</em></td>
+            <td>List</td>
+        </tr>
+        <tr>
+            <td>findBy{PROPERTY}</td>
+            <td><em>products.findByCode</em></td>
+            <td>Instance if property is @Id or @Unique, a list otherwise</td>
+        </tr>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]Equals</td>
+        <td><em>products.codeEquals</em><br/><em>products.priceNotEquals</em></td>
+        <td>Instance if property is @Id or @Unique, a list otherwise</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not][I]Contains</td>
+        <td><em>products.categoryContains</em><br/><em>products.descriptionNotContains</em><br/><em>products.categoryIContains</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not][I]StartsWith</td>
+        <td><em>products.categoryStartsWith</em><br/><em>products.descriptionNotStartsWith</em><br/><em>products.categoryIStartsWith</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not][I]EndsWith</td>
+        <td><em>products.categoryEndsWith</em><br/><em>products.descriptionNotEndsWith</em><br/><em>products.categoryIEndsWith</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]In</td>
+        <td><em>products.idIn</em><br/><em>products.idNotIn</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]GreaterThan[Equal]</td>
+        <td><em>products.idGreaterThan</em><br/><em>products.priceGreaterThanEqual</em><br/><em>products.priceNotGreaterThan</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]LessThan[Equal]</td>
+        <td><em>products.idLessThan</em><br/><em>products.priceLessThanEqual</em><br/><em>products.priceNotLessThan</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]IsNull</td>
+        <td><em>products.descriptionIsNull</em><br/><em>products.descriptionIsNotNull</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not]Between</td>
+        <td><em>products.priceBetween</em><br/><em>products.priceNotBetween</em></td>
+        <td>List</td>
+    </tbody>
+    <tbody>
+        <td>{PROPERTY}[Not][I]Matches</td>
+        <td><em>products.categoryMatches</em><br/><em>products.codeNotMatches</em><br/><em>products.descriptionIMatches</em></td>
+        <td>List</td>
+    </tbody>
+</table>
 
 <br/>
 Dynamic SQL
@@ -795,7 +924,7 @@ private $product; //Here productId is the only argument for this query
                   //This requires a modification in the query argument expression
 ```
 
-In other words, *@Self* must be added if the specified query receives the current instance and another additional parameter. The next example adds a **relatedProducts** property in the *Product* class that includes 2 arguments: the current partial instance and a integer value that sets the amount of objects to return.
+In other words, *@Self* must be added if the specified query receives the current instance and an additional value as arguments. The next example adds a **relatedProducts** property in the *Product* class that includes 2 arguments: the current partial instance and a integer value that sets the amount of objects to return.
 
 ```php
 namespace Acme\Factory;
@@ -836,7 +965,7 @@ class Sale {
     private $productId;
     
     /**
-     * @StatementId products.FindByPk
+     * @StatementId products.findByPk
      * @Parameter(productId)
      * @Type obj:Acme\Factory\Product
      */
@@ -879,7 +1008,7 @@ class Product {
 
 <br/>
 #####Macros
-*@Eval* evaluates an *eMacros* program against current entity. Examples of usage of these type of attributes are getting a person's fullname or calculating his age.
+*@Eval* evaluates a macro against current entity. Examples of usage of these type of attributes are getting a person's fullname or calculating his age.
 ```php
 /**
  * @Entity people
@@ -923,7 +1052,7 @@ class Person {
 <br/>
 #####Conditional attributes
 
-The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Just like *@Eval*, these annotations receive an *eMacros* program as a value.
+The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must be expressed alaso as macros.
 
 ```php
 /**
@@ -981,6 +1110,7 @@ Cache
 -----
 
 <br/>
+#####Introduction
 Currently, eMapper supports APC, Memcache and Memcached. Before setting a cache provider make sure the required extension is correctly installed.
 
 <br/>
@@ -1024,14 +1154,102 @@ Custom types
 <br/>
 #####Introduction
 
-<br/>
-#####The RGBColor type
+Type handlers are classes that manage how a value is stored and retrieved from a column. To introduce how a type handler works we'll introduce a custom type called *RGBColor*.
 
+```php
+namespace Acme;
+
+//the RGBColor class is a three component class that
+//stores the amount of red, green and blue in a color
+class RGBColor {
+    public $red;
+    public $green;
+    public $blue;
+    
+    public function __construct($red, $green, $blue) {
+        $this->red = $red;
+        $this->green = $green;
+        $this->blue = $blue;
+    }
+}
+```
 <br/>
 #####Type handlers
 
+A type handler extends the *eMapper\Type\TypeHandler* class and implements the *setParameter* and *getValue* methods.
+
+```php
+namespace Acme;
+
+use eMapper\Type\TypeHandler;
+
+class RGBColorTypeHandler extends TypeHandler {
+    /**
+     * Converts a RGBColor instance to a string expression
+     */
+    public function setParameter($color) {
+        $red = ($color->red < 16) ? '0' . dechex($color->red) : dechex($color->red % 256);
+		$green = ($color->green < 16) ? '0' . dechex($color->green % 256) : dechex($color->green);
+		$blue = ($color->blue < 15) ? '0' . dechex($color->blue) : dechex($color->blue % 256);
+		return $red . $green . $blue;
+    }
+    
+    /**
+     * Generates a new RGBColor instance from a string value
+     */
+    public function getValue($value) {
+        return new RGBColor(hexdec(substr($value, 0, 2)),
+                            hexdec(substr($value, 2, 2)),
+                            hexdec(substr($value, 4, 2)));
+    }
+}
+```
+
 <br/>
 #####Types and aliases
+```php
+//add type
+use Acme\RGBColorTypeHandler;
+$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
+
+//mapping to RGBColor
+$color = $mapper->type('Acme\RGBColor')->query("SELECT color FROM palette WHERE id = 1");
+
+//using an alias
+$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'rgb');
+
+//mapping to RGBColor using the previously defined alias
+$color = $mapper->type('rgb')->query("SELECT color FROM palette WHERE id = 1");
+```
+
+<br/>
+#####Using custom types
+
+```php
+/**
+ * @Entity vehicles
+ */
+class Car {
+    /**
+     * @Id
+     * @Type integer
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $manufacturer;
+    
+    /**
+     * @Type rgb
+     */
+    private $color;
+    
+    //...
+}
+
+```
 
 <br/>
 License

@@ -105,5 +105,118 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount(4, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
 	}
+	
+	public function testIn() {
+		$products = $this->mapper->execute('products.idIn', [1, 2, 3, 4]);
+		$this->assertCount(4, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+	
+		$products = $this->mapper->execute('products.idIn', 1);
+		$this->assertCount(1, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+		$this->assertEquals(1, $products[0]->id);
+	}
+	
+	public function testNotIn() {
+		$products = $this->mapper->execute('products.idNotIn', [1, 2, 3, 4]);
+		$this->assertCount(1, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+		$this->assertEquals(5, $products[0]->id);
+		
+		$products = $this->mapper->execute('products.idNotIn', 1);
+		$this->assertCount(4, $products);
+	}
+	
+	public function testGreaterThan() {
+		$products = $this->mapper->execute('products.idGreaterThan', 3);
+		$this->assertCount(2, $products);
+		
+		$products = $this->mapper->execute('products.priceGreaterThan', 100);
+		$this->assertCount(4, $products);
+	}
+	
+	public function testNotGreaterThan() {
+		$products = $this->mapper->execute('products.idNotGreaterThan', 3);
+		$this->assertCount(3, $products);
+		
+		$products = $this->mapper->execute('products.priceNotGreaterThan', 100);
+		$this->assertCount(1, $products);
+	}
+	
+	public function testLessThan() {
+		$products = $this->mapper->execute('products.idLessThan', 3);
+		$this->assertCount(2, $products);
+		
+		$products = $this->mapper->execute('products.priceLessThan', 100);
+		$this->assertCount(1, $products);
+	}
+	
+	public function testNotLessThan() {
+		$products = $this->mapper->execute('products.idNotLessThan', 3);
+		$this->assertCount(3, $products);
+		
+		$products = $this->mapper->execute('products.priceNotLessThan', 100);
+		$this->assertCount(4, $products);
+	}
+	
+	public function testStartsWith() {
+		$products = $this->mapper->execute('products.codeStartsWith', 'IND');
+		$this->assertCount(3, $products);
+	}
+	
+	public function testIStartsWith() {
+		$products = $this->mapper->execute('products.codeIStartsWith', 'ind');
+		$this->assertCount(3, $products);
+	}
+	
+	public function testNotStartsWith() {
+		$products = $this->mapper->execute('products.codeNotStartsWith', 'IND');
+		$this->assertCount(2, $products);
+	}
+	
+	public function testNotIStartsWith() {
+		$products = $this->mapper->execute('products.codeNotIStartsWith', 'ind');
+		$this->assertCount(2, $products);
+	}
+	
+	public function testEndsWith() {
+		$products = $this->mapper->execute('products.categoryEndsWith', 's');
+		$this->assertCount(4, $products);
+	}
+	
+	public function testIEndsWith() {
+		$products = $this->mapper->execute('products.categoryIEndsWith', 's');
+		$this->assertCount(4, $products);
+	}
+	
+	public function testNotEndsWith() {
+		$products = $this->mapper->execute('products.categoryNotEndsWith', 's');
+		$this->assertCount(1, $products);
+	}
+	
+	public function testNotIEndsWith() {
+		$products = $this->mapper->execute('products.categoryNotIEndsWith', 's');
+		$this->assertCount(1, $products);
+	}
+	
+	public function testIsNull() {
+		$products = $this->mapper->execute('products.colorIsNull');
+		$this->assertCount(1, $products);
+	}
+	
+	public function testIsNotNull() {
+		$products = $this->mapper->execute('products.colorIsNotNull');
+		$this->assertCount(4, $products);
+	}
+	
+	public function testBetween() {
+		$products = $this->mapper->execute('products.idBetween', 2, 4);
+		$this->assertCount(3, $products);
+	}
+	
+	public function testNotBetween() {
+		$products = $this->mapper->execute('products.idNotBetween', 2, 4);
+		$this->assertCount(2, $products);
+	}
 }
 ?>

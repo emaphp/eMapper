@@ -5,7 +5,7 @@ use eMapper\Query\Predicate\EndsWith;
 use eMapper\Query\Attr;
 class EndsWithStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
-		$property = $matches[0];
+		$property = $matches[1];
 		$negate = array_key_exists(2, $matches) && !empty($matches[2]);
 		$case_sensitive = !array_key_exists(3, $matches) || empty($matches[3]);
 		

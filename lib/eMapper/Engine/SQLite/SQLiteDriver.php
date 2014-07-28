@@ -62,6 +62,10 @@ class SQLiteDriver extends Driver {
 	
 		try {
 			$this->connection = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
+			
+			//add regexp functions
+			$this->connection->createFunction('REGEXP', [$this, 'regexp']);
+			$this->connection->createFunction('IREGEXP', [$this, 'iregexp']);
 		}
 		catch (\Exception $e) {
 			throw new SQLiteConnectionException($e->getMessage(), $e);
@@ -160,6 +164,26 @@ class SQLiteDriver extends Driver {
 	
 	public function throw_query_exception($query) {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
+	}
+	
+	/**
+	 * REGEXP METHODS
+	 */
+	
+	public function regexp($pattern, $string) {
+		if (preg_match('/' . $pattern . '/', $string)) {
+        	return true;
+    	}
+    	
+    	return false;
+	}
+	
+	public function iregexp($pattern, $stringR) {
+		if (preg_match('/' . $pattern . '/i', $string)) {
+			return true;
+		}
+		 
+		return false;
 	}
 }
 ?>

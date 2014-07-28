@@ -32,7 +32,7 @@ class SQLiteRegex extends GenericRegex {
 				$op = $this->negate ? 'NOT REGEXP' : 'REGEXP';
 				
 				if ($this->case_sensitive) {
-					return "%s $op [?s (%%0) ]";
+					return "%s $op [?s (%%0) ?]";
 				}
 				
 				return "%s $op [?s (. '(?i)' (%%0)) ?]";

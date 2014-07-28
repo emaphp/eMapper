@@ -46,11 +46,11 @@ class PostgreSQLRegex extends GenericRegex {
 			{					
 				if ($this->case_sensitive) {
 					$op = $this->negate ? '!~' : '~';
-					return "%s $op [?s (%%0) ]";
+					return "%s $op [?s (%%0) ?]";
 				}
 					
 				$op = $this->negate ? '!~*' : '~*';
-				return "%s $op [?s (%%0) ]";
+				return "%s $op [?s (%%0) ?]";
 			}
 			break;
 		}

@@ -162,7 +162,7 @@ class EntityNamespace extends SQLNamespace {
 		}
 		
 		//is null [FIELD][Not]IsNull
-		if (preg_match('/^(\w+?)(Not)?IsNull$/', $statementId, $matches)) {
+		if (preg_match('/^(\w+?)Is(Not)?Null$/', $statementId, $matches)) {
 			$stmt = new IsNullStatementBuilder($this->driver, $this->entity);
 			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
@@ -175,9 +175,11 @@ class EntityNamespace extends SQLNamespace {
 		
 		//range [FIELD][Not]Between
 		if (preg_match('/^(\w+?)(Not)?Between$/', $statementId, $matches)) {
-			$between = new RangeStatementBuilder($this->driver, $this->entity);
+			$stmt = new RangeStatementBuilder($this->driver, $this->entity);
 			return $this->buildAndStore($matches[0], $stmt->build($matches));
 		}
+		
+		return false;
 	}
 }
 ?>
