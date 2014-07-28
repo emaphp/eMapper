@@ -82,5 +82,28 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 		$products = $this->mapper->execute('products.idNotEquals', 0);
 		$this->assertCount(5, $products);
 	}
+	
+	public function testContains() {
+		$products = $this->mapper->execute('products.codeContains', 'ND0');
+		$this->assertCount(3, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+	}
+	
+	public function testNotContains() {
+		$products = $this->mapper->execute('products.codeNotContains', 'HN');
+		$this->assertCount(4, $products);
+	}
+	
+	public function testIContains() {
+		$products = $this->mapper->execute('products.categoryIContains', 'hard');
+		$this->assertCount(1, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+	}
+	
+	public function testNotIContains() {
+		$products = $this->mapper->execute('products.categoryNotIContains', 'hard');
+		$this->assertCount(4, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+	}
 }
 ?>

@@ -62,7 +62,7 @@ class Filter extends SQLPredicate {
 		return $condition;
 	}
 	
-	public function render() {
+	public function render(Driver $driver) {
 		return '';
 	}
 }

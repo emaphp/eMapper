@@ -40,6 +40,7 @@ abstract class StatementBuilder {
 	}
 	
 	protected function buildQuery($condition) {
+		//echo sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
 		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
 	}
 }

@@ -5,7 +5,7 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 
 class In extends ComparisonPredicate {
-	public function render() {
+	public function render(Driver $driver) {
 		$op = $this->negate ? 'NOT' : '';
 		return "%s $op IN (%s)";	
 	}

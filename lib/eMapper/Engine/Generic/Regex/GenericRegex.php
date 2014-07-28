@@ -2,6 +2,14 @@
 namespace eMapper\Engine\Generic\Regex;
 
 abstract class GenericRegex {
+	/*
+	 * Regex type constants
+	 */
+	const CONTAINS = 0;
+	const STARTS_WITH = 1;
+	const ENDS_WITH = 2;
+	const REGEX = 3;
+	
 	/**
 	 * Indicates if the regular expression is case sensitive
 	 * @var boolean
@@ -23,10 +31,7 @@ abstract class GenericRegex {
 		return $expression;
 	}
 	
-	public function argumentExpression() {
-		return '[?s (%0) ?]';
-	}
-	
-	public abstract function comparisonExpression();
+	public abstract function dynamicExpression($type);
+	public abstract function comparisonExpression($type);
 }
 ?>

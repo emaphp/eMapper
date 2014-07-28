@@ -6,7 +6,7 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Field;
 
 class IsNull extends SQLPredicate {
-	public function render() {
+	public function render(Driver $driver) {
 		if ($this->negate) {
 			return '%s IS NOT NULL';
 		}

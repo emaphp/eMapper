@@ -4,7 +4,7 @@ namespace eMapper\Query\Predicate;
 use eMapper\Engine\Generic\Driver;
 
 class LessThanEqual extends ComparisonPredicate {
-	public function render() {
+	public function render(Driver $driver) {
 		$op = $this->negate ? '>' : '<=';
 		return "%s $op %s";
 	}

@@ -58,7 +58,7 @@ class Range extends SQLPredicate {
 		return sprintf("%s BETWEEN %s AND %s", $column, $from_expression, $to_expression);
 	}
 	
-	public function render() {
+	public function render(Driver $driver) {
 		if ($this->negate) {
 			return "%s NOT BETWEEN %s AND %s";
 		}
