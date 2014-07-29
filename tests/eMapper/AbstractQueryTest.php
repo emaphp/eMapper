@@ -396,7 +396,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new UpdateQueryBuilder($this->profile);
 		$query->setCondition(Attr::id()->eq(2));
 		list($query, $args) = $query->build($this->driver);
-		$this->assertRegExpMatch('/UPDATE @@products SET product_id = #\{\w+:int\}, product_code = #\{\w+\}, price = #\{\w+:float\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+):int\]\}/', $query, $matches);
+		$this->assertRegExpMatch('/UPDATE @@products SET product_id = #\{\w+:int\}, product_code = #\{\w+\}, price = #\{\w+:float\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]:int\}/', $query, $matches);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$index = intval($matches[1]);

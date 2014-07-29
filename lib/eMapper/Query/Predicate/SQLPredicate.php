@@ -77,7 +77,7 @@ abstract class SQLPredicate {
 				
 			//build expression
 			if (isset($type)) {
-				return '%{' . $arg_index . "[$index:$type]" . '}';
+				return '%{' . $arg_index . "[$index]" . ":$type}";
 			}
 				
 			return '%{' . $arg_index . "[$index]" . '}';
