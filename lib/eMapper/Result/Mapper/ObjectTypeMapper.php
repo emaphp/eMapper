@@ -98,7 +98,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			$property = $reflectionClass->getProperty($column);
 				
 			if (!$property->isPublic()) {
-				$property->setAccesible(true);
+				$property->setAccessible(true);
 			}
 				
 			$this->columns[$column] = $this->columnHandler($column);

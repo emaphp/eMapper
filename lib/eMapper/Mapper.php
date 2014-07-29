@@ -747,7 +747,13 @@ class Mapper {
 	 * @return \eMapper\Manager
 	 */
 	public function buildManager($classname) {
-		return new Manager($this, Profiler::getClassProfile($classname));
+		$profile = Profiler::getClassProfile($classname);
+		
+		if (!$profile->isEntity()) {
+			throw new \InvalidArgumentException(sprintf("Class %s is not declared as an entity", $profile->reflectionClass->getName()));
+		}
+		
+		return new Manager($this, $profile);
 	}
 	
 	/**

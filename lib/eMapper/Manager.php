@@ -234,15 +234,16 @@ class Manager {
 			//build insert query
 			$query = new InsertQueryBuilder($this->entity);
 			list($query, $_) = $query->build($this->mapper->driver);
-			return $this->mapper->query($query, $entity);
+			$this->mapper->sql($query, $entity);
+			return $this->mapper->lastId();
 		}
 		
 		//build update query
 		$query = new UpdateQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($this->entity->primaryKey)->eq($pk));
 		list($query, $args) = $query->build($this->mapper->driver);
-		$this->mapper->query($query, $entity, $args);
-		return $this->mapper->lastId();
+		$this->mapper->sql($query, $entity, $args);
+		return true;
 	}
 	
 	/**

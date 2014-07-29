@@ -162,7 +162,7 @@ class ClassProfile {
 	}
 	
 	public function getReflectionProperty($property) {
-		return $this->propertiesConfig[$primaryKey]->reflectionProperty;
+		return $this->propertiesConfig[$property]->reflectionProperty;
 	}
 }
 ?>
