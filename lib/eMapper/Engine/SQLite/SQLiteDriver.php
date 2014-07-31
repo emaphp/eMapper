@@ -10,6 +10,10 @@ use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
 use eMapper\Engine\SQLite\Regex\SQLiteRegex;
 
+/**
+ * The SQLDriver class provides connection to SQLite database engines.
+ * @author emaphp
+ */
 class SQLiteDriver extends Driver {
 	public function __construct($database, $flags = 0, $encription_key = null) {
 		if ($database instanceof \SQLite3) {
@@ -171,7 +175,7 @@ class SQLiteDriver extends Driver {
 	 */
 	
 	public function regexp($pattern, $string) {
-		if (preg_match('/' . $pattern . '/', $string)) {
+		if (preg_match('/' . addcslashes($pattern, '/') . '/', $string)) {
         	return true;
     	}
     	
@@ -179,7 +183,7 @@ class SQLiteDriver extends Driver {
 	}
 	
 	public function iregexp($pattern, $stringR) {
-		if (preg_match('/' . $pattern . '/i', $string)) {
+		if (preg_match('/' . addcslashes($pattern, '/') . '/i', $string)) {
 			return true;
 		}
 		 

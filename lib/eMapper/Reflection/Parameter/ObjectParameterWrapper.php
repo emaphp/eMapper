@@ -4,16 +4,24 @@ namespace eMapper\Reflection\Parameter;
 use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\ClassProfile;
 
+/**
+ * The ObjectParameterWrapper class provides an interface for accessing properties.
+ * @author emaphp
+ */
 class ObjectParameterWrapper extends ParameterWrapper {
 	/**
 	 * Class profile
 	 * @var ClassProfile
 	 */
-	public $profile;
+	protected $profile;
 	
 	public function __construct($value, $parameterMap = null) {
 		parent::__construct($value, $parameterMap);
 		$this->profile = Profiler::getClassProfile(get_class($value));
+	}
+	
+	public function getProfile() {
+		return $this->profile;
 	}
 	
 	public function getValueAsArray() {

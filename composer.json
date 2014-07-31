@@ -15,6 +15,7 @@
 		"BSD-2-Clause"
 	],
 	"require" : {
+	    "emapper/configuration" :  "1.0.*",
 		"emapper/annotations" : "1.0.*",
 		"emacros/emacros" : "1.0.*"
 	},

@@ -11,7 +11,11 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 * Stored procedure name
 	 * @var string
 	 */
-	public $procedure;
+	protected $procedure;
+	
+	public function getProcedure() {
+		return $this->procedure;
+	}
 	
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain procedure name

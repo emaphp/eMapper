@@ -5,6 +5,11 @@ use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
 
+/**
+ * The ConfigurationExists class is a macro that determines if a given configuration
+ * key is set in a given environment.
+ * @author emaphp
+ */
 class ConfigurationExists implements Applicable {
 	/**
 	 * Configuration option
@@ -29,7 +34,7 @@ class ConfigurationExists implements Applicable {
 			$option = $this->option;
 		}
 		
-		return array_key_exists($option, $scope->config);
+		return $scope->hasOption($option);
 	}
 }
 ?>

@@ -5,6 +5,10 @@ use eMapper\Type\TypeHandler;
 use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
+/**
+ * The ScalarTypeMapper class maps a result to scalar types.
+ * @author emaphp
+ */
 class ScalarTypeMapper {
 	/**
 	 * Default type handler

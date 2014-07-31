@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\Regex;
 use eMapper\Query\Attr;
 
+/**
+ * The RegexStatementBuilder class builds a query string containing a Regex predicate.
+ * @author emaphp
+ */
 class RegexStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

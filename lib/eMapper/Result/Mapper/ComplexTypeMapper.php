@@ -3,6 +3,10 @@ namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeManager;
 
+/**
+ * The ComplexTypeMapper class provides common logic for array an object mappers.
+ * @author emaphp
+ */
 abstract class ComplexTypeMapper {
 	/**
 	 * Type manager

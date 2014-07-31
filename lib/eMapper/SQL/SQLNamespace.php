@@ -3,6 +3,10 @@ namespace eMapper\SQL;
 
 use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
 
+/**
+ * The SQLNamespace class represents a container of statements and other namespaces.
+ * @author emaphp
+ */
 class SQLNamespace {
 	use SQLNamespaceAggregate;
 	

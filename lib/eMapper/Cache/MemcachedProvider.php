@@ -1,6 +1,11 @@
 <?php
 namespace eMapper\Cache;
 
+/**
+ * The MemcachedProvider class provides access to memcache instances through the Memcached library
+ * Requires the Memcached class installed 
+ * @author emaphp
+ */
 class MemcachedProvider implements CacheProvider {
 	/**
 	 * Memcached instance
@@ -55,6 +60,6 @@ class MemcachedProvider implements CacheProvider {
 	}
 	
 	public function __call($method, $args) {
-		return call_user_func_array(array($this->memcached, $method), $args);
+		return call_user_func_array([$this->memcached, $method], $args);
 	}
 }

@@ -1,6 +1,11 @@
 <?php
 namespace eMapper\Type;
 
+/**
+ * The TypeHandler class defines the methods that need to be implemented
+ * in a type handler instance.
+ * @author emaphp
+ */
 abstract class TypeHandler {
 	/**
 	 * Casts a given parameter to a valid type accepted by the handler

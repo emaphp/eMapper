@@ -4,6 +4,10 @@ namespace eMapper\Query\Aggregate;
 use eMapper\Query\Field;
 use eMapper\Reflection\Profile\ClassProfile;
 
+/**
+ * A SQLFunction class represents an aggregate SQL function.
+ * @author emaphp
+ */
 abstract class SQLFunction {
 	/**
 	 * Related attribute
@@ -15,6 +19,10 @@ abstract class SQLFunction {
 		$this->field = $field;
 	}
 	
+	/**
+	 * Generates a string expression for the current instance with the given profile
+	 * @param ClassProfile $profile
+	 */
 	public abstract function getExpression(ClassProfile $profile);
 }
 ?>

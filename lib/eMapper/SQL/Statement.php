@@ -4,6 +4,10 @@ namespace eMapper\SQL;
 use eMapper\SQL\Configuration\StatementConfigurationContainer;
 use eMapper\SQL\Aggregate\StatementAggregate;
 
+/**
+ * The Statement class represents a named query.
+ * @author emaphp
+ */
 class Statement {
 	use StatementAggregate;
 	
@@ -27,17 +31,16 @@ class Statement {
 	
 	/**
 	 * Statement options
-	 * @var array
+	 * @var StatementConfigurationContainer
 	 */
 	public $options;
 	
 	/**
-	 * Create a new eStatement instance
+	 * Creates a new Statement instance
 	 * @param string $id
 	 * @param string $query
-	 * @param string $default_mapping
-	 * @param eMappingConfiguration $options
-	 * @throws \RuntimeException
+	 * @param StatementConfigurationContainer $options
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct($id, $query = '', StatementConfigurationContainer $options = null) {
 		//validate statement id
@@ -46,17 +49,13 @@ class Statement {
 		if (!is_string($query)) {
 			throw new \InvalidArgumentException("Query is not a valid string");
 		}
-		
-		if (!is_null($options) && !($options instanceof StatementConfigurationContainer)) {
-			throw new \InvalidArgumentException("Statement configuration is not a valid StatementConfigurationContainer instance");
-		}
-		
+				
 		$this->id = $id;
 		$this->query = $query;
 		$this->options = $options;
 	}
 	
-	/**
+	/*
 	 * CONFIGURATION BUILDER METHODS
 	 */
 	
@@ -65,7 +64,7 @@ class Statement {
 	 * @param array $options
 	 * @return Configuration
 	 */
-	public static function config($options = null) {
+	public static function config(array $options = null) {
 		$config = new StatementConfigurationContainer();
 		
 		if (is_array($options)) {
@@ -80,7 +79,7 @@ class Statement {
 	 * @return StatementConfigurationContainer
 	 */
 	public static function type() {
-		return call_user_func_array(array(new StatementConfigurationContainer(), 'type'), func_get_args());
+		return call_user_func_array([new StatementConfigurationContainer(), 'type'], func_get_args());
 	}
 }
 ?>

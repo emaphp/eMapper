@@ -4,8 +4,13 @@ namespace eMapper\Engine\PostgreSQL\Result;
 use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
+/**
+ * The PostgreSQLResultIterator class provides an iterator for PostgreSQL
+ * database results.
+ * @author emaphp
+ */
 class PostgreSQLResultIterator extends ResultIterator {
-	public $resultTypes = array(ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM);
+	public $resultTypes = [ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM];
 	
 	public function countRows() {
 		return pg_num_rows($this->result);
@@ -13,7 +18,7 @@ class PostgreSQLResultIterator extends ResultIterator {
 	
 	public function columnTypes($resultType = ArrayType::ASSOC) {
 		$num_fields = pg_num_fields($this->result);
-		$types = array();
+		$types = [];
 		
 		for ($i = 0; $i < $num_fields; $i++) {
 			$name = pg_field_name($this->result, $i);

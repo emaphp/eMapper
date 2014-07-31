@@ -6,12 +6,20 @@ use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
 
+/**
+ * The MacroExpression class provides the logic for macro attributes en entity classes.
+ * @author emaphp
+ */
 class MacroExpression extends DynamicAttribute {
 	/**
 	 * Attribute program
 	 * @var Progra
 	 */
-	public $program;
+	protected $program;
+	
+	public function getProgram() {
+		return $this->program;
+	}
 	
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()

@@ -4,6 +4,11 @@ namespace eMapper\Dynamic\Builder;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
 
+/**
+ * The EnvironmentBuilder trait provides access to the EnvironmentProvider class
+ * in order to obtain dynamically generated execution environment for eMacros expressions
+ * @author emaphp
+ */
 trait EnvironmentBuilder {
 	/**
 	 * Returns an execution environment
@@ -19,7 +24,7 @@ trait EnvironmentBuilder {
 		
 		//setup environment
 		$env = EnvironmentProvider::getEnvironment($environmentId);
-		$env->config = $config;
+		$env->setConfig($config);
 		return $env;
 	}
 }

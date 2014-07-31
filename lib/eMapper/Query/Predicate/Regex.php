@@ -4,6 +4,10 @@ namespace eMapper\Query\Predicate;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The Regex class represents the regular expression predicate.
+ * @author emaphp
+ */
 class Regex extends StringComparisonPredicate {
 	public function render(Driver $driver) {
 		$regex = $driver->getRegex();

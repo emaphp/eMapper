@@ -20,6 +20,10 @@ use eMapper\SQL\Builder\RegexStatementBuilder;
 use eMapper\SQL\Builder\RangeStatementBuilder;
 use eMapper\SQL\Configuration\StatementConfigurationContainer;
 
+/**
+ * The EntityNamespace class represents a SQLNamespace generated from an entity class.
+ * @author emaphp
+ */
 class EntityNamespace extends SQLNamespace {
 	use EntityMapper;
 	

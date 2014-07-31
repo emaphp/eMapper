@@ -5,6 +5,10 @@ use eMapper\Type\TypeManager;
 use eMapper\Result\ResultIterator;
 use eMapper\Reflection\Profiler;
 
+/**
+ * The ObjectTypeMapper class maps database results to object type values.
+ * @author emaphp
+ */
 class ObjectTypeMapper extends ComplexTypeMapper {
 	/**
 	 * Default conversion class

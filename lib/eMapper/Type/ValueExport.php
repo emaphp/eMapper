@@ -1,6 +1,12 @@
 <?php
 namespace eMapper\Type;
 
+/**
+ * The ValueExport trait provides basic type conversion methods to/from strings
+ * Used: eMapper\Cache\CacheKey
+ * 
+ * @author emaphp
+ */
 trait ValueExport {
 	/**
 	 * Casts a given value to string
@@ -34,14 +40,14 @@ trait ValueExport {
 			return false;
 		}
 	
-		return (string) $value;
+		return strval($value);
 	}
 	
 	/**
 	 * Obtains a string representation for a value
 	 * If that value can´t be casted to string then false is returned
 	 * @param mixed $value
-	 * @return string|array|boolean
+	 * @return string|boolean
 	 */
 	public function asString($value) {
 		switch (gettype($value)) {
@@ -51,7 +57,7 @@ trait ValueExport {
 					
 			case 'integer':
 			case 'double':
-				return (string) $value;
+				return strval($value);
 				break;
 					
 			case 'string':

@@ -5,6 +5,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Field;
 
+/**
+ * The ComparisonPredicate class adds an expression property which is used for comparison.
+ * @author emaphp
+ */
 abstract class ComparisonPredicate extends SQLPredicate {
 	/**
 	 * Exprossion for comparison
@@ -44,10 +48,20 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return sprintf($this->buildComparisonExpression($driver), $column, $expression);
 	}
 	
+	/**
+	 * Formats a expression for the current comparison predicate
+	 * @param Driver $driver
+	 * @param mixed $expression
+	 * @return mixed
+	 */
 	protected function formatExpression(Driver $driver, $expression) {
 		return $expression;
 	}
 	
+	/**
+	 * Obtains a string expression containing the comparison predicate
+	 * @param Driver $driver
+	 */
 	protected abstract function buildComparisonExpression(Driver $driver);
 }
 ?>

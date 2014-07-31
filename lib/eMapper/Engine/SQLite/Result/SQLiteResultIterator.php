@@ -4,18 +4,22 @@ namespace eMapper\Engine\SQLite\Result;
 use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
+/**
+ * The SQLiteResultIterator class provides an iterator interface for SQLite results.
+ * @author emaphp
+ */
 class SQLiteResultIterator extends ResultIterator {
 	/**
 	 * Result types array
 	 * @var array
 	 */
-	public $resultTypes = array(ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM);
+	protected $resultTypes = [ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM];
 	
 	/**
 	 * Total rows
 	 * @var int
 	 */
-	public $numRows;
+	protected $numRows;
 	
 	public function countRows() {
 		if (is_null($this->numRows)) {

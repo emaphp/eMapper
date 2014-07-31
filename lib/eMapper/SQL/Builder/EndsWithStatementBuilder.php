@@ -3,6 +3,11 @@ namespace eMapper\SQL\Builder;
 
 use eMapper\Query\Predicate\EndsWith;
 use eMapper\Query\Attr;
+
+/**
+ * The EndsWithStatementBuilder class builds a query string containing a EndsWith predicate.
+ * @author emaphp
+ */
 class EndsWithStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

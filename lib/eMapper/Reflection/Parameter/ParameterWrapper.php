@@ -4,18 +4,23 @@ namespace eMapper\Reflection\Parameter;
 use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\ClassProfile;
 
+/**
+ * The ParameterWrapper class defines a wrapper object that encapsulates an array/object and
+ * manages access to its keys/properties.
+ * @author emaphp
+ */
 abstract class ParameterWrapper implements \ArrayAccess {
 	/**
 	 * Wrapper value
-	 * @var mixed
+	 * @var array|object
 	 */
-	public $value;
+	protected $value;
 	
 	/**
 	 * Parameter map profile
 	 * @var ClassProfile
 	 */
-	public $parameterMap;
+	protected $parameterMap;
 	
 	public function __construct($value, $parameterMap = null) {
 		$this->value = $value;
@@ -24,6 +29,14 @@ abstract class ParameterWrapper implements \ArrayAccess {
 			//initialize parameter map
 			$this->parameterMap = Profiler::getClassProfile($parameterMap);
 		}
+	}
+	
+	public function getValue() {
+		return $this->value;
+	}
+	
+	public function getParameterMap() {
+		return $this->parameterMap;
 	}
 		
 	/**
@@ -89,6 +102,5 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	 * @return array
 	 */
 	public abstract function getValueAsArray();
-
 }
 ?>

@@ -5,7 +5,7 @@ use eMapper\Type\TypeHandler;
 use eMapper\Type\ValueExport;
 
 /**
- * @unquoted
+ * @Safe
  */
 class BlobTypeHandler extends TypeHandler {
 	use ValueExport;

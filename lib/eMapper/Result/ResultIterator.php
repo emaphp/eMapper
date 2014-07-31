@@ -1,8 +1,12 @@
 <?php
 namespace eMapper\Result;
 
+/**
+ * The ResultIterator class defines a basic iterator for database results.
+ * @author emaphp
+ */
 abstract class ResultIterator implements \Iterator {
-	/**
+	/*
 	 * RESULT TYPES
 	 */
 	const AS_ARRAY  = 0;

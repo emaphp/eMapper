@@ -1,12 +1,16 @@
 <?php
 namespace eMapper\Cache;
 
-interface CacheProvider {	
+/**
+ * The CacheProvider interface defines the methods that a cache provider class must implement
+ * @author emaphp
+ */
+interface CacheProvider {
 	/**
 	 * Stores a value in cache
-	 * @param string $id
-	 * @param mixed $value
-	 * @param int $ttl
+	 * @param string $id Cache key
+	 * @param mixed $value The value to store
+	 * @param int $ttl Time to live
 	 */
 	public function store($id, $value, $ttl = 0);
 	

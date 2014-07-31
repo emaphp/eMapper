@@ -4,6 +4,10 @@ namespace eMapper\Engine\MySQL\Statement;
 use eMapper\Type\TypeManager;
 use eMapper\Engine\Generic\Statement\GenericStatement;
 
+/**
+ * The MySQLStatement class builds queries which are sent to the MySQL database server.
+ * @author emaphp
+ */
 class MySQLStatement extends GenericStatement {
 	/**
 	 * MySQL connection

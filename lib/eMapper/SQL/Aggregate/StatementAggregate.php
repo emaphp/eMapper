@@ -3,6 +3,10 @@ namespace eMapper\SQL\Aggregate;
 
 use eMapper\SQL\Statement;
 
+/**
+ * The StatementAggregate trait includes the methods to initialize a Statement instance.
+ * @author emaphp
+ */
 trait StatementAggregate {
 	/**
 	 * Validates a given statement ID

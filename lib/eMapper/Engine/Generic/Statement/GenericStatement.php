@@ -4,11 +4,14 @@ namespace eMapper\Engine\Generic\Statement;
 use eMapper\Cache\Key\CacheKey;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
 use eMapper\Reflection\Parameter\ParameterWrapper;
-use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMapper\Reflection\Profiler;
 use eMapper\Type\TypeHandler;
 use eMacros\Program\SimpleProgram;
 
+/**
+ * The GenericStatement class is responsible for generating a sql query which is then sent to the database. 
+ * @author emaphp
+ */
 abstract class GenericStatement extends CacheKey {
 	use EnvironmentBuilder;
 
@@ -16,7 +19,7 @@ abstract class GenericStatement extends CacheKey {
 	const DYNAMIC_SQL_REGEX = '/(?>\\[\?)([A-z]{1}[\w|\\\\]*)?\s+(.+?)\?\]/';
 	
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
-		$list = array();
+		$list = [];
 	
 		//build expression list
 		foreach ($value as $val) {
@@ -72,6 +75,10 @@ abstract class GenericStatement extends CacheKey {
 			//cast value to the specified type
 			$typeHandler = $this->typeManager->getTypeHandler($type);
 	
+			if ($typeHandler === false) {
+				throw new \RuntimeException("No type handler found for type '$type'");
+			}
+			
 			if (is_array($value)) {
 				return $this->castArray($value, $typeHandler);
 			}
@@ -115,6 +122,10 @@ abstract class GenericStatement extends CacheKey {
 		return $program->executeWith($env, $this->args);
 	}
 	
+	/**
+	 * Replaces a dynamic sql expression
+	 * @param array $matches
+	 */
 	protected function replaceDynamicExpression($matches) {
 		//run program
 		$program = new SimpleProgram($matches[2]);
@@ -129,6 +140,11 @@ abstract class GenericStatement extends CacheKey {
 		return $this->toString($value);
 	}
 	
+	/**
+	 * Builds a query with the given arguments
+	 * (non-PHPdoc)
+	 * @see \eMapper\Cache\Key\CacheKey::build()
+	 */
 	public function build($expr, $args, $config) {
 		//store arguments
 		$this->args = $args;
@@ -138,12 +154,7 @@ abstract class GenericStatement extends CacheKey {
 		
 		//initialize counter
 		$this->counter = 0;
-		
-		//wrap first parameter
-		if (isset($this->args[0]) && (is_object($args[0]) || is_array($args[0]))) {
-			//$this->wrappedArg = ParameterWrapper::wrap($args[0], $this->parameterMap);
-		}
-				
+						
 		//replace dynamic sql expressions
 		if (preg_match(self::DYNAMIC_SQL_REGEX, $expr)) {
 			$expr = preg_replace_callback(self::DYNAMIC_SQL_REGEX, [$this, 'replaceDynamicExpression'], $expr);
@@ -172,7 +183,6 @@ abstract class GenericStatement extends CacheKey {
 			
 			//wrap first argument
 			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
-
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		
@@ -184,6 +194,10 @@ abstract class GenericStatement extends CacheKey {
 		return $expr;
 	}
 	
+	/**
+	 * Escapes a string for the current database engine
+	 * @param string $string
+	 */
 	public abstract function escapeString($string);
 }
 ?>

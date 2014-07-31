@@ -7,6 +7,10 @@ use eMapper\Result\Relation\QueryCallback;
 use eMapper\Result\Relation\StoredProcedureCallback;
 use eMapper\Annotations\Facade;
 
+/**
+ * The ClassProfile class provides details of the implementation and metadata available in a class.
+ * @author emaphp
+ */
 class ClassProfile {
 	/**
 	 * Reflection class

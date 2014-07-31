@@ -12,6 +12,10 @@ use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
 use eMapper\Annotations\Filter;
 
+/**
+ * The DynamicAttribute class defines the basic behaviour for entity dynamic attributes.
+ * @author emaphp
+ */
 abstract class DynamicAttribute extends PropertyProfile {
 	use EnvironmentBuilder;
 	

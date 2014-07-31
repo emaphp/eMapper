@@ -3,6 +3,10 @@ namespace eMapper\Query\Builder;
 
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The UpdateQueryBuilder class generates UPDATE queries for a given entity profile.
+ * @author emaphp
+ */
 class UpdateQueryBuilder extends QueryBuilder {
 	public function build(Driver $driver, $config = null) {
 		$table = '@@' . $this->entity->getReferredTable();

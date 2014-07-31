@@ -3,6 +3,10 @@ namespace eMapper\Engine\PostgreSQL\Regex;
 
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The PostgreSQLRegex class builds string expressions for regex predicates.
+ * @author emaphp
+ */
 class PostgreSQLRegex extends GenericRegex {
 	public function dynamicExpression($type) {
 		switch ($type) {

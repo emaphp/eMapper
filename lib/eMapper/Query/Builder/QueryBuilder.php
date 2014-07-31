@@ -5,6 +5,10 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * A QueryBuilder class encapsulates the generic behaviour for building queries for a given entity.
+ * @author emaphp
+ */
 abstract class QueryBuilder {
 	/**
 	 * Entity profile
@@ -22,6 +26,10 @@ abstract class QueryBuilder {
 		$this->entity = $entity;
 	}
 	
+	/**
+	 * Sets the associated condition for the current query
+	 * @param SQLPredicate $condition
+	 */
 	public function setCondition(SQLPredicate $condition = null) {
 		$this->condition = $condition;
 	}

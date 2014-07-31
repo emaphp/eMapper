@@ -3,12 +3,21 @@ namespace eMapper\Result\Relation;
 
 use eMapper\Annotations\AnnotationsBag;
 
+/**
+ * The QueryCallback class implements the logic for evaluating queries againts
+ * a list of arguments.
+ * @author emaphp
+ */
 class QueryCallback extends DynamicAttribute {
 	/**
 	 * Raw query
 	 * @var string
 	 */
-	public $query;
+	protected $query;
+	
+	public function getQuery() {
+		return $this->query;
+	}
 	
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain query

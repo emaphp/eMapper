@@ -5,6 +5,10 @@ use eMapper\Query\Predicate\LessThanEqual;
 use eMapper\Query\Attr;
 use eMapper\Query\Predicate\LessThan;
 
+/**
+ * The LessThanStatementBuilder class builds a query string containinf a LessThan(Equal) predicate.
+ * @author emaphp
+ */
 class LessThanStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

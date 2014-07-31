@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\In;
 use eMapper\Query\Attr;
 
+/**
+ * The InStatementBuilder class builds a query string containing a In predicate.
+ * @author emaphp
+ */
 class InStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\Contains;
 use eMapper\Query\Attr;
 
+/**
+ * The ContainStatementBuilder class builds a query string containing a Contains predicate.
+ * @author emaphp
+ */
 class ContainStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

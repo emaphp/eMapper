@@ -10,6 +10,10 @@ use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
 use eMapper\Engine\MySQL\Regex\MySQLRegex;
 
+/**
+ * The MySQLDriver class provides access to MySQL database engines.
+ * @author emaphp
+ */
 class MySQLDriver extends Driver {
 	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = 'UTF-8', $autocommit = true) {
 		if ($database instanceof \mysqli) {

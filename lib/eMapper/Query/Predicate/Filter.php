@@ -5,6 +5,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Q;
 
+/**
+ * The Filter class is a container for various types of predicates.
+ * @author emaphp
+ */
 class Filter extends SQLPredicate {
 	/**
 	 * Predicate list
@@ -63,7 +67,33 @@ class Filter extends SQLPredicate {
 	}
 	
 	public function render(Driver $driver) {
-		return '';
+		if (empty($this->predicates)) {
+			return '';
+		}
+		
+		if (count($this->predicates) == 1) {
+			$condition = $this->predicates[0]->render($driver);
+			
+			if ($this->negate) {
+				return 'NOT (' . $condition . ')';
+			}
+			
+			return $condition;
+		}
+		
+		$predicates = [];
+		
+		foreach ($this->predicates as $predicate) {
+			$predicates[] = $predicate->render($driver);
+		}
+		
+		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
+		
+		if ($this->negate) {
+			return 'NOT ' . $condition ;
+		}
+		
+		return $condition;
 	}
 }
 ?>

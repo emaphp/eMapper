@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\Equal;
 use eMapper\Query\Attr;
 
+/**
+ * The EqualStatementBuilder class builds a query string containing an Equal predicate.
+ * @author emaphp
+ */
 class EqualStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

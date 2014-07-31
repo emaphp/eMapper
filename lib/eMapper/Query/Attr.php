@@ -3,6 +3,10 @@ namespace eMapper\Query;
 
 use eMapper\Reflection\Profile\ClassProfile;
 
+/**
+ * The Attr class represents an entity attribute.
+ * @author emaphp
+ */
 class Attr extends Field {
 	/**
 	 * Returns a new Attr instance

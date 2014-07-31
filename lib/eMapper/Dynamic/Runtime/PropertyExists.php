@@ -62,8 +62,8 @@ class PropertyExists implements Applicable {
 			return $value->offsetExists($property);
 		}
 
-		$wrapper = ParameterWrapper::wrapValue($value);
-		return $wrapper->offsetExists($property);
+		//TODO: try getting the parameter map
+		return ParameterWrapper::wrapValue($value)->offsetExists($property);
 	}
 }
 ?>

@@ -3,6 +3,10 @@ namespace eMapper\Reflection\Profile;
 
 use eMapper\Annotations\AnnotationsBag;
 
+/**
+ * The PropertyProfile class provides access to a property metadata.
+ * @author emaphp
+ */
 class PropertyProfile {
 	/**
 	 * Property name

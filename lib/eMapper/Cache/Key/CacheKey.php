@@ -6,12 +6,20 @@ use eMapper\Type\TypeHandler;
 use eMapper\Type\ValueExport;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
+/**
+ * The CacheKey class generates the cache id string used to store a value
+ * @author emaphp
+ */
 class CacheKey {
 	use ValueExport;
 	
+	/*
+	 * REGEX CONSTANTS
+	 */
+	
 	//Ex: @{my_var}
 	const CONFIG_REGEX = '/@{([\w|\.]+)}/';
-	//Ex: %{type}, %{#nargument}, %{#nargument:type}
+	//Ex: %{type}, %{#nargument}, %{#nargument:type}, %{#nargument[subindex]:type}
 	const INLINE_PARAM_REGEX = '@%{([A-z]{1}[\w|\\\\]*)}|%{(\d+)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|%{(\d+)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
 	//Ex: #{property}, #{property:type}
 	const PROPERTY_PARAM_REGEX = '@#{([A-z|_]{1}[\w|\\\\]*)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|#{([A-z|_]{1}[\w|\\\\]*)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
@@ -60,11 +68,77 @@ class CacheKey {
 	}
 	
 	/**
-	 * Casts all elements in an array with the given type handler
+	 * Obtains the default type handler for a given type
 	 * @param mixed $value
+	 * @throws \RuntimeException
+	 * @return NULL|TypeHandler
+	 */
+	protected function getDefaultTypeHandler($value) {
+		//get value type
+		$type = gettype($value);
+	
+		switch ($type) {
+			case 'null':
+				return null;
+				break;
+					
+			case 'array':
+				//check empty array
+				if (count($value) == 0) {
+					return null;
+				}
+				//get first value type hanlder
+				elseif (count($value) == 1) {
+					return $this->getDefaultTypeHandler(current($value));
+				}
+				else {
+					$typeHandler = null;
+	
+					//obtain type by checking inner values
+					foreach ($value as $val) {
+						$typeHandler = $this->getDefaultTypeHandler($val);
+	
+						//get type of the first not null value
+						if (!is_null($typeHandler)) {
+							break;
+						}
+					}
+	
+					return $typeHandler;
+				}
+				break;
+	
+			case 'object':
+				//get object class
+				$classname = get_class($value);
+	
+				//use class as type
+				$typeHandler = $this->typeManager->getTypeHandler($classname);
+	
+				if ($typeHandler !== false) {
+					return $typeHandler;
+				}
+	
+				throw new \RuntimeException("No default type handler found for class '$classname'");
+				break;
+	
+			case 'resource':
+				//unsupported, throw exception
+				throw new \RuntimeException("Argument of type 'resource' is not supported");
+				break;
+	
+			default:
+				//generic type
+				return $this->typeManager->getTypeHandler($type);
+				break;
+		}
+	}
+	
+	/**
+	 * Casts all elements in an array with the given type handler
+	 * @param array $value
 	 * @param TypeHandler $typeHandler
 	 * @param string $join_string
-	 * @param string $escape_string
 	 * @return string
 	 */
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
@@ -121,7 +195,11 @@ class CacheKey {
 		else {
 			//cast value to the specified type
 			$typeHandler = $this->typeManager->getTypeHandler($type);
-				
+			
+			if ($typeHandler === false) {
+				throw new \RuntimeException("No type handler found for type '$type'");
+			}
+			
 			if (is_array($value)) {
 				return $this->castArray($value, $typeHandler, '_');
 			}
@@ -169,7 +247,6 @@ class CacheKey {
 	
 	/**
 	 * Obtains an element within an object/property by a given index
-	 * @param mixed $arg
 	 * @param mixed $property
 	 * @param string $index
 	 * @param string $type
@@ -178,23 +255,23 @@ class CacheKey {
 	 * @throws \OutOfBoundsException
 	 * @return string
 	 */
-	protected function getIndex($arg, $property, $index = null, $type = null) {
+	protected function getIndex($property, $index = null, $type = null) {
 		//verify valid property
-		if (!$arg->offsetExists($property)) {
+		if (!$this->wrappedArg->offsetExists($property)) {
 			throw new \InvalidArgumentException("Unknown property '$property'");
 		}
 		
 		if (is_null($index)) {
-			return $this->castParameter($arg[$property], $type);
+			return $this->castParameter($this->wrappedArg->offsetGet($property), $type);
 		}
 		
 		//check if the value is null
-		if (is_null($arg[$property])) {
+		$value = $this->wrappedArg->offsetGet($property);
+		
+		if (is_null($value)) {
 			throw new \InvalidArgumentException("Trying to obtain value from NULL property '$property'");
 		}
 		
-		$value = $arg[$property];
-
 		//check value type
 		if (is_array($value)) {
 			//search for string index
@@ -235,7 +312,7 @@ class CacheKey {
 	protected function getSubIndex($value, $subindex = null, $type = null, $argn = 0) {
 		//if no subindex is specified just cast main argument
 		if (is_null($subindex)) {
-			return is_null($value) ? 'NULL' : $this->castParameter($value, $type);
+			return $this->castParameter($value, $type);
 		}
 		
 		//check if the value is null
@@ -259,8 +336,11 @@ class CacheKey {
 				throw new \UnexpectedValueException("Property '$subindex' not found on given parameter");
 			}
 			
-			$type = $this->getDefaultType($value, $subindex);
-			return $this->castParameter($value[$subindex], $type);
+			if (is_null($type)) {
+				$type = $this->getDefaultType($value, $subindex);
+			}
+			
+			return $this->castParameter($value->offsetGet($subindex), $type);
 		}
 		elseif (($value = $this->toString($value)) !== false) {
 			//check that subindex is numeric
@@ -284,7 +364,6 @@ class CacheKey {
 	
 	/**
 	 * Obtains a range of elements from within an array/string
-	 * @param mixed $arg
 	 * @param mixed $property
 	 * @param int $left_index
 	 * @param int $right_index
@@ -292,23 +371,23 @@ class CacheKey {
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
-	protected function getRange($arg, $property, $left_index, $right_index, $type = null) {
+	protected function getRange($property, $left_index, $right_index, $type = null) {
 		//verify valid property
-		if (!$arg->offsetExists($property)) {
+		if (!$this->wrappedArg->offsetExists($property)) {
 			throw new \InvalidArgumentException("Unknown property '$property'");
 		}
 		
 		//check if both indexes are empty
 		if (empty($left_index) && strlen($right_index) == 0) {
-			return $this->castParameter($arg[$property], $type);
+			return $this->castParameter($this->wrappedArg->offsetGet($property), $type);
 		}
 		
 		//check if the value is null
-		if (is_null($arg[$property])) {
+		$value = $this->wrappedArg->offsetGet($property);
+		
+		if (is_null($value)) {
 			throw new \InvalidArgumentException("Trying to obtain value from NULL parameter on property '$property'");
 		}
-		
-		$value = $arg[$property];
 		
 		//check value type
 		if (is_array($value)) {
@@ -340,10 +419,6 @@ class CacheKey {
 	protected function getSubRange($value, $left_index, $right_index, $type = null) {		
 		//check if both indexes are empty
 		if (empty($left_index) && strlen($right_index) == 0) {
-			if (is_null($value)) {
-				return 'NULL';
-			}
-		
 			return $this->castParameter($value, $type);
 		}
 		
@@ -369,72 +444,7 @@ class CacheKey {
 		throw new \InvalidArgumentException("Cannot obtain indexes from a non-array type");
 	}
 	
-	/**
-	 * Obtains the default type handler for a given type
-	 * @param unknown $value
-	 * @throws \RuntimeException
-	 * @return NULL|TypeHandler
-	 */
-	protected function getDefaultTypeHandler($value) {
-		//get value type
-		$type = gettype($value);
-		
-		switch ($type) {
-			case 'null':
-				return null;
-				break;
-					
-			case 'array':
-				//check empty array
-				if (count($value) == 0) {
-					return null;
-				}
-				//get first value type hanlder
-				elseif (count($value) == 1) {
-					return $this->getDefaultTypeHandler(current($value));
-				}
-				else {
-					$typeHandler = null;
-						
-					//obtain type by checking inner values
-					foreach ($value as $val) {
-						$typeHandler = $this->getDefaultTypeHandler($val);
-		
-						//get type of the first not null value
-						if (!is_null($typeHandler)) {
-							break;
-						}
-					}
-						
-					return $typeHandler;
-				}
-				break;
-		
-			case 'object':
-				//get object class
-				$classname = get_class($value);
-		
-				//use class as type
-				$typeHandler = $this->typeManager->getTypeHandler($classname);
-		
-				if ($typeHandler !== false) {
-					return $typeHandler;
-				}
-		
-				throw new \RuntimeException("No default type handler found for class '$classname'");
-				break;
-		
-			case 'resource':
-				//unsupported, throw exception
-				throw new \RuntimeException("Argument of type 'resource' is not supported");
-				break;
-		
-			default:
-				//generic type
-				return $this->typeManager->getTypeHandler($type);
-				break;
-		}
-	}
+	
 	
 	/**
 	 * Returns a string that replaces a configuration expression inside a string
@@ -483,7 +493,7 @@ class CacheKey {
 					$type = $this->getDefaultType($this->wrappedArg, $key);
 				}
 				
-				return $this->getIndex($this->wrappedArg, $key, $subindex, $type);
+				return $this->getIndex($key, $subindex, $type);
 				break;
 				
 			/**
@@ -498,7 +508,7 @@ class CacheKey {
 					$type = $this->getDefaultType($this->wrappedArg, $key);
 				}
 			
-				return $this->getRange($this->wrappedArg, $key, $matches[6], $matches[7], $type);
+				return $this->getRange($key, $matches[6], $matches[7], $type);
 				break;
 		}
 	}
@@ -516,7 +526,7 @@ class CacheKey {
 		$total_matches = count($matches);
 		$type = $subindex = null;
 		
-		//%{TYPE@1 | CLASS@1}
+		//%{TYPE|CLASS@1}
 		if ($total_matches == 2) {
 			//check if there are arguments left
 			if ($this->counter >= count($this->args)) {
@@ -605,7 +615,6 @@ class CacheKey {
 			
 			//wrap first argument
 			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
-
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		

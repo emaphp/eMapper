@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\Range;
 use eMapper\Query\Attr;
 
+/**
+ * The RangeStatementBuilder class builds a query string containing a Range predicate.
+ * @author emaphp
+ */
 class RangeStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

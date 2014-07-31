@@ -3,6 +3,10 @@ namespace eMapper\SQL\Builder;
 
 use eMapper\Query\Attr;
 
+/**
+ * The FindByPkStatementBuilder class builds a query string with a comparison by primary key.
+ * @author emaphp
+ */
 class FindByPkStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$table = $this->getTableName();

@@ -3,6 +3,10 @@ namespace eMapper\Query\Builder;
 
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The InsertQueryBuilder class generates INSERT queries for a given entity profile.
+ * @author emaphp
+ */
 class InsertQueryBuilder extends QueryBuilder {
 	public function build(Driver $driver, $config = null) {
 		$table = '@@' . $this->entity->getReferredTable();

@@ -5,6 +5,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Field;
 
+/**
+ * The IsNull class defines a predicate for NULL comparison values.
+ * @author emaphp
+ */
 class IsNull extends SQLPredicate {
 	public function render(Driver $driver) {
 		if ($this->negate) {

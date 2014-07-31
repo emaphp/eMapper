@@ -4,6 +4,10 @@ namespace eMapper\Query\Predicate;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The StartsWith class defines a predicate for strings starting with a given value.
+ * @author emaphp
+ */
 class StartsWith extends StringComparisonPredicate {
 	public function render(Driver $driver) {
 		$regex = $driver->getRegex();

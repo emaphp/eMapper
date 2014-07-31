@@ -6,5 +6,5 @@ use eMapper\Type\Handler\StringTypeHandler;
 /**
  * @Safe
  */
-class UnquotedStringTypeHandler extends StringTypeHandler {
+class SafeStringTypeHandler extends StringTypeHandler {
 }

@@ -6,6 +6,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 use eMapper\Query\Aggregate\SQLFunction;
 
+/**
+ * The SelectQueryBuilder class generates SELECT queries for a given entity profile.
+ * @author emaphp
+ */
 class SelectQueryBuilder extends QueryBuilder {
 	/**
 	 * SQL function
@@ -13,6 +17,10 @@ class SelectQueryBuilder extends QueryBuilder {
 	 */
 	protected $function;
 	
+	/**
+	 * Sets the associated function for the current query
+	 * @param SQLFunction $function
+	 */
 	public function setFunction(SQLFunction $function) {
 		$this->function = $function;
 	}

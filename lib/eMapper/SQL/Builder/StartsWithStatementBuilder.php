@@ -4,6 +4,10 @@ namespace eMapper\SQL\Builder;
 use eMapper\Query\Predicate\StartsWith;
 use eMapper\Query\Attr;
 
+/**
+ * The StartsWithStatementBuilder class builds a query string containing a StartsWith predicate.
+ * @author emaphp
+ */
 class StartsWithStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

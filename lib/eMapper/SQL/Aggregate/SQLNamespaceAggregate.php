@@ -6,6 +6,10 @@ use eMapper\SQL\Statement;
 use eMapper\SQL\Configuration\StatementConfigurationContainer;
 use eMapper\SQL\Aggregate\StatementAggregate;
 
+/**
+ * The SQLNamespaceAggregate trait includes the methods to initialize a SQLNamespace instance. 
+ * @author emaphp
+ */
 trait SQLNamespaceAggregate {
 	use StatementAggregate;
 	
@@ -13,13 +17,13 @@ trait SQLNamespaceAggregate {
 	 * Inner namespaces
 	 * @var array
 	 */
-	public $namespaces = array();
+	public $namespaces = [];
 	
 	/**
 	 * Statement list
 	 * @var array
 	 */
-	public $statements = array();
+	public $statements = [];
 	
 	/**
 	 * Validates a given namespace ID
@@ -120,7 +124,7 @@ trait SQLNamespaceAggregate {
 		return false;
 	}
 	
-	/**
+	/*
 	 * NAMESPACE CREATION METHODS
 	 */
 	
@@ -154,7 +158,7 @@ trait SQLNamespaceAggregate {
 		return $this->namespaces[$namespaceId];
 	}
 	
-	/**
+	/*
 	 * STATEMENT CREATION METHODS
 	 */
 	
@@ -168,7 +172,6 @@ trait SQLNamespaceAggregate {
 		$this->statements[$statementId] = new Statement($statementId);
 		return $this->statements[$statementId];
 	}
-	
 	
 	/**
 	 * Generates an inner statement and returns the current namespace reference 

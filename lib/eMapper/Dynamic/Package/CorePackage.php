@@ -49,6 +49,12 @@ use eMapper\Dynamic\Runtime\PropertyExists;
 use eMapper\Dynamic\Runtime\ConfigurationGet;
 use eMapper\Dynamic\Runtime\ConfigurationExists;
 
+/**
+ * The CorePackage class provides a replacement for the default CorePackage class
+ * available in eMacros. This reduces the number of function/macros available but
+ * adds the possibility to call PHP functions from dynamic SQL expressions and entity macros.
+ * @author emaphp
+ */
 class CorePackage extends Package {
 	public function __construct() {
 		parent::__construct('Core');
@@ -208,18 +214,6 @@ class CorePackage extends Package {
 		$this['is-a'] = new IsA();
 		
 		/**
-		 * CONVERSION FUNCTIONS
-		 */
-		$this['strval'] = new PHPFunction('strval');
-		$this['floatval'] = new PHPFunction('floatval');
-		$this['intval'] = new PHPFunction('intval');
-		
-		//PHP 5.5
-		if (function_exists('boolval')) {
-			$this['boolval'] = new PHPFunction('boolval');
-		}
-		
-		/**
 		 * BUILDER FUNCTIONS
 		 */
 		$this['array'] = new ArrayBuilder();
@@ -269,27 +263,7 @@ class CorePackage extends Package {
 		$this->macro('/^as-(bool|boolean|int|integer|string|float|double|real|object|array|unset|null|binary)$/', function ($matches) {
 			return new CastToType($matches[1]);
 		});
-		
-		/**
-		 * Obtains a value from a given index
-		 * Pattern: @INDEX
-		 * Examples: (@3 _x) (@1)
-		 * Returns: mixed
-		 */
-		$this->macro('/^@([+|-]?[0-9]+)$/', function ($matches) {
-			return new IndexGet(intval($matches[1]));
-		});
-			
-		/**
-		 * Checks if a given index exists
-		 * Pattern: @INDEX?
-		 * Examples: (@3? _x) (@1?)
-		 * Returns: boolean
-		*/
-		$this->macro('/^@([+|-]?[0-9]+)\?$/', function ($matches) {
-			return new IndexExists(intval($matches[1]));
-		});
-		
+
 		/**
 		 * METHOD INVOCATION
 		 */

@@ -5,6 +5,10 @@ use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 use eMapper\Reflection\Profiler;
 
+/**
+ * The ArrayTypeMapper class maps a database result to array type values.
+ * @author emaphp
+ */
 class ArrayTypeMapper extends ComplexTypeMapper {
 	/**
 	 * Builds a result map property list

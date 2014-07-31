@@ -3,6 +3,10 @@ namespace eMapper\Engine\SQLite\Regex;
 
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The SQLiteRegex clsas builds string expression for regex predicates.
+ * @author emaphp
+ */
 class SQLiteRegex extends GenericRegex {
 	public function dynamicExpression($type) {
 		switch ($type) {

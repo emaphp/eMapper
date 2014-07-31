@@ -3,6 +3,11 @@ namespace eMapper\SQL\Builder;
 
 use eMapper\Query\Predicate\IsNull;
 use eMapper\Query\Attr;
+
+/**
+ * The IsNullStatementBuilder class builds a query string containing a IsNull predicate.
+ * @author emaphp
+ */
 class IsNullStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

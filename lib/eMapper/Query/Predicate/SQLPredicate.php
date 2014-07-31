@@ -5,6 +5,10 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 
+/**
+ * A SQLPredicate class encapsulates the generic behaviour defined for query conditional clauses.
+ * @author emaphp
+ */
 abstract class SQLPredicate {
 	/**
 	 * Predicate field
@@ -94,9 +98,25 @@ abstract class SQLPredicate {
 		return '#{' . $index . '}';
 	}
 	
+	/**
+	 * Evaluates a SQLPredicate getting any additional arguments
+	 * @param Driver $driver
+	 * @param ClassProfile $profile
+	 * @param array $args
+	 * @param number $arg_index
+	 */
 	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0);
+	
+	/**
+	 * Renders a SQLPredicate to the corresponding Dynamic SQL expression
+	 * @param Driver $driver
+	 */
 	public abstract function render(Driver $driver);
 	
+	/**
+	 * Incremental value generator
+	 * @return number
+	 */
 	public static function argNumber() {
 		return self::$counter++;
 	}

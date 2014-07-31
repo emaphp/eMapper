@@ -3,6 +3,10 @@ namespace eMapper\SQL\Configuration;
 
 use eMapper\Configuration\Configuration;
 
+/**
+ * The StatementConfiguration trait implements the method to configure a mapping object.
+ * @author emaphp
+ */
 trait StatementConfiguration {
 	use Configuration;
 	
@@ -26,6 +30,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets the result map class to apply to obtained result
 	 * @param mixed $result_map
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function result_map($result_map) {
@@ -44,6 +49,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets the paramter map class to apply to given parameter
 	 * @param mixed $parameter_map
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function parameter_map($parameter_map) {
@@ -62,6 +68,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets the callback to invoke for each obtained row
 	 * @param callable $callable
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function each($callable) {
@@ -75,6 +82,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets the filter callback to apply on each obtained row
 	 * @param callable $callable
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function filter($callable) {
@@ -88,6 +96,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets a callback to handle empty results
 	 * @param callable $callable
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function no_rows($callable) {
@@ -102,6 +111,7 @@ trait StatementConfiguration {
 	 * Sets a callback which is called with the generated query
 	 * Returning a value will override the query to execute
 	 * @param callable $callable
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function query_override($callable) {
@@ -116,6 +126,7 @@ trait StatementConfiguration {
 	 * Sets cache key and ttl
 	 * @param string $cache_key
 	 * @param integer $cache_ttl
+	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
 	public function cache($cache_key, $cache_ttl = 0) {
@@ -187,6 +198,6 @@ trait StatementConfiguration {
 	 * @param boolean $use_prefix
 	 */
 	public function proc_prefix($use_prefix) {
-		return $this->merge(['proc.use_prefix' => (boolean) $use_prefix]);
+		return $this->merge(['proc.use_prefix' => (bool) $use_prefix]);
 	}
 }

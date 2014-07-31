@@ -4,6 +4,10 @@ namespace eMapper\Engine\MySQL\Result;
 use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
+/**
+ * The MySQLResultIterator class is a MySQL database result iterator.
+ * @author emaphp
+ */
 class MySQLResultIterator extends ResultIterator {
 	public $resultTypes = array(ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM);
 	

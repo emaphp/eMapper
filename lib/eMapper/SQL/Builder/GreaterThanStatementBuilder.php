@@ -5,6 +5,10 @@ use eMapper\Query\Predicate\GreaterThanEqual;
 use eMapper\Query\Attr;
 use eMapper\Query\Predicate\GreaterThan;
 
+/**
+ * The GreaterThanStatementBuilder class builds a query string containing a GreaterThan(Equal) predicate.
+ * @author emaphp
+ */
 class GreaterThanStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$property = $matches[1];

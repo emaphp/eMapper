@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Type;
 
-use eMapper\Type\Handler\UnquotedStringTypeHandler;
+use eMapper\Type\Handler\SafeStringTypeHandler;
 use eMapper\Type\Handler\StringTypeHandler;
 use eMapper\Type\Handler\BooleanTypeHandler;
 use eMapper\Type\Handler\IntegerTypeHandler;
@@ -12,6 +12,10 @@ use eMapper\Type\Handler\NullTypeHandler;
 use eMapper\Type\Handler\DateTypeHandler;
 use eMapper\Type\Handler\JSONTypeHandler;
 
+/**
+ * A TypeManager class manages all types and aliases defined for a database mapper.
+ * @author emaphp
+ */
 class TypeManager {
 	/**
 	 * Type handlers list
@@ -26,25 +30,25 @@ class TypeManager {
 	public $aliases;
 	
 	public function __construct() {
-		$this->typeHandlers = array('string' => new StringTypeHandler(),
-				'boolean' => new BooleanTypeHandler(),
-				'integer' => new IntegerTypeHandler(),
-				'float' => new FloatTypeHandler(),
-				'blob' => new BlobTypeHandler(),
-				'DateTime' => new DatetimeTypeHandler(),
-				'date' => new DateTypeHandler(),
-				'ustring' => new UnquotedStringTypeHandler(),
-				'json' => new JSONTypeHandler(),
-				'null' => new NullTypeHandler());
+		$this->typeHandlers = ['string' => new StringTypeHandler(),
+							   'boolean' => new BooleanTypeHandler(),
+							   'integer' => new IntegerTypeHandler(),
+							   'float' => new FloatTypeHandler(),
+							   'blob' => new BlobTypeHandler(),
+							   'DateTime' => new DatetimeTypeHandler(),
+							   'date' => new DateTypeHandler(),
+							   'sstring' => new SafeStringTypeHandler(),
+							   'json' => new JSONTypeHandler(),
+							   'null' => new NullTypeHandler()];
 		
-		$this->aliases = array('us' => 'ustring', 'ustr' => 'ustring',
-				's' => 'string', 'str' => 'string',
-				'b' => 'boolean', 'bool' => 'boolean',
-				'i' => 'integer', 'int' => 'integer',
-				'double' => 'float', 'real' => 'float', 'f' => 'float',
-				'x' => 'blob', 'bin' => 'blob',
-				'dt' => 'DateTime', 'timestamp' => 'DateTime', 'datetime' => 'DateTime',
-				'd' => 'date');
+		$this->aliases = ['ss' => 'sstring', 'sstr' => 'sstring',
+						  's' => 'string', 'str' => 'string',
+						  'b' => 'boolean', 'bool' => 'boolean',
+						  'i' => 'integer', 'int' => 'integer',
+						  'double' => 'float', 'real' => 'float', 'f' => 'float',
+						  'x' => 'blob', 'bin' => 'blob',
+						  'dt' => 'DateTime', 'timestamp' => 'DateTime', 'datetime' => 'DateTime',
+						  'd' => 'date'];
 	}
 	
 	/**
@@ -84,9 +88,7 @@ class TypeManager {
 	 * @param string $type_or_alias
 	 * @return boolean|TypeHandler
 	 */
-	public function getTypeHandler($type_or_alias) {
-		$type_or_alias = $type_or_alias;
-		
+	public function getTypeHandler($type_or_alias) {		
 		//verify if its an alias
 		if (array_key_exists($type_or_alias, $this->aliases)) {
 			$type_or_alias = $this->aliases[$type_or_alias];

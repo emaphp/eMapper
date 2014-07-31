@@ -1,6 +1,11 @@
 <?php
 namespace eMapper\Cache;
 
+/**
+ * The APCProvider class is cache provider providing data access to the apc extension
+ * Requires the installation of the apc extension
+ * @author emaphp
+ */
 class APCProvider implements CacheProvider {
 	/**
 	 * APCProvider constructor

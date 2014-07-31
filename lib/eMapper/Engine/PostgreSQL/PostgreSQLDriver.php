@@ -10,12 +10,16 @@ use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
 use eMapper\Engine\PostgreSQL\Regex\PostgreSQLRegex;
 
+/**
+ * The PostgreSQLDriver class provides access to a PostgreSQL database engine.
+ * @author emaphp
+ */
 class PostgreSQLDriver extends Driver {
 	/**
 	 * Last obtained ID
 	 * @var string
 	 */
-	public $last_id;
+	protected $last_id;
 	
 	public function __construct($database, $connect_type = null) {
 		if (is_resource($database)) {

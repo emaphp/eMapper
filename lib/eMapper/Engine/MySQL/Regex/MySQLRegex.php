@@ -3,6 +3,10 @@ namespace eMapper\Engine\MySQL\Regex;
 
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The MySQLRegex class builds string expressions for regex predicates.
+ * @author emaphp
+ */
 class MySQLRegex extends GenericRegex {
 	public function dynamicExpression($type) {
 		switch ($type) {

@@ -4,6 +4,10 @@ namespace eMapper\Query\Predicate;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The In class defines a predicate for IN clauses.
+ * @author emaphp
+ */
 class In extends ComparisonPredicate {
 	public function render(Driver $driver) {
 		$op = $this->negate ? 'NOT' : '';

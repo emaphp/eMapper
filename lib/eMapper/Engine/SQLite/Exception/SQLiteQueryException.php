@@ -1,6 +1,10 @@
 <?php
 namespace eMapper\Engine\SQLite\Exception;
 
+/**
+ * The SQLiteQueryException class identifies SQLite query errors.
+ * @author emaphp
+ */
 class SQLiteQueryException extends SQLiteException {
 	/**
 	 * Query string

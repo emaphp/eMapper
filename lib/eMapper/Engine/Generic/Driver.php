@@ -1,12 +1,13 @@
 <?php
 namespace eMapper\Engine\Generic;
 
-use eMapper\Configuration\Configuration;
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
+/**
+ * The Driver class constains all methods used to manage a database connection.
+ * @author emaphp
+ */
 abstract class Driver {
-	use Configuration;
-	
 	/**
 	 * Database connection
 	 * @var mixed

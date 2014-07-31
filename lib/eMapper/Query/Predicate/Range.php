@@ -5,6 +5,10 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Field;
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The Range class defines a predicate for values between the specified range.
+ * @author emaphp
+ */
 class Range extends SQLPredicate {
 	/**
 	 * From expression

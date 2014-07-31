@@ -5,6 +5,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Predicate\Filter;
 
+/**
+ * The DeleteQueryBuilder class generates DELETE queries for a given entity profile.
+ * @author emaphp
+ */
 class DeleteQueryBuilder extends QueryBuilder {
 	/**
 	 * Indicates if the current query deletes all entities

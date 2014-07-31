@@ -1,6 +1,10 @@
 <?php
 namespace eMapper\Engine\MySQL\Exception;
 
+/**
+ * The MySQLQueryException class identifies MySQL database query errors.
+ * @author emaphp
+ */
 class MySQLQueryException extends MySQLException {
 	/**
 	 * Failed query string

@@ -5,6 +5,11 @@ use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
 
+/**
+ * The ConfigurationExists class is a macro that obtains a configuration
+ * value from a given environment.
+ * @author emaphp
+ */
 class ConfigurationGet implements Applicable {
 	/**
 	 * Configuration option
@@ -34,7 +39,7 @@ class ConfigurationGet implements Applicable {
 			throw new \InvalidArgumentException(sprintf("ConfigurationGet: Configuration key '%s' not found", $option));
 		}
 		
-		return $scope->config[$option];
+		return $scope->getOption($option);
 	}
 }
 ?>

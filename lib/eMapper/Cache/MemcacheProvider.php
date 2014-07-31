@@ -1,6 +1,11 @@
 <?php
 namespace eMapper\Cache;
 
+/**
+ * The Memcache provider provides access to memcache instances through the Memcache class
+ * Requires the Memcache library installed
+ * @author emaphp
+ */
 class MemcacheProvider implements CacheProvider {
 	/**
 	 * Memcache object

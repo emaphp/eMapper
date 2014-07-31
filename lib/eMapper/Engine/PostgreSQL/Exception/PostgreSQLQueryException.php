@@ -1,6 +1,11 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Exception;
 
+/**
+ * The PostgreSQLQueryException class identifies PostgreSQL database
+ * query errors.
+ * @author emaphp
+ */
 class PostgreSQLQueryException extends PostgreSQLException {
 	/**
 	 * Query string

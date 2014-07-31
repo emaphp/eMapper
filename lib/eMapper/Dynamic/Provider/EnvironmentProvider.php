@@ -1,15 +1,17 @@
 <?php
 namespace eMapper\Dynamic\Provider;
 
-use eMacros\Package\Package;
-use eMapper\Dynamic\Environment\ConfigurableEnvironment;
-
+/**
+ * The EnvironmentProvider class is a multiton class that stores and serves
+ * execution environments for dynamic SQL expressions and entity macros.
+ * @author emaphp
+ */
 abstract class EnvironmentProvider {
 	/**
 	 * Environment list
 	 * @var array
 	 */
-	public static $environments = array();
+	public static $environments = [];
 	
 	/**
 	 * Determines if the given environment has been created
@@ -62,7 +64,6 @@ abstract class EnvironmentProvider {
 		}
 			
 		self::$environments[$id] = new $classname();
-		
 		return true;
 	}
 }

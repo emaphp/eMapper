@@ -1,6 +1,10 @@
 <?php
 namespace eMapper\SQL\Builder;
 
+/**
+ * The FindByStatementBuilder class builds a query string with a comparison predicate.
+ * @author emaphp
+ */
 class FindByStatementBuilder extends StatementBuilder {
 	public function build($matches = null) {
 		$table = $this->getTableName();

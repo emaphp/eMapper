@@ -3,6 +3,10 @@ namespace eMapper\Query\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The StringComparisonPredicate class adds the case-sensitive attribute for string values comparison.
+ * @author emaphp
+ */
 abstract class StringComparisonPredicate extends ComparisonPredicate {
 	/**
 	 * Indicates if the comparison is case sensitive
