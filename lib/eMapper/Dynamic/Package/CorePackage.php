@@ -39,8 +39,6 @@ use eMacros\Runtime\Builder\ObjectBuilder;
 use eMacros\Runtime\Builder\InstanceBuilder;
 use eMacros\Runtime\Type\IsType;
 use eMacros\Runtime\Type\CastToType;
-use eMacros\Runtime\Index\IndexGet;
-use eMacros\Runtime\Index\IndexExists;
 use eMacros\Runtime\Method\MethodInvoke;
 use eMacros\Runtime\Callback\CallFunction;
 use eMacros\Runtime\Callback\CallFunctionArray;
@@ -113,11 +111,18 @@ class CorePackage extends Package {
 		$this['#'] = new PropertyGet();
 		$this['#?'] = new PropertyExists();
 		
-		$this->macro('/^#([\w]+)$/', function ($matches) {
+		$this->macro('/^#([^\s]*[^\?|=]+)$/', function ($matches) {
+			if (is_numeric($matches[1])) {
+				return new PropertyGet(intval($matches[1]));
+			}
 			return new PropertyGet($matches[1]);
 		});
 		
-		$this->macro('/^#([\w]+)\?$/', function ($matches) {
+		$this->macro('/^#([^\s]+)\?$/', function ($matches) {
+			if (is_numeric($matches[1])) {
+				return new PropertyExists(intval($matches[1]));
+			}
+			
 			return new PropertyExists($matches[1]);
 		});
 		

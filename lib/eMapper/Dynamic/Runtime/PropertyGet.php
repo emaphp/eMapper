@@ -11,13 +11,15 @@ class PropertyGet implements Applicable {
 	 * Property to obtain
 	 * @var mixed
 	 */
-	public $property;
+	protected $property;
 	
 	public function __construct($property = null) {
 		$this->property = $property;
 	}
 	
 	public function apply(Scope $scope, GenericList $arguments) {
+		$useParameterMap = false;
+		
 		//get property and value
 		if (is_null($this->property)) {
 			if (empty($arguments)) {
@@ -32,6 +34,7 @@ class PropertyGet implements Applicable {
 				}
 				
 				$value = $scope->arguments[0];
+				$useParameterMap = true;
 			}
 			else {
 				$value = $arguments[1]->evaluate($scope);
@@ -46,6 +49,7 @@ class PropertyGet implements Applicable {
 				}
 				
 				$value = $scope->arguments[0];
+				$useParameterMap = true;
 			}
 			else {
 				$value = $arguments[0]->evaluate($scope);
@@ -57,22 +61,19 @@ class PropertyGet implements Applicable {
 			throw new \InvalidArgumentException(sprintf("PropertyGet: Expected value of type array/object but %s found instead", gettype($value)));
 		}
 		
-		//generate wrapper instance if necessary
-		if ($value instanceof ParameterWrapper) {
-			if (!$value->offsetExists($property)) {
-				throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
-			}
-			
-			return $value[$property];
+		//wrap argument using the parameter map (if any)
+		if ($useParameterMap && $scope->hasConfig('map.parameter')) {
+			$value = ParameterWrapper::wrapValue($value, $scope->getConfig('map.parameter'));
 		}
-
-		$wrapper = ParameterWrapper::wrapValue($value);
+		else {
+			$value = ParameterWrapper::wrapValue($value);
+		}
 		
-		if (!$wrapper->offsetExists($property)) {
+		if (!$value->offsetExists($property)) {
 			throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
 		}
 		
-		return $wrapper->offsetGet($property);
+		return $value->offsetGet($property);
 	}
 }
 ?>

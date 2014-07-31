@@ -11,7 +11,7 @@ abstract class EnvironmentProvider {
 	 * Environment list
 	 * @var array
 	 */
-	public static $environments = [];
+	protected static $environments = [];
 	
 	/**
 	 * Determines if the given environment has been created
@@ -59,7 +59,7 @@ abstract class EnvironmentProvider {
 		$rc = new \ReflectionClass($classname);
 		
 		//validate if class is a valid environment
-		if (!$rc->isSubclassOf('eMacros\Environment\Environment') && $classname != 'eMacros\Environment\Environment') {
+		if (!$rc->isSubclassOf('eMapper\Dynamic\Environment\DynamicSQLEnvironment') && $classname != 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
 			throw new \InvalidArgumentException("Class $classname is not a valid environment class");
 		}
 			

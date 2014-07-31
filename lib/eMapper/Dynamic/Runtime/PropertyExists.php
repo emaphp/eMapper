@@ -11,13 +11,15 @@ class PropertyExists implements Applicable {
 	 * Property name
 	 * @var string
 	 */
-	public $property;
+	protected $property;
 	
 	public function __construct($property = null) {
 		$this->property = $property;
 	}
 	
 	public function apply(Scope $scope, GenericList $arguments) {
+		$useParameterMap = false;
+		
 		//get property and value
 		if (is_null($this->property)) {
 			if (count($arguments) == 0) {
@@ -32,6 +34,7 @@ class PropertyExists implements Applicable {
 				}
 		
 				$value = $scope->arguments[0];
+				$useParameterMap = true;
 			}
 			else {
 				$value = $arguments[1]->evaluate($scope);
@@ -46,6 +49,7 @@ class PropertyExists implements Applicable {
 				}
 		
 				$value = $scope->arguments[0];
+				$useParameterMap = true;
 			}
 			else {
 				$value = $arguments[0]->evaluate($scope);
@@ -57,12 +61,12 @@ class PropertyExists implements Applicable {
 			throw new \InvalidArgumentException(sprintf("PropertyExists: Expected value of type array/object but %s found instead", gettype($value)));
 		}
 		
-		//generate wrapper instance if necessary
-		if ($value instanceof ParameterWrapper) {
+		//wrap argument using the parameter map (if any)
+		if ($useParameterMap && $scope->hasConfig('map.parameter')) {
+			$value = ParameterWrapper::wrapValue($value, $scope->getConfig('map.parameter'));
 			return $value->offsetExists($property);
 		}
-
-		//TODO: try getting the parameter map
+		
 		return ParameterWrapper::wrapValue($value)->offsetExists($property);
 	}
 }
