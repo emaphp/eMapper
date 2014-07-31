@@ -5,7 +5,7 @@ use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\EntityMapper;
-use eMapper\SQL\Builder\FindAllStatemetBuilder;
+use eMapper\SQL\Builder\FindAllStatementBuilder;
 use eMapper\SQL\Builder\FindByPkStatementBuilder;
 use eMapper\SQL\Builder\FindByStatementBuilder;
 use eMapper\SQL\Builder\EqualStatementBuilder;
@@ -96,7 +96,7 @@ class EntityNamespace extends SQLNamespace {
 		//find all
 		if ($statementId == 'findAll') {
 			//FindAllStatementBuilder
-			$stmt = new FindAllStatemetBuilder($this->driver, $this->entity);
+			$stmt = new FindAllStatementBuilder($this->driver, $this->entity);
 			return $this->buildAndStore('findAll', $stmt->build());
 		}
 		
