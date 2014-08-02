@@ -33,7 +33,7 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testProvider2() {
-		EnvironmentProvider::buildEnvironment('custom', 'eMacros\Environment\Environment');
+		EnvironmentProvider::buildEnvironment('custom', 'eMapper\Dynamic\Environment\DynamicSQLEnvironment');
 		$env = EnvironmentProvider::getEnvironment('custom');
 		$this->assertInstanceOf('eMacros\Environment\Environment', $env);
 	}

@@ -307,9 +307,9 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $parameterMap, $mapper) {
+	public function relate(&$row, $mapper) {
 		foreach ($this->relationList as $property => $relation) {
-			$row[$property] = $relation->evaluate($row, $parameterMap, $mapper);
+			$row[$property] = $relation->evaluate($row, $mapper);
 		}
 	}
 }

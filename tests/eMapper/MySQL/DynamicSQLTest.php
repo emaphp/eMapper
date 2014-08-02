@@ -116,14 +116,14 @@ class DynamicSQLTest extends MySQLTest {
 	}
 	
 	public function testConfigurationMacros() {
-		self::$mapper->set('order.column', 'user_id');
-		$this->assertEquals('user_id', self::$mapper->get('order.column'));
+		self::$mapper->setOption('order.column', 'user_id');
+		$this->assertEquals('user_id', self::$mapper->getOption('order.column'));
 		$query = "SELECT user_id FROM users ORDER BY [? (@order.column) ?] [? (if (@order.type?) (@order.type) 'ASC') ?]";
 		
 		$id = self::$mapper->type('i')->query($query);
 		$this->assertEquals(1, $id);
 		
-		self::$mapper->set('order.type', 'DESC');
+		self::$mapper->setOption('order.type', 'DESC');
 		$id = self::$mapper->type('i')->query($query);
 		$this->assertEquals(5, $id);
 		

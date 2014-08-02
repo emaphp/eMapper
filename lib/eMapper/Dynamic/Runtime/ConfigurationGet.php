@@ -35,8 +35,8 @@ class ConfigurationGet implements Applicable {
 		}
 
 		//check option
-		if (!array_key_exists($option, $scope->config)) {
-			throw new \InvalidArgumentException(sprintf("ConfigurationGet: Configuration key '%s' not found", $option));
+		if (!$scope->hasOption($option)) {
+			return '';
 		}
 		
 		return $scope->getOption($option);

@@ -23,8 +23,8 @@ class MapperBuilderTest extends SQLiteTest {
 		$driver = SQLiteDriver::build($config);
 	
 		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
-		$this->assertArrayHasKey('db.filename', $driver->config);
-		$this->assertEquals(self::$filename, $driver->config['db.filename']);
+		$this->assertTrue($driver->hasOption('db.filename'));
+		$this->assertEquals(self::$filename, $driver->getOption('db.filename'));
 	}
 	
 	public function testBuildFromConnection() {

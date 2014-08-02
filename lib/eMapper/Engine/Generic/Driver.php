@@ -1,6 +1,7 @@
 <?php
 namespace eMapper\Engine\Generic;
 
+use eMapper\Configuration\Configuration;
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
 /**
@@ -8,18 +9,28 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 abstract class Driver {
+	use Configuration;
+	
 	/**
 	 * Database connection
-	 * @var mixed
+	 * @var resource|object
 	 */
-	public $connection;
+	protected $connection;
 	
 	/**
 	 * Regex builder
 	 * @var GenericRegex
 	 */
 	protected $regex;
-	
+
+	/**
+	 * Obtains current connection
+	 * @return resource|object
+	 */
+	public function getConnection() {
+		return $this->connection;
+	}
+
 	/**
 	 * Returns a regex builder for the current engine
 	 * @return \eMapper\Engine\Generic\Regex\GenericRegex

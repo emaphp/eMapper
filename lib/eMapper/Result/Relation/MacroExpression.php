@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\Result\Relation;
 
-use eMacros\Program\SimpleProgram;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
+use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
  * The MacroExpression class provides the logic for macro attributes en entity classes.
@@ -26,37 +26,17 @@ class MacroExpression extends DynamicAttribute {
 	 */
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain program source
-		$this->program = new SimpleProgram($annotations->get('Eval')->getValue());
+		$this->program = new DynamicSQLProgram($annotations->get('Eval')->getValue());
 	}
 	
-	/**
-	 * Evaluates all attribute arguments against current instance
-	 * @param mixed $row
-	 * @return array
-	 */
-	protected function evaluateArgs($row, $parameterMap) {
-		$args = [];
-		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
-		
-		if ($this->useDefaultArgument) {
-			$args[] = $wrapper;
-		}
-	
-		foreach ($this->args as $arg) {
-			$args[] = $arg instanceof Attr ? $wrapper[$arg->getName()] : $arg;
-		}
-	
-		return $args;
-	}
-	
-	public function evaluate($row, $parameterMap, $mapper) {
+	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $parameterMap, $mapper->config) === false) {
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
 			return null;
 		}
 		
-		$args = $this->evaluateArgs($row, $parameterMap);
-		return $this->program->executeWith($this->buildEnvironment($mapper->config), $args);
+		$args = $this->evaluateArgs($row);
+		return $this->program->executeWith($this->buildEnvironment($mapper->getConfig()), $args);
 	}
 }
 ?>

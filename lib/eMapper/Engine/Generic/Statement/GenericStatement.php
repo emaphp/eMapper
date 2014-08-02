@@ -6,7 +6,7 @@ use eMapper\Dynamic\Builder\EnvironmentBuilder;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
 use eMapper\Type\TypeHandler;
-use eMacros\Program\SimpleProgram;
+use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
  * The GenericStatement class is responsible for generating a sql query which is then sent to the database. 
@@ -111,25 +111,13 @@ abstract class GenericStatement extends CacheKey {
 	}
 	
 	/**
-	 * Executes a captured string as a program
-	 * @param Environment $env
-	 * @param string $expr
-	 * @return mixed
-	 */
-	protected function executeDynamicSQL($env, $expr) {	
-		//run program
-		$program = new SimpleProgram($expr);
-		return $program->executeWith($env, $this->args);
-	}
-	
-	/**
 	 * Replaces a dynamic sql expression
 	 * @param array $matches
 	 */
 	protected function replaceDynamicExpression($matches) {
 		//run program
-		$program = new SimpleProgram($matches[2]);
-		$value = $program->executeWith($this->buildEnvironment($this->config), $this->args);
+		$program = new DynamicSQLProgram($matches[2]);
+		$value = $program->executeWith($this->buildEnvironment($this->config), $this->args, $this->parameterMap);
 		
 		//cast return type to the specified type (if any)
 		if (!empty($matches[1])) {
@@ -168,6 +156,11 @@ abstract class GenericStatement extends CacheKey {
 		//replace database prefix (short form)
 		$expr = str_replace(self::SHORT_PREFIX, array_key_exists('db.prefix', $config) ? strval($config['db.prefix']) : '', $expr);
 		
+		//wrap argument (if any)
+		if (array_key_exists(0, $args) && (is_object($args[0]) || is_array($args[0]))) {
+			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
+		}
+		
 		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
@@ -182,7 +175,6 @@ abstract class GenericStatement extends CacheKey {
 			$this->counter = 1;
 			
 			//wrap first argument
-			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		

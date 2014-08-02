@@ -25,8 +25,8 @@ class MapperBuilderTest extends MySQLTest {
 		$driver = MySQLDriver::build($config);
 		
 		$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLDriver', $driver);
-		$this->assertArrayHasKey('db.name', $driver->config);
-		$this->assertEquals(self::$config['database'], $driver->config['db.name']);
+		$this->assertTrue($driver->hasOption('db.name'));
+		$this->assertEquals(self::$config['database'], $driver->getOption('db.name'));
 	}
 	
 	public function testBuildFromConnection() {

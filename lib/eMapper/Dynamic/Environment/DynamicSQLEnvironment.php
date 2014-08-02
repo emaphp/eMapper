@@ -6,6 +6,7 @@ use eMapper\Configuration\Configuration;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMapper\Dynamic\Package\CorePackage;
+use eMapper\Reflection\Parameter\ParameterWrapper;
 
 /**
  * The DynamicSQLEnvironment class is the default environment class used for dynamic SQL
@@ -15,6 +16,12 @@ use eMapper\Dynamic\Package\CorePackage;
 class DynamicSQLEnvironment extends Environment {
 	use Configuration;
 
+	/**
+	 * Wrapper argument
+	 * @var ParameterWrapper
+	 */
+	public $wrappedArgument;
+	
 	public function __construct() {
 		$this->import(new RegexPackage());
 		$this->import(new DatePackage());

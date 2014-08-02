@@ -409,10 +409,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $parameterMap, $mapper) {
+	public function relate(&$row, $mapper) {
 		if (!empty($this->relationList)) {
 			foreach ($this->relationList as $property => $relation) {
-				$value = $relation->evaluate($row, $parameterMap, $mapper);
+				$value = $relation->evaluate($row, $mapper);
 					
 				if (!$relation->reflectionProperty->isPublic()) {
 					$relation->reflectionProperty->setAccesible(true);

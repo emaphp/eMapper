@@ -14,6 +14,10 @@ use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
 use eMapper\SQL\EntityNamespace;
 
+/**
+ * The Mapper class manages how a database result is converted to a given type.
+ * @author emaphp
+ */
 class Mapper {
 	use StatementConfiguration;
 	use SQLNamespaceAggregate;
@@ -49,7 +53,7 @@ class Mapper {
 		
 		//build configuration
 		$this->applyDefaultConfig();
-		$this->config = array_merge($this->config, $driver->config);
+		$this->config = array_merge($this->config, $driver->getConfig());
 	}
 	
 	/**
@@ -503,7 +507,7 @@ class Mapper {
 							$indexes = array_keys($mapped_result[$key]);
 								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$indexes[$i]], $parameterMap, $safe_clone);
+								$mapper->relate($mapped_result[$key][$indexes[$i]], $safe_clone);
 							}
 						}
 					}
@@ -511,12 +515,12 @@ class Mapper {
 						$keys = array_keys($mapped_result);
 							
 						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $parameterMap, $safe_clone);
+							$mapper->relate($mapped_result[$k], $safe_clone);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $parameterMap, $safe_clone);
+					$mapper->relate($mapped_result, $safe_clone);
 				}
 			}
 			
@@ -664,7 +668,7 @@ class Mapper {
 		array_unshift($args, $query);
 		
 		//run query
-		return (empty($options)) ? call_user_func_array([$this, 'query'], $args) : call_user_func_array([$this->merge($options->config, true), 'query'], $args);
+		return (empty($options)) ? call_user_func_array([$this, 'query'], $args) : call_user_func_array([$this->merge($options->getConfig(), true), 'query'], $args);
 	}
 	
 	/**

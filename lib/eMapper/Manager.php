@@ -20,6 +20,10 @@ use eMapper\Query\Aggregate\SQLMax;
 use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
 
+/**
+ * The Manager class provides a common interface for obtaining data related to an entity.
+ * @author emaphp
+ */
 class Manager {
 	use StatementConfiguration;
 	use EntityMapper;
@@ -189,7 +193,7 @@ class Manager {
 		
 		//get statement config
 		$query = $stmt->query;
-		$options = is_null($stmt->options) ? [] : $stmt->options->config;
+		$options = is_null($stmt->options) ? [] : $stmt->options->getConfig();
 		
 		//add query to method parameters
 		array_unshift($args, $query);

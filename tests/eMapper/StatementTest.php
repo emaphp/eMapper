@@ -14,17 +14,20 @@ use eMapper\SQL\SQLNamespace;
  */
 class StatementTest extends \PHPUnit_Framework_TestCase {
 	public function testConfigType() {
-		$config = Statement::config(array('map.type' => 'i'));
+		$config = Statement::config(['map.type' => 'i']);
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.type' => 'i'), $config->config);
+		$this->assertTrue($config->hasOption('map.type'));
+		$this->assertEquals('i', $config->getOption('map.type'));
 		
 		$config = Statement::config()->type('i');
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.type' => 'i'), $config->config);
+		$this->assertTrue($config->hasOption('map.type'));
+		$this->assertEquals('i', $config->getOption('map.type'));
 		
 		$config = Statement::type('i');
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.type' => 'i'), $config->config);
+		$this->assertTrue($config->hasOption('map.type'));
+		$this->assertEquals('i', $config->getOption('map.type'));
 	}
 	
 	/**
@@ -37,11 +40,13 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	public function testConfigResultMap1() {
 		$config = Statement::config()->result_map('Acme\Result\UserResultMap');
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.result' => 'Acme\Result\UserResultMap'), $config->config);
+		$this->assertTrue($config->hasOption('map.result'));
+		$this->assertEquals('Acme\Result\UserResultMap', $config->getOption('map.result'));
 		
 		$config = Statement::config()->result_map(new UserResultMap());
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.result' => 'Acme\Result\UserResultMap'), $config->config);
+		$this->assertTrue($config->hasOption('map.result'));
+		$this->assertEquals('Acme\Result\UserResultMap', $config->getOption('map.result'));
 	}
 	
 	/**
@@ -54,11 +59,13 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	public function testConfigParameterMap1() {
 		$config = Statement::config()->parameter_map('Acme\Parameter\ProductParameterMap');
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.parameter' => 'Acme\Parameter\ProductParameterMap'), $config->config);
+		$this->assertTrue($config->hasOption('map.parameter'));
+		$this->assertEquals('Acme\Parameter\ProductParameterMap', $config->getOption('map.parameter'));
 		
 		$config = Statement::config()->parameter_map(new ProductParameterMap());
 		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $config);
-		$this->assertEquals(array('map.parameter' => 'Acme\Parameter\ProductParameterMap'), $config->config);
+		$this->assertTrue($config->hasOption('map.parameter'));
+		$this->assertEquals('Acme\Parameter\ProductParameterMap', $config->getOption('map.parameter'));
 	}
 	
 	/**
@@ -70,8 +77,8 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testConfigEach1() {
 		$config = Statement::config()->each(function() {});
-		$this->assertArrayHasKey('callback.each', $config->config);
-		$this->assertInstanceOf('Closure', $config->config['callback.each']);
+		$this->assertTrue($config->hasOption('callback.each'));
+		$this->assertInstanceOf('Closure', $config->getOption('callback.each'));
 	}
 	
 	/**
@@ -83,8 +90,8 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testConfigFilter1() {
 		$config = Statement::config()->filter(function() {});
-		$this->assertArrayHasKey('callback.filter', $config->config);
-		$this->assertInstanceOf('Closure', $config->config['callback.filter']);
+		$this->assertTrue($config->hasOption('callback.filter'));
+		$this->assertInstanceOf('Closure', $config->getOption('callback.filter'));
 	}
 	
 	/**
@@ -96,8 +103,8 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testConfigNoRows1() {
 		$config = Statement::config()->no_rows(function() {});
-		$this->assertArrayHasKey('callback.no_rows', $config->config);
-		$this->assertInstanceOf('Closure', $config->config['callback.no_rows']);
+		$this->assertTrue($config->hasOption('callback.no_rows'));
+		$this->assertInstanceOf('Closure', $config->getOption('callback.no_rows'));
 	}
 	
 	/**
@@ -109,8 +116,8 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testConfigQueryOverride1() {
 		$config = Statement::config()->query_override(function() {});
-		$this->assertArrayHasKey('callback.query', $config->config);
-		$this->assertInstanceOf('Closure', $config->config['callback.query']);
+		$this->assertTrue($config->hasOption('callback.query'));
+		$this->assertInstanceOf('Closure', $config->getOption('callback.query'));
 	}
 		
 	/**
@@ -129,16 +136,16 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testConfigCache2() {
 		$config = Statement::config()->cache('USERS');
-		$this->assertArrayHasKey('cache.key', $config->config);
-		$this->assertArrayHasKey('cache.ttl', $config->config);
-		$this->assertEquals('USERS', $config->config['cache.key']);
-		$this->assertEquals(0, $config->config['cache.ttl']);
+		$this->assertTrue($config->hasOption('cache.key'));
+		$this->assertTrue($config->hasOption('cache.ttl'));
+		$this->assertEquals('USERS', $config->getOption('cache.key'));
+		$this->assertEquals(0, $config->getOption('cache.ttl'));
 		
 		$config = Statement::config()->cache('USERS', 120);
-		$this->assertArrayHasKey('cache.key', $config->config);
-		$this->assertArrayHasKey('cache.ttl', $config->config);
-		$this->assertEquals('USERS', $config->config['cache.key']);
-		$this->assertEquals(120, $config->config['cache.ttl']);
+		$this->assertTrue($config->hasOption('cache.key'));
+		$this->assertTrue($config->hasOption('cache.ttl'));
+		$this->assertEquals('USERS', $config->getOption('cache.key'));
+		$this->assertEquals(120, $config->getOption('cache.ttl'));
 	}
 	
 	/**
@@ -150,21 +157,22 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testCreate1() {
 		$stmt = new Statement('findAll');
-		$this->assertEquals('', $stmt->query);
-		$this->assertNull($stmt->options);
+		$this->assertEquals('', $stmt->getQuery());
+		$this->assertNull($stmt->getOptions());
 	}
 	
 	public function testCreate2() {
 		$stmt = new Statement('findAll', "SELECT * FROM users");
-		$this->assertEquals('SELECT * FROM users', $stmt->query);
-		$this->assertNull($stmt->options);
+		$this->assertEquals('SELECT * FROM users', $stmt->getQuery());
+		$this->assertNull($stmt->getOptions());
 	}
 	
 	public function testCreate3() {
 		$stmt = new Statement('findAll', "SELECT * FROM users", Statement::type('obj[user_id:int]'));
-		$this->assertEquals('SELECT * FROM users', $stmt->query);
-		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $stmt->options);
-		$this->assertEquals(array('map.type' => 'obj[user_id:int]'), $stmt->options->config);
+		$this->assertEquals('SELECT * FROM users', $stmt->getQuery());
+		$this->assertInstanceOf('\eMapper\SQL\Configuration\StatementConfigurationContainer', $stmt->getOptions());
+		$this->assertTrue($stmt->getOptions()->hasOption('map.type'));
+		$this->assertEquals('obj[user_id:int]', $stmt->getOptions()->getOption('map.type'));
 	}
 	
 	/**
@@ -252,10 +260,12 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($ns->hasStatement('ns4.findByEmail'));
 		
 		$stmt = $ns->getStatement('ns4.findByUserId');
-		$this->assertEquals(array('map.type' => 'obj'), $stmt->options->config);
+		$this->assertTrue($stmt->getOptions()->hasOption('map.type'));
+		$this->assertEquals('obj', $stmt->getOptions()->getOption('map.type'));
 		
 		$stmt = $ns->getStatement('ns4.findByEmail');
-		$this->assertEquals(array('map.type' => 'array'), $stmt->options->config);
+		$this->assertTrue($stmt->getOptions()->hasOption('map.type'));
+		$this->assertEquals('array', $stmt->getOptions()->getOption('map.type'));
 	}
 }
 ?>

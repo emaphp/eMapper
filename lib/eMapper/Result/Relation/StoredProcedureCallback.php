@@ -22,26 +22,25 @@ class StoredProcedureCallback extends DynamicAttribute {
 		$this->procedure = $annotations->get('Procedure')->getValue();
 	}
 		
-	protected function evaluateArgs($row, $parameterMap, &$proc_types) {
+	protected function evaluateArgs($row, &$proc_types) {
 		$args = [];
-		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
+		$wrapper = ParameterWrapper::wrapValue($row);
 	
 		//get class profile
-		$classname = $this->reflectionProperty->getDeclaringClass()->getName();
-		$profile = Profiler::getClassProfile($classname);
+		$profile = Profiler::getClassProfile($this->reflectionProperty->getDeclaringClass()->getName());
 	
 		foreach ($this->args as $arg) {
 			if ($arg instanceof Attr) {
 				//get attribute name
 				$name = $arg->getName();
 				
-				//check if property is declared
-				if (!in_array($name, $profile->columnNames)) {
-					throw new \RuntimeException();
+				//check if the property is available
+				if (!$wrapper->offsetExists($name)) {
+					throw new \InvalidArgumentException(sprintf("Property '%s' was not found whe evaluating arguments for %s attribute", $arg->getName(), $this->name));
 				}
 				
 				//get attribute value and type
-				$value = $wrapper[$name];
+				$value = $wrapper->offsetGet($name);
 				$type = $arg->getType();
 				
 				if (is_null($type)) {
@@ -49,17 +48,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 						$type = $profile->propertiesConfig[$name]->type;
 					}
 					else {
-						//determine type by original value
-						if (is_array($value)) {
-							throw new \RuntimeException();
-						}
-						
-						if (is_object($value)) {
-							$type = get_class($value);
-						}
-						else {
-							strtolower(gettype($value));
-						}
+						$type = strtolower(gettype($value));
 					}
 				}
 				
@@ -76,21 +65,24 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	protected function updateConfig($config, $proc_types) {
 		$this->config['depth.current'] = $config['depth.current'] + 1;
-		$this->config['proc.types'] = $proc_types;
+		
+		if (!array_key_exists('proc.types', $this->config)) {
+			$this->config['proc.types'] = $proc_types;
+		}
 	}
 	
-	public function evaluate($row, $parameterMap, $mapper) {
+	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $parameterMap, $mapper->config) === false) {
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
 			return null;
 		}
 		
 		//build argument list
 		$proc_types = [];
-		$args = $this->evaluateArgs($row, $parameterMap, $proc_types);
+		$args = $this->evaluateArgs($row, $proc_types);
 		
 		//apply configuration
-		$this->updateConfig($mapper->config, $proc_types);
+		$this->updateConfig($mapper->getConfig(), $proc_types);
 		
 		//call stored procedure
 		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);

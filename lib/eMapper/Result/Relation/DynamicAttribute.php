@@ -4,13 +4,13 @@ namespace eMapper\Result\Relation;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profile\PropertyProfile;
 use eMacros\Program\Program;
-use eMacros\Program\SimpleProgram;
 use eMapper\Dynamic\Provider\EnvironmentProvider;
 use eMacros\Environment\Environment;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
 use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
 use eMapper\Annotations\Filter;
+use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
  * The DynamicAttribute class defines the basic behaviour for entity dynamic attributes.
@@ -119,10 +119,10 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		if ($annotations->has('If')) {
-			$this->condition = new SimpleProgram($annotations->get('If')->getValue());
+			$this->condition = new DynamicSQLProgram($annotations->get('If')->getValue());
 		}
 		elseif ($annotations->has('IfNot')) {
-			$this->condition = new SimpleProgram($annotations->get('IfNot')->getValue());
+			$this->condition = new DynamicSQLProgram($annotations->get('IfNot')->getValue());
 			$this->reverseCondition = true;
 		}
 		
@@ -139,16 +139,25 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * @param mixed $row
 	 * @return array
 	 */
-	protected function evaluateArgs($row, $parameterMap) {
+	protected function evaluateArgs($row) {
 		$args = [];
-		$wrapper = ParameterWrapper::wrapValue($row, $parameterMap);
+		$wrapper = ParameterWrapper::wrapValue($row);
 		
 		if ($this->useDefaultArgument) {
 			$args[] = $row;
 		}
 		
 		foreach ($this->args as $arg) {
-			$args[] = $arg instanceof Attr ? $wrapper[$arg->getName()] : $arg;
+			if ($arg instanceof Attr) {
+				if (!$wrapper->offsetExists($arg->getName())) {
+					throw new \InvalidArgumentException(sprintf("Property '%s' was not found whe evaluating arguments for %s attribute", $arg->getName(), $this->name));
+				}
+				
+				$args[] = $wrapper->offsetGet($arg->getName());
+			}
+			else {
+				$args[] = $arg;
+			}
 		}
 		
 		return $args;
@@ -157,13 +166,12 @@ abstract class DynamicAttribute extends PropertyProfile {
 	/**
 	 * Checks current condition with the given values
 	 * @param mixed $row
-	 * @param string $parameterMap
 	 * @param array $config
 	 * @return boolean
 	 */
-	protected function checkCondition($row, $parameterMap, $config) {
+	protected function checkCondition($row, $config) {
 		if (isset($this->condition)) {
-			$condition = (bool) $this->condition->execute($this->buildEnvironment($config), ParameterWrapper::wrapValue($row, $parameterMap));
+			$condition = (bool) $this->condition->executeWith($this->buildEnvironment($config), [$row]);
 			
 			if ($this->reverseCondition) {
 				return !$condition;
@@ -184,7 +192,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	}
 	
 	protected abstract function parseMetadata(AnnotationsBag $annotations);
-	public abstract function evaluate($row, $parameterMap, $mapper);
+	public abstract function evaluate($row, $mapper);
 }
 
 ?>

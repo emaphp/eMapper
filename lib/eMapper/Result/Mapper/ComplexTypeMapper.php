@@ -144,5 +144,5 @@ abstract class ComplexTypeMapper {
 		return [$groupColumn, $groupTypeHandler];
 	}
 	
-	public abstract function relate(&$row, $parameterMap, $mapper);
+	public abstract function relate(&$row, $mapper);
 }

@@ -24,18 +24,18 @@ class QueryCallback extends DynamicAttribute {
 		$this->query = $annotations->get('Query')->getValue();
 	}
 	
-	public function evaluate($row, $parameterMap, $mapper) {
+	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $parameterMap, $mapper->config) === false) {
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
 			return null;
 		}
 		
 		//build argument list
-		$args = $this->evaluateArgs($row, $parameterMap);
+		$args = $this->evaluateArgs($row);
 		array_unshift($args, $this->query);
 
 		//update configuration
-		$this->updateConfig($mapper->config);
+		$this->updateConfig($mapper->getConfig());
 		
 		//invoke statement
 		return call_user_func_array([$mapper->merge($this->config), 'query'], $args);

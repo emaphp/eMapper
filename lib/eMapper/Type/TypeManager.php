@@ -21,13 +21,13 @@ class TypeManager {
 	 * Type handlers list
 	 * @var array
 	 */
-	public $typeHandlers;
+	protected $typeHandlers;
 	
 	/**
 	 * Aliases list
 	 * @var array
 	 */
-	public $aliases;
+	protected $aliases;
 	
 	public function __construct() {
 		$this->typeHandlers = ['string' => new StringTypeHandler(),
@@ -49,6 +49,22 @@ class TypeManager {
 						  'x' => 'blob', 'bin' => 'blob',
 						  'dt' => 'DateTime', 'timestamp' => 'DateTime', 'datetime' => 'DateTime',
 						  'd' => 'date'];
+	}
+	
+	/**
+	 * Obtains the list of typehandlers defined
+	 * @return array
+	 */
+	public function getTypeHandlers() {
+		return $this->typeHandlers;
+	}
+	
+	/**
+	 * Obtains the aliases list defined
+	 * @return array
+	 */
+	public function getAliases() {
+		return $this->aliases;
 	}
 	
 	/**

@@ -15,98 +15,114 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$typeManager = new TypeManager();
 		
 		//string
-		$this->assertArrayHasKey('string', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\StringTypeHandler', $typeManager->typeHandlers['string']);
+		$this->assertArrayHasKey('string', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\StringTypeHandler', $typeManager->getTypeHandler('string'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\StringTypeHandler')->classAnnotations;
-		$this->assertFalse($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\StringTypeHandler');
+		$this->assertFalse($profile->isSafe());
 		
-		$this->assertEquals('string', $typeManager->aliases['s']);
-		$this->assertEquals('string', $typeManager->aliases['str']);
+		$this->assertArrayHasKey('s', $typeManager->getAliases());
+		$this->assertArrayHasKey('str', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\StringTypeHandler', $typeManager->getTypeHandler('s'));
+		$this->assertInstanceOf('eMapper\Type\Handler\StringTypeHandler', $typeManager->getTypeHandler('str'));
 		
 		//boolean
-		$this->assertArrayHasKey('boolean', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\BooleanTypeHandler', $typeManager->typeHandlers['boolean']);
+		$this->assertArrayHasKey('boolean', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\BooleanTypeHandler', $typeManager->getTypeHandler('boolean'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BooleanTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BooleanTypeHandler');
+		$this->assertTrue($profile->isSafe());
 		
-		$this->assertEquals('boolean', $typeManager->aliases['b']);
-		$this->assertEquals('boolean', $typeManager->aliases['bool']);
+		$this->assertArrayHasKey('b', $typeManager->getAliases());
+		$this->assertArrayHasKey('bool', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\BooleanTypeHandler', $typeManager->getTypeHandler('b'));
+		$this->assertInstanceOf('eMapper\Type\Handler\BooleanTypeHandler', $typeManager->getTypeHandler('bool'));
 		
 		//integer
-		$this->assertArrayHasKey('integer', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\IntegerTypeHandler', $typeManager->typeHandlers['integer']);
+		$this->assertArrayHasKey('integer', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\IntegerTypeHandler', $typeManager->getTypeHandler('integer'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\IntegerTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\IntegerTypeHandler');
+		$this->assertTrue($profile->isSafe());
 		
-		$this->assertEquals('integer', $typeManager->aliases['i']);
-		$this->assertEquals('integer', $typeManager->aliases['int']);
+		$this->assertArrayHasKey('i', $typeManager->getAliases());
+		$this->assertArrayHasKey('int', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\IntegerTypeHandler', $typeManager->getTypeHandler('int'));
+		$this->assertInstanceOf('eMapper\Type\Handler\IntegerTypeHandler', $typeManager->getTypeHandler('i'));
 		
 		//float
-		$this->assertArrayHasKey('float', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->typeHandlers['float']);
+		$this->assertArrayHasKey('float', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->getTypeHandler('float'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\FloatTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\FloatTypeHandler');
+		$this->assertTrue($profile->isSafe());
 		
-		$this->assertEquals('float', $typeManager->aliases['f']);
-		$this->assertEquals('float', $typeManager->aliases['double']);
-		$this->assertEquals('float', $typeManager->aliases['real']);
+		$this->assertArrayHasKey('f', $typeManager->getAliases());
+		$this->assertArrayHasKey('double', $typeManager->getAliases());
+		$this->assertArrayHasKey('real', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->getTypeHandler('f'));
+		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->getTypeHandler('double'));
+		$this->assertInstanceOf('eMapper\Type\Handler\FloatTypeHandler', $typeManager->getTypeHandler('real'));
 		
 		//blob
-		$this->assertArrayHasKey('blob', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\BlobTypeHandler', $typeManager->typeHandlers['blob']);
+		$this->assertArrayHasKey('blob', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\BlobTypeHandler', $typeManager->getTypeHandler('blob'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BlobTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\BlobTypeHandler');
+		$this->assertTrue($profile->isSafe());
 		
-		$this->assertEquals('blob', $typeManager->aliases['x']);
-		$this->assertEquals('blob', $typeManager->aliases['bin']);
+		$this->assertArrayHasKey('x', $typeManager->getAliases());
+		$this->assertArrayHasKey('bin', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\BlobTypeHandler', $typeManager->getTypeHandler('x'));
+		$this->assertInstanceOf('eMapper\Type\Handler\BlobTypeHandler', $typeManager->getTypeHandler('bin'));
 		
 		//datetime
-		$this->assertArrayHasKey('DateTime', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\DatetimeTypeHandler', $typeManager->typeHandlers['DateTime']);
+		$this->assertArrayHasKey('DateTime', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\DatetimeTypeHandler', $typeManager->getTypeHandler('DateTime'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DatetimeTypeHandler')->classAnnotations;
-		$this->assertFalse($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DatetimeTypeHandler');
+		$this->assertFalse($profile->isSafe());
 		
-		$this->assertEquals('DateTime', $typeManager->aliases['dt']);
-		$this->assertEquals('DateTime', $typeManager->aliases['timestamp']);
+		$this->assertArrayHasKey('dt', $typeManager->getAliases());
+		$this->assertArrayHasKey('timestamp', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\DatetimeTypeHandler', $typeManager->getTypeHandler('dt'));
+		$this->assertInstanceOf('eMapper\Type\Handler\DatetimeTypeHandler', $typeManager->getTypeHandler('timestamp'));
 		
 		//date
-		$this->assertArrayHasKey('date', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\DateTypeHandler', $typeManager->typeHandlers['date']);
+		$this->assertArrayHasKey('date', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\DateTypeHandler', $typeManager->getTypeHandler('date'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DateTypeHandler')->classAnnotations;
-		$this->assertFalse($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\DateTypeHandler');
+		$this->assertFalse($profile->isSafe());
 		
-		$this->assertEquals('date', $typeManager->aliases['d']);
+		$this->assertArrayHasKey('d', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\DateTypeHandler', $typeManager->getTypeHandler('d'));
 		
-		//unquoted strings
-		$this->assertArrayHasKey('ustring', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\UnquotedStringTypeHandler', $typeManager->typeHandlers['ustring']);
+		//safe strings
+		$this->assertArrayHasKey('sstring', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\SafeStringTypeHandler', $typeManager->getTypeHandler('sstring'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\UnquotedStringTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\SafeStringTypeHandler');
+		$this->assertTrue($profile->isSafe());
 		
-		$this->assertEquals('ustring', $typeManager->aliases['us']);
-		$this->assertEquals('ustring', $typeManager->aliases['ustr']);
+		$this->assertArrayHasKey('ss', $typeManager->getAliases());
+		$this->assertArrayHasKey('sstr', $typeManager->getAliases());
+		$this->assertInstanceOf('eMapper\Type\Handler\SafeStringTypeHandler', $typeManager->getTypeHandler('ss'));
+		$this->assertInstanceOf('eMapper\Type\Handler\SafeStringTypeHandler', $typeManager->getTypeHandler('sstr'));
 		
-		//string
-		$this->assertArrayHasKey('json', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\JSONTypeHandler', $typeManager->typeHandlers['json']);
+		//json
+		$this->assertArrayHasKey('json', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\JSONTypeHandler', $typeManager->getTypeHandler('json'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\JSONTypeHandler')->classAnnotations;
-		$this->assertFalse($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\JSONTypeHandler');
+		$this->assertFalse($profile->isSafe());
 		
 		//null
-		$this->assertArrayHasKey('null', $typeManager->typeHandlers);
-		$this->assertInstanceOf('eMapper\Type\Handler\NullTypeHandler', $typeManager->typeHandlers['null']);
+		$this->assertArrayHasKey('null', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('eMapper\Type\Handler\NullTypeHandler', $typeManager->getTypeHandler('null'));
 		
-		$profile = Profiler::getClassProfile('eMapper\Type\Handler\NullTypeHandler')->classAnnotations;
-		$this->assertTrue($profile->has('Safe'));
+		$profile = Profiler::getClassProfile('eMapper\Type\Handler\NullTypeHandler');
+		$this->assertTrue($profile->isSafe());
 	}
 	
 	public function testCustomType() {
@@ -114,11 +130,11 @@ class TypeManagerTest extends \PHPUnit_Framework_TestCase {
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 		$typeManager->addAlias('Acme\RGBColor', 'clr');
 		
-		$this->assertArrayHasKey('Acme\RGBColor', $typeManager->typeHandlers);
-		$this->assertInstanceOf('Acme\Type\RGBColorTypeHandler', $typeManager->typeHandlers['Acme\RGBColor']);
+		$this->assertArrayHasKey('Acme\RGBColor', $typeManager->getTypeHandlers());
+		$this->assertInstanceOf('Acme\Type\RGBColorTypeHandler', $typeManager->getTypeHandler('Acme\RGBColor'));
 		
-		$this->assertArrayHasKey('clr', $typeManager->aliases);
-		$this->assertEquals('Acme\RGBColor', $typeManager->aliases['clr']);
+		$this->assertArrayHasKey('clr', $typeManager->getAliases());
+		$this->assertInstanceOf('Acme\Type\RGBColorTypeHandler', $typeManager->getTypeHandler('clr'));
 	}
 }
 ?>

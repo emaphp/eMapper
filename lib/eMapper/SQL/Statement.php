@@ -55,6 +55,18 @@ class Statement {
 		$this->options = $options;
 	}
 	
+	public function getId() {
+		return $this->id;
+	}
+	
+	public function getQuery() {
+		return $this->query;
+	}
+	
+	public function getOptions() {
+		return $this->options;
+	}
+	
 	/*
 	 * CONFIGURATION BUILDER METHODS
 	 */

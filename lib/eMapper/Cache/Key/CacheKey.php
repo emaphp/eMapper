@@ -7,7 +7,7 @@ use eMapper\Type\ValueExport;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
 /**
- * The CacheKey class generates the cache id string used to store a value
+ * The CacheKey class generates the cache id string used to store a value in cache.
  * @author emaphp
  */
 class CacheKey {
@@ -30,37 +30,37 @@ class CacheKey {
 	 * Type manager
 	 * @var TypeManager
 	 */
-	public $typeManager;
+	protected $typeManager;
 	
 	/**
 	 * Parameter map
 	 * @var object
 	 */
-	public $parameterMap;
+	protected $parameterMap;
 		
 	/**
 	 * Key arguments
 	 * @var array
 	 */
-	public $args;
+	protected $args;
 	
 	/**
 	 * Counfiguration values
 	 * @var array
 	 */
-	public $config;
+	protected $config;
 	
 	/**
 	 * Internal counter
 	 * @var integer
 	 */
-	public $counter;
+	protected $counter;
 	
 	/**
 	 * Wrapped argument
 	 * @var ParameterWrapper
 	 */
-	public $wrappedArg;
+	protected $wrappedArg;
 	
 	public function __construct(TypeManager $typeManager, $parameterMap = null) {
 		$this->typeManager = $typeManager;
@@ -238,8 +238,8 @@ class CacheKey {
 		$type = null;
 		
 		//obtain property type from parameter map (if any)
-		if (isset($arg->parameterMap)) {
-			$type = $arg->parameterMap->propertiesConfig[$property]->type;
+		if (!is_null($arg->getParameterMap())) {
+			$type = $arg->getParameterMap()->propertiesConfig[$property]->type;
 		}
 		
 		return $type;
@@ -303,13 +303,12 @@ class CacheKey {
 	 * @param mixed $value
 	 * @param string $subindex
 	 * @param string $type
-	 * @param int $argn
 	 * @throws \InvalidArgumentException
 	 * @throws \UnexpectedValueException
 	 * @throws \OutOfBoundsException
 	 * @return string
 	 */
-	protected function getSubIndex($value, $subindex = null, $type = null, $argn = 0) {
+	protected function getSubIndex($value, $subindex = null, $type = null) {
 		//if no subindex is specified just cast main argument
 		if (is_null($subindex)) {
 			return $this->castParameter($value, $type);
@@ -322,14 +321,7 @@ class CacheKey {
 		
 		//check whether this value is the first argument
 		if (is_array($value) || is_object($value)) {
-			//first verify if we already wrapped the first argument
-			if ($argn == 0 && isset($this->wrappedArg)) {
-				$value = $this->wrappedArg;
-			}
-			else {
-				//build wrapper
-				$value = ParameterWrapper::wrapValue($value);
-			}
+			$value = ParameterWrapper::wrapValue($value);
 			
 			//check if the requested property exists
 			if (!$value->offsetExists($subindex)) {
@@ -550,8 +542,13 @@ class CacheKey {
 				if (!array_key_exists($index, $this->args)) {
 					throw new \InvalidArgumentException("No value found on index $index");
 				}
-					
-				return $this->getSubIndex($this->args[$index], $subindex, $type, $index);
+				
+				if ($index == 0 && !is_null($subindex)) {
+					return $this->getIndex($subindex, null, $type);
+				}
+				else {
+					return $this->getSubIndex($this->args[$index], $subindex, $type);
+				}
 					
 				break;
 				
@@ -600,6 +597,11 @@ class CacheKey {
 		//replace database prefix (short form)
 		$expr = str_replace(self::SHORT_PREFIX, array_key_exists('db.prefix', $config) ? $config['db.prefix'] : '', $expr);
 		
+		//wrap argument (if any)
+		if (array_key_exists(0, $args) && (is_object($args[0]) || is_array($args[0]))) {
+			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
+		}
+		
 		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
 			//validate argument
@@ -612,9 +614,6 @@ class CacheKey {
 			
 			//move default counter to 1
 			$this->counter = 1;
-			
-			//wrap first argument
-			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
 			$expr = preg_replace_callback(self::PROPERTY_PARAM_REGEX, [$this, 'replacePropertyExpression'], $expr);
 		}
 		
