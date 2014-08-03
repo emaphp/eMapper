@@ -1,9 +1,7 @@
 <?php
-namespace eMapper\Result\Relation;
+namespace eMapper\Reflection\Profile\Dynamic;
 
-use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Annotations\AnnotationsBag;
-use eMapper\Query\Attr;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
@@ -16,10 +14,6 @@ class MacroExpression extends DynamicAttribute {
 	 * @var Progra
 	 */
 	protected $program;
-	
-	public function getProgram() {
-		return $this->program;
-	}
 	
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()

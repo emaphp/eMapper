@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\Result\Relation;
+namespace eMapper\Reflection\Profile\Dynamic;
 
 use eMapper\Annotations\AnnotationsBag;
 
@@ -14,11 +14,7 @@ class StatementCallback extends DynamicAttribute {
 	 * @var string
 	 */
 	protected $statementId;
-	
-	public function getStatementId() {
-		return $this->statementId;
-	}
-	
+		
 	protected function parseMetadata(AnnotationsBag $attribute) {
 		//obtain statement id
 		$this->statementId = $attribute->get('StatementId')->getValue();

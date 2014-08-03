@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\Result\Relation;
+namespace eMapper\Reflection\Profile\Dynamic;
 
 use eMapper\Annotations\AnnotationsBag;
 
@@ -14,10 +14,6 @@ class QueryCallback extends DynamicAttribute {
 	 * @var string
 	 */
 	protected $query;
-	
-	public function getQuery() {
-		return $this->query;
-	}
 	
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain query

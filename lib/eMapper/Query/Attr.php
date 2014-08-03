@@ -23,11 +23,13 @@ class Attr extends Field {
 	}
 	
 	public function getColumnName(ClassProfile $profile) {
-		if (!array_key_exists($this->name, $profile->fieldNames)) {
-			throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $profile->reflectionClass->getName()));
+		$propertyNames = $profile->getPropertyNames();
+		
+		if (!array_key_exists($this->name, $propertyNames)) {
+			throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $profile->getReflectionClass()->getName()));
 		}
 		
-		return $profile->fieldNames[$this->name];
+		return $propertyNames[$this->name];
 	}
 }
 ?>

@@ -26,7 +26,8 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	
 	public function render(Driver $driver) {
 		$op = $this->negate ? "NOT" : "";
-		return "$op ( %s [? (if (null? (%%0)) 'IS NULL' '= %s') ?])";
+		$eq_op = $this->negate ? '<>' : '=';
+		return "%s [? (if (null? (%%0)) 'IS $op NULL' '$eq_op %s') ?]";
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {

@@ -31,19 +31,19 @@ class Mapper {
 	 * Database driver
 	 * @var Driver
 	 */
-	public $driver;
+	protected $driver;
 	
 	/**
 	 * Type manager
 	 * @var TypeManager
 	 */
-	public $typeManager;
+	protected $typeManager;
 	
 	/**
 	 * Cache provider
 	 * @var CacheProvider
 	 */
-	public $cacheProvider;
+	protected $cacheProvider;
 	
 	public function __construct(Driver $driver) {
 		$this->driver = $driver;
@@ -120,19 +120,11 @@ class Mapper {
 	}
 	
 	/**
-	 * Assigns a cache provider to current instance
-	 * @param CacheProvider $provider
-	 */
-	public function setCacheProvider(CacheProvider $provider) {
-		$this->cacheProvider = $provider;
-	}
-	
-	/**
 	 * Configures dynamic sql environment
 	 * @param string $id
 	 * @param string $class
 	 */
-	public function setEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
+	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
 		//apply values
 		$this->config['environment.id'] = $id;
 		$this->config['environment.class'] = $class;
@@ -143,7 +135,7 @@ class Mapper {
 	 * @return mixed
 	 */
 	public function getConnection() {
-		return $this->driver->connection;
+		return $this->driver->getConnection();
 	}
 	
 	/**
@@ -200,14 +192,8 @@ class Mapper {
 		
 			//build cache key
 			$cacheKeyBuilder = new CacheKey($this->typeManager, $parameterMap);
-				
-			try {
-				$cache_key = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
-			}
-			catch (\Exception $e) {
-				$this->throw_exception($e->getMessage());
-			}
-		
+			$cache_key = $cacheKeyBuilder->build($this->config['cache.key'], $args, $this->config);
+
 			//check if key is present
 			if ($cacheProvider->exists($cache_key)) {
 				$cached_value = $cacheProvider->fetch($cache_key);
@@ -223,13 +209,8 @@ class Mapper {
 			 */
 				
 			//build statement
-			try {
-				$stmt = $this->driver->build_statement($this->typeManager, $parameterMap);
-				$stmt = $stmt->build($query, $args, $this->config);
-			}
-			catch (\Exception $e) {
-				$this->driver->throw_exception($e->getMessage(), $e);
-			}
+			$stmt = $this->driver->build_statement($this->typeManager, $parameterMap);
+			$stmt = $stmt->build($query, $args, $this->config);
 			
 			//override query
 			if (array_key_exists('callback.query', $this->config)) {
@@ -277,7 +258,7 @@ class Mapper {
 					$group = $group_type = $index = $index_type = null;
 					
 					if (count($matches) > 2) {
-						$mapping_callback = array($mapper, 'mapList');
+						$mapping_callback = [$mapper, 'mapList'];
 					
 						//obtain group
 						if (array_key_exists('callback.group', $this->config)) {
@@ -287,11 +268,6 @@ class Mapper {
 						elseif (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
 							$group = $matches[2];
 							$group_type = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
-								
-							//check group type
-							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
-								$this->driver->throw_exception("Unrecognized group type '$group_type'");
-							}
 						}
 					
 						//obtain index
@@ -302,11 +278,6 @@ class Mapper {
 						elseif (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
 							$index = $matches[5];
 							$index_type = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
-					
-							//check index type
-							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
-								$this->driver->throw_exception("Unrecognized index type '$index_type'");
-							}
 						}
 					
 						//add index and group to mapper parameters
@@ -337,11 +308,6 @@ class Mapper {
 						elseif (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
 							$group = $matches[1];
 							$group_type = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
-								
-							//check group type
-							if (isset($group_type) && !in_array($group_type, $this->typeManager->getTypesList())) {
-								$this->driver->throw_exception("Unrecognized group type '$group_type'");
-							}
 						}
 					
 						//obtain index and index type
@@ -352,11 +318,6 @@ class Mapper {
 						elseif (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
 							$index = $matches[4];
 							$index_type = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
-								
-							//check index type
-							if (isset($index_type) && !in_array($index_type, $this->typeManager->getTypesList())) {
-								$this->driver->throw_exception("Unrecognized index type '$index_type'");
-							}
 						}
 							
 						//add index and group to mapper parameters
@@ -367,25 +328,19 @@ class Mapper {
 					}
 				}
 				//simple mapping type: integer, string, float, etc
-				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mapping_type, $matches)) {
-					//check type
-					if (!in_array($matches[1], $this->typeManager->getTypesList())) {
-						$this->driver->throw_exception("Unrecognized type '{$matches[1]}'");
-					}
-					
+				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mapping_type, $matches)) {					
 					//get type handler
 					$typeHandler = $this->typeManager->getTypeHandler($matches[1]);
 					
 					if ($typeHandler === false) {
-						$this->driver->throw_exception("Unknown type '{$matches[1]}'");
+						throw new \InvalidArgumentException("Unknown type '{$matches[1]}'");
 					}
 						
 					//create mapper instance
 					$mapper = new ScalarTypeMapper($typeHandler);
 						
 					//set mapping callback
-					$mapping_callback = [$mapper];
-					$mapping_callback[] = empty($matches[2]) ? 'mapResult' : 'mapList';
+					$mapping_callback = [$mapper, empty($matches[2]) ? 'mapResult' : 'mapList'];
 				}
 				else {
 					$this->driver->throw_exception("Unrecognized mapping expression '$mapping_type'");
@@ -484,12 +439,7 @@ class Mapper {
 			 */
 				
 			//call mapping callback
-			try {
-				$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
-			}
-			catch (\Exception $e) {
-				$this->driver->throw_exception($e->getMessage(), $e);
-			}
+			$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
 				
 			//free result
 			$this->driver->free_result($result);
@@ -814,6 +764,53 @@ class Mapper {
 	public function rollback() {
 		return $this->driver->rollback();
 	}
+	
+	/**
+	 * Sets database driver
+	 * @param Driver $driver
+	 */
+	public function setDriver(Driver $driver) {
+		$this->driver = $driver;
+	}
+	
+	/**
+	 * Obtains database driver
+	 * @return \eMapper\Engine\Generic\Driver
+	 */
+	public function getDriver() {
+		return $this->driver;
+	}
+	
+	/**
+	 * Sets type manager
+	 * @param TypeManager $typeManager
+	 */
+	public function setTypeManager(TypeManager $typeManager) {
+		$this->typeManager = $typeManager;
+	}
+	
+	/**
+	 * Obtains type manager
+	 * @return \eMapper\Type\TypeManager
+	 */
+	public function getTypeManager() {
+		return $this->typeManager;
+	}
+	
+	/**
+	 * Assigns a cache provider to current instance
+	 * @param CacheProvider $provider
+	 */
+	public function setCacheProvider(CacheProvider $provider) {
+		$this->cacheProvider = $provider;
+	}
+	
+	/**
+	 * Obtains assigned cache provider
+	 * @return \eMapper\Cache\CacheProvider
+	 */
+	public function getCacheProvider() {
+		return $this->cacheProvider;
+	}
 }
-
 ?>

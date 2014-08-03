@@ -17,13 +17,13 @@ trait SQLNamespaceAggregate {
 	 * Inner namespaces
 	 * @var array
 	 */
-	public $namespaces = [];
+	protected $namespaces = [];
 	
 	/**
 	 * Statement list
 	 * @var array
 	 */
-	public $statements = [];
+	protected $statements = [];
 	
 	/**
 	 * Validates a given namespace ID

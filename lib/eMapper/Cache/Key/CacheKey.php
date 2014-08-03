@@ -227,24 +227,7 @@ class CacheKey {
 	
 		return $value;
 	}
-	
-	/**
-	 * Obtains the default type handler to use for a given property
-	 * @param ParameterWrapper $arg
-	 * @param string $property
-	 * @return NULL | string
-	 */
-	protected function getDefaultType(ParameterWrapper $arg, $property) {
-		$type = null;
 		
-		//obtain property type from parameter map (if any)
-		if (!is_null($arg->getParameterMap())) {
-			$type = $arg->getParameterMap()->propertiesConfig[$property]->type;
-		}
-		
-		return $type;
-	}
-	
 	/**
 	 * Obtains an element within an object/property by a given index
 	 * @param mixed $property
@@ -329,7 +312,7 @@ class CacheKey {
 			}
 			
 			if (is_null($type)) {
-				$type = $this->getDefaultType($value, $subindex);
+				$type = $value->getPropertyType($subindex);
 			}
 			
 			return $this->castParameter($value->offsetGet($subindex), $type);
@@ -481,8 +464,8 @@ class CacheKey {
 			case 2: //#{PROPERTY@1}
 				$key = $matches[1];
 				
-				if (is_null($type) && isset($this->parameterMap)) {
-					$type = $this->getDefaultType($this->wrappedArg, $key);
+				if (is_null($type)) {
+					$type = $this->wrappedArg->getPropertyType($key);
 				}
 				
 				return $this->getIndex($key, $subindex, $type);
@@ -496,8 +479,8 @@ class CacheKey {
 			case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
 				$key = $matches[4];
 			
-				if (is_null($type) && isset($this->parameterMap)) {
-					$type = $this->getDefaultType($this->wrappedArg, $key);
+				if (is_null($type)) {
+					$type = $this->wrappedArg->getPropertyType($key);
 				}
 			
 				return $this->getRange($key, $matches[6], $matches[7], $type);

@@ -1,11 +1,8 @@
 <?php
-namespace eMapper\Result\Relation;
+namespace eMapper\Reflection\Profile\Dynamic;
 
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profile\PropertyProfile;
-use eMacros\Program\Program;
-use eMapper\Dynamic\Provider\EnvironmentProvider;
-use eMacros\Environment\Environment;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
 use eMapper\Annotations\AnnotationsBag;
 use eMapper\Query\Attr;
@@ -26,31 +23,31 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * Attribute arguments
 	 * @var array
 	 */
-	public $args;
+	protected $args;
 		
 	/**
 	 * Attribute configuration
 	 * @var array
 	 */
-	public $config;
+	protected $config;
 	
 	/**
 	 * Indicates if current instance is passed as argument
 	 * @var boolean
 	 */
-	public $useDefaultArgument;
+	protected $useDefaultArgument;
 	
 	/**
 	 * Pre-condition macro
 	 * @var Program
 	 */
-	public $condition;
+	protected $condition;
 	
 	/**
 	 * Determines if the condition value must be reversed
 	 * @var boolean
 	 */
-	public $reverseCondition = false;
+	protected $reverseCondition = false;
 	
 	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct($name, $annotations, $reflectionProperty);

@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Parameter;
 
-use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Profile\Profiler;
 use eMapper\Reflection\Profile\ClassProfile;
 
 /**
@@ -31,10 +31,18 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		}
 	}
 	
+	/**
+	 * Obtains wrapped value
+	 * @return array|object
+	 */
 	public function getValue() {
 		return $this->value;
 	}
 	
+	/**
+	 * Obtains wrapped value parameter map
+	 * @return \eMapper\Reflection\Profile\ClassProfile
+	 */
 	public function getParameterMap() {
 		return $this->parameterMap;
 	}
@@ -72,20 +80,39 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	/**
 	 * Returns the referred property name by the given offset
 	 * @param string $offset
-	 * @param boolean $strict
 	 * @throws \UnexpectedValueException
 	 */
-	protected function getPropertyName($offset, $strict = true) {
-		//check if offset is valid
-		if (!array_key_exists($offset, $this->parameterMap->propertiesConfig)) {
-			if ($strict) {
-				throw new \UnexpectedValueException();
+	public function getPropertyName($property) {
+		if (isset($this->parameterMap)) {
+			$propertyProfile = $this->parameterMap->getProperty($property);
+			
+			if ($propertyProfile === false) {
+				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->parameterMap->getReflectionClass()->getName()));
 			}
 			
-			return false;
+			return $propertyProfile->getProperty();
 		}
 		
-		return $this->parameterMap->propertiesConfig[$offset]->property;
+		return $property;
+	}
+	
+	/**
+	 * Obtains a property associated type
+	 * @param string $property
+	 * @throws \UnexpectedValueException
+	 */
+	public function getPropertyType($property) {
+		if (isset($this->parameterMap)) {
+			$propertyProfile = $this->parameterMap->getProperty($property);
+			
+			if ($propertyProfile === false) {
+				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->parameterMap->getReflectionClass()->getName()));
+			}
+			
+			return $propertyProfile->getType();
+		}
+		
+		return null;
 	}
 	
 	/*

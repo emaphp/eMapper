@@ -111,7 +111,11 @@ class EntityNamespace extends SQLNamespace {
 		if (preg_match('/^findBy([\w]+)/', $statementId, $matches)) {
 			$stmt = new FindByStatementBuilder($this->driver, $this->entity);
 			$property = strtolower($matches[1]);
-			return $this->buildAndStore($matches[0], $stmt->build($matches), !($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey));
+			
+			//check if the give property is unique or primary key
+			$propertyProfile = $this->entity->getProperty($property);
+			$as_table = !($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique());
+			return $this->buildAndStore($matches[0], $stmt->build($matches), $as_table);
 		}
 		
 		//eq [FIELD][Not]Equals
@@ -119,7 +123,10 @@ class EntityNamespace extends SQLNamespace {
 			$stmt = new EqualStatementBuilder($this->driver, $this->entity);
 			$property = strtolower($matches[1]);
 			
-			if ($this->entity->propertiesConfig[$property]->isUnique || $this->entity->propertiesConfig[$property]->isPrimaryKey) {
+			//check if the give property is unique or primary key
+			$propertyProfile = $this->entity->getProperty($property);
+			
+			if ($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique()) {
 				$as_table = array_key_exists(2, $matches);
 			}
 			else {

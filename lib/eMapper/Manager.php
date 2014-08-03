@@ -6,11 +6,11 @@ use eMapper\SQL\Configuration\StatementConfiguration;
 use eMapper\Reflection\EntityMapper;
 use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
-use eMapper\Query\Builder\DeleteQueryBuilder;
-use eMapper\Query\Attr;
 use eMapper\Query\Builder\InsertQueryBuilder;
 use eMapper\Query\Builder\UpdateQueryBuilder;
 use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\Query\Builder\DeleteQueryBuilder;
+use eMapper\Query\Attr;
 use eMapper\Query\Field;
 use eMapper\Query\Column;
 use eMapper\Query\Aggregate\SQLCount;
@@ -106,7 +106,7 @@ class Manager {
 		$this->mapper->connect();
 		
 		//get primary key field
-		$primaryKey = $this->entity->primaryKey;
+		$primaryKey = $this->entity->getPrimaryKey();
 	
 		if (is_null($primaryKey)) {
 			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));

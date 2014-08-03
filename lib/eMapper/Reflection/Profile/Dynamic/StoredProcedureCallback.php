@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\Result\Relation;
+namespace eMapper\Reflection\Profile\Dynamic;
 
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
@@ -12,11 +12,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 * @var string
 	 */
 	protected $procedure;
-	
-	public function getProcedure() {
-		return $this->procedure;
-	}
-	
+
 	protected function parseMetadata(AnnotationsBag $annotations) {
 		//obtain procedure name
 		$this->procedure = $annotations->get('Procedure')->getValue();

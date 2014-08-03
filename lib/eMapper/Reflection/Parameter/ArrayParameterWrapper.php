@@ -12,11 +12,11 @@ class ArrayParameterWrapper extends ParameterWrapper {
 		if (isset($this->parameterMap)) {
 			$value = [];
 			
-			foreach ($this->parameterMap->propertiesConfig as $property => $config) {
-				$key = $config->property;
+			foreach ($this->parameterMap->getProperties() as $name => $propertyProfile) {
+				$key = $propertyProfile->getProperty();
 				
 				if (array_key_exists($key, $this->value)) {
-					$value[$property] = $this->value[$key];
+					$value[$name] = $this->value[$key];
 				}
 			}
 			
@@ -42,7 +42,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 	
 	public function offsetUnset($offset) {
 		if (isset($this->parameterMap)) {
-			$key = $this->getPropertyName($offset, false);
+			$key = $this->getPropertyName($offset);
 			
 			if ($key === false) {
 				return;
@@ -57,7 +57,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 	
 	public function offsetExists($offset) {
 		if (isset($this->parameterMap)) {
-			$key = $this->getPropertyName($offset, false);
+			$key = $this->getPropertyName($offset);
 			
 			if ($key === false) {
 				return false;
@@ -76,7 +76,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 		}
 		
 		if (!array_key_exists($offset, $this->value)) {
-			throw new \UnexpectedValueException();
+			throw new \UnexpectedValueException(sprintf("Offset '%s' does not exists"));
 		}
 
 		return $this->value[$offset];
