@@ -4,165 +4,39 @@ namespace eMapper\Result\Mapper;
 use eMapper\Type\TypeManager;
 use eMapper\Result\ResultIterator;
 use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Profile\ClassProfile;
 
 /**
- * The ObjectTypeMapper class maps database results to object type values.
+ * The ObjectMapper class maps database results to object type values.
  * @author emaphp
  */
-class ObjectTypeMapper extends ComplexTypeMapper {
+class ObjectMapper extends ComplexMapper {
 	/**
 	 * Default conversion class
-	 * @var string
+	 * @var ClassProfile
 	 */
 	protected $defaultClass;
-	
-	/**
-	 * Stores associated type handler for each column
-	 * @var array
-	 */
-	protected $columns;
-	
+		
 	/**
 	 * ObjectMapper constructor
 	 * @param TypeManager $typeManager
-	 * @param string $resultMap
 	 * @param string $defaultClass
 	 */
-	public function __construct(TypeManager $typeManager, $resultMap = null, $defaultClass = 'stdClass') {
-		parent::__construct($typeManager, $resultMap);
-		$this->defaultClass = $defaultClass;
-	}
-	
-	protected function validateResultMap() {
-		//get relations
-		$this->relationList = Profiler::getClassProfile($this->resultMap)->dynamicAttributes;
-		
-		//obtain mapped properties
-		$this->propertyList = Profiler::getClassProfile($this->resultMap)->propertiesConfig;
-		
-		//store type handlers while on it
-		$this->typeHandlers = array();
-		
-		//get reflection class in order to validate property accesibility
-		$reflectionClass = ($this->defaultClass != 'stdClass' && $this->defaultClass != 'ArrayObject') ? Profiler::getClassProfile($this->defaultClass)->reflectionClass : null;		
-		
-		foreach ($this->propertyList as $name => $config) {
-			//validate column
-			if (!array_key_exists($config->column, $this->columnTypes)) {
-				throw new \UnexpectedValueException("Column '{$config->column}' was not found on this result");
-			}
-			
-			//check property
-			if (isset($reflectionClass) && $this->resultMap != $this->defaultClass) {
-				if (!$reflectionClass->hasProperty($name)) {
-					throw new \UnexpectedValueException("Property '$name' was not found in class {$this->defaultClass}");
-				}
-			}
-			
-			//validate type
-			if (isset($config->type)) {
-				$typeHandler = $this->typeManager->getTypeHandler($config->type);
-		
-				if ($typeHandler == false) {
-					throw new \UnexpectedValueException("No typehandler assigned to type '{$config->type}' defined at property $name");
-				}
-		
-				$this->typeHandlers[$name] = $typeHandler;
-			}
-			elseif (isset($config->suggestedType)) {
-				$typeHandler = $this->typeManager->getTypeHandler($config->suggestedType);
-		
-				if ($typeHandler == false) {
-					$type = $this->columnTypes[$config->column];
-					$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
-				}
-				else {
-					$this->typeHandlers[$name] = $typeHandler;
-				}
-			}
-			else {
-				$type = $this->columnTypes[$config->column];
-				$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
-			}
-		}
-	}
-	
-	protected function validateColumns() {
-		//obtain available columns
-		$this->columns = array();
-		$reflectionClass = Profiler::getClassProfile($this->defaultClass)->reflectionClass;
-			
-		//store type handlers while on it
-		foreach (array_keys($this->columnTypes) as $column) {
-			if (!$reflectionClass->hasProperty($column)) {
-				continue;
-			}
-				
-			//validate property
-			$property = $reflectionClass->getProperty($column);
-				
-			if (!$property->isPublic()) {
-				$property->setAccessible(true);
-			}
-				
-			$this->columns[$column] = $this->columnHandler($column);
-		}
+	public function __construct(TypeManager $typeManager, $defaultClass) {
+		parent::__construct($typeManager, $defaultClass);
 	}
 	
 	protected function map($row) {
-		if (isset($this->resultMap)) {
-			//create instance			
-			$reflectionClass = Profiler::getClassProfile($this->defaultClass)->reflectionClass;
-			$instance = $reflectionClass->newInstance();
+		$instance = new $this->defaultClass;
+		
+		foreach ($this->availableColumns as $property => $column) {
+			//get value
+			$typeHandler = $this->typeHandlers[$property];
+			$value = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
 			
-			foreach ($this->propertyList as $name => $config) {
-				$column = $config->column;
-				$typeHandler = $this->typeHandlers[$name];
-				$value = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
-				
-				if ($instance instanceof \stdClass) {
-					$instance->$name = $value;
-				}
-				elseif ($instance instanceof \ArrayObject) {
-					$instance[$name] = $value;
-				}
-				else {
-					if (!$config->reflectionProperty->isPublic()) {
-						$rp = new \ReflectionProperty($instance, $name);
-						$rp->setAccessible(true);
-						$rp->setValue($instance, $value);
-					}
-					else {
-						$instance->$name = $value;
-					}
-				}
-			}
-		}
-		else {
-			$instance = new $this->defaultClass;
-			
-			if ($this->defaultClass == 'stdClass') {
-				foreach ($this->columnTypes as $column => $type) {
-					if (is_integer($column)) {
-						continue;
-					}
-					
-					$typeHandler = $this->columnHandler($column);
-					$instance->$column = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
-				}
-			}
-			elseif ($this->defaultClass == 'ArrayObject') {
-				foreach ($this->columnTypes as $column => $type) {
-					$typeHandler = $this->columnHandler($column);
-					$instance[$column] = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
-				}
-			}
-			else {				
-				foreach ($this->columns as $column => $typeHandler) {
-					//set values
-					$instance->$column = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);	
-				}
-			}
+			//set value
+			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
+			$reflectionProperty->setValue($value, $instance);
 		}
 		
 		return $instance;
@@ -181,13 +55,10 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	
 		//get result column types
 		$this->columnTypes = $result->columnTypes();
-	
-		//validate result map (if any)
+		
+		//build type handler list
 		if (isset($this->resultMap)) {
-			$this->validateResultMap();
-		}
-		else {
-			$this->validateColumns();
+			$this->buildTypeHandlerList();
 		}
 		
 		//get row as an object and map using its model
@@ -207,21 +78,18 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
-			return array();
+			return [];
 		}
 	
 		//get result column types
 		$this->columnTypes = $result->columnTypes();
 	
-		//validate result map (if any)
+		//build type handler list
 		if (isset($this->resultMap)) {
-			$this->validateResultMap();
-		}
-		else {
-			$this->validateColumns();
+			$this->buildTypeHandlerList();
 		}
 		
-		$list = array();
+		$list = [];
 		
 		if (isset($index) || isset($group)) {
 			//validate index column
@@ -235,7 +103,7 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 			}
 			
 			if (isset($index) && isset($group)) {
-				$this->groupKeys = array();
+				$this->groupKeys = [];
 				
 				while ($result->valid()) {
 					///get row
@@ -410,18 +278,14 @@ class ObjectTypeMapper extends ComplexTypeMapper {
 	}
 	
 	public function relate(&$row, $mapper) {
-		if (!empty($this->relationList)) {
-			foreach ($this->relationList as $property => $relation) {
-				$value = $relation->evaluate($row, $mapper);
-					
-				if (!$relation->reflectionProperty->isPublic()) {
-					$relation->reflectionProperty->setAccesible(true);
-					$relation->reflectionProperty->setValue($row, $value);
-				}
-				else {
-					$row->$property = $value;
-				}
-			}
+		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
+			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
+			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $instance);
+		}
+		
+		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
+			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $instance);
 		}
 	}
 }

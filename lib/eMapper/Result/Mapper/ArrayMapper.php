@@ -3,61 +3,12 @@ namespace eMapper\Result\Mapper;
 
 use eMapper\Result\ResultIterator;
 use eMapper\Result\ArrayType;
-use eMapper\Reflection\Profiler;
 
 /**
- * The ArrayTypeMapper class maps a database result to array type values.
+ * The ArrayMapper class maps a database result to array type values.
  * @author emaphp
  */
-class ArrayTypeMapper extends ComplexTypeMapper {
-	/**
-	 * Builds a result map property list
-	 * @throws \UnexpectedValueException
-	 */
-	protected function validateResultMap() {
-		//get relations
-		$this->relationList = Profiler::getClassProfile($this->resultMap)->dynamicAttributes;
-	
-		//obtain mapped properties
-		$this->propertyList = Profiler::getClassProfile($this->resultMap)->propertiesConfig;
-		
-		//store type handlers while on it
-		$this->typeHandlers = array();
-	
-		foreach ($this->propertyList as $name => $config) {
-			//validate column reference
-			if (!array_key_exists($config->column, $this->columnTypes)) {
-				throw new \UnexpectedValueException("Column '{$config->column}' was not found on this result");
-			}
-				
-			//obtain type handler
-			if (isset($config->type)) {
-				$typeHandler = $this->typeManager->getTypeHandler($config->type);
-	
-				if ($typeHandler == false) {
-					throw new \UnexpectedValueException("No typehandler assigned to type '{$config->type}' defined at property $name");
-				}
-	
-				$this->typeHandlers[$name] = $typeHandler;
-			}
-			elseif (isset($config->suggestedType)) {
-				$typeHandler = $this->typeManager->getTypeHandler($config->suggestedType);
-	
-				if ($typeHandler == false) {
-					$type = $this->columnTypes[$config->column];
-					$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
-				}
-				else {
-					$this->typeHandlers[$name] = $typeHandler;
-				}
-			}
-			else {
-				$type = $this->columnTypes[$config->column];
-				$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
-			}
-		}
-	}
-	
+class ArrayMapper extends ComplexMapper {
 	/**
 	 * Returns a mapped row from a fetched array
 	 * @param array $row
@@ -65,19 +16,18 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	 * @throws \UnexpectedValueException
 	 */
 	protected function map($row) {
-		$result = array();
+		$result = [];
 	
 		if (is_null($this->resultMap)) {
 			foreach ($row as $column => $value) {
-				$typeHandler = $this->columnHandler($column);
+				$typeHandler = $this->getColumnHandler($column);
 				$result[$column] = is_null($row[$column]) ? null : $typeHandler->getValue($value);
 			}
 		}
 		else {
-			foreach ($this->propertyList as $name => $config) {
-				$column = $config->column;
-				$typeHandler = $this->typeHandlers[$name];
-				$result[$name] = is_null($row[$column]) ? null : $typeHandler->getValue($row[$column]);
+			foreach ($this->availableColumns as $property => $column) {
+				$typeHandler = $this->typeHandlers[$property];
+				$result[$property] = is_null($row[$column]) ? null : $typeHandler->getValue($row[$column]);
 			}
 		}
 	
@@ -96,11 +46,11 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 		}
 
 		//get result column types
-		$this->columnTypes = $result->columnTypes($resultType);
+		$this->columnTypes = $result->getColumnTypes($resultType);
 		
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
-			$this->validateResultMap();
+			$this->buildTypeHandlerList();
 		}
 
 		//map row
@@ -120,18 +70,18 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
 		if ($result->countRows() == 0) {
-			return array();
+			return [];
 		}
 	
 		//get result column types
-		$this->columnTypes = $result->columnTypes($resultType);
+		$this->columnTypes = $result->getColumnTypes($resultType);
 	
 		//validate result map (if any)
 		if (isset($this->resultMap)) {
-			$this->validateResultMap();
+			$this->buildTypeHandlerList();
 		}
 		
-		$list = array();
+		$list = [];
 		
 		if (isset($index) || isset($group)) {
 			//validate index column
@@ -145,7 +95,7 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 			}
 			
 			if (isset($index) && isset($group)) {
-				$this->groupKeys = array();
+				$this->groupKeys = [];
 				
 				while ($result->valid()) {
 					$row = $result->fetchArray($resultType);
@@ -252,8 +202,6 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 				}
 			}
 			else {
-				$this->groupKeys = array();
-				
 				while ($result->valid()) {
 					$row = $result->fetchArray($resultType);
 					$mappedRow = $this->map($row);
@@ -308,8 +256,12 @@ class ArrayTypeMapper extends ComplexTypeMapper {
 	}
 	
 	public function relate(&$row, $mapper) {
-		foreach ($this->relationList as $property => $relation) {
-			$row[$property] = $relation->evaluate($row, $mapper);
+		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
+			$row[$property] = $attribute->evaluate($row, $mapper);
+		}
+		
+		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+			$row[$property] = $attribute->evaluate($row, $mapper);
 		}
 	}
 }

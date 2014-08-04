@@ -10,7 +10,11 @@ use eMapper\Result\ArrayType;
  * @author emaphp
  */
 class PostgreSQLResultIterator extends ResultIterator {
-	public $resultTypes = [ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM];
+	/**
+	 * Array result types
+	 * @var array
+	 */
+	private $resultTypes = [ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM];
 	
 	public function countRows() {
 		return pg_num_rows($this->result);

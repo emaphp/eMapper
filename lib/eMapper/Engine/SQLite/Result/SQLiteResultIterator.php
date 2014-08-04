@@ -10,10 +10,10 @@ use eMapper\Result\ArrayType;
  */
 class SQLiteResultIterator extends ResultIterator {
 	/**
-	 * Result types array
+	 * Array result types
 	 * @var array
 	 */
-	protected $resultTypes = [ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM];
+	private $resultTypes = [ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM];
 	
 	/**
 	 * Total rows

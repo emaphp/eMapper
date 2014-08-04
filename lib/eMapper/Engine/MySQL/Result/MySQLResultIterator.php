@@ -9,9 +9,13 @@ use eMapper\Result\ArrayType;
  * @author emaphp
  */
 class MySQLResultIterator extends ResultIterator {
-	public $resultTypes = array(ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM);
+	/**
+	 * Array result types
+	 * @var array
+	 */
+	private $resultTypes = [ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM];
 	
-	public function columnTypes($resultType = ArrayType::ASSOC) {
+	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		//get result fields
 		$fields = $this->result->fetch_fields();
 		$types = array();

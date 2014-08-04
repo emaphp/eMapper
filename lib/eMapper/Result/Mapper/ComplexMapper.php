@@ -2,57 +2,62 @@
 namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeManager;
+use eMapper\Reflection\Profiler;
 
 /**
- * The ComplexTypeMapper class provides common logic for array an object mappers.
+ * The ComplexMapper class provides common logic for array an object mappers.
  * @author emaphp
  */
-abstract class ComplexTypeMapper {
+abstract class ComplexMapper {
 	/**
 	 * Type manager
 	 * @var TypeManager
 	 */
-	public $typeManager;
+	protected $typeManager;
 	
 	/**
 	 * Result map
-	 * @var string
+	 * @var ClassProfile
 	 */
-	public $resultMap;
+	protected $resultMap;
 	
 	/**
-	 * An array containing all column types
+	 * Result map properties (PROPERTY => PROFILE)
+	 * @var array
+	 */
+	protected $properties;
+	
+	/**
+	 * An array containing all column types handlers (COLUMN => HANDLER)
 	 * @var array
 	 */
 	protected $columnTypes;
 	
 	/**
-	 * Property list
+	 * An array containing all available columns in a result (PROPERTY => COLUMN)
 	 * @var array
 	 */
-	protected $propertyList;
-	
+	protected $availableColumns = [];
+
 	/**
-	 * Relation list
+	 * Result map type handler list (PROPERTY => HANDLER)
 	 * @var array
 	 */
-	protected $relationList;
+	protected $typeHandlers = [];
 	
 	/**
 	 * Group indexes
 	 * @var array
 	 */
-	public $groupKeys;
-	
-	/**
-	 * Result map type handler list
-	 * @var array
-	 */
-	protected $typeHandlers;
+	protected $groupKeys = [];
 	
 	public function __construct(TypeManager $typeManager, $resultMap = null) {
 		$this->typeManager = $typeManager;
-		$this->resultMap = $resultMap;
+		
+		if (!is_null($resultMap)) {
+			$this->resultMap = Profiler::getClassProfile($resultMap);
+			$this->properties = $this->resultMap->getProperties();
+		}
 	}
 	
 	/**
@@ -60,15 +65,9 @@ abstract class ComplexTypeMapper {
 	 * @param mixed $column
 	 * @return TypeHandler | FALSE
 	 */
-	protected function columnHandler($column) {
+	protected function getColumnHandler($column) {
 		return $this->typeManager->getTypeHandler($this->columnTypes[$column]);
 	}
-	
-	/**
-	 * Builds a result map property list
-	 * @throws \UnexpectedValueException
-	 */
-	protected abstract function validateResultMap();
 	
 	protected function validateIndex($index, $indexType) {		
 		if (is_null($this->resultMap)) {
@@ -95,18 +94,25 @@ abstract class ComplexTypeMapper {
 		}
 		else {
 			//find index property
-			if (!array_key_exists($index, $this->propertyList)) {
+			if (!array_key_exists($index, $this->properties)) {
 				throw new \UnexpectedValueException("Index property '$index' was not found in result map");
 			}
 				
 			//obtain index column and type handler
-			$indexColumn = $this->propertyList[$index]->column;
+			$indexColumn = $this->properties[$index]->getColumn();
 			$indexTypeHandler = $this->typeHandlers[$index];
 		}
 		
 		return [$indexColumn, $indexTypeHandler];
 	}
 	
+	/**
+	 * 
+	 * @param unknown $group
+	 * @param unknown $groupType
+	 * @throws \UnexpectedValueException
+	 * @return multitype:number Ambigous <multitype:, boolean, \eMapper\Type\TypeHandler>
+	 */
 	protected function validateGroup($group, $groupType) {
 		if (is_null($this->resultMap)) {
 			//find group column
@@ -132,17 +138,69 @@ abstract class ComplexTypeMapper {
 		}
 		else {
 			//find group property
-			if (!array_key_exists($group, $this->propertyList)) {
+			if (!array_key_exists($group, $this->properties)) {
 				throw new \UnexpectedValueException("Group property '$group' was not found in result map");
 			}
 		
 			//obtain group column and type handler
-			$groupColumn = $this->propertyList[$group]->column;
+			$groupColumn = $this->properties[$group]->getColumn();
 			$groupTypeHandler = $this->typeHandlers[$group];
 		}
 		
 		return [$groupColumn, $groupTypeHandler];
 	}
 	
+	/**
+	 * Determines if mapper has generated group keys
+	 * @return boolean
+	 */
+	public function hasGroupKeys() {
+		return !empty($this->groupKeys);
+	}
+	
+	/**
+	 * Obtains all group keys
+	 * @return array
+	 */
+	public function getGroupKeys() {
+		return $this->groupKeys;
+	}
+	
+	/**
+	 * Builds a list of type handlers for the available columns
+	 * @throws \UnexpectedValueException
+	 */
+	protected function buildTypeHandlerList() {
+		foreach ($this->properties as $name => $propertyProfile) {
+			$column = $propertyProfile->getColumn();
+			
+			if (!array_key_exists($column, $this->columnTypes)) {
+				continue;
+			}
+			
+			$this->availableColumns[$name] = $column;
+			$type = $propertyProfile->getType();
+				
+			if (isset($type)) {
+				$typeHandler = $this->typeManager->getTypeHandler($type);
+	
+				if ($typeHandler == false) {
+					throw new \UnexpectedValueException("No typehandler assigned to type '$type' defined at property $name");
+				}
+	
+				$this->typeHandlers[$name] = $typeHandler;
+			}
+			else {
+				$type = $this->columnTypes[$column];
+				$this->typeHandlers[$name] = $this->typeManager->getTypeHandler($type);
+			}
+		}
+	}
+	
+	/**
+	 * Evaluates dynamic attributes for a given row
+	 * @param array|object $row
+	 * @param Mapper $mapper
+	 */
 	public abstract function relate(&$row, $mapper);
 }

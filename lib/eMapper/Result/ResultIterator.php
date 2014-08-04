@@ -16,7 +16,7 @@ abstract class ResultIterator implements \Iterator {
 	 * Query result
 	 * @var resource | object
 	 */
-	public $result;
+	protected $result;
 	
 	/**
 	 * Internal counter
@@ -30,6 +30,14 @@ abstract class ResultIterator implements \Iterator {
 	}
 	
 	/**
+	 * Obtains current result
+	 * @return resource
+	 */
+	public function getResult() {
+		return $this->result;
+	}
+	
+	/**
 	 * Returns the amount of rows obtained
 	 * @var int
 	 */
@@ -38,7 +46,7 @@ abstract class ResultIterator implements \Iterator {
 	/**
 	 * Returns an associative array containing all column types by name
 	 */
-	public abstract function columnTypes($resultType = ArrayType::ASSOC);
+	public abstract function getColumnTypes($resultType = ArrayType::ASSOC);
 	
 	/**
 	 * Fetchs a row to an array
