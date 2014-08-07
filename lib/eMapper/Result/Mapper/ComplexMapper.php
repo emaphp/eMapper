@@ -20,7 +20,7 @@ abstract class ComplexMapper {
 	 * @var ClassProfile
 	 */
 	protected $resultMap;
-	
+		
 	/**
 	 * Result map properties (PROPERTY => PROFILE)
 	 * @var array
@@ -69,6 +69,13 @@ abstract class ComplexMapper {
 		return $this->typeManager->getTypeHandler($this->columnTypes[$column]);
 	}
 	
+	/**
+	 * Validates a user defined index againts current result
+	 * @param string $index
+	 * @param string $indexType
+	 * @throws \UnexpectedValueException
+	 * @return array
+	 */
 	protected function validateIndex($index, $indexType) {		
 		if (is_null($this->resultMap)) {
 			//find index column on given result
@@ -107,11 +114,11 @@ abstract class ComplexMapper {
 	}
 	
 	/**
-	 * 
-	 * @param unknown $group
-	 * @param unknown $groupType
+	 * Validates a user defined group against current result
+	 * @param string $group
+	 * @param string $groupType
 	 * @throws \UnexpectedValueException
-	 * @return multitype:number Ambigous <multitype:, boolean, \eMapper\Type\TypeHandler>
+	 * @return array
 	 */
 	protected function validateGroup($group, $groupType) {
 		if (is_null($this->resultMap)) {
@@ -167,6 +174,14 @@ abstract class ComplexMapper {
 	}
 	
 	/**
+	 * Sets mapper group keys
+	 * @param array $groupKeys
+	 */
+	public function setGroupKeys($groupKeys) {
+		$this->groupKeys = $groupKeys;
+	}
+	
+	/**
 	 * Builds a list of type handlers for the available columns
 	 * @throws \UnexpectedValueException
 	 */
@@ -196,11 +211,34 @@ abstract class ComplexMapper {
 			}
 		}
 	}
+
+	/**
+	 * Sets the mapper type manager
+	 * @param TypeManager $typeManager
+	 */
+	public function setTypeManager($typeManager) {
+		$this->typeManager = $typeManager;
+	}
 	
 	/**
-	 * Evaluates dynamic attributes for a given row
-	 * @param array|object $row
+	 * Obtains the current result map
+	 * @return string
+	 */
+	public function getResultMap() {
+		return $this->resultMap;
+	}
+	
+	/**
+	 * Evaluates first order attributes for a given row
+	 * @param mixed $row
 	 * @param Mapper $mapper
 	 */
-	public abstract function relate(&$row, $mapper);
+	public abstract function evaluateFirstOrderAttributes(&$row, $mapper);
+	
+	/**
+	 * Evaluates second order attributes for a given row
+	 * @param mixed $row
+	 * @param Mapper $mapper
+	 */
+	public abstract function evaluateSecondOrderAttributes(&$row, $mapper);
 }

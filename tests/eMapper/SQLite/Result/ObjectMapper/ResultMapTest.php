@@ -3,9 +3,9 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
+use eMapper\Result\Mapper\StdClassMapper;
 
 /**
  * Test ObjectTypeMapper class with different types of results using a result map
@@ -15,7 +15,7 @@ use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
  */
 class ResultMapTest extends SQLiteTest {
 	public function testRow() {
-		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new SQLiteResultIterator($result));
 	
@@ -37,7 +37,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultIterator($result));
 	
@@ -68,7 +68,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id');
 	
@@ -99,7 +99,7 @@ class ResultMapTest extends SQLiteTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 's');
 	
@@ -133,7 +133,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
 	
@@ -166,7 +166,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
 	
@@ -222,7 +222,7 @@ class ResultMapTest extends SQLiteTest {
 		$typeManager = new SQLiteTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'code', null, 'category');
 	

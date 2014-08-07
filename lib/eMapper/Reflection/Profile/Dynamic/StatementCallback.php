@@ -30,9 +30,6 @@ class StatementCallback extends DynamicAttribute {
 		$args = $this->evaluateArgs($row);
 		array_unshift($args, $this->statementId);
 		
-		//update configuration
-		$this->updateConfig($mapper->getConfig());
-		
 		//invoke statement
 		return call_user_func_array([$mapper->merge($this->config), 'execute'], $args);
 	}

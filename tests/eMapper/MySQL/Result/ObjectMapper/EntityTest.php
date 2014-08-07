@@ -3,12 +3,12 @@ namespace eMapper\MySQL\Result\ObjectMapper;
 
 use eMapper\MySQL\MySQLTest;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
+use eMapper\Result\Mapper\EntityMapper;
 
 /**
- * Test ObjectTypeMapper class mapping to entities
+ * Test EntityMapper class mapping to entities
  * 
  * @author emaphp
  * @group result
@@ -25,7 +25,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testRow() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
 		$product = $mapper->mapResult(new MySQLResultIterator($result));
 		
@@ -46,7 +46,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result));
 		
@@ -77,7 +77,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'id');
 		
@@ -108,7 +108,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'id', 'string');
 		
@@ -139,7 +139,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
@@ -199,7 +199,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
@@ -303,7 +303,7 @@ class EntityTest extends MySQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'id', null, 'category');
 		

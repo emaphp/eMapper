@@ -7,7 +7,6 @@ use Acme\Entity\Product;
 abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	public function setUp() {
 		$this->build();
-	
 		$this->mapper->addEntityNamespace(new EntityNamespace('Acme\Entity\Product'));
 	}
 	

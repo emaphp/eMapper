@@ -255,13 +255,22 @@ class ArrayMapper extends ComplexMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $mapper) {
+	public function evaluateFirstOrderAttributes(&$row, $mapper) {
 		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
-			$row[$property] = $attribute->evaluate($row, $mapper);
+			$row[$name] = $attribute->evaluate($row, $mapper);
 		}
-		
-		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-			$row[$property] = $attribute->evaluate($row, $mapper);
+	}
+	
+	public function evaluateSecondOrderAttributes(&$row, $mapper) {
+		if ($mapper->getOption('depth.current') < $mapper->getOption('depth.limit')) {
+			foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+				$row[$name] = $attribute->evaluate($row, $mapper);
+			}
+		}
+		else {
+			foreach (array_keys($this->resultMap->getSecondOrderAttributes()) as $name) {
+				$row[$name] = null;
+			}
 		}
 	}
 }

@@ -3,16 +3,21 @@ namespace eMapper;
 
 use eMapper\SQL\Configuration\StatementConfiguration;
 use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
-use eMapper\Type\TypeHandler;
-use eMapper\Cache\CacheProvider;
+use eMapper\SQL\EntityNamespace;
 use eMapper\Engine\Generic\Driver;
-use eMapper\Cache\Key\CacheKey;
 use eMapper\Reflection\Profiler;
-use eMapper\Result\Mapper\ObjectTypeMapper;
-use eMapper\Result\Mapper\ArrayTypeMapper;
+use eMapper\Result\Mapper\ComplexMapper;
+use eMapper\Result\Mapper\ObjectMapper;
+use eMapper\Result\Mapper\EntityMapper;
+use eMapper\Result\Mapper\StdClassMapper;
+use eMapper\Result\Mapper\ArrayMapper;
+use eMapper\Result\Mapper\ArrayObjectMapper;
 use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
-use eMapper\SQL\EntityNamespace;
+use eMapper\Type\TypeHandler;
+use eMapper\Cache\CacheProvider;
+use eMapper\Cache\Value\CacheValue;
+use eMapper\Cache\Key\CacheKey;
 
 /**
  * The Mapper class manages how a database result is converted to a given type.
@@ -85,11 +90,37 @@ class Mapper {
 		$this->config['depth.limit'] = 1;
 	}
 	
-	public function __safe_copy() {
+	/*
+	 * CLONING METHODS
+	 */
+	
+	/**
+	 * Generates a copy of the current instance without transient options
+	 * @return \eMapper\Mapper
+	 */
+	public function __copy() {
 		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
 				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
 				'cache.key', 'cache.ttl',
 				'proc.types');
+	}
+	
+	/**
+	 * Generates a copy of the current instance with an incremented depth
+	 * @return \eMapper\Mapper
+	 */
+	public function __increment() {
+		$obj = clone $this;
+		
+		//remove transient options
+		$obj->setConfig(array_diff_key($this->config, array_flip(['map.type', 'map.params', 'map.result', 'map.parameter',
+				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
+				'cache.key', 'cache.ttl',
+				'proc.types'])));
+		
+		//increment current depth
+		$obj->setOption('depth.current', $this->config['depth.current'] + 1);
+		return $obj;
 	}
 	
 	/**
@@ -99,23 +130,30 @@ class Mapper {
 	 */
 	public function setPrefix($prefix) {
 		if (!is_string($prefix)) {
-			throw new \InvalidArgumentException("Database prefix must be speciied as a string");
+			throw new \InvalidArgumentException("Database prefix must be specified as a string");
 		}
 	
-		return $this->set('db.prefix', $prefix);
+		return $this->setOption('db.prefix', $prefix);
 	}
 	
 	/**
 	 * Adds a new type handler
 	 * @param string $type
 	 * @param TypeHandler $typeHandler
-	 * @param string $alias
+	 * @param string|array $alias
 	 */
 	public function addType($type, TypeHandler $typeHandler, $alias = null) {
 		$this->typeManager->setTypeHandler($type, $typeHandler);
 	
 		if (!is_null($alias)) {
-			$this->typeManager->addAlias($type, $alias);
+			if (is_array($alias)) {
+				foreach ($alias as $al) {
+					$this->typeManager->addAlias($type, $al);
+				}
+			}
+			else {
+				$this->typeManager->addAlias($type, $alias);
+			}
 		}
 	}
 	
@@ -125,9 +163,8 @@ class Mapper {
 	 * @param string $class
 	 */
 	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
-		//apply values
-		$this->config['environment.id'] = $id;
-		$this->config['environment.class'] = $class;
+		$this->setOption('environment.id', $id);
+		$this->setOption('environment.class', $class);
 	}
 	
 	/**
@@ -151,26 +188,19 @@ class Mapper {
 	 * @return mixed
 	 */
 	public function query($query) {
-		/**
+		/*
 		 * INITIALIZE
 		 */
 		
 		//validate query
 		if (!is_string($query) || empty($query)) {
-			$this->driver->throw_exception("Query is not a valid string");
+			throw new \InvalidArgumentException("Query is not a valid string");
 		}
-		
-		//validate current depth
-		if ($this->config['depth.current'] > $this->config['depth.limit']
-		&& (!array_key_exists('map.type', $this->config)
-		|| (preg_match(self::OBJECT_TYPE_REGEX, $this->config['map.type']) || preg_match(self::ARRAY_TYPE_REGEX, $this->config['map.type'])))) {
-			return null;
-		}
-		
+
 		//open connection
 		$this->driver->connect();
 		
-		/**
+		/*
 		 * OBTAIN PARAMETERS
 		 */
 		
@@ -179,11 +209,12 @@ class Mapper {
 		$query = array_shift($args);
 		$parameterMap = array_key_exists('map.parameter', $this->config) ? $this->config['map.parameter'] : null;
 		
-		/**
+		/*
 		 * CACHE CONTROL
 		 */
 		
 		$cached_value = $cacheProvider = null;
+		$resultMap = null;
 		
 		//check if there is a value stored in cache with the given key
 		if (array_key_exists('cache.key', $this->config) && isset($this->cacheProvider)) {
@@ -197,14 +228,26 @@ class Mapper {
 			//check if key is present
 			if ($cacheProvider->exists($cache_key)) {
 				$cached_value = $cacheProvider->fetch($cache_key);
+				
+				//build mapping callback
+				$mapping_callback = $cached_value->buildMappingCallback($this->typeManager);
+				$mapper = $mapping_callback[0];
+				
+				if ($mapper instanceof ComplexMapper) {
+					$resultMap = $mapper->getResultMap();
+					
+					if (!is_null($resultMap)) {
+						$resultMap = get_class($resultMap);
+					}
+				}
+				
+				//get warpped value
+				$cached_value = $cached_value->getData();
 			}
 		}
 		
-		//current instance copy
-		$safe_clone = null;
-		
 		if (is_null($cached_value)) {
-			/**
+			/*
 			 * GENERATE QUERY
 			 */
 				
@@ -221,12 +264,10 @@ class Mapper {
 				}
 			}
 			
-			/**
+			/*
 			 * PARSE MAPPING EXPRESSION
 			 */
-			
-			$resultMap = null;
-				
+
 			//build mapping callback
 			if (array_key_exists('map.type', $this->config)) {
 				//get mapping type
@@ -238,23 +279,30 @@ class Mapper {
 					if (empty($matches[1])) {
 						$defaultClass = 'stdClass';
 						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
+						$mapper = new StdClassMapper($this->typeManager, $resultMap);
 					}
 					else {
 						//remove leading ':'
-						$defaultClass = $matches[1];
-						$resultMap = null;
-							
-						//get result map
-						if (array_key_exists('map.result', $this->config)) {
-							$resultMap = $this->config['map.result'];
+						$defaultClass = strtolower($matches[1]);
+						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
+						
+						if ($defaultClass == 'stdclass') {
+							$mapper = new StdClassMapper($this->typeManager, $resultMap);
 						}
-						elseif (Profiler::getClassProfile($defaultClass)->isEntity()) {
-							$resultMap = $defaultClass;
+						elseif ($defaultClass == 'arrayobject') {
+							$mapper = new ArrayObjectMapper($this->typeManager, $resultMap);
+						}
+						elseif (Profiler::getClassProfile($matches[1])->isEntity()) {
+							$mapper = new EntityMapper($this->typeManager, $matches[1]);
+							$resultMap = $matches[1];
+						}
+						else {
+							$mapper = new ObjectMapper($this->typeManager, $matches[1]);
+							$resultMap = null;
 						}
 					}
 					
 					//generate a new object mapper object
-					$mapper = new ObjectTypeMapper($this->typeManager, $resultMap, $defaultClass);
 					$group = $group_type = $index = $index_type = null;
 					
 					if (count($matches) > 2) {
@@ -294,7 +342,7 @@ class Mapper {
 					$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 						
 					//generate a new array mapper object
-					$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
+					$mapper = new ArrayMapper($this->typeManager, $resultMap);
 					
 					if (count($matches) > 1) {
 						$mapping_callback = [$mapper, 'mapList'];
@@ -343,7 +391,7 @@ class Mapper {
 					$mapping_callback = [$mapper, empty($matches[2]) ? 'mapResult' : 'mapList'];
 				}
 				else {
-					$this->driver->throw_exception("Unrecognized mapping expression '$mapping_type'");
+					throw new \InvalidArgumentException("Unrecognized mapping expression '$mapping_type'");
 				}
 			}
 			else {
@@ -351,7 +399,7 @@ class Mapper {
 				$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 					
 				//generate mapper
-				$mapper = new ArrayTypeMapper($this->typeManager, $resultMap);
+				$mapper = new ArrayMapper($this->typeManager, $resultMap);
 					
 				//use default mapping type
 				$mapping_callback = [$mapper, 'mapList'];
@@ -377,7 +425,7 @@ class Mapper {
 				$mapping_params = [$index, $index_type, $group, $group_type];
 			}
 			
-			/**
+			/*
 			 * EXECUTE QUERY
 			 */
 				
@@ -396,7 +444,7 @@ class Mapper {
 				return true;
 			}
 			
-			/**
+			/*
 			 * INVOKE EMPTY RESULT CALLBACK
 			 */
 				
@@ -412,7 +460,7 @@ class Mapper {
 				$cacheable = false;
 			}
 			
-			/**
+			/*
 			 * ADD CUSTOM MAPPING OPTIONS
 			 */
 				
@@ -434,7 +482,7 @@ class Mapper {
 				$mapping_params = [$ri];
 			}
 			
-			/**
+			/*
 			 * MAP RESULT
 			 */
 				
@@ -443,49 +491,31 @@ class Mapper {
 				
 			//free result
 			$this->driver->free_result($result);
-			
-			/**
-			 * EVALUATE RELATIONS
-			 */
-				
-			if (isset($resultMap)) {
-				$safe_clone = $this->__safe_copy();
-			
-				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-					if (!empty($mapper->groupKeys)) {
-						foreach ($mapper->groupKeys as $key) {
-							$indexes = array_keys($mapped_result[$key]);
-								
-							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$mapper->relate($mapped_result[$key][$indexes[$i]], $safe_clone);
-							}
-						}
-					}
-					else {
-						$keys = array_keys($mapped_result);
-							
-						foreach ($keys as $k) {
-							$mapper->relate($mapped_result[$k], $safe_clone);
-						}
-					}
-				}
-				elseif (!is_null($mapped_result)) {
-					$mapper->relate($mapped_result, $safe_clone);
-				}
-			}
-			
-			/**
+						
+			/*
 			 * CACHE STORE
 			 */
 				
 			//check if obtained value can be stored
 			if (isset($cacheProvider) && $cacheable) {
-				//store value
-				if (array_key_exists('cache.ttl', $this->config)) {
-					$cacheProvider->store($cache_key, $mapped_result, intval($this->config['cache.ttl']));
+				//build value wrapper
+				if ($mapper instanceof ComplexMapper) {
+					$groupKeys = $mapper->getGroupKeys();
+					$argument = ($mapper instanceof EntityMapper || $mapper instanceof ObjectMapper) ? $defaultClass : $resultMap;
 				}
 				else {
-					$cacheProvider->store($cache_key, $mapped_result);
+					$groupKeys = null;
+					$argument = get_class($typeHandler);
+				}
+
+				$value = new CacheValue($mapped_result, get_class($mapper), $argument, $groupKeys, $mapping_callback[1]);
+				
+				//store value
+				if (array_key_exists('cache.ttl', $this->config)) {
+					$cacheProvider->store($cache_key, $value, intval($this->config['cache.ttl']));
+				}
+				else {
+					$cacheProvider->store($cache_key, $value);
 				}
 			}
 		}
@@ -493,27 +523,52 @@ class Mapper {
 			$mapped_result = $cached_value;
 		}
 		
-		/**
-		 * INVOKE TRAVERSING CALLBACK
+		/*
+		 * DYNAMIC ATTRIBUTES
+		 */
+		if (isset($resultMap)) {
+			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+				if ($mapper->hasGroupKeys()) {
+					foreach ($mapper->getGroupKeys() as $key) {
+						$indexes = array_keys($mapped_result[$key]);
+			
+						for ($i = 0, $n = count($indexes); $i < $n; $i++) {
+							$mapper->evaluateFirstOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__copy());
+							$mapper->evaluateSecondOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__increment());
+						}
+					}
+				}
+				else {
+					$keys = array_keys($mapped_result);
+						
+					foreach ($keys as $k) {
+						$mapper->evaluateFirstOrderAttributes($mapped_result[$k], $this->__copy());
+						$mapper->evaluateSecondOrderAttributes($mapped_result[$k], $this->__increment());
+					}
+				}
+			}
+			elseif (!is_null($mapped_result)) {
+				$mapper->evaluateFirstOrderAttributes($mapped_result, $this->__copy());
+				$mapper->evaluateSecondOrderAttributes($mapped_result, $this->__increment());
+			}
+		}
+		
+		/*
+		 * TRAVERSING CALLBACK
 		 */
 		
 		if (array_key_exists('callback.each', $this->config)) {
-			//generate a new safe instance
-			if (is_null($safe_clone)) {
-				$safe_clone = $this->__safe_copy();
-			}
-				
 			$each_callback = $this->config['callback.each'];
 		
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-					if (!empty($mapper->groupKeys)) {
-						foreach ($mapper->groupKeys as $key) {
+					if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
+						foreach ($mapper->getGroupKeys() as $key) {
 							$indexes = array_keys($mapped_result[$key]);
 								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $safe_clone);
+								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $this->__copy());
 							}
 						}
 					}
@@ -521,24 +576,24 @@ class Mapper {
 						$keys = array_keys($mapped_result);
 		
 						for ($i = 0, $n = count($keys); $i < $n; $i++) {
-							$each_callback->__invoke($mapped_result[$keys[$i]], $safe_clone);
+							$each_callback->__invoke($mapped_result[$keys[$i]], $this->__copy());
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$each_callback->__invoke($mapped_result, $safe_clone);
+					$each_callback->__invoke($mapped_result, $this->__copy());
 				}
 			}
 			else {
 				//this closure avoids getting "expected to be a reference"-style messages
-				$c = function (&$mapped_result) use ($each_callback, $safe_clone) {
-					call_user_func($each_callback, $mapped_result, $safe_clone);
+				$c = function (&$mapped_result) use ($each_callback) {
+					call_user_func($each_callback, $mapped_result, $this->__copy());
 				};
 		
 				//call traverse callback
 				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-					if (!empty($mapper->groupKeys)) {
-						foreach ($mapper->groupKeys as $key) {
+					if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
+						foreach ($mapper->getGroupKeys() as $key) {
 							$indexes = array_keys($mapped_result[$key]);
 								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
@@ -560,8 +615,8 @@ class Mapper {
 			}
 		}
 		
-		/**
-		 * INVOKE FILTER CALLBACK
+		/*
+		 * FILTER CALLBACK
 		 */
 		
 		//apply filter
@@ -570,8 +625,8 @@ class Mapper {
 		
 			//check if mapped result is a list
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
-				if (!empty($mapper->groupKeys)) {
-					foreach ($mapper->groupKeys as $key) {
+				if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
+					foreach ($mapper->getGroupKeys() as $key) {
 						$mapped_result[$key] = array_filter($mapped_result[$key], $filter_callback);
 					}
 				}
@@ -600,19 +655,19 @@ class Mapper {
 		$statementId = array_shift($args);
 		
 		if (!is_string($statementId) || empty($statementId)) {
-			$this->driver->throw_exception("Statement id is not a valid string");
+			throw new \InvalidArgumentException("Statement id is not a valid string");
 		}
 		
 		//obtain statement
 		$stmt = $this->getStatement($statementId);
 		
 		if ($stmt === false) {
-			$this->driver->throw_exception("Statement '$statementId' could not be found");
+			throw new \RuntimeException("Statement '$statementId' could not be found");
 		}
 		
 		//get statement config
-		$query = $stmt->query;
-		$options = $stmt->options;
+		$query = $stmt->getQuery();
+		$options = $stmt->getOptions();
 		
 		//add query to method parameters
 		array_unshift($args, $query);
@@ -628,7 +683,7 @@ class Mapper {
 	 */
 	public function sql($query) {
 		if (!is_string($query) || empty($query)) {
-			$this->driver->throw_exception("Query is not a valid string");
+			throw new \InvalidArgumentException("Query is not a valid string");
 		}
 	
 		//open connection
@@ -665,7 +720,7 @@ class Mapper {
 			$procedure_name = $method;
 		}
 	
-		$tokens = array();
+		$tokens = [];
 	
 		//check if argument types are defined
 		if (array_key_exists('proc.types', $this->config)) {

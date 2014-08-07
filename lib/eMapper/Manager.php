@@ -115,7 +115,7 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($primaryKey)->eq($pk));
-		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->expression]);
@@ -134,7 +134,7 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->getMappingExpression()]);
@@ -153,7 +153,7 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->expression]);
@@ -210,7 +210,7 @@ class Manager {
 	 * @throws \RuntimeException
 	 */
 	protected function getPrimaryKeyValue($entity) {
-		$primaryKey = $this->entity->primaryKey;
+		$primaryKey = $this->entity->getPrimaryKey();
 			
 		if (is_null($primaryKey)) {
 			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
@@ -237,15 +237,15 @@ class Manager {
 		if (is_null($pk)) {
 			//build insert query
 			$query = new InsertQueryBuilder($this->entity);
-			list($query, $_) = $query->build($this->mapper->driver);
+			list($query, $_) = $query->build($this->mapper->getDriver());
 			$this->mapper->sql($query, $entity);
 			return $this->mapper->lastId();
 		}
 		
 		//build update query
 		$query = new UpdateQueryBuilder($this->entity);
-		$query->setCondition(Attr::__callstatic($this->entity->primaryKey)->eq($pk));
-		list($query, $args) = $query->build($this->mapper->driver);
+		$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
+		list($query, $args) = $query->build($this->mapper->getDriver());
 		$this->mapper->sql($query, $entity, $args);
 		return true;
 	}
@@ -265,9 +265,9 @@ class Manager {
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
-		$condition = Attr::__callStatic($this->entity->primaryKey)->eq($pk);
+		$condition = Attr::__callStatic($this->entity->getPrimaryKey())->eq($pk);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->driver);
+		list($query, $args) = $query->build($this->mapper->getDriver());
 		
 		//run query
 		return $this->mapper->query($query, $args);
@@ -285,7 +285,7 @@ class Manager {
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
 		return $this->mapper->query($query, $args);
@@ -301,7 +301,7 @@ class Manager {
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity, true);
-		list($query, $_) = $query->build($this->mapper->driver);
+		list($query, $_) = $query->build($this->mapper->getDriver());
 		return $this->mapper->query($query);
 	}
 	
@@ -316,7 +316,7 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setFunction($function);
-		list($query, $args) = $query->build($this->mapper->driver, $this->config);
+		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
 		$options = $this->clean_options(['map.type' => $type]);
@@ -388,11 +388,13 @@ class Manager {
 			return $this->merge(['query.index' => $index->getName()]);
 		}
 		elseif ($index instanceof Column) {
-			if (!in_array($index->getName(), $this->entity->fieldNames)) {
-				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $index->getName(), $this->entity->reflectionClass->getName()));
+			$columns = $this->entity->getColumnNames();
+			
+			if (!array_key_exists($index->getName(), $columns)) {
+				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $index->getName(), $this->entity->getReflectionClass()->getName()));
 			}
 			
-			$property = $this->entity->columnNames[$index->getName()];
+			$property = $this->entity->getProperty($columns[$index->getName()])->getName();
 			
 			if (isset($type)) {
 				return $this->merge(['query.index' => $property . ':' . $type]);
@@ -420,11 +422,11 @@ class Manager {
 			return $this->merge(['query.group' => $group->getName()]);
 		}
 		elseif ($group instanceof Column) {
-			if (!in_array($group->getName(), $this->entity->fieldNames)) {
-				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $group->getName(), $this->entity->reflectionClass->getName()));
+			if (!in_array($group->getName(), $this->entity->getPropertyNames())) {
+				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $group->getName(), $this->entity->getReflectionClass()->getName()));
 			}
 			
-			$property = $this->entity->columnNames[$group->getName()];
+			$property = $this->entity->getColumnNames()[$group->getName()];
 				
 			if (isset($type)) {
 				return $this->merge(['query.group' => $property . ':' . $type]);

@@ -15,7 +15,7 @@ trait EntityMapper {
 	 * @return string
 	 */
 	protected function buildExpression(ClassProfile $entity) {
-		return 'obj:' . $entity->reflectionClass->getName();
+		return 'obj:' . $entity->getReflectionClass()->getName();
 	}
 	
 	/**
@@ -26,7 +26,7 @@ trait EntityMapper {
 	 * @return string
 	 */
 	protected function buildListExpression(ClassProfile $entity, $index = null, $group = null) {
-		$expr = 'obj:' . $entity->reflectionClass->getName();
+		$expr = 'obj:' . $entity->getReflectionClass()->getName();
 		
 		if (isset($group)) {
 			$expr .= '<' . $group . '>';	

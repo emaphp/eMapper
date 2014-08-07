@@ -179,16 +179,18 @@ abstract class DynamicAttribute extends PropertyProfile {
 		
 		return true;
 	}
+
+	/**
+	 * Parse additional metadata in a property
+	 * @param AnnotationsBag $annotations
+	 */
+	protected abstract function parseMetadata(AnnotationsBag $annotations);
 	
 	/**
-	 * Updates configuration values before evaluation
-	 * @param array $config
+	 * Evaluates the current attribute
+	 * @param mixed $row
+	 * @param Mapper $mapper
 	 */
-	protected function updateConfig($config) {
-		$this->config['depth.current'] = $config['depth.current'] + 1;
-	}
-	
-	protected abstract function parseMetadata(AnnotationsBag $annotations);
 	public abstract function evaluate($row, $mapper);
 }
 

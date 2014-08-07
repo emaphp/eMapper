@@ -20,7 +20,7 @@ class PostgreSQLResultIterator extends ResultIterator {
 		return pg_num_rows($this->result);
 	}
 	
-	public function columnTypes($resultType = ArrayType::ASSOC) {
+	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		$num_fields = pg_num_fields($this->result);
 		$types = [];
 		

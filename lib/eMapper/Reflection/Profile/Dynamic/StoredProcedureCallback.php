@@ -40,10 +40,9 @@ class StoredProcedureCallback extends DynamicAttribute {
 				$type = $arg->getType();
 				
 				if (is_null($type)) {
-					if (isset($profile->propertiesConfig[$name]->type)) {
-						$type = $profile->propertiesConfig[$name]->type;
-					}
-					else {
+					$type = $profile->getProperty($name)->getType();
+					
+					if (!isset($type)) {
 						$type = strtolower(gettype($value));
 					}
 				}
@@ -59,14 +58,6 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return $args;
 	}
 	
-	protected function updateConfig($config, $proc_types) {
-		$this->config['depth.current'] = $config['depth.current'] + 1;
-		
-		if (!array_key_exists('proc.types', $this->config)) {
-			$this->config['proc.types'] = $proc_types;
-		}
-	}
-	
 	public function evaluate($row, $mapper) {
 		//evaluate condition
 		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
@@ -76,10 +67,8 @@ class StoredProcedureCallback extends DynamicAttribute {
 		//build argument list
 		$proc_types = [];
 		$args = $this->evaluateArgs($row, $proc_types);
-		
-		//apply configuration
-		$this->updateConfig($mapper->getConfig(), $proc_types);
-		
+		$this->config['proc.types'] = $proc_types;
+				
 		//call stored procedure
 		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);
 	}

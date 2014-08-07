@@ -4,8 +4,8 @@ namespace eMapper\PostgreSQL\Result\ObjectMapper;
 use eMapper\PostgreSQL\PostgreSQLTest;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
+use eMapper\Result\Mapper\EntityMapper;
 
 /**
  * Test ObjectTypeMapper class mapping to entities
@@ -23,7 +23,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testRow() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products WHERE product_id = 1");
 		$product = $mapper->mapResult(new PostgreSQLResultIterator($result));
 	
@@ -44,7 +44,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result));
 	
@@ -75,7 +75,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'id');
 	
@@ -106,7 +106,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'id', 'string');
 	
@@ -137,7 +137,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'category');
 	
@@ -197,7 +197,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), null, null, 'category');
 	
@@ -301,7 +301,7 @@ class EntityTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'id', null, 'category');
 	

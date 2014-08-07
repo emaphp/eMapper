@@ -2,12 +2,12 @@
 namespace eMapper\PostgreSQL\Result\ObjectMapper;
 
 use eMapper\PostgreSQL\PostgreSQLTest;
-use eMapper\Result\Mapper\ObjectTypeMapper;
+use eMapper\Result\Mapper\ObjectMapper;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
 
 /**
- * Test the ObjectTypeMapper class with different results
+ * Test the ObjectMapper class with different results
  *
  * @author emaphp
  * @group result
@@ -15,7 +15,7 @@ use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
  */
 class ObjectMapperTest extends PostgreSQLTest {
 	public function testRow() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\GenericUser');
 		$result = pg_query(self::$conn, "SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new PostgreSQLResultIterator($result));
 	
@@ -40,7 +40,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\GenericUser');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result));
 	
@@ -74,7 +74,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\GenericUser');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'user_id');
 	
@@ -109,7 +109,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'category');
 	
@@ -139,7 +139,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\GenericUser');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\GenericUser');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'user_id', 'string');
 	
@@ -174,7 +174,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), null, null, 'category');
 	
@@ -223,7 +223,7 @@ class ObjectMapperTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper(new PostgreSQLTypeManager(), null, 'Acme\Generic\Product');
+		$mapper = new ObjectMapper(new PostgreSQLTypeManager(), 'Acme\Generic\Product');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'product_id', null, 'category');
 	

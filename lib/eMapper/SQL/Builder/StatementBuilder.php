@@ -57,7 +57,7 @@ abstract class StatementBuilder {
 	 * @return string
 	 */
 	protected function getExpression($property, $argn = 0) {
-		$type = $this->entity->getFieldType($property);
+		$type = $this->entity->getProperty($property)->getType();
 		return isset($type) ? ('%{' . "$argn:$type" . '}') : ('%{' . $argn . '}') ;
 	}
 	

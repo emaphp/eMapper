@@ -23,6 +23,7 @@ interface CacheProvider {
 	/**
 	 * Obtains a value from cache
 	 * @param string $id
+	 * @return mixed
 	 */
 	public function fetch($id);
 	

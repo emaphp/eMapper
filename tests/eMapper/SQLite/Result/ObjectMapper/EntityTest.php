@@ -4,8 +4,8 @@ namespace eMapper\SQLite\Result\ObjectMapper;
 use eMapper\SQLite\SQLiteTest;
 use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
+use eMapper\Result\Mapper\EntityMapper;
 
 /**
  * Tests ObjectTypeMapper mapping to entity classes
@@ -24,7 +24,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testRow() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
 		$product = $mapper->mapResult(new SQLiteResultIterator($result));
 	
@@ -45,7 +45,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result));
 	
@@ -76,7 +76,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id');
 	
@@ -107,7 +107,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', 'string');
 	
@@ -138,7 +138,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
 	
@@ -198,7 +198,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
 	
@@ -302,7 +302,7 @@ class EntityTest extends SQLiteTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Entity\Product', 'Acme\Entity\Product');
+		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', null, 'category');
 	

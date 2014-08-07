@@ -4,12 +4,12 @@ namespace eMapper\PostgreSQL\Result\ArrayMapper;
 use eMapper\PostgreSQL\PostgreSQLTest;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
-use eMapper\Result\Mapper\ArrayTypeMapper;
+use eMapper\Result\Mapper\ArrayMapper;
 use eMapper\Result\ArrayType;
 use Acme\Type\RGBColorTypeHandler;
 
 /**
- * Test ArrayTypeMapper class with various results
+ * Test ArrayMapper class with various results
  *
  * @author emaphp
  * @group postgre
@@ -27,7 +27,7 @@ class ResultMapTest extends PostgreSQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testArrayTypeError() {
-		$mapper = new ArrayTypeMapper(new PostgreSQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new PostgreSQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new PostgreSQLResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
@@ -37,7 +37,7 @@ class ResultMapTest extends PostgreSQLTest {
 	 * Obtains a row with all fields declared through a result map
 	 */
 	public function testResultMapRow() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new PostgreSQLResultIterator($result));
 		$this->assertInternalType('array', $user);
@@ -65,7 +65,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result));
 	
@@ -93,7 +93,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'name');
 	
@@ -125,7 +125,7 @@ class ResultMapTest extends PostgreSQLTest {
 	 * Test setting a custom index to a list using a result map
 	 */
 	public function testCustomIndexResultMapList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'user_id', 'string');
 	
@@ -153,7 +153,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testIndexOverrideList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'category');
 	
@@ -187,7 +187,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), null, null, 'category');
 		
@@ -235,7 +235,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ArrayTypeMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'code', null, 'category');
 	

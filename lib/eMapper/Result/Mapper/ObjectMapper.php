@@ -12,18 +12,19 @@ use eMapper\Reflection\Profile\ClassProfile;
  */
 class ObjectMapper extends ComplexMapper {
 	/**
-	 * Default conversion class
-	 * @var ClassProfile
+	 * Class name
+	 * @var string
 	 */
 	protected $defaultClass;
-		
+	
 	/**
 	 * ObjectMapper constructor
 	 * @param TypeManager $typeManager
 	 * @param string $defaultClass
 	 */
 	public function __construct(TypeManager $typeManager, $defaultClass) {
-		parent::__construct($typeManager, $defaultClass);
+		parent::__construct($typeManager, null);
+		$this->defaultClass = $defaultClass;
 	}
 	
 	protected function map($row) {
@@ -36,7 +37,7 @@ class ObjectMapper extends ComplexMapper {
 			
 			//set value
 			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
-			$reflectionProperty->setValue($value, $instance);
+			$reflectionProperty->setValue($instance, $value);
 		}
 		
 		return $instance;
@@ -54,7 +55,7 @@ class ObjectMapper extends ComplexMapper {
 		}
 	
 		//get result column types
-		$this->columnTypes = $result->columnTypes();
+		$this->columnTypes = $result->getColumnTypes();
 		
 		//build type handler list
 		if (isset($this->resultMap)) {
@@ -82,7 +83,7 @@ class ObjectMapper extends ComplexMapper {
 		}
 	
 		//get result column types
-		$this->columnTypes = $result->columnTypes();
+		$this->columnTypes = $result->getColumnTypes();
 	
 		//build type handler list
 		if (isset($this->resultMap)) {
@@ -277,15 +278,25 @@ class ObjectMapper extends ComplexMapper {
 		return $list;
 	}
 	
-	public function relate(&$row, $mapper) {
+	public function evaluateFirstOrderAttributes(&$row, $mapper) {
 		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
-			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $instance);
+			$reflectionProperty = $this->properties[$name]->getReflectionProperty();
+			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
 		}
-		
-		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $this->properties[$property]->getReflectionProperty();
-			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $instance);
+	}
+	
+	public function evaluateSecondOrderAttributes(&$row, $mapper) {
+		if ($mapper->getOption('depth.current') < $mapper->getOption('depth.limit')) {
+			foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+				$reflectionProperty = $this->properties[$name]->getReflectionProperty();
+				$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
+			}
+		}
+		else {
+			foreach (array_keys($this->resultMap->getSecondOrderAttributes()) as $name) {
+				$reflectionProperty = $this->properties[$name]->getReflectionProperty();
+				$reflectionProperty->setValue(null, $row);
+			}
 		}
 	}
 }

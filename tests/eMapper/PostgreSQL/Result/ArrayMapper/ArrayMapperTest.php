@@ -3,7 +3,7 @@ namespace eMapper\PostgreSQL\Result\ArrayMapper;
 
 use eMapper\PostgreSQL\PostgreSQLTest;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
-use eMapper\Result\Mapper\ArrayTypeMapper;
+use eMapper\Result\Mapper\ArrayMapper;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
 
 /**
@@ -17,7 +17,7 @@ class ArrayMapperTest extends PostgreSQLTest {
 	public $typeMapper;
 	
 	public function __construct() {
-		$this->typeMapper = new ArrayTypeMapper(new PostgreSQLTypeManager());
+		$this->typeMapper = new ArrayMapper(new PostgreSQLTypeManager());
 	}
 	
 	/**

@@ -2,19 +2,19 @@
 namespace eMapper\MySQL\Result\ObjectMapper;
 
 use eMapper\MySQL\MySQLTest;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
+use eMapper\Result\Mapper\StdClassMapper;
 
 /**
- * Test ObjectTypeMapper mapping to instances of stdClass
+ * Test StdClassMapper mapping to instances of stdClass
  * @author emaphp
  * @group mysql
  * @group result
  */
 class DefaultMapTest extends MySQLTest {
 	public function testRow() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new MySQLResultIterator($result));
 		
@@ -48,7 +48,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testNullColumnRow() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 4");
 		$product = $mapper->mapResult(new MySQLResultIterator($result));
 	
@@ -60,7 +60,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result));
 		
@@ -103,7 +103,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id');
 		
@@ -146,7 +146,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id', 'string');
 		
@@ -189,7 +189,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
@@ -253,7 +253,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testGroupedList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
@@ -337,7 +337,7 @@ class DefaultMapTest extends MySQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper(new MySQLTypeManager());
+		$mapper = new StdClassMapper(new MySQLTypeManager());
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'product_id', null, 'category');
 		

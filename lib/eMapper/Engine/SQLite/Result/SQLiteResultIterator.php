@@ -32,7 +32,7 @@ class SQLiteResultIterator extends ResultIterator {
 		return $this->numRows;
 	}
 	
-	public function columnTypes($resultType = ArrayType::ASSOC) {
+	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		$num_columns = $this->result->numColumns();
 		$types = array();
 		

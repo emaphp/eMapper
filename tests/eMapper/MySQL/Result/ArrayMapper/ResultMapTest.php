@@ -2,14 +2,14 @@
 namespace eMapper\MySQL\Result\ArrayMapper;
 
 use eMapper\MySQL\MySQLTest;
-use eMapper\Result\Mapper\ArrayTypeMapper;
+use eMapper\Result\Mapper\ArrayMapper;
 use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 use Acme\Type\RGBColorTypeHandler;
 use eMapper\Result\ArrayType;
 use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 
 /**
- * Test ArrayTypeMapper class with various results
+ * Test ArrayMapper class with various results
  * 
  * @author emaphp
  * @group mysql
@@ -20,7 +20,7 @@ class ResultMapTest extends MySQLTest {
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testArrayTypeError() {
-		$mapper = new ArrayTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new MySQLResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
@@ -30,7 +30,7 @@ class ResultMapTest extends MySQLTest {
 	 * Obtains a row with all fields declared through a result map
 	 */
 	public function testResultMapRow() {
-		$mapper = new ArrayTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new MySQLResultIterator($result));
 		$this->assertInternalType('array', $user);
@@ -58,7 +58,7 @@ class ResultMapTest extends MySQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ArrayTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result));
 		
@@ -86,7 +86,7 @@ class ResultMapTest extends MySQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ArrayTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result), 'name');
 	
@@ -118,7 +118,7 @@ class ResultMapTest extends MySQLTest {
 	 * Test setting a custom index to a list using a result map
 	 */
 	public function testCustomIndexResultMapList() {
-		$mapper = new ArrayTypeMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
+		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new MySQLResultIterator($result), 'user_id', 'string');
 		
@@ -148,7 +148,7 @@ class ResultMapTest extends MySQLTest {
 	public function testIndexOverrideList() {
 		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
-		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'category');
 		
@@ -184,7 +184,7 @@ class ResultMapTest extends MySQLTest {
 	public function testGroupedList() {
 		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
-		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), null, null, 'category');
 		
@@ -234,7 +234,7 @@ class ResultMapTest extends MySQLTest {
 	public function testGroupedIndexedList() {
 		$typeManager = new MySQLTypeManager();
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
-		$mapper = new ArrayTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new ArrayMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new MySQLResultIterator($result), 'code', null, 'category');
 		

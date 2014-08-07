@@ -12,8 +12,6 @@ use eMapper\Annotations\Facade;
  * @author emaphp
  */
 class ClassProfile {
-	const SCALAR_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)@';
-	
 	/**
 	 * Reflection class
 	 * @var \ReflectionClass
@@ -30,31 +28,31 @@ class ClassProfile {
 	 * Property profiles
 	 * @var array
 	 */
-	private $properties;
+	private $properties = [];
 	
 	/**
 	 * Property names as an associative array PROPERTY => COLUMN 
 	 * @var array
 	 */
-	private $propertyNames;
+	private $propertyNames = [];
 	
 	/**
 	 * Column names as an associative array COLUMN => PROPERTY
 	 * @var array
 	 */
-	private $columnNames;
+	private $columnNames = [];
 	
 	/**
 	 * First order attributes: Macros and Scalars
 	 * @var array
 	 */
-	private $firstOrderAttributes;
+	private $firstOrderAttributes = [];
 	
 	/**
 	 * Second order attributes: Queries, Statements, Procedure calls
 	 * @var array
 	 */
-	private $secondOrderAttributes;
+	private $secondOrderAttributes = [];
 	
 	/**
 	 * Primary key property
@@ -77,7 +75,7 @@ class ClassProfile {
 			//get property annotations
 			$annotations = Facade::getAnnotations($reflectionProperty);
 			
-			if ($annotations->has('Scalar') || ($annotations->has('Type') && preg_match(self::SCALAR_TYPE_REGEX, $annotations->get('Type')))) {
+			if ($annotations->has('Scalar')) {
 				$isScalar = true;
 			}
 			
@@ -128,19 +126,7 @@ class ClassProfile {
 			}
 		}
 		
-		$this->fieldNames = [];
-		
-		//build field list
-		foreach ($this->propertiesConfig as $name => $property) {
-			if (isset($property->column)) {
-				$this->fieldNames[$name] = $property->column;
-			}
-			else {
-				$this->fieldNames[$name] = $name;
-			}
-		}
-		
-		$this->columnNames = array_flip($this->fieldNames);
+		$this->columnNames = array_flip($this->propertyNames);
 	}
 	
 	/**

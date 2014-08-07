@@ -4,7 +4,7 @@ namespace eMapper\PostgreSQL\Result\ObjectMapper;
 use eMapper\PostgreSQL\PostgreSQLTest;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
-use eMapper\Result\Mapper\ObjectTypeMapper;
+use eMapper\Result\Mapper\StdClassMapper;
 
 /**
  * Test ObjectTypeMapper mapping to instances of stdClass
@@ -16,7 +16,7 @@ class DefaultMapTest extends PostgreSQLTest {
 	public $typeMapper;
 	
 	public function __construct() {
-		$this->typeMapper = new ObjectTypeMapper(new PostgreSQLTypeManager());
+		$this->typeMapper = new StdClassMapper(new PostgreSQLTypeManager());
 	}
 	
 	public function testRow() {

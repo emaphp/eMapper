@@ -4,11 +4,11 @@ namespace eMapper\PostgreSQL\Result\ObjectMapper;
 use eMapper\PostgreSQL\PostgreSQLTest;
 use eMapper\Engine\PostgreSQL\Type\PostgreSQLTypeManager;
 use Acme\Type\RGBColorTypeHandler;
-use eMapper\Result\Mapper\ObjectTypeMapper;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
+use eMapper\Result\Mapper\StdClassMapper;
 
 /**
- * Test ObjectTypeMapper class with different types of results using a result map
+ * Test StdClassMapper class with different types of results using a result map
  * @author emaphp
  * @group result
  * @group postgre
@@ -22,7 +22,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testRow() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users WHERE user_id = 1");
 		$user = $mapper->mapResult(new PostgreSQLResultIterator($result));
 	
@@ -44,7 +44,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result));
 	
@@ -75,7 +75,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'user_id');
 	
@@ -106,7 +106,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Result\UserResultMap');
+		$mapper = new StdClassMapper($this->typeManager, 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users ORDER BY user_id ASC");
 		$users = $mapper->mapList(new PostgreSQLResultIterator($result), 'user_id', 's');
 	
@@ -140,7 +140,7 @@ class ResultMapTest extends PostgreSQLTest {
 		$typeManager = $this->typeManager;
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'category');
 	
@@ -173,7 +173,7 @@ class ResultMapTest extends PostgreSQLTest {
 		$typeManager = $this->typeManager;
 		$typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	
-		$mapper = new ObjectTypeMapper($typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), null, null, 'category');
 	
@@ -226,7 +226,7 @@ class ResultMapTest extends PostgreSQLTest {
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new ObjectTypeMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
+		$mapper = new StdClassMapper($this->typeManager, 'Acme\Result\GenericProductResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
 		$products = $mapper->mapList(new PostgreSQLResultIterator($result), 'code', null, 'category');
 	

@@ -4,6 +4,7 @@ namespace eMapper\Query\Predicate;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
+use eMapper\Query\Attr;
 
 /**
  * A SQLPredicate class encapsulates the generic behaviour defined for query conditional clauses.
@@ -64,7 +65,12 @@ abstract class SQLPredicate {
 			return $this->field->getType();
 		}
 		
-		return $profile->getFieldType($this->field->getName());
+		if ($this->field instanceof Attr) {
+			$property = $profile->getProperty($this->field->getName());
+			return $property->getType();
+		}
+		
+		return null;
 	}
 	
 	/**
