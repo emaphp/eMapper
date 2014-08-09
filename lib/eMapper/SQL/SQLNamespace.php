@@ -26,15 +26,15 @@ class SQLNamespace {
 	 * Namespace ID
 	 * @var string
 	 */
-	public $id;
+	protected $id;
 	
 	public function __construct($id) {
 		$this->validateNamespaceId($id);
 		$this->id = $id;
 	}
 	
-	public static function create($id) {
-		return new SQLNamespace($id);
+	public function getId() {
+		return $this->id;
 	}
 }
 ?>

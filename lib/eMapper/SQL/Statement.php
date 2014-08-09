@@ -21,19 +21,19 @@ class Statement {
 	 * Statement ID
 	 * @var string
 	 */
-	public $id;
+	protected $id;
 	
 	/**
 	 * Statement query
 	 * @var string
 	 */
-	public $query;
+	protected $query;
 	
 	/**
 	 * Statement options
 	 * @var StatementConfigurationContainer
 	 */
-	public $options;
+	protected $options;
 	
 	/**
 	 * Creates a new Statement instance

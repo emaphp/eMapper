@@ -74,7 +74,7 @@ class Manager {
 	 * Obtains current query mapping expression
 	 * @return string
 	 */
-	protected function getMappingExpression() {
+	protected function getListMappingExpression() {
 		$group = array_key_exists('query.group', $this->config) ? $this->config['query.group'] : null;
 		$index = array_key_exists('query.index', $this->config) ? $this->config['query.index'] : null;
 		return $this->buildListExpression($this->entity, $index, $group);
@@ -137,7 +137,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->getMappingExpression()]);
+		$options = $this->clean_options(['map.type' => $this->getListMappingExpression()]);
 		return $this->mapper->merge($options)->query($query, $args);
 	}
 	
@@ -379,6 +379,7 @@ class Manager {
 	 */
 	public function index(Field $index) {
 		if ($index instanceof Attr) {
+			//get custom type (if any)
 			$type = $index->getType();
 			
 			if (isset($type)) {
@@ -388,13 +389,18 @@ class Manager {
 			return $this->merge(['query.index' => $index->getName()]);
 		}
 		elseif ($index instanceof Column) {
+			//check if the column is associated to a property
 			$columns = $this->entity->getColumnNames();
 			
 			if (!array_key_exists($index->getName(), $columns)) {
 				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $index->getName(), $this->entity->getReflectionClass()->getName()));
 			}
 			
-			$property = $this->entity->getProperty($columns[$index->getName()])->getName();
+			//get property name
+			$property = $columns[$index->getName()];
+			
+			//obtain custom type
+			$type = $index->getType();
 			
 			if (isset($type)) {
 				return $this->merge(['query.index' => $property . ':' . $type]);
@@ -413,6 +419,7 @@ class Manager {
 	 */
 	public function group(Field $group) {
 		if ($group instanceof Attr) {
+			//get custom type (if any)
 			$type = $group->getType();
 				
 			if (isset($type)) {
@@ -422,12 +429,16 @@ class Manager {
 			return $this->merge(['query.group' => $group->getName()]);
 		}
 		elseif ($group instanceof Column) {
-			if (!in_array($group->getName(), $this->entity->getPropertyNames())) {
+			//check if the column is associated to a property
+			$columns = $this->entity->getColumnNames();
+				
+			if (!array_key_exists($group->getName(), $columns)) {
 				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $group->getName(), $this->entity->getReflectionClass()->getName()));
 			}
 			
-			$property = $this->entity->getColumnNames()[$group->getName()];
-				
+			$property = $columns[$group->getName()];
+			$type = $group->getType();
+			
 			if (isset($type)) {
 				return $this->merge(['query.group' => $property . ':' . $type]);
 			}

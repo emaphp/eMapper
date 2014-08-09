@@ -527,6 +527,9 @@ class Mapper {
 		 * DYNAMIC ATTRIBUTES
 		 */
 		if (isset($resultMap)) {
+			//check relation limit
+			$evaluateSecondOrder = $this->config['depth.limit'] > $this->config['depth.current'];
+			
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 				if ($mapper->hasGroupKeys()) {
 					foreach ($mapper->getGroupKeys() as $key) {
@@ -534,7 +537,7 @@ class Mapper {
 			
 						for ($i = 0, $n = count($indexes); $i < $n; $i++) {
 							$mapper->evaluateFirstOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__copy());
-							$mapper->evaluateSecondOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__increment());
+							if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__increment());
 						}
 					}
 				}
@@ -543,13 +546,13 @@ class Mapper {
 						
 					foreach ($keys as $k) {
 						$mapper->evaluateFirstOrderAttributes($mapped_result[$k], $this->__copy());
-						$mapper->evaluateSecondOrderAttributes($mapped_result[$k], $this->__increment());
+						if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result[$k], $this->__increment());
 					}
 				}
 			}
 			elseif (!is_null($mapped_result)) {
 				$mapper->evaluateFirstOrderAttributes($mapped_result, $this->__copy());
-				$mapper->evaluateSecondOrderAttributes($mapped_result, $this->__increment());
+				if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result, $this->__increment());
 			}
 		}
 		

@@ -3,7 +3,7 @@ namespace eMapper\Cache\Value;
 
 /**
  * The CacheValue class is a value wrapper and its purpose is to define the structure of any value
- * that is stored in cache.
+ * that is stored in cache along with the data used for mapping.
  * @author emaphp
  */
 class CacheValue {
@@ -32,7 +32,7 @@ class CacheValue {
 	protected $groupKeys;
 	
 	/**
-	 * Maping method
+	 * Mapping method
 	 * @var string
 	 */
 	protected $method;
@@ -45,26 +45,51 @@ class CacheValue {
 		$this->groupKeys = $groupKeys;
 	}
 	
+	/**
+	 * Obtains wrapped data
+	 * @return mixed
+	 */
 	public function getData() {
 		return $this->data;
 	}
 	
+	/**
+	 * Obtains mapping class name
+	 * @return string
+	 */
 	public function getClass() {
 		return $this->class;
 	}
 	
+	/**
+	 * Obtains mapping class additional argument
+	 * @return mixed
+	 */
 	public function getArgument() {
 		return $this->argument;
 	}
 	
+	/**
+	 * Obtains the method used for mapping
+	 * @return string
+	 */
 	public function getMethod() {
 		return $this->method;
 	}
 	
+	/**
+	 * Obtains generated group names for this result
+	 * @return array
+	 */
 	public function getGroupKeys() {
 		return $this->groupKeys;
 	}
 	
+	/**
+	 * Generates a mapping callback for the stored data
+	 * @param TypeManager $typeManager
+	 * @return array
+	 */
 	public function buildMappingCallback($typeManager) {
 		$rc = new \ReflectionClass($this->class);
 		

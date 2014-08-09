@@ -15,7 +15,7 @@ class ConfigurationGet implements Applicable {
 	 * Configuration option
 	 * @var string
 	 */
-	public $option;
+	protected $option;
 	
 	public function __construct($option = null) {
 		$this->option = $option;

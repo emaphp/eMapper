@@ -50,6 +50,10 @@ abstract class Field {
 	 */
 	public abstract function getColumnName(ClassProfile $profile);
 	
+	/**
+	 * Obtains field's name
+	 * @return string
+	 */
 	public function getName() {
 		return $this->name;
 	}

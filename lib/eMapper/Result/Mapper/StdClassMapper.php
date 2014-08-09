@@ -35,15 +35,8 @@ class StdClassMapper extends ObjectMapper {
 	}
 	
 	public function evaluateSecondOrderAttributes(&$row, $mapper) {
-		if ($mapper->getOption('depth.current') < $mapper->getOption('depth.limit')) {
-			foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-				$row->$name = $attribute->evaluate($row, $mapper);
-			}
-		}
-		else {
-			foreach (array_keys($this->resultMap->getSecondOrderAttributes()) as $name) {
-				$row->$name = null;
-			}
+		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+			$row->$name = $attribute->evaluate($row, $mapper);
 		}
 	}
 }

@@ -30,16 +30,16 @@ class TypeManager {
 	protected $aliases;
 	
 	public function __construct() {
-		$this->typeHandlers = ['string' => new StringTypeHandler(),
-							   'boolean' => new BooleanTypeHandler(),
-							   'integer' => new IntegerTypeHandler(),
-							   'float' => new FloatTypeHandler(),
-							   'blob' => new BlobTypeHandler(),
+		$this->typeHandlers = ['string'   => new StringTypeHandler(),
+							   'boolean'  => new BooleanTypeHandler(),
+							   'integer'  => new IntegerTypeHandler(),
+							   'float'    => new FloatTypeHandler(),
+							   'blob'     => new BlobTypeHandler(),
 							   'DateTime' => new DatetimeTypeHandler(),
-							   'date' => new DateTypeHandler(),
-							   'sstring' => new SafeStringTypeHandler(),
-							   'json' => new JSONTypeHandler(),
-							   'null' => new NullTypeHandler()];
+							   'date'     => new DateTypeHandler(),
+							   'sstring'  => new SafeStringTypeHandler(),
+							   'json'     => new JSONTypeHandler(),
+							   'null'     => new NullTypeHandler()];
 		
 		$this->aliases = ['ss' => 'sstring', 'sstr' => 'sstring',
 						  's' => 'string', 'str' => 'string',

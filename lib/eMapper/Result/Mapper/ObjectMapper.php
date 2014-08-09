@@ -286,17 +286,9 @@ class ObjectMapper extends ComplexMapper {
 	}
 	
 	public function evaluateSecondOrderAttributes(&$row, $mapper) {
-		if ($mapper->getOption('depth.current') < $mapper->getOption('depth.limit')) {
-			foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-				$reflectionProperty = $this->properties[$name]->getReflectionProperty();
-				$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
-			}
-		}
-		else {
-			foreach (array_keys($this->resultMap->getSecondOrderAttributes()) as $name) {
-				$reflectionProperty = $this->properties[$name]->getReflectionProperty();
-				$reflectionProperty->setValue(null, $row);
-			}
+		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
+			$reflectionProperty = $this->properties[$name]->getReflectionProperty();
+			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
 		}
 	}
 }
