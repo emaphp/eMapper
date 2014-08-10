@@ -23,14 +23,12 @@ class ResultMapTest extends PostgreSQLTest {
 		$this->typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
 	}
 	
-	/**
-	 * @expectedException UnexpectedValueException
-	 */
 	public function testArrayTypeError() {
 		$mapper = new ArrayMapper(new PostgreSQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = pg_query(self::$conn, "SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new PostgreSQLResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
+		$this->assertEmpty($user);
 	}
 	
 	/**

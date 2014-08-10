@@ -15,14 +15,12 @@ use eMapper\Result\ArrayType;
  * @group result
  */
 class ResultMapTest extends SQLiteTest {
-	/**
-	 * @expectedException UnexpectedValueException
-	 */
 	public function testArrayTypeError() {
 		$mapper = new ArrayMapper(new SQLiteTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new SQLiteResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
+		$this->assertEmpty($user);
 	}
 	
 	/**

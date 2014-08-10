@@ -21,6 +21,7 @@ class ResultMapTest extends MySQLTest {
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");
 		$user = $mapper->mapResult(new MySQLResultIterator($result), ArrayType::NUM);
 		$this->assertInternalType('array', $user);
+		$this->assertEmpty($user);
 	}
 	
 	/**
