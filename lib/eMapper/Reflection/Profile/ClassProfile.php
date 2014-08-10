@@ -68,7 +68,6 @@ class ClassProfile {
 		$this->classAnnotations = Facade::getAnnotations($this->reflectionClass);
 		
 		//get properties annotations
-		$this->propertiesConfig = $this->dynamicAttributes = [];
 		$propertyList = $this->reflectionClass->getProperties();
 		
 		foreach ($propertyList as $reflectionProperty) {

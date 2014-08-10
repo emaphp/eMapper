@@ -45,6 +45,7 @@ class Product {
 	 * @Parameter(category)
 	 * @Type float
 	 * @Option(proc.wrap) false
+	 * @Scalar
 	 */
 	public $avgPrice;
 }

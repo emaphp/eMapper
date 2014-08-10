@@ -280,15 +280,15 @@ class ObjectMapper extends ComplexMapper {
 	
 	public function evaluateFirstOrderAttributes(&$row, $mapper) {
 		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $this->properties[$name]->getReflectionProperty();
-			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
+			$reflectionProperty = $attribute->getReflectionProperty();
+			$reflectionProperty->setValue($row, $attribute->evaluate($row, $mapper));
 		}
 	}
 	
 	public function evaluateSecondOrderAttributes(&$row, $mapper) {
 		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $this->properties[$name]->getReflectionProperty();
-			$reflectionProperty->setValue($attribute->evaluate($row, $mapper), $row);
+			$reflectionProperty = $attribute->getReflectionProperty();
+			$reflectionProperty->setValue($row, $attribute->evaluate($row, $mapper));
 		}
 	}
 }
