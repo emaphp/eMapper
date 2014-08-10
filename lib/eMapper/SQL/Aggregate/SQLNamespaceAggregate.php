@@ -51,7 +51,7 @@ trait SQLNamespaceAggregate {
 	 * @param StatementNamespace $ns
 	 */
 	public function addNamespace(SQLNamespace $ns) {
-		$this->namespaces[$ns->id] = $ns;
+		$this->namespaces[$ns->getId()] = $ns;
 	}
 	
 	/**
@@ -94,7 +94,7 @@ trait SQLNamespaceAggregate {
 	 * @param Statement $stmt
 	 */
 	public function addStatement(Statement $stmt) {
-		$this->statements[$stmt->id] = $stmt;
+		$this->statements[$stmt->getId()] = $stmt;
 	}
 	
 	/**

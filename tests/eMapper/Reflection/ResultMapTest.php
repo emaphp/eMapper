@@ -12,31 +12,31 @@ use eMapper\Annotations\Facade;
  */
 class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	public function testTypeHandlerAnnotations() {
-		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->classAnnotations;
+		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->getClassAnnotations();
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("eMapper\Annotations\AnnotationsBag", $profile);
 		$this->assertTrue($profile->has('Safe'));
 	}
 	
 	public function testResultMapProfile() {		
-		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->classAnnotations;
+		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getClassAnnotations();
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("eMapper\Annotations\AnnotationsBag", $profile);
 		
-		$properties = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->propertiesConfig;
+		$properties = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getProperties();
 		
 		$this->assertArrayHasKey('user_id', $properties);
-		$annotations = Facade::getAnnotations($properties['user_id']->reflectionProperty);
+		$annotations = Facade::getAnnotations($properties['user_id']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('integer', $annotations->get('Type')->getValue());
 		
 		$this->assertArrayHasKey('name', $properties);
-		$annotations = Facade::getAnnotations($properties['name']->reflectionProperty);
+		$annotations = Facade::getAnnotations($properties['name']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Column'));
 		$this->assertEquals('user_name', $annotations->get('Column')->getValue());
 		
 		$this->assertArrayHasKey('lastLogin', $properties);
-		$annotations = Facade::getAnnotations($properties['lastLogin']->reflectionProperty);
+		$annotations = Facade::getAnnotations($properties['lastLogin']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('string', $annotations->get('Type')->getValue());
 		$this->assertTrue($annotations->has('Column'));
@@ -44,53 +44,54 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testEntityAnnotations() {
-		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->classAnnotations;
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->getClassAnnotations();
 		$this->assertTrue($profile->has('Entity'));
 		
-		$properties = Profiler::getClassProfile('Acme\\Entity\\Product')->propertiesConfig;
+		$properties = Profiler::getClassProfile('Acme\\Entity\\Product')->getProperties();
 		
 		$this->assertArrayHasKey('code', $properties);
 		$this->assertArrayHasKey('category', $properties);
 		$this->assertArrayHasKey('color', $properties);
 		
-		$annotations = Facade::getAnnotations($properties['code']->reflectionProperty);
+		$annotations = Facade::getAnnotations($properties['code']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Column'));
 		$this->assertEquals('product_code', $annotations->get('Column')->getValue());
 
-		$annotations = Facade::getAnnotations($properties['color']->reflectionProperty);
+		$annotations = Facade::getAnnotations($properties['color']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('Acme\\RGBColor', $annotations->get('Type')->getValue());
 	}
 	
 	public function testSubclass() {
-		$profile = Profiler::getClassProfile('Acme\\Entity\\Car')->classAnnotations;
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Car')->getClassAnnotations();
 		$this->assertFalse($profile->has('moves'));
 		$this->assertTrue($profile->has('color'));
 		$this->assertEquals('red', $profile->get('color')->getValue());
 		$this->assertTrue($profile->has('speed'));
 		$this->assertEquals('fast', $profile->get('speed')->getValue());
 		
-		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->propertiesConfig['capacity']->reflectionProperty);
+		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('capacity')->getReflectionProperty());
 		$this->assertTrue($properties->has('full'));
 		$this->assertEquals(4, $properties->get('full')->getValue());
 		$this->assertFalse($properties->has('measure'));
 
-		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->propertiesConfig['engine']->reflectionProperty);
+		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('engine')->getReflectionProperty());
 		$this->assertTrue($properties->has('requires'));
 		$this->assertEquals('fuel', $properties->get('requires')->getValue());
 	}
 	
 	public function testRelationAnnotations() {
-		$properties = Profiler::getClassProfile('Acme\Reflection\User')->dynamicAttributes;
+		$firstOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getFirstOrderAttributes();
+		$secondOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getSecondOrderAttributes();
 		
 		//full name
-		$fullName = Facade::getAnnotations($properties['fullName']->reflectionProperty);
+		$fullName = Facade::getAnnotations($firstOrderAttributes['fullName']->getReflectionProperty());
 		$this->assertTrue($fullName->has('Eval'));
 		$this->assertInternalType('string', $fullName->get('Eval')->getValue());
 		$this->assertEquals("(. (#surname) ', ' (#name))", $fullName->get('Eval')->getValue());
 		
 		//profiles
-		$profiles = Facade::getAnnotations($properties['profiles']->reflectionProperty);
+		$profiles = Facade::getAnnotations($secondOrderAttributes['profiles']->getReflectionProperty());
 		$this->assertTrue($profiles->has('StatementId'));
 		$this->assertInternalType('string', $profiles->get('StatementId')->getValue());
 		$this->assertEquals("profiles.findByUserId", $profiles->get('StatementId')->getValue());
@@ -103,7 +104,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(3, $profiles->find('Parameter')[1]->getValue());
 		
 		//total profiles
-		$totalProfiles = Facade::getAnnotations($properties['totalProfiles']->reflectionProperty);
+		$totalProfiles = Facade::getAnnotations($firstOrderAttributes['totalProfiles']->getReflectionProperty());
 		$this->assertTrue($totalProfiles->has('Eval'));
 		$this->assertInternalType('string', $totalProfiles->get('Eval')->getValue());
 		$this->assertEquals('(+ (count (#profiles)) (%0))', $totalProfiles->get('Eval')->getValue());
@@ -112,7 +113,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType('integer', $totalProfiles->get('Parameter')->getValue());
 		
 		//last connection
-		$lastConnection = Facade::getAnnotations($properties['lastConnection']->reflectionProperty);
+		$lastConnection = Facade::getAnnotations($firstOrderAttributes['lastConnection']->getReflectionProperty());
 		$this->assertTrue($lastConnection->has('Query'));
 		$this->assertInternalType('string', $lastConnection->get('Query')->getValue());
 		$this->assertEquals("SELECT last_login FROM login WHERE user_id = %{i}", $lastConnection->get('Query')->getValue());
@@ -123,7 +124,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('dt', $lastConnection->get('Type')->getValue());
 		
 		//favorites
-		$favorites = Facade::getAnnotations($properties['favorites']->reflectionProperty);
+		$favorites = Facade::getAnnotations($secondOrderAttributes['favorites']->getReflectionProperty());
 		$this->assertTrue($favorites->has('Query'));
 		$this->assertInternalType('string', $favorites->get('Query')->getValue());
 		$this->assertEquals("SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}", $favorites->get('Query')->getValue());

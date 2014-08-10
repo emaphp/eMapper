@@ -192,8 +192,8 @@ class Manager {
 		}
 		
 		//get statement config
-		$query = $stmt->query;
-		$options = is_null($stmt->options) ? [] : $stmt->options->getConfig();
+		$query = $stmt->getQuery();
+		$options = is_null($stmt->getOptions()) ? [] : $stmt->getOptions()->getConfig();
 		
 		//add query to method parameters
 		array_unshift($args, $query);

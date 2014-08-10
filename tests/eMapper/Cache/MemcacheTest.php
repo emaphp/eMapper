@@ -54,7 +54,7 @@ class MemcacheTest extends \PHPUnit_Framework_TestCase {
 	public function testArray() {
 		$this->provider->delete('memcache_array');
 	
-		$arr = array('int' => 100, 'float' => 4.75, 'string' => 'string value', 4 => 'four');
+		$arr = ['int' => 100, 'float' => 4.75, 'string' => 'string value', 4 => 'four'];
 		$this->provider->store('memcache_array', $arr, 60);
 		$value = $this->provider->fetch('memcache_array');
 	

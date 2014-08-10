@@ -46,6 +46,7 @@ class User {
 	 * @Parameter(id)
 	 * @Type dt
 	 * @Option(map.result) Acme\Reflection\ConnectionResultMap
+	 * @Scalar
 	 */
 	public $lastConnection;
 	

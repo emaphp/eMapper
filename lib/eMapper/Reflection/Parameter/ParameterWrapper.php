@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Parameter;
 
-use eMapper\Reflection\Profile\Profiler;
+use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\ClassProfile;
 
 /**
@@ -84,10 +84,12 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	 */
 	public function getPropertyName($property) {
 		if (isset($this->parameterMap)) {
+			//obtain property
 			$propertyProfile = $this->parameterMap->getProperty($property);
 			
+			//if property does not exists return false
 			if ($propertyProfile === false) {
-				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->parameterMap->getReflectionClass()->getName()));
+				return false;
 			}
 			
 			return $propertyProfile->getProperty();

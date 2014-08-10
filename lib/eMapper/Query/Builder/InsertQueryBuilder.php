@@ -10,17 +10,17 @@ use eMapper\Engine\Generic\Driver;
 class InsertQueryBuilder extends QueryBuilder {
 	public function build(Driver $driver, $config = null) {
 		$table = '@@' . $this->entity->getReferredTable();
-		$fields = implode(', ', $this->entity->fieldNames);
+		$fields = implode(', ', $this->entity->getPropertyNames());
 		$values = [];
 		
-		foreach ($this->entity->columnNames as $column => $field) {
-			$type = $this->entity->getColumnType($column);
+		foreach ($this->entity->getColumnNames() as $property) {
+			$type = $this->entity->getProperty($property)->getType();
 			
 			if (isset($type)) {
-				$values[] = '#{' . $field . ':' . $type . '}';
+				$values[] = '#{' . $property . ':' . $type . '}';
 			}
 			else {
-				$values[] = '#{' . $field . '}';
+				$values[] = '#{' . $property . '}';
 			}
 		}
 		

@@ -75,9 +75,7 @@ class ClassProfile {
 			//get property annotations
 			$annotations = Facade::getAnnotations($reflectionProperty);
 			
-			if ($annotations->has('Scalar')) {
-				$isScalar = true;
-			}
+			$isScalar = $annotations->has('Scalar');
 			
 			//get property name for indexation
 			$propertyName = $reflectionProperty->getName();

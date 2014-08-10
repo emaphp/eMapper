@@ -181,14 +181,7 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	public function testNamespaceCreate0() {
 		$ns = new SQLNamespace('*');
 	}
-	
-	/**
-	 * @expectedException InvalidArgumentException
-	 */
-	public function testNamespaceCreate1() {
-		$ns = SQLNamespace::create('+');
-	}
-	
+		
 	public function testNamespaceCreate2() {
 		$ns = new SQLNamespace('main');
 		$this->assertFalse($ns->hasNamespace('ns1'));

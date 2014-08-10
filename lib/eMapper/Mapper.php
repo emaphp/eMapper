@@ -229,20 +229,25 @@ class Mapper {
 			if ($cacheProvider->exists($cache_key)) {
 				$cached_value = $cacheProvider->fetch($cache_key);
 				
-				//build mapping callback
-				$mapping_callback = $cached_value->buildMappingCallback($this->typeManager);
-				$mapper = $mapping_callback[0];
-				
-				if ($mapper instanceof ComplexMapper) {
-					$resultMap = $mapper->getResultMap();
+				if ($cached_value instanceof CacheValue) {
+					//build mapping callback
+					$mapping_callback = $cached_value->buildMappingCallback($this->typeManager);
+					$mapper = $mapping_callback[0];
 					
-					if (!is_null($resultMap)) {
-						$resultMap = get_class($resultMap);
+					if ($mapper instanceof ComplexMapper) {
+						$resultMap = $mapper->getResultMap();
+							
+						if (!is_null($resultMap)) {
+							$resultMap = get_class($resultMap);
+						}
 					}
+					
+					//get warpped value
+					$cached_value = $cached_value->getData();
 				}
-				
-				//get warpped value
-				$cached_value = $cached_value->getData();
+				else {
+					$cached_value = null;
+				}
 			}
 		}
 		

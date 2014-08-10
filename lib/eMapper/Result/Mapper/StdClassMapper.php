@@ -21,7 +21,7 @@ class StdClassMapper extends ObjectMapper {
 		else {
 			foreach ($this->availableColumns as $property => $column) {
 				$typeHandler = $this->typeHandlers[$property];
-				$result->$property = is_null($row[$column]) ? null : $typeHandler->getValue($row[$column]);
+				$result->$property = is_null($row->$column) ? null : $typeHandler->getValue($row->$column);
 			}
 		}
 	

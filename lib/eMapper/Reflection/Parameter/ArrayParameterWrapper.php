@@ -71,12 +71,15 @@ class ArrayParameterWrapper extends ParameterWrapper {
 	
 	public function offsetGet($offset) {
 		if (isset($this->parameterMap)) {
-			$key = $this->getPropertyName($offset);
-			return $this->value[$key];
+			$offset = $this->getPropertyName($offset);
+			
+			if ($offset === false) {
+				throw new \RuntimeException(sprintf("Offset '%s' does not exists", $offset));
+			}
 		}
 		
 		if (!array_key_exists($offset, $this->value)) {
-			throw new \UnexpectedValueException(sprintf("Offset '%s' does not exists"));
+			throw new \RuntimeException(sprintf("Offset '%s' does not exists", $offset));
 		}
 
 		return $this->value[$offset];
