@@ -18,12 +18,11 @@ class DynamicSQLTest extends AbstractDynamicSQLTest {
 	use SQLiteConfig;
 	
 	public function buildStatement() {
-		$this->statement = new SQLiteStatement(new \SQLite3($this->getFilename()), new SQLiteTypeManager());
+		$this->statement = $this->getStatement();
 	}
 	
 	public function buildMapper() {
-		$this->mapper = new Mapper(new SQLiteDriver($this->getFilename()));
-		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
+		$this->mapper = $this->getMapper();
 	}
 }
 ?>
