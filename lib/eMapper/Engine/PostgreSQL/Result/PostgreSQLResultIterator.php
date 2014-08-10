@@ -114,5 +114,9 @@ class PostgreSQLResultIterator extends ResultIterator {
 	public function fetchObject($className = null) {
 		return pg_fetch_object($this->result);
 	}
+	
+	public function free() {
+		pg_free_result($this->result);
+	}
 }
 ?>

@@ -70,5 +70,9 @@ class SQLiteResultIterator extends ResultIterator {
 		// TODO: Auto-generated method stub
 		return (object) $this->result->fetchArray(SQLITE3_ASSOC);
 	}
+	
+	public function free() {
+		$this->result->finalize();
+	}
 }
 ?>

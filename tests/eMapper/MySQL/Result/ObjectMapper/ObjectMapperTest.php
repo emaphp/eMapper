@@ -20,7 +20,7 @@ class ObjectMapperTest extends MySQLTest {
 		$user = $mapper->mapResult(new MySQLResultIterator($result));
 		
 		$this->assertInstanceOf('Acme\Generic\GenericUser', $user);
-		
+
 		$this->assertInternalType('integer', $user->user_id);
 		$this->assertEquals(1, $user->user_id);
 		

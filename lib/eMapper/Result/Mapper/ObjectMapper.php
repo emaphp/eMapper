@@ -25,11 +25,12 @@ class ObjectMapper extends ComplexMapper {
 	public function __construct(TypeManager $typeManager, $defaultClass) {
 		parent::__construct($typeManager, null);
 		$this->defaultClass = $defaultClass;
+		$this->properties = Profiler::getClassProfile($defaultClass)->getProperties();
 	}
 	
 	protected function map($row) {
 		$instance = new $this->defaultClass;
-		
+
 		foreach ($this->availableColumns as $property => $column) {
 			//get value
 			$typeHandler = $this->typeHandlers[$property];
@@ -58,7 +59,7 @@ class ObjectMapper extends ComplexMapper {
 		$this->columnTypes = $result->getColumnTypes();
 		
 		//build type handler list
-		if (isset($this->resultMap)) {
+		if ($this->defaultClass != 'stdClass' || !is_null($this->resultMap)) {
 			$this->buildTypeHandlerList();
 		}
 		
@@ -86,7 +87,7 @@ class ObjectMapper extends ComplexMapper {
 		$this->columnTypes = $result->getColumnTypes();
 	
 		//build type handler list
-		if (isset($this->resultMap)) {
+		if ($this->defaultClass != 'stdClass' || !is_null($this->resultMap)) {
 			$this->buildTypeHandlerList();
 		}
 		

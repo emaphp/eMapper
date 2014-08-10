@@ -16,9 +16,6 @@ use eMapper\Engine\MySQL\Type\MySQLTypeManager;
  * @group result
  */
 class ResultMapTest extends MySQLTest {
-	/**
-	 * @expectedException UnexpectedValueException
-	 */
 	public function testArrayTypeError() {
 		$mapper = new ArrayMapper(new MySQLTypeManager(), 'Acme\Result\UserResultMap');
 		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 3");

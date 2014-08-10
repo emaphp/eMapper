@@ -60,6 +60,11 @@ abstract class ResultIterator implements \Iterator {
 	public abstract function fetchObject();
 	
 	/**
+	 * Frees a result
+	 */
+	public abstract function free();
+	
+	/**
 	 * ITERATOR METHODS
 	 */
 	

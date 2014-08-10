@@ -96,5 +96,9 @@ class MySQLResultIterator extends ResultIterator {
 	public function fetchObject() {
 		return $this->result->fetch_object();
 	}
+	
+	public function free() {
+		$this->result->free();
+	}
 }
 ?>
