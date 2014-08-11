@@ -17,7 +17,7 @@ class CustomTypeTest extends SQLiteTest {
 	public $xmapper;
 	
 	public function __construct() {
-		parent::__construct();
+		parent::setUpBeforeClass();
 	
 		$driver = new SQLiteDriver(new \SQLite3(self::$filename));
 		$this->xmapper = new Mapper($driver);

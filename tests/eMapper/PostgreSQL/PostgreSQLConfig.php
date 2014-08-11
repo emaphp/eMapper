@@ -29,5 +29,11 @@ trait PostgreSQLConfig {
 		$conn = pg_connect($this->conn_string);
 		return new PostgreSQLStatement($conn, new PostgreSQLTypeManager());
 	}
+	
+	protected function getBlob() {
+		static $blob = null;
+		if (is_null($blob)) $blob = file_get_contents(__DIR__ . '/../avatar.gif');
+		return $blob;
+	}
 }
 ?>

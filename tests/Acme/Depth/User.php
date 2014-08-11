@@ -27,6 +27,7 @@ class User {
 	/**
 	 * @StatementId "totalBoughtProducts"
 	 * @Parameter(id)
+	 * @Scalar
 	 */
 	public $totalProducts;
 }

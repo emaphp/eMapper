@@ -30,5 +30,11 @@ trait SQLiteConfig {
 		$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
 		return $mapper;
 	}
+	
+	protected function getBlob() {
+		static $blob = null;
+		if (is_null($blob)) $blob = file_get_contents(__DIR__ . '/../avatar.gif');
+		return $blob;
+	}
 }
 ?>

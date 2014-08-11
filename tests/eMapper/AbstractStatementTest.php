@@ -1,7 +1,7 @@
 <?php
 namespace eMapper;
 
-class AbstractStatementTest extends \PHPUnit_Framework_TestCase {
+abstract class AbstractStatementTest extends \PHPUnit_Framework_TestCase {
 	protected $statement;
 	
 	public function setUp() {

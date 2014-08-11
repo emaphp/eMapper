@@ -29,5 +29,11 @@ trait MySQLConfig {
 		$conn = new \mysqli($this->config['host'], $this->config['user'], $this->config['password'], $this->config['database']);
 		return new MySQLStatement($conn, new MySQLTypeManager());
 	}
+	
+	protected function getBlob() {
+		static $blob = null;
+		if (is_null($blob)) $blob = file_get_contents(__DIR__ . '/../avatar.gif');
+		return $blob;
+	}
 }
 ?>
