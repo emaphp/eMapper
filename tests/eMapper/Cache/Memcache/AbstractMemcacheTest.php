@@ -1,15 +1,10 @@
 <?php
-namespace eMapper\SQLite\Cache;
+namespace eMapper\Cache\Memcache;
 
+use eMapper\Cache\AbstractCacheTest;
 use eMapper\Cache\MemcacheProvider;
 
-/**
- * Tests MemcacheProvider with SQLiteMapper class
- * @group sqlite
- * @group cache
- * @group memcache
- */
-class MemcacheTest extends SQLiteCacheTest {	
+abstract class AbstractMemcacheTest extends AbstractCacheTest {
 	protected function setUp() {
 		try {
 			$this->provider = new MemcacheProvider();

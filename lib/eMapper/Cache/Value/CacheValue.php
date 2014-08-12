@@ -37,8 +37,8 @@ class CacheValue {
 	 */
 	protected $method;
 	
-	public function __construct($data, $class, $argument, $groupKeys, $method) {
-		$this->data = $data;
+	public function __construct($value, $class, $argument, $groupKeys, $method) {
+		$this->value = $value;
 		$this->class = $class;
 		$this->argument = $argument;
 		$this->method = $method;
@@ -83,6 +83,14 @@ class CacheValue {
 	 */
 	public function getGroupKeys() {
 		return $this->groupKeys;
+	}
+	
+	/**
+	 * Obtains wrapped value
+	 * @return \eMapper\Cache\Value\mixed
+	 */
+	public function getValue() {
+		return $this->value;
 	}
 	
 	/**

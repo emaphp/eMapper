@@ -36,5 +36,9 @@ trait SQLiteConfig {
 		if (is_null($blob)) $blob = file_get_contents(__DIR__ . '/../avatar.gif');
 		return $blob;
 	}
+	
+	protected function getPrefix() {
+		return 'sqlite_';
+	}
 }
 ?>

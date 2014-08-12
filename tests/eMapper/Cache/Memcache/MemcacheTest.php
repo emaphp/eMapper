@@ -1,63 +1,62 @@
 <?php
-namespace eMapper\Cache;
+namespace eMapper\Cache\Memcache;
 
 use Acme\Entity\Product;
 use Acme\RGBColor;
-use eMapper\Cache\MemcachedProvider;
+use eMapper\Cache\MemcacheProvider;
 
 /**
- * Test MemcachedProvider with different values
+ * Test MemcacheProvider with different values
  * @author emaphp
  * @group cache
- * @group memcached
+ * @group memcache
  */
-class MemcachedTest extends \PHPUnit_Framework_TestCase {
+class MemcacheTest extends \PHPUnit_Framework_TestCase {
 	/**
-	 * Memcached provider
-	 * @var MemcachedProvider
+	 * Memcache provider
+	 * @var MemcacheProvider
 	 */
 	public $provider;
 	
 	protected function setUp() {
 		try {
-			$this->provider = new MemcachedProvider('memcached_test');
-			$this->provider->addServer('localhost', 11211);
+			$this->provider = new MemcacheProvider();
 		}
 		catch (\RuntimeException $re) {
 			$this->markTestSkipped(
-					'The Memcached extension is not available.'
+					'The Memcache extension is not available.'
 			);
 		}
 	}
 	
 	public function testInteger() {
-		$this->provider->delete('memcached_integer');
+		$this->provider->delete('memcache_integer');
 	
-		$this->provider->store('memcached_integer', 100, 60);
-		$value = $this->provider->fetch('memcached_integer');
+		$this->provider->store('memcache_integer', 100, 60);
+		$value = $this->provider->fetch('memcache_integer');
 		$this->assertEquals(100, $value);
 	}
 	
 	public function testFloat() {
-		$this->provider->delete('memcached_float');
-		$this->provider->store('memcached_float', 4.75, 60);
-		$value = $this->provider->fetch('memcached_float');
+		$this->provider->delete('memcache_float');
+		$this->provider->store('memcache_float', 4.75, 60);
+		$value = $this->provider->fetch('memcache_float');
 		$this->assertEquals(4.75, $value);
 	}
 	
 	public function testString() {
-		$this->provider->delete('memcached_string');
-		$this->provider->store('memcached_string', "string value", 60);
-		$value = $this->provider->fetch('memcached_string');
+		$this->provider->delete('memcache_string');
+		$this->provider->store('memcache_string', "string value", 60);
+		$value = $this->provider->fetch('memcache_string');
 		$this->assertEquals("string value", $value);
 	}
 	
 	public function testArray() {
-		$this->provider->delete('memcached_array');
+		$this->provider->delete('memcache_array');
 	
 		$arr = ['int' => 100, 'float' => 4.75, 'string' => 'string value', 4 => 'four'];
-		$this->provider->store('memcached_array', $arr, 60);
-		$value = $this->provider->fetch('memcached_array');
+		$this->provider->store('memcache_array', $arr, 60);
+		$value = $this->provider->fetch('memcache_array');
 	
 		$this->assertInternalType('array', $value);
 		$this->assertCount(4, $arr);
@@ -80,7 +79,7 @@ class MemcachedTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testStdClass() {
-		$this->provider->delete('memcached_stdclass');
+		$this->provider->delete('memcache_stdclass');
 	
 		$obj = new \stdClass();
 		$obj->int = 100;
@@ -88,8 +87,8 @@ class MemcachedTest extends \PHPUnit_Framework_TestCase {
 		$obj->string = 'string value';
 		$obj->arr = ['abc', 123, 2.5];
 	
-		$this->provider->store('memcached_stdclass', $obj);
-		$value = $this->provider->fetch('memcached_stdclass');
+		$this->provider->store('memcache_stdclass', $obj);
+		$value = $this->provider->fetch('memcache_stdclass');
 	
 		$this->assertInstanceOf('stdClass', $value);
 	
@@ -122,7 +121,7 @@ class MemcachedTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testClass() {
-		$this->provider->delete('memcached_object');
+		$this->provider->delete('memcache_object');
 	
 		$obj = new Product();
 		$obj->id = 123;
@@ -130,8 +129,8 @@ class MemcachedTest extends \PHPUnit_Framework_TestCase {
 		$obj->setCategory('Random');
 		$obj->color = new RGBColor(127, 127, 0);
 	
-		$this->provider->store('memcached_object', $obj, 60);
-		$value = $this->provider->fetch('memcached_object');
+		$this->provider->store('memcache_object', $obj, 60);
+		$value = $this->provider->fetch('memcache_object');
 	
 		$this->assertInstanceOf('Acme\Entity\Product', $value);
 		$this->assertEquals(123, $value->id);

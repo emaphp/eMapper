@@ -241,9 +241,6 @@ class Mapper {
 							$resultMap = get_class($resultMap);
 						}
 					}
-					
-					//get warpped value
-					$cached_value = $cached_value->getData();
 				}
 				else {
 					$cached_value = null;
@@ -500,7 +497,7 @@ class Mapper {
 			/*
 			 * CACHE STORE
 			 */
-				
+			
 			//check if obtained value can be stored
 			if (isset($cacheProvider) && $cacheable) {
 				//build value wrapper
@@ -525,7 +522,7 @@ class Mapper {
 			}
 		}
 		else {
-			$mapped_result = $cached_value;
+			$mapped_result = $cached_value->getValue();
 		}
 		
 		/*

@@ -1,16 +1,10 @@
 <?php
-namespace eMapper\SQLite\Cache;
+namespace eMapper\Cache\APC;
 
+use eMapper\Cache\AbstractCacheTest;
 use eMapper\Cache\APCProvider;
 
-/**
- * Tests APCProvider with SQLiteMapper class
- * @author emaphp
- * @group sqlite
- * @group cache
- * @group apc
- */
-class APCTest extends SQLiteCacheTest {
+abstract class AbstractAPCTest extends AbstractCacheTest {
 	protected function setUp() {
 		try {
 			$this->provider = new APCProvider();
