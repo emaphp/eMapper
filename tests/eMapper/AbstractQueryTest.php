@@ -505,5 +505,9 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals("DELETE FROM @@products", $query);
 		$this->assertNull($args);
 	}
+	
+	public function tearDown() {
+		$this->driver->close();
+	}
 }
 ?>

@@ -49,5 +49,9 @@ abstract class AbstractConditionalAttributeTest extends \PHPUnit_Framework_TestC
 		$this->assertNull($products[4]->specialDiscount);
 		$this->assertEquals("Special offer: 50% OFF!!!", $products[5]->specialDiscount);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

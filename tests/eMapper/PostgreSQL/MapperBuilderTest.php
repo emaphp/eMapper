@@ -3,6 +3,7 @@ namespace eMapper\PostgreSQL;
 
 use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
 use eMapper\Mapper;
+use eMapper\PostgreSQL\PostgreSQLConfig;
 
 /**
  * Test building PostgreSQLDriver intances
@@ -12,6 +13,7 @@ use eMapper\Mapper;
  * @group builder
  */
 class MapperBuilderTest extends PostgreSQLTest {
+	use PostgreSQLConfig;
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
@@ -34,10 +36,12 @@ class MapperBuilderTest extends PostgreSQLTest {
 		
 		$row = $mapper->type('object')->query("SELECT * FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('stdClass', $row);
+		$driver->close();
 	}
 	
 	public function testBuildFromConnection() {
-		$driver = new PostgreSQLDriver(self::$conn);
+		$conn = $this->getConnection();
+		$driver = new PostgreSQLDriver($conn);
 		$this->assertInstanceOf('eMapper\Engine\PostgreSQL\PostgreSQLDriver', $driver);
 		
 		$mapper = new Mapper($driver);
@@ -49,6 +53,7 @@ class MapperBuilderTest extends PostgreSQLTest {
 		
 		$row = $mapper->type('object')->query("SELECT * FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('stdClass', $row);
+		pg_close($conn);
 	}
 }
 ?>

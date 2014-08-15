@@ -9,11 +9,12 @@ use Acme\Type\RGBColorTypeHandler;
 /**
  * 
  * @author emaphp
+ * @group sqlite
  * @group namespace
  */
 class EntityNamespaceTest extends AbstractEntityNamespaceTest {
 	public function build() {
-		$this->driver = new SQLiteDriver(SQLiteTest::$filename);
+		$this->driver = new SQLiteDriver(__DIR__ . '/testing.db');
 		$this->mapper = new Mapper($this->driver);
 		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
 	}

@@ -1,23 +1,19 @@
 <?php
-namespace eMapper\SQLite\Mapper\ScalarMapper;
+namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\SQLite\SQLiteConfig;
-use eMapper\Mapper\ScalarMapper\AbstractBooleanTypeTest;
+use eMapper\Mapper\AbstractMapperTest;
 
-/**
- * Test SQLiteMapper with boolean values
- * @author emaphp
- * @group sqlite
- * @group mapper
- * @group boolean
- */
-class BooleanTypeTest extends AbstractBooleanTypeTest {
-	use SQLiteConfig;
-	
+abstract class AbstractBooleanTypeTest extends AbstractMapperTest {
 	public function testBoolean() {
 		$result = $this->mapper->type('boolean')->query("SELECT NULL");
 		$this->assertNull($result);
-		
+	
+		$value = $this->mapper->type('boolean')->query("SELECT TRUE");
+		$this->assertTrue($value);
+	
+		$value = $this->mapper->type('bool')->query("SELECT FALSE");
+		$this->assertFalse($value);
+	
 		$value = $this->mapper->type('b')->query("SELECT refurbished FROM products WHERE product_id = 1");
 		$this->assertFalse($value);
 	
@@ -103,6 +99,39 @@ class BooleanTypeTest extends AbstractBooleanTypeTest {
 		$result = $this->mapper->type('b')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('boolean', $result);
 		$this->assertTrue($result);
-	}	
+	}
+	
+	public function testBooleanColumn() {
+		$value = $this->mapper->type('bool', 'refurbished')->query("SELECT * FROM products WHERE product_id = 1");
+	
+		$this->assertInternalType('boolean', $value);
+		$this->assertFalse($value);
+	}
+	
+	public function testBooleanList() {
+		$values = $this->mapper->type('bool[]')->query("SELECT refurbished FROM products ORDER BY product_id ASC");
+	
+		$this->assertInternalType('array', $values);
+		$this->assertCount(5, $values);
+	
+		$this->assertFalse($values[0]);
+		$this->assertFalse($values[1]);
+		$this->assertFalse($values[2]);
+		$this->assertFalse($values[3]);
+		$this->assertTrue($values[4]);
+	}
+	
+	public function testBooleanColumnList() {
+		$values = $this->mapper->type('bool[]', 'refurbished')->query("SELECT * FROM products ORDER BY product_id ASC");
+	
+		$this->assertInternalType('array', $values);
+		$this->assertCount(5, $values);
+	
+		$this->assertFalse($values[0]);
+		$this->assertFalse($values[1]);
+		$this->assertFalse($values[2]);
+		$this->assertFalse($values[3]);
+		$this->assertTrue($values[4]);
+	}
 }
 ?>

@@ -15,5 +15,9 @@ class ResultIteratorTest extends AbstractResultIteratorTest {
 	protected function query($query) {
 		return pg_query($this->conn, $query);
 	}
+	
+	public function close() {
+		pg_close($this->conn);
+	}
 }
 ?>

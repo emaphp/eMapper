@@ -1,22 +1,11 @@
 <?php
-namespace eMapper\SQLite\Result\ObjectMapper;
+namespace eMapper\Mapper\ObjectMapper;
 
-use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
-use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
-use eMapper\Result\Mapper\StdClassMapper;
+use eMapper\Mapper\AbstractMapperTest;
 
-/**
- * Tests ObjectTypeMapper mapping to default classes
- * @author emaphp
- * @group sqlite
- * @group result
- */
-class DefaultMapTest extends SQLiteTest {
+abstract class AbstractDefaultMapTest extends AbstractMapperTest {
 	public function testRow() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM users WHERE user_id = 1");
-		$user = $mapper->mapResult(new SQLiteResultIterator($result));
+		$user = $this->mapper->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 	
 		$this->assertInstanceOf('stdClass', $user);
 	
@@ -29,12 +18,12 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertEquals('jdoe', $user->user_name);
 	
 		$this->assertObjectHasAttribute('birth_date', $user);
-		$this->assertInternalType('string', $user->birth_date);
-		$this->assertEquals('1987-08-10', $user->birth_date);
+		$this->assertInstanceOf('DateTime', $user->birth_date);
+		$this->assertEquals('1987-08-10', $user->birth_date->format('Y-m-d'));
 	
 		$this->assertObjectHasAttribute('last_login', $user);
-		$this->assertInternalType('string', $user->last_login);
-		$this->assertEquals('2013-08-10 19:57:15', $user->last_login);
+		$this->assertInstanceOf('DateTime', $user->last_login);
+		$this->assertEquals('2013-08-10 19:57:15', $user->last_login->format('Y-m-d H:i:s'));
 	
 		$this->assertObjectHasAttribute('newsletter_time', $user);
 		$this->assertInternalType('string', $user->newsletter_time);
@@ -42,15 +31,11 @@ class DefaultMapTest extends SQLiteTest {
 	
 		$this->assertObjectHasAttribute('avatar', $user);
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	
-		$result->finalize();
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultIterator($result));
+		$users = $this->mapper->type('object[]')->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -72,12 +57,12 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertEquals('jdoe', $user->user_name);
 	
 		$this->assertObjectHasAttribute('birth_date', $user);
-		$this->assertInternalType('string', $user->birth_date);
-		$this->assertEquals('1987-08-10', $user->birth_date);
+		$this->assertInstanceOf('DateTime', $user->birth_date);
+		$this->assertEquals('1987-08-10', $user->birth_date->format('Y-m-d'));
 	
 		$this->assertObjectHasAttribute('last_login', $user);
-		$this->assertInternalType('string', $user->last_login);
-		$this->assertEquals('2013-08-10 19:57:15', $user->last_login);
+		$this->assertInstanceOf('DateTime', $user->last_login);
+		$this->assertEquals('2013-08-10 19:57:15', $user->last_login->format('Y-m-d H:i:s'));
 	
 		$this->assertObjectHasAttribute('newsletter_time', $user);
 		$this->assertInternalType('string', $user->newsletter_time);
@@ -85,15 +70,11 @@ class DefaultMapTest extends SQLiteTest {
 	
 		$this->assertObjectHasAttribute('avatar', $user);
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	
-		$result->finalize();
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testIndexedList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id');
+		$users = $this->mapper->type('object[user_id]')->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -115,12 +96,12 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertEquals('jdoe', $user->user_name);
 	
 		$this->assertObjectHasAttribute('birth_date', $user);
-		$this->assertInternalType('string', $user->birth_date);
-		$this->assertEquals('1987-08-10', $user->birth_date);
+		$this->assertInstanceOf('DateTime', $user->birth_date);
+		$this->assertEquals('1987-08-10', $user->birth_date->format('Y-m-d'));
 	
 		$this->assertObjectHasAttribute('last_login', $user);
-		$this->assertInternalType('string', $user->last_login);
-		$this->assertEquals('2013-08-10 19:57:15', $user->last_login);
+		$this->assertInstanceOf('DateTime', $user->last_login);
+		$this->assertEquals('2013-08-10 19:57:15', $user->last_login->format('Y-m-d H:i:s'));
 	
 		$this->assertObjectHasAttribute('newsletter_time', $user);
 		$this->assertInternalType('string', $user->newsletter_time);
@@ -128,15 +109,11 @@ class DefaultMapTest extends SQLiteTest {
 	
 		$this->assertObjectHasAttribute('avatar', $user);
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	
-		$result->finalize();
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM users ORDER BY user_id ASC");
-		$users = $mapper->mapList(new SQLiteResultIterator($result), 'user_id', 'string');
+		$users = $this->mapper->type('object[user_id:string]')->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -158,12 +135,12 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertEquals('jdoe', $user->user_name);
 	
 		$this->assertObjectHasAttribute('birth_date', $user);
-		$this->assertInternalType('string', $user->birth_date);
-		$this->assertEquals('1987-08-10', $user->birth_date);
+		$this->assertInstanceOf('DateTime', $user->birth_date);
+		$this->assertEquals('1987-08-10', $user->birth_date->format('Y-m-d'));
 	
 		$this->assertObjectHasAttribute('last_login', $user);
-		$this->assertInternalType('string', $user->last_login);
-		$this->assertEquals('2013-08-10 19:57:15', $user->last_login);
+		$this->assertInstanceOf('DateTime', $user->last_login);
+		$this->assertEquals('2013-08-10 19:57:15', $user->last_login->format('Y-m-d H:i:s'));
 	
 		$this->assertObjectHasAttribute('newsletter_time', $user);
 		$this->assertInternalType('string', $user->newsletter_time);
@@ -171,15 +148,11 @@ class DefaultMapTest extends SQLiteTest {
 	
 		$this->assertObjectHasAttribute('avatar', $user);
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	
-		$result->finalize();
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
+		$products = $this->mapper->type('object[category]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -236,14 +209,10 @@ class DefaultMapTest extends SQLiteTest {
 		$product = $products['Smartphones'];
 		$this->assertInstanceOf('stdClass', $product);
 		$this->assertEquals(5, $product->product_id);
-	
-		$result->finalize();
 	}
 	
 	public function testGroupedList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
+		$products = $this->mapper->type('object<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -320,14 +289,10 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertObjectHasAttribute('product_id', $product);
 		$this->assertInternalType('integer', $product->product_id);
 		$this->assertEquals(5, $product->product_id);
-
-		$result->finalize();
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new StdClassMapper(new SQLiteTypeManager());
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'product_id', null, 'category');
+		$products = $this->mapper->type('object<category>[product_id]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -404,9 +369,6 @@ class DefaultMapTest extends SQLiteTest {
 		$this->assertObjectHasAttribute('product_id', $product);
 		$this->assertInternalType('integer', $product->product_id);
 		$this->assertEquals(5, $product->product_id);
-
-		$result->finalize();
 	}
 }
-
 ?>

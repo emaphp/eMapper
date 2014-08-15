@@ -425,5 +425,8 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(457, floor($sum));
 	}
 	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

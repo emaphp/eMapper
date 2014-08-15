@@ -1,19 +1,9 @@
 <?php
-namespace eMapper\PostgreSQL\Mapper\ScalarMapper;
+namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\PostgreSQL\PostgreSQLConfig;
-use eMapper\Mapper\ScalarMapper\AbstractStringTypeTest;
+use eMapper\Mapper\AbstractMapperTest;
 
-/**
- * Tests Mapper class with string values
- * @author emaphp
- * @group postgre
- * @group mapper
- * @group string
- */
-class StringTypeTest extends AbstractStringTypeTest {
-	use PostgreSQLConfig;
-	
+abstract class AbstractStringTypeTest extends AbstractMapperTest {
 	public function testString() {
 		$value = $this->mapper->type('string')->query("SELECT 'hello'");
 		$this->assertEquals('hello', $value);
@@ -39,7 +29,11 @@ class StringTypeTest extends AbstractStringTypeTest {
 		$result = $this->mapper->type('s')->query("SELECT newsletter_time FROM users WHERE user_name = 'jdoe'");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('12:00:00', $result);
-			
+	
+		$result = $this->mapper->type('s')->query("SELECT avatar FROM users WHERE user_name = 'jdoe'");
+		$this->assertInternalType('string', $result);
+		//$this->assertEquals($this->getBlob(), $result);
+	
 		$result = $this->mapper->type('s')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('150.65', $result);
@@ -50,7 +44,7 @@ class StringTypeTest extends AbstractStringTypeTest {
 	
 		$result = $this->mapper->type('s')->query("SELECT refurbished FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
-		$this->assertEquals('f', $result);
+		$this->assertEquals('0', $result);
 	
 		$result = $this->mapper->type('s')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
 		$this->assertInternalType('string', $result);
@@ -59,6 +53,37 @@ class StringTypeTest extends AbstractStringTypeTest {
 		$result = $this->mapper->type('s')->query("SELECT discount FROM sales WHERE sale_id = 1");
 		$this->assertInternalType('string', $result);
 		$this->assertEquals('0.25', $result);
+	}
+	
+	public function testStringColumn() {
+		$value = $this->mapper->type('string', 'user_name')->query("SELECT * FROM users WHERE user_id = 1");
+		$this->assertEquals('jdoe', $value);
+	}
+	
+	public function testStringList() {
+		$values = $this->mapper->type('string[]')->query("SELECT user_name FROM users ORDER BY user_id ASC");
+	
+		$this->assertInternalType('array', $values);
+		$this->assertCount(5, $values);
+	
+		$this->assertEquals('jdoe', $values[0]);
+		$this->assertEquals('okenobi', $values[1]);
+		$this->assertEquals('jkirk', $values[2]);
+		$this->assertEquals('egoldstein', $values[3]);
+		$this->assertEquals('ishmael', $values[4]);
+	}
+	
+	public function testStringColumnList() {
+		$values = $this->mapper->type('string[]', 'user_name')->query("SELECT * FROM users ORDER BY user_id ASC");
+	
+		$this->assertInternalType('array', $values);
+		$this->assertCount(5, $values);
+	
+		$this->assertEquals('jdoe', $values[0]);
+		$this->assertEquals('okenobi', $values[1]);
+		$this->assertEquals('jkirk', $values[2]);
+		$this->assertEquals('egoldstein', $values[3]);
+		$this->assertEquals('ishmael', $values[4]);
 	}
 }
 ?>

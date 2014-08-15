@@ -16,5 +16,9 @@ abstract class AbstractNoRowsCallbackTest extends \PHPUnit_Framework_TestCase {
 			throw new \UnexpectedValueException("!!!");
 		})->query("SELECT * FROM users WHERE user_id = 0");
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

@@ -1,32 +1,12 @@
 <?php
-namespace eMapper\SQLite\Result\ObjectMapper;
+namespace eMapper\Mapper\ObjectMapper;
 
-use eMapper\SQLite\SQLiteTest;
-use eMapper\Engine\SQLite\Result\SQLiteResultIterator;
-use Acme\Type\RGBColorTypeHandler;
-use eMapper\Engine\SQLite\Type\SQLiteTypeManager;
-use eMapper\Result\Mapper\EntityMapper;
+use eMapper\Mapper\AbstractMapperTest;
 
-/**
- * Tests ObjectTypeMapper mapping to entity classes
- * @author emaphp
- * @group sqlite
- * @group result
- */
-class EntityTest extends SQLiteTest {
-	public $typeManager;
-	
-	public function __construct() {
-		parent::__construct();
-	
-		$this->typeManager = new SQLiteTypeManager();
-		$this->typeManager->setTypeHandler('Acme\RGBColor', new RGBColorTypeHandler());
-	}
-	
+abstract class AbstractEntityTest extends AbstractMapperTest {
 	public function testRow() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products WHERE product_id = 1");
-		$product = $mapper->mapResult(new SQLiteResultIterator($result));
+		$product = $this->mapper->type('obj:Acme\Entity\Product')
+		->query("SELECT * FROM products WHERE product_id = 1");
 	
 		$this->assertInstanceOf('Acme\Entity\Product', $product);
 	
@@ -40,14 +20,11 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Clothes', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result));
+		$products = $this->mapper->type('obj:Acme\Entity\Product[]')
+		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -71,14 +48,10 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Clothes', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testIndexedList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id');
+		$products = $this->mapper->type('obj:Acme\Entity\Product[id]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -102,14 +75,11 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Clothes', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testCustomIndexList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', 'string');
+		$products = $this->mapper->type('obj:Acme\Entity\Product[id:string]')
+		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(5, $products);
@@ -133,14 +103,11 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Clothes', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testOverrideIndexList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'category');
+		$products = $this->mapper->type('obj:Acme\Entity\Product[category]')
+		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -193,14 +160,11 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Smartphones', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testGroupedList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), null, null, 'category');
+		$products = $this->mapper->type('obj:Acme\Entity\Product<category>')
+		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -297,14 +261,11 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Smartphones', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 	
 	public function testGroupedIndexedList() {
-		$mapper = new EntityMapper($this->typeManager, 'Acme\Entity\Product');
-		$result = self::$conn->query("SELECT * FROM products ORDER BY product_id ASC");
-		$products = $mapper->mapList(new SQLiteResultIterator($result), 'id', null, 'category');
+		$products = $this->mapper->type('obj:Acme\Entity\Product<category>[id]')
+		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
 		$this->assertCount(3, $products);
@@ -401,8 +362,6 @@ class EntityTest extends SQLiteTest {
 		$this->assertEquals('Smartphones', $product->getCategory());
 	
 		$this->assertInstanceOf('Acme\RGBColor', $product->color);
-	
-		$result->finalize();
 	}
 }
 ?>

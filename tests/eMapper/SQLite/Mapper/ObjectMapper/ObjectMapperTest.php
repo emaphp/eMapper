@@ -1,7 +1,8 @@
 <?php
 namespace eMapper\SQLite\Mapper\ObjectMapper;
 
-use eMapper\SQLite\SQLiteTest;
+use eMapper\SQLite\SQLiteConfig;
+use eMapper\Mapper\ObjectMapper\AbstractObjectMapperTest;
 
 /**
  * Tests SQLiteMapper mapping to objects
@@ -9,9 +10,11 @@ use eMapper\SQLite\SQLiteTest;
  * @group sqlite
  * @group mapper
  */
-class ObjectMapperTest extends SQLiteTest {
+class ObjectMapperTest extends AbstractObjectMapperTest {
+	use SQLiteConfig;
+	
 	public function testRow() {
-		$user = self::$mapper->type('obj:Acme\Generic\GenericUser')
+		$user = $this->mapper->type('obj:Acme\Generic\GenericUser')
 		->query("SELECT * FROM users WHERE user_id = 1");
 	
 		$this->assertInstanceOf('Acme\Generic\GenericUser', $user);
@@ -29,11 +32,11 @@ class ObjectMapperTest extends SQLiteTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testList() {
-		$users = self::$mapper->type('obj:Acme\Generic\GenericUser[]')
+		$users = $this->mapper->type('obj:Acme\Generic\GenericUser[]')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -60,11 +63,11 @@ class ObjectMapperTest extends SQLiteTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testIndexedList() {
-		$users = self::$mapper->type('obj:Acme\Generic\GenericUser[user_id]')
+		$users = $this->mapper->type('obj:Acme\Generic\GenericUser[user_id]')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -92,38 +95,11 @@ class ObjectMapperTest extends SQLiteTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	}
-	
-	public function testOverrideIndexList() {
-		$products = self::$mapper->type('obj:Acme\Generic\Product[category]')
-		->query("SELECT * FROM products ORDER BY product_id ASC");
-	
-		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
-	
-		$this->assertArrayHasKey('Clothes', $products);
-		$this->assertArrayHasKey('Hardware', $products);
-		$this->assertArrayHasKey('Smartphones', $products);
-	
-		////
-		$product = $products['Clothes'];
-		$this->assertInstanceOf('Acme\Generic\Product', $product);
-		$this->assertEquals(3, $product->product_id);
-	
-		////
-		$product = $products['Hardware'];
-		$this->assertInstanceOf('Acme\Generic\Product', $product);
-		$this->assertEquals(4, $product->product_id);
-	
-		////
-		$product = $products['Smartphones'];
-		$this->assertInstanceOf('Acme\Generic\Product', $product);
-		$this->assertEquals(5, $product->product_id);
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 	
 	public function testCustomIndexList() {
-		$users = self::$mapper->type('obj:Acme\Generic\GenericUser[user_id:string]')
+		$users = $this->mapper->type('obj:Acme\Generic\GenericUser[user_id:string]')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -151,99 +127,7 @@ class ObjectMapperTest extends SQLiteTest {
 		$this->assertEquals('12:00:00', $user->newsletter_time);
 	
 		$this->assertInternalType('string', $user->avatar);
-		$this->assertEquals(self::$blob, $user->avatar);
-	}
-	
-	public function testGroupedList() {
-		$products = self::$mapper->type('obj:Acme\Generic\Product<category>')
-		->query("SELECT * FROM products ORDER BY product_id ASC");
-	
-		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
-	
-		$this->assertArrayHasKey('Clothes', $products);
-		$this->assertArrayHasKey('Hardware', $products);
-		$this->assertArrayHasKey('Smartphones', $products);
-	
-		$this->assertInternalType('array', $products['Clothes']);
-		$this->assertCount(3, $products['Clothes']);
-		$this->assertInternalType('array', $products['Hardware']);
-		$this->assertCount(1, $products['Hardware']);
-		$this->assertInternalType('array', $products['Smartphones']);
-		$this->assertCount(1, $products['Smartphones']);
-	
-		$this->assertArrayHasKey(0, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][0]);
-		$this->assertEquals(1, $products['Clothes'][0]->product_id);
-		$this->assertArrayHasKey(1, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][1]);
-		$this->assertEquals(2, $products['Clothes'][1]->product_id);
-		$this->assertArrayHasKey(2, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][2]);
-		$this->assertEquals(3, $products['Clothes'][2]->product_id);
-		$this->assertArrayHasKey(0, $products['Hardware']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Hardware'][0]);
-		$this->assertEquals(4, $products['Hardware'][0]->product_id);
-		$this->assertArrayHasKey(0, $products['Smartphones']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Smartphones'][0]);
-		$this->assertEquals(5, $products['Smartphones'][0]->product_id);
-	
-		$product = $products['Clothes'][0];
-	
-		$this->assertInternalType('integer', $product->product_id);
-		$this->assertEquals(1, $product->product_id);
-	
-		$this->assertInternalType('string', $product->description);
-		$this->assertEquals('Red dress', $product->description);
-	
-		$this->assertInternalType('string', $product->category);
-		$this->assertEquals('Clothes', $product->category);
-	}
-	
-	public function testGroupedIndexedList() {
-		$products = self::$mapper->type('obj:Acme\Generic\Product<category>[product_id]')
-		->query("SELECT * FROM products ORDER BY product_id ASC");
-	
-		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
-	
-		$this->assertArrayHasKey('Clothes', $products);
-		$this->assertArrayHasKey('Hardware', $products);
-		$this->assertArrayHasKey('Smartphones', $products);
-	
-		$this->assertInternalType('array', $products['Clothes']);
-		$this->assertCount(3, $products['Clothes']);
-		$this->assertInternalType('array', $products['Hardware']);
-		$this->assertCount(1, $products['Hardware']);
-		$this->assertInternalType('array', $products['Smartphones']);
-		$this->assertCount(1, $products['Smartphones']);
-	
-		$this->assertArrayHasKey(1, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][1]);
-		$this->assertEquals(1, $products['Clothes'][1]->product_id);
-		$this->assertArrayHasKey(2, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][2]);
-		$this->assertEquals(2, $products['Clothes'][2]->product_id);
-		$this->assertArrayHasKey(3, $products['Clothes']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Clothes'][3]);
-		$this->assertEquals(3, $products['Clothes'][3]->product_id);
-		$this->assertArrayHasKey(4, $products['Hardware']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Hardware'][4]);
-		$this->assertEquals(4, $products['Hardware'][4]->product_id);
-		$this->assertArrayHasKey(5, $products['Smartphones']);
-		$this->assertInstanceOf('Acme\Generic\Product', $products['Smartphones'][5]);
-		$this->assertEquals(5, $products['Smartphones'][5]->product_id);
-	
-		$product = $products['Clothes'][1];
-	
-		$this->assertInternalType('integer', $product->product_id);
-		$this->assertEquals(1, $product->product_id);
-	
-		$this->assertInternalType('string', $product->description);
-		$this->assertEquals('Red dress', $product->description);
-	
-		$this->assertInternalType('string', $product->category);
-		$this->assertEquals('Clothes', $product->category);
+		$this->assertEquals($this->getBlob(), $user->avatar);
 	}
 }
 ?>

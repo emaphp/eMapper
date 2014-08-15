@@ -217,5 +217,9 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 		$products = $this->mapper->execute('products.idNotBetween', 2, 4);
 		$this->assertCount(2, $products);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

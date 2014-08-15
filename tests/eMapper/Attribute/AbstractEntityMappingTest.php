@@ -130,5 +130,9 @@ abstract class AbstractEntityMappingTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('00:00:00', $sale->user->newsletter_time);
 		$this->assertEquals($this->getBlob(), $sale->user->avatar);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

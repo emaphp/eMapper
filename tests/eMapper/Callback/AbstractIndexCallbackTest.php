@@ -68,5 +68,9 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(4, $list['ATI']['product_id']);
 		$this->assertEquals(5, $list['Android']['product_id']);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

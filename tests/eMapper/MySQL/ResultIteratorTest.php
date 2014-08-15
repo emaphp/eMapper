@@ -15,5 +15,9 @@ class ResultIteratorTest extends AbstractResultIteratorTest {
 	protected function query($query) {
 		return $this->conn->query($query);
 	}
+	
+	public function close() {
+		$this->conn->close();
+	}
 }
 ?>

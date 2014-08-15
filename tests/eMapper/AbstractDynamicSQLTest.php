@@ -149,5 +149,9 @@ abstract class AbstractDynamicSQLTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey(1, $users);
 		$this->assertArrayHasKey(5, $users);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

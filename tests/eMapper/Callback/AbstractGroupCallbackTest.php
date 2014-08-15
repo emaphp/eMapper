@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Callback;
 
-class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
+abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 	protected $mapper;
 	
 	public function setUp() {
@@ -68,6 +68,10 @@ class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, $list['expensive'][0]['product_id']);
 		$this->assertInternalType('array', $list['expensive'][1]);
 		$this->assertEquals(5, $list['expensive'][1]['product_id']);
+	}
+	
+	public function tearDown() {
+		$this->mapper->close();
 	}
 }
 ?>

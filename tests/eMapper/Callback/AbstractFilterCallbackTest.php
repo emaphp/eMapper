@@ -238,5 +238,9 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, $values['Clothes'][2]['product_id']);
 		$this->assertEquals(5, $values['Smartphones'][5]['product_id']);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

@@ -94,5 +94,9 @@ abstract class AbstractDepthTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Clothes', $product->related[3]->category);
 		$this->assertEquals(70.9, $product->related[3]->price);
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

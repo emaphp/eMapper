@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Callback;
 
-class AbstractOverrideCallbackTest extends \PHPUnit_Framework_TestCase {
+abstract class AbstractOverrideCallbackTest extends \PHPUnit_Framework_TestCase {
 	protected $mapper;
 	
 	public function setUp() {
@@ -23,6 +23,10 @@ class AbstractOverrideCallbackTest extends \PHPUnit_Framework_TestCase {
 		})->query("SELECT 1");
 	
 		$this->assertEquals(1, $value);
+	}
+	
+	public function tearDown() {
+		$this->mapper->close();
 	}
 }
 ?>

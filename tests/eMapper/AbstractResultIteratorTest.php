@@ -12,6 +12,7 @@ abstract class AbstractResultIteratorTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	protected abstract function query($query);
+	protected abstract function close();
 	
 	public function testDefault() {
 		$result = $this->query("SELECT user_id FROM users ORDER BY user_id ASC");
@@ -148,6 +149,10 @@ abstract class AbstractResultIteratorTest extends \PHPUnit_Framework_TestCase {
 		}
 	
 		$ri->free();
+	}
+	
+	public function tearDown() {
+		$this->close();
 	}
 }
 ?>

@@ -186,5 +186,9 @@ abstract class AbstractCacheTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->provider->delete($this->getPrefix() .'set_objectlist');
 	}
+	
+	public function tearDown() {
+		$this->mapper->close();
+	}
 }
 ?>

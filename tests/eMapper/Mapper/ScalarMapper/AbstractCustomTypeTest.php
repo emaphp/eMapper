@@ -1,70 +1,34 @@
 <?php
-namespace eMapper\PostgreSQL\Result\ScalarMapper;
+namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\PostgreSQL\PostgreSQLTest;
-use Acme\Type\RGBColorTypeHandler;
-use eMapper\Result\Mapper\ScalarTypeMapper;
-use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
+use eMapper\Mapper\AbstractMapperTest;
 
-/**
- * Test ScalarTypeMapper with custom type columns
- * @author emaphp
- * @group postgre
- * @group result
- * @group custom
- */
-class CustomTypeTest extends PostgreSQLTest {
-	public $typeMapper;
-	
-	public function __construct() {
-		$this->typeMapper = new ScalarTypeMapper(new RGBColorTypeHandler());
-	}
-	
+abstract class AbstractCustomTypeTest extends AbstractMapperTest {
 	public function testCustomType() {
-		$result = pg_query(self::$conn, "SELECT 'FF00ff'");
-		$value = $this->typeMapper->mapResult(new PostgreSQLResultIterator($result));
-	
+		$value = $this->mapper->type('Acme\RGBColor')->query("SELECT 'FF00ff'");
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(255, $value->red);
 		$this->assertEquals(0, $value->green);
 		$this->assertEquals(255, $value->blue);
-		pg_free_result($result);
 	
-		$result = pg_query(self::$conn, "SELECT color FROM products WHERE product_id = 1");
-		$value = $this->typeMapper->mapResult(new PostgreSQLResultIterator($result));
+		$value = $this->mapper->type('color')->query("SELECT color FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
 		$this->assertEquals(26, $value->green);
 		$this->assertEquals(26, $value->blue);
-		pg_free_result($result);
-	
-		$result = pg_query(self::$conn, "SELECT color FROM products ORDER BY product_id ASC");
-		$values = $this->typeMapper->mapList(new PostgreSQLResultIterator($result));
-		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
-	
-		$this->assertInstanceOf('Acme\RGBColor', $values[0]);
-		$this->assertEquals(225, $values[0]->red);
-		$this->assertEquals(26, $values[0]->green);
-		$this->assertEquals(26, $values[0]->blue);
-		pg_free_result($result);
 	}
 	
 	public function testCustomTypeColumn() {
-		$result = pg_query(self::$conn, "SELECT * FROM products WHERE product_id = 1");
-		$value = $this->typeMapper->mapResult(new PostgreSQLResultIterator($result), 'color');
+		$value = $this->mapper->type('Acme\RGBColor', 'color')->query("SELECT * FROM products WHERE product_id = 1");
 	
 		$this->assertInstanceOf('Acme\RGBColor', $value);
 		$this->assertEquals(225, $value->red);
 		$this->assertEquals(26, $value->green);
 		$this->assertEquals(26, $value->blue);
-	
-		pg_free_result($result);
 	}
 	
 	public function testCustomTypeList() {
-		$result = pg_query(self::$conn, "SELECT color FROM products ORDER BY product_id ASC");
-		$values = $this->typeMapper->mapList(new PostgreSQLResultIterator($result));
+		$values = $this->mapper->type('Acme\RGBColor[]')->query("SELECT color FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -90,13 +54,10 @@ class CustomTypeTest extends PostgreSQLTest {
 		$this->assertEquals(0, $values[4]->red);
 		$this->assertEquals(167, $values[4]->green);
 		$this->assertEquals(235, $values[4]->blue);
-	
-		pg_free_result($result);
 	}
 	
 	public function testCustomTypeColumnList() {
-		$result = pg_query(self::$conn, "SELECT * FROM products ORDER BY product_id ASC");
-		$values = $this->typeMapper->mapList(new PostgreSQLResultIterator($result), 'color');
+		$values = $this->mapper->type('Acme\RGBColor[]', 'color')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
 		$this->assertCount(5, $values);
@@ -122,10 +83,6 @@ class CustomTypeTest extends PostgreSQLTest {
 		$this->assertEquals(0, $values[4]->red);
 		$this->assertEquals(167, $values[4]->green);
 		$this->assertEquals(235, $values[4]->blue);
-	
-		pg_free_result($result);
 	}
 }
-
-
 ?>
