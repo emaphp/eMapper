@@ -11,8 +11,8 @@ class SQLCount extends SQLFunction {
 	public function __construct() {
 	}
 	
-	public function getExpression(ClassProfile $profile) {
-		return 'COUNT(*)';
+	public function getExpression(ClassProfile $profile, $alias = '') {
+		return empty($alias) ? 'COUNT(*)' : "COUNT($alias.*)";
 	}
 }
 ?>

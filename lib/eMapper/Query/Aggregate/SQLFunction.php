@@ -22,7 +22,8 @@ abstract class SQLFunction {
 	/**
 	 * Generates a string expression for the current instance with the given profile
 	 * @param ClassProfile $profile
+	 * @param string $alias
 	 */
-	public abstract function getExpression(ClassProfile $profile);
+	public abstract function getExpression(ClassProfile $profile, $alias = '');
 }
 ?>

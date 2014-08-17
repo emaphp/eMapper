@@ -24,6 +24,12 @@ abstract class SQLPredicate {
 	protected $negate;
 	
 	/**
+	 * Target table alias
+	 * @var string
+	 */
+	protected $alias;
+	
+	/**
 	 * Argument counter (used for additional parameters in query)
 	 * @var integer
 	 */
@@ -32,6 +38,10 @@ abstract class SQLPredicate {
 	public function __construct(Field $field, $negate = false) {
 		$this->field = $field;
 		$this->negate = $negate;
+	}
+	
+	public function setAlias($alias) {
+		$this->alias = $alias;
 	}
 	
 	public function getField() {
@@ -103,15 +113,42 @@ abstract class SQLPredicate {
 	
 		return '#{' . $index . '}';
 	}
+
+	protected function getColumnName(Field $field, ClassProfile $profile, &$joins) {
+		if ($field instanceof Attr) {
+			list($associations, $target) = $field->getAssociations($profile);
+	
+			if (!is_null($associations)) {
+				$diff = array_diff_key($associations, $joins);
+	
+				foreach ($diff as $key) {
+					$joins[$key] = [$associations[$key], 't' . $this->getArgumentIndex(1)];
+				}
+	
+				list($_, $alias) = $joins[$field->getFullPath()];
+				$field = Attr::__callstatic($field->getName());
+				$column = $alias . '.' . $field->getColumnName($target);
+			}
+			else {
+				$column = empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
+			}
+		}
+		else {
+			$column = empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
+		}
+		
+		return $column;
+	}
 	
 	/**
 	 * Evaluates a SQLPredicate getting any additional arguments
 	 * @param Driver $driver
 	 * @param ClassProfile $profile
+	 * @param array $joins
 	 * @param array $args
 	 * @param number $arg_index
 	 */
-	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0);
+	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0);
 	
 	/**
 	 * Renders a SQLPredicate to the corresponding Dynamic SQL expression

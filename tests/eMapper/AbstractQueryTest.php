@@ -507,7 +507,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function tearDown() {
-		$this->driver->close();
+		if ($this->driver) $this->driver->close();
 	}
 }
 ?>

@@ -6,6 +6,10 @@ use eMapper\Reflection\Profile\Dynamic\StatementCallback;
 use eMapper\Reflection\Profile\Dynamic\QueryCallback;
 use eMapper\Reflection\Profile\Dynamic\StoredProcedureCallback;
 use eMapper\Annotations\Facade;
+use eMapper\Reflection\Profile\Association\OneToOne;
+use eMapper\Reflection\Profile\Association\OneToMany;
+use eMapper\Reflection\Profile\Association\ManyToOne;
+use eMapper\Reflection\Profile\Association\ManyToMany;
 
 /**
  * The ClassProfile class provides details of the implementation and metadata available in a class.
@@ -60,7 +64,11 @@ class ClassProfile {
 	 */
 	private $primaryKey;
 	
-	//private $associations;
+	/**
+	 * Class associations
+	 * @var array
+	 */
+	private $associations = [];
 	
 	public function __construct($classname) {
 		//store class annotations
@@ -106,6 +114,22 @@ class ClassProfile {
 				else {
 					$this->secondOrderAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
 				}
+			}
+			elseif ($annotations->has('OneToOne')) {
+				$entity = $annotations->get('OneToOne')->getValue();
+				$this->associations[$propertyName] = new OneToOne($entity, $propertyName, $annotations, $reflectionProperty);
+			}
+			elseif ($annotations->has('OneToMany')) {
+				$entity = $annotations->get('OneToMany')->getValue();
+				$this->associations[$propertyName] = new OneToMany($entity, $propertyName, $annotations, $reflectionProperty);
+			}
+			elseif ($annotations->has('ManyToOne')) {
+				$entity = $annotations->get('ManyToOne')->getValue();
+				$this->associations[$propertyName] = new ManyToOne($entity, $propertyName, $annotations, $reflectionProperty);
+			}
+			elseif ($annotations->has('ManyToMany')) {
+				$entity = $annotations->get('ManyToMany')->getValue();
+				$this->associations[$propertyName] = new ManyToMany($entity, $propertyName, $annotations, $reflectionProperty);
 			}
 			else {
 				$this->properties[$propertyName] = new PropertyProfile($propertyName, $annotations, $reflectionProperty);
@@ -206,9 +230,14 @@ class ClassProfile {
 	
 	/**
 	 * Obtains the entity primary key property
+	 * @param boolean $as_column
 	 * @return string|NULL
 	 */
-	public function getPrimaryKey() {
+	public function getPrimaryKey($as_column = false) {
+		if ($as_column) {
+			return $this->propertyNames[$this->primaryKey];
+		}
+		
 		return $this->primaryKey;
 	}
 	
@@ -279,6 +308,18 @@ class ClassProfile {
 		}
 		
 		return null;
+	}
+	
+	public function getAssociations() {
+		return $this->associations;
+	}
+	
+	public function getAssociation($name) {
+		if (array_key_exists($name, $this->associations)) {
+			return $this->associations[$name];
+		}
+		
+		return false;
 	}
 }
 ?>

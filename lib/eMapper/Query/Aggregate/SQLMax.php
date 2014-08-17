@@ -8,8 +8,8 @@ use eMapper\Reflection\Profile\ClassProfile;
  * @author emaphp
  */
 class SQLMax extends SQLFunction {
-	public function getExpression(ClassProfile $profile) {
-		return sprintf("MAX(%s)", $this->field->getColumnName($profile));
+	public function getExpression(ClassProfile $profile, $alias = '') {
+		return sprintf("MAX(%s)", empty($alias) ? $this->field->getColumnName($profile) : $alias . '.' . $this->field->getColumnName($profile));
 	}
 }
 ?>

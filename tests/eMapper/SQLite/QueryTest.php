@@ -15,7 +15,7 @@ use eMapper\Query\Attr;
  */
 class QueryTest extends AbstractQueryTest {
 	public function build() {
-		$this->driver = new SQLiteDriver(SQLiteTest::$filename);
+		$this->driver = new SQLiteDriver(__DIR__ . '/testing.db');
 		$this->profile = Profiler::getClassProfile('Acme\Entity\Product');
 	}
 	

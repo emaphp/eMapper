@@ -36,13 +36,14 @@ class Filter extends SQLPredicate {
 		return $this->operator;
 	}
 	
-	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
+	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
 		if (empty($this->predicates)) {
 			return '';
 		}
 		
 		if (count($this->predicates) == 1) {
-			$condition = $this->predicates[0]->evaluate($driver, $profile, $args, $arg_index);
+			if (!empty($this->alias)) $predicate->setAlias($this->alias);
+			$condition = $this->predicates[0]->evaluate($driver, $profile, $joins, $args, $arg_index);
 			
 			if ($this->negate) {
 				return 'NOT ' . $condition;
@@ -54,7 +55,8 @@ class Filter extends SQLPredicate {
 		$predicates = [];
 		
 		foreach ($this->predicates as $predicate) {
-			$predicates[] = $predicate->evaluate($driver, $profile, $args, $arg_index);
+			if (!empty($this->alias)) $predicate->setAlias($this->alias);
+			$predicates[] = $predicate->evaluate($driver, $profile, $joins, $args, $arg_index);
 		}
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';

@@ -22,7 +22,7 @@ class Range extends SQLPredicate {
 	 */
 	protected $to;
 	
-	public function __construct(Field$field, $negate) {
+	public function __construct(Field $field, $negate) {
 		parent::__construct($field, $negate);
 	}
 	
@@ -41,10 +41,10 @@ class Range extends SQLPredicate {
 	public function getTo() {
 		return $this->to;
 	}
-	
-	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
-		$column = $this->field->getColumnName($profile);
 
+	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
+		$column = $this->getColumnName($this->field, $profile, $joins);
+		
 		//add from argument
 		$from_index = $this->getArgumentIndex($arg_index);
 		$args[$from_index] = $this->from;

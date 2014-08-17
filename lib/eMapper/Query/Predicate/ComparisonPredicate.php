@@ -30,11 +30,11 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return "%s [? (if (null? (%%0)) 'IS $op NULL' '$eq_op %s') ?]";
 	}
 	
-	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
-		$column = $this->field->getColumnName($profile);
-	
+	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
+		$column = $this->getColumnName($this->field, $profile, $joins);
+
 		if ($this->expression instanceof Field) {
-			$expression = $this->expression->getColumnName($profile);
+			$expression = $this->getColumnName($this->expression, $profile, $joins);
 		}
 		else {
 			//store expression in argument list

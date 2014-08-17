@@ -8,8 +8,8 @@ use eMapper\Reflection\Profile\ClassProfile;
  * @author emaphp
  */
 class SQLAverage extends SQLFunction {
-	public function getExpression(ClassProfile $profile) {
-		return sprintf("AVG(%s)", $this->field->getColumnName($profile));
+	public function getExpression(ClassProfile $profile, $alias = '') {
+		return sprintf("AVG(%s)", empty($alias) ? $this->field->getColumnName($profile) : $alias . '.' . $this->field->getColumnName($profile));
 	}
 }
 ?>

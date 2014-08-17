@@ -8,8 +8,8 @@ use eMapper\Reflection\Profile\ClassProfile;
  * @author emaphp
  */
 class SQLMin extends SQLFunction {
-	public function getExpression(ClassProfile $profile) {
-		return sprintf("MIN(%s)", $this->field->getColumnName($profile));
+	public function getExpression(ClassProfile $profile, $alias = '') {
+		return sprintf("MIN(%s)", empty($alias) ? $this->field->getColumnName($profile) : $alias . '.' . $this->field->getColumnName($profile));
 	}
 }
 ?>

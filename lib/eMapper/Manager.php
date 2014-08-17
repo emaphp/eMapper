@@ -19,6 +19,7 @@ use eMapper\Query\Aggregate\SQLAverage;
 use eMapper\Query\Aggregate\SQLMax;
 use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
+use eMapper\Reflection\Profile\Association\AbstractAssociation;
 
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.
@@ -46,9 +47,16 @@ class Manager {
 	 */
 	protected $expression;
 	
-	public function __construct(Mapper $mapper, ClassProfile $entity) {
+	/**
+	 * Association context
+	 * @var AbstractAssociation
+	 */
+	protected $context;
+	
+	public function __construct(Mapper $mapper, ClassProfile $entity, AbstractAssociation $context = null) {
 		$this->mapper = $mapper;
 		$this->entity = $entity;
+		$this->context = $context;
 		
 		//default mapping expression
 		$this->expression = $this->buildExpression($entity);
@@ -134,6 +142,11 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
+		
+		if (isset($this->context)) {
+			$query->setContext($this->context);
+		}
+		
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
@@ -153,6 +166,11 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
+		
+		if (isset($this->context)) {
+			$query->setContext($this->context);
+		}
+		
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query

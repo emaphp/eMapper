@@ -18,8 +18,8 @@ class IsNull extends SQLPredicate {
 		return '%s IS NULL';
 	}
 	
-	public function evaluate(Driver $driver, ClassProfile $profile, &$args, $arg_index = 0) {
-		$column = $this->field->getColumnName($profile);
+	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
+		$column = $this->getColumnName($this->field, $profile, $joins);
 		
 		if ($this->negate) {
 			return "$column IS NOT NULL";
