@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.35, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.38, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: emapper_testing
 -- ------------------------------------------------------
--- Server version	5.5.35-0ubuntu0.12.04.2
+-- Server version	5.5.38-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,36 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `favorites`
+--
+
+DROP TABLE IF EXISTS `favorites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `favorites` (
+  `favorite_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `usr_id` int(10) unsigned NOT NULL,
+  `prd_id` int(10) unsigned NOT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`favorite_id`),
+  KEY `fk_favorites_1_idx` (`usr_id`),
+  KEY `fk_favorites_2_idx` (`prd_id`),
+  CONSTRAINT `fk_favorites_1` FOREIGN KEY (`usr_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_favorites_2` FOREIGN KEY (`prd_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `favorites`
+--
+
+LOCK TABLES `favorites` WRITE;
+/*!40000 ALTER TABLE `favorites` DISABLE KEYS */;
+INSERT INTO `favorites` VALUES (1,1,5,'2014-07-07 12:34:11'),(2,1,7,'2014-05-02 09:12:09'),(3,3,3,'2014-01-04 11:22:13'),(4,3,6,'2014-04-12 08:43:12'),(5,4,8,'2013-03-15 15:06:35');
+/*!40000 ALTER TABLE `favorites` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `products`
@@ -34,7 +64,7 @@ CREATE TABLE `products` (
   `manufacture_year` year(4) DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   UNIQUE KEY `Índice 2` (`product_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,8 +73,37 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'IND00054','Red dress','e11a1a',150.65,'Clothes',4.5,0,2011),(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes',3.9,0,2012),(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013),(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013),(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011);
+INSERT INTO `products` VALUES (1,'IND00054','Red dress','e11a1a',150.65,'Clothes',4.5,0,2011),(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes',3.9,0,2012),(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013),(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013),(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011),(6,'TEC00010','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013),(7,'PHN00666','Apple Iphone','ffffff',340.54,'Smartphones',4.7,0,2013),(8,'SOFT0013','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `profiles`
+--
+
+DROP TABLE IF EXISTS `profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `profiles` (
+  `profile_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `surname` varchar(45) NOT NULL,
+  `gender` char(1) NOT NULL DEFAULT 'M',
+  PRIMARY KEY (`profile_id`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `fk_profiles_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `profiles`
+--
+
+LOCK TABLES `profiles` WRITE;
+/*!40000 ALTER TABLE `profiles` DISABLE KEYS */;
+INSERT INTO `profiles` VALUES (1,1,'John','Doe','M'),(2,2,'Obi','Kenobi','M'),(3,3,'Tiberius','Kirk','M'),(4,4,'Emmanuel','Goldstein','M'),(5,5,'Ishmael','Harpoon','M');
+/*!40000 ALTER TABLE `profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -254,4 +313,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-04-01 18:20:54
+-- Dump completed on 2014-08-18  2:07:15
