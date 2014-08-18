@@ -531,6 +531,11 @@ class Mapper {
 		if (isset($resultMap)) {
 			//check relation limit
 			$evaluateSecondOrder = $this->config['depth.limit'] > $this->config['depth.current'];
+			$copy = $this->__copy();
+			
+			if ($evaluateSecondOrder) {
+				$incremented = $this->__increment();
+			}
 			
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 				if ($mapper->hasGroupKeys()) {
@@ -538,8 +543,12 @@ class Mapper {
 						$indexes = array_keys($mapped_result[$key]);
 			
 						for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-							$mapper->evaluateFirstOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__copy());
-							if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result[$key][$indexes[$i]], $this->__increment());
+							$mapper->evaluateFirstOrderAttributes($mapped_result[$key][$indexes[$i]], $copy);
+							
+							if ($evaluateSecondOrder) {
+								$mapper->evaluateSecondOrderAttributes($mapped_result[$key][$indexes[$i]], $incremented);
+								$mapper->evaluateAssociations($mapped_result[$key][$indexes[$i]], $incremented);
+							}
 						}
 					}
 				}
@@ -547,14 +556,22 @@ class Mapper {
 					$keys = array_keys($mapped_result);
 						
 					foreach ($keys as $k) {
-						$mapper->evaluateFirstOrderAttributes($mapped_result[$k], $this->__copy());
-						if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result[$k], $this->__increment());
+						$mapper->evaluateFirstOrderAttributes($mapped_result[$k], $copy);
+						
+						if ($evaluateSecondOrder) {
+							$mapper->evaluateSecondOrderAttributes($mapped_result[$k], $incremented);
+							$mapper->evaluateAssociations($mapped_result[$k], $incremented);
+						}
 					}
 				}
 			}
 			elseif (!is_null($mapped_result)) {
-				$mapper->evaluateFirstOrderAttributes($mapped_result, $this->__copy());
-				if ($evaluateSecondOrder) $mapper->evaluateSecondOrderAttributes($mapped_result, $this->__increment());
+				$mapper->evaluateFirstOrderAttributes($mapped_result, $copy);
+				
+				if ($evaluateSecondOrder) {
+					$mapper->evaluateSecondOrderAttributes($mapped_result, $incremented);
+					$mapper->evaluateAssociations($mapped_result, $incremented);
+				}
 			}
 		}
 		
@@ -564,6 +581,7 @@ class Mapper {
 		
 		if (array_key_exists('callback.each', $this->config)) {
 			$each_callback = $this->config['callback.each'];
+			$copy = $this->__copy();
 		
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
@@ -573,7 +591,7 @@ class Mapper {
 							$indexes = array_keys($mapped_result[$key]);
 								
 							for ($i = 0, $n = count($indexes); $i < $n; $i++) {
-								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $this->__copy());
+								$each_callback->__invoke($mapped_result[$key][$indexes[$i]], $copy);
 							}
 						}
 					}
@@ -581,18 +599,18 @@ class Mapper {
 						$keys = array_keys($mapped_result);
 		
 						for ($i = 0, $n = count($keys); $i < $n; $i++) {
-							$each_callback->__invoke($mapped_result[$keys[$i]], $this->__copy());
+							$each_callback->__invoke($mapped_result[$keys[$i]], $copy);
 						}
 					}
 				}
 				elseif (!is_null($mapped_result)) {
-					$each_callback->__invoke($mapped_result, $this->__copy());
+					$each_callback->__invoke($mapped_result, $copy);
 				}
 			}
 			else {
 				//this closure avoids getting "expected to be a reference"-style messages
 				$c = function (&$mapped_result) use ($each_callback) {
-					call_user_func($each_callback, $mapped_result, $this->__copy());
+					call_user_func($each_callback, $mapped_result, $copy);
 				};
 		
 				//call traverse callback

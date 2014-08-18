@@ -29,14 +29,20 @@ class StdClassMapper extends ObjectMapper {
 	}
 	
 	public function evaluateFirstOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getFirstOrderAttributes() as $attribute) {
+		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
 			$row->$name = $attribute->evaluate($row, $mapper);
 		}
 	}
 	
 	public function evaluateSecondOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getSecondOrderAttributes() as $attribute) {
+		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
 			$row->$name = $attribute->evaluate($row, $mapper);
+		}
+	}
+	
+	public function evaluateAssociations(&$row, $mapper) {
+		foreach ($this->resultMap->getAssociations() as $name => $association) {
+			$row->$name = $association->evaluate($mapper);
 		}
 	}
 }

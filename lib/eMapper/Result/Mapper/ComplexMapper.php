@@ -241,4 +241,11 @@ abstract class ComplexMapper {
 	 * @param Mapper $mapper
 	 */
 	public abstract function evaluateSecondOrderAttributes(&$row, $mapper);
+	
+	/**
+	 * Evaluates class associations
+	 * @param mixed $row
+	 * @param Mapper $mapper
+	 */
+	public abstract function evaluateAssociations(&$row, $mapper);
 }

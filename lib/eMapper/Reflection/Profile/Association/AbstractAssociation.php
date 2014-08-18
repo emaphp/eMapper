@@ -95,7 +95,7 @@ abstract class AbstractAssociation extends PropertyProfile {
 	 * @param Mapper $mapper
 	 * @return \eMapper\Manager
 	 */
-	public function evaluate($row, $mapper) {
+	public function evaluate($mapper) {
 		$manager = new Manager($mapper, $this->profile, $this);
 		
 		if ($this->lazy) {
