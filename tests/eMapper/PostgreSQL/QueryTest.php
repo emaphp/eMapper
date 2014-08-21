@@ -25,7 +25,7 @@ class QueryTest extends AbstractQueryTest {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::code()->matches('^(An?|The) +'));
 		list($query, $args) =  $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code ~ #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT _t\.\* FROM @@products _t WHERE _t\.product_code ~ #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals('^(An?|The) +', $args[$index]);
@@ -35,7 +35,7 @@ class QueryTest extends AbstractQueryTest {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::code()->matches('^(An?|The) +', false));
 		list($query, $args) =  $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code !~ #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT _t.\* FROM @@products _t WHERE _t\.product_code !~ #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals('^(An?|The) +', $args[$index]);
@@ -46,7 +46,7 @@ class QueryTest extends AbstractQueryTest {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::code()->imatches('^(an?|the) +'));
 		list($query, $args) =  $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code ~\* #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT _t\.\* FROM @@products _t WHERE _t\.product_code ~\* #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals('^(an?|the) +', $args[$index]);
@@ -56,7 +56,7 @@ class QueryTest extends AbstractQueryTest {
 		$query = new SelectQueryBuilder($this->profile);
 		$query->setCondition(Attr::code()->imatches('^(an?|the) +', false));
 		list($query, $args) =  $query->build($this->driver, []);
-		$this->assertRegExpMatch("/SELECT \* FROM @@products WHERE product_code !~\* #\{([\w]+)\}/", $query, $matches);
+		$this->assertRegExpMatch("/SELECT _t\.\* FROM @@products _t WHERE _t\.product_code !~\* #\{([\w]+)\}/", $query, $matches);
 		$index = $matches[1];
 		$this->assertArrayHasKey($index, $args);
 		$this->assertEquals('^(an?|the) +', $args[$index]);

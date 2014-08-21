@@ -33,13 +33,13 @@ class EntityNamespaceTest extends AbstractEntityNamespaceTest {
 	
 	public function testNotMatches() {
 		$products = $this->mapper->execute('products.codeNotMatches', '9');
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 	
 		$products = $this->mapper->execute('products.codeNotMatches', '^IND');
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	
 		$products = $this->mapper->execute('products.codeNotMatches', '^i');
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 	}
 	
 	public function testIMatches() {
@@ -52,10 +52,10 @@ class EntityNamespaceTest extends AbstractEntityNamespaceTest {
 	
 	public function testNotIMatches() {
 		$products = $this->mapper->execute('products.codeNotIMatches', '^IND');
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	
 		$products = $this->mapper->execute('products.codeNotIMatches', '^i');
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 }
 

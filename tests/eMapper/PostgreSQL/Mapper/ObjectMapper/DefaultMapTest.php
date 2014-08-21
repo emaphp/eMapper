@@ -17,10 +17,12 @@ class DefaultMapTest extends AbstractDefaultMapTest {
 		$products = $this->mapper->type('object[category]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		////
 		$product = $products['Clothes'];
@@ -70,14 +72,24 @@ class DefaultMapTest extends AbstractDefaultMapTest {
 		////
 		$product = $products['Smartphones'];
 		$this->assertInstanceOf('stdClass', $product);
-		$this->assertEquals(5, $product->product_id);
+		$this->assertEquals(7, $product->product_id);
+		
+		////
+		$product = $products['Laptops'];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertEquals(6, $product->product_id);
+		
+		////
+		$product = $products['Software'];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertEquals(8, $product->product_id);
 	}
 	
 	public function testGroupedList() {
 		$products = $this->mapper->type('object<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertInternalType('array', $products['Clothes']);
@@ -142,22 +154,52 @@ class DefaultMapTest extends AbstractDefaultMapTest {
 		////
 		$this->assertArrayHasKey('Smartphones', $products);
 		$this->assertInternalType('array', $products);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
 		$this->assertArrayHasKey(0, $products['Smartphones']);
+		$this->assertArrayHasKey(1, $products['Smartphones']);
 
 		$product = $products['Smartphones'][0];
 		$this->assertInstanceOf('stdClass', $product);
-
 		$this->assertObjectHasAttribute('product_id', $product);
 		$this->assertInternalType('integer', $product->product_id);
 		$this->assertEquals(5, $product->product_id);
+		
+		$product = $products['Smartphones'][1];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(7, $product->product_id);
+		
+		////
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertInternalType('array', $products);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertArrayHasKey(0, $products['Laptops']);
+		
+		$product = $products['Laptops'][0];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(6, $product->product_id);
+		
+		////
+		$this->assertArrayHasKey('Software', $products);
+		$this->assertInternalType('array', $products);
+		$this->assertCount(1, $products['Software']);
+		$this->assertArrayHasKey(0, $products['Laptops']);
+		
+		$product = $products['Software'][0];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(8, $product->product_id);
 	}
 	
 	public function testGroupedIndexedList() {
 		$products = $this->mapper->type('object<category>[product_id]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertInternalType('array', $products['Clothes']);
@@ -222,15 +264,47 @@ class DefaultMapTest extends AbstractDefaultMapTest {
 		////
 		$this->assertArrayHasKey('Smartphones', $products);
 		$this->assertInternalType('array', $products);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
+		$this->assertArrayHasKey(7, $products['Smartphones']);
 
 		$product = $products['Smartphones'][5];
 		$this->assertInstanceOf('stdClass', $product);
-
 		$this->assertObjectHasAttribute('product_id', $product);
 		$this->assertInternalType('integer', $product->product_id);
 		$this->assertEquals(5, $product->product_id);
+		
+		$product = $products['Smartphones'][7];
+		$this->assertInstanceOf('stdClass', $product);
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(7, $product->product_id);
+		
+		////
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertInternalType('array', $products);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertArrayHasKey(6, $products['Laptops']);
+		
+		$product = $products['Laptops'][6];
+		$this->assertInstanceOf('stdClass', $product);
+		
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(6, $product->product_id);
+		
+		////
+		$this->assertArrayHasKey('Software', $products);
+		$this->assertInternalType('array', $products);
+		$this->assertCount(1, $products['Software']);
+		$this->assertArrayHasKey(8, $products['Software']);
+		
+		$product = $products['Software'][8];
+		$this->assertInstanceOf('stdClass', $product);
+		
+		$this->assertObjectHasAttribute('product_id', $product);
+		$this->assertInternalType('integer', $product->product_id);
+		$this->assertEquals(8, $product->product_id);
 	}
 }
 

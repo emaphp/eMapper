@@ -18,10 +18,12 @@ class ArrayMapperTest extends AbstractArrayMapperTest {
 		//PGSQL_BOTH
 		$products = $this->mapper->type('array[category]')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		$this->assertInternalType('array', $products['Clothes']);
 	
@@ -112,23 +114,23 @@ class ArrayMapperTest extends AbstractArrayMapperTest {
 		$this->assertInternalType('array', $products['Smartphones']);
 		$this->assertArrayHasKey('product_id', $products['Smartphones']);
 		$this->assertInternalType('integer', $products['Smartphones']['product_id']);
-		$this->assertEquals(5, $products['Smartphones']['product_id']);
+		$this->assertEquals(7, $products['Smartphones']['product_id']);
 	
 		$this->assertArrayHasKey('product_code', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['product_code']);
-		$this->assertEquals('PHN00098', $products['Smartphones']['product_code']);
+		$this->assertEquals('PHN00666', $products['Smartphones']['product_code']);
 	
 		$this->assertArrayHasKey('description', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['description']);
-		$this->assertEquals('Android phone', $products['Smartphones']['description']);
+		$this->assertEquals('Apple Iphone', $products['Smartphones']['description']);
 	
 		$this->assertArrayHasKey('color', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['color']);
-		$this->assertEquals('00a7eb', $products['Smartphones']['color']);
+		$this->assertEquals('ffffff', $products['Smartphones']['color']);
 	
 		$this->assertArrayHasKey('price', $products['Smartphones']);
 		$this->assertInternalType('float', $products['Smartphones']['price']);
-		$this->assertEquals(300.3, $products['Smartphones']['price']);
+		$this->assertEquals(340.54, $products['Smartphones']['price']);
 	
 		$this->assertArrayHasKey('category', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['category']);
@@ -136,16 +138,90 @@ class ArrayMapperTest extends AbstractArrayMapperTest {
 	
 		$this->assertArrayHasKey('rating', $products['Smartphones']);
 		$this->assertInternalType('float', $products['Smartphones']['rating']);
-		$this->assertEquals(4.8, $products['Smartphones']['rating']);
+		$this->assertEquals(4.7, $products['Smartphones']['rating']);
 	
 		$this->assertArrayHasKey('refurbished', $products['Smartphones']);
 		$this->assertInternalType('boolean', $products['Smartphones']['refurbished']);
-		$this->assertTrue($products['Smartphones']['refurbished']);
+		$this->assertFalse($products['Smartphones']['refurbished']);
 	
 		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
 		$this->assertInternalType('integer', $products['Smartphones']['manufacture_year']);
-		$this->assertEquals(2011, $products['Smartphones']['manufacture_year']);
+		$this->assertEquals(2013, $products['Smartphones']['manufacture_year']);
 	
+		////
+		$this->assertInternalType('array', $products['Laptops']);
+		$this->assertArrayHasKey('product_id', $products['Laptops']);
+		$this->assertInternalType('integer', $products['Laptops']['product_id']);
+		$this->assertEquals(6, $products['Laptops']['product_id']);
+		
+		$this->assertArrayHasKey('product_code', $products['Laptops']);
+		$this->assertInternalType('string', $products['Laptops']['product_code']);
+		$this->assertEquals('TEC00103', $products['Laptops']['product_code']);
+		
+		$this->assertArrayHasKey('description', $products['Laptops']);
+		$this->assertInternalType('string', $products['Laptops']['description']);
+		$this->assertEquals('Notebook Lenovo', $products['Laptops']['description']);
+		
+		$this->assertArrayHasKey('color', $products['Laptops']);
+		$this->assertNull($products['Laptops']['color']);
+		
+		$this->assertArrayHasKey('price', $products['Laptops']);
+		$this->assertInternalType('float', $products['Laptops']['price']);
+		$this->assertEquals(550.75, $products['Laptops']['price']);
+		
+		$this->assertArrayHasKey('category', $products['Laptops']);
+		$this->assertInternalType('string', $products['Laptops']['category']);
+		$this->assertEquals('Laptops', $products['Laptops']['category']);
+		
+		$this->assertArrayHasKey('rating', $products['Laptops']);
+		$this->assertInternalType('float', $products['Laptops']['rating']);
+		$this->assertEquals(4.3, $products['Laptops']['rating']);
+		
+		$this->assertArrayHasKey('refurbished', $products['Laptops']);
+		$this->assertInternalType('boolean', $products['Laptops']['refurbished']);
+		$this->assertFalse($products['Laptops']['refurbished']);
+		
+		$this->assertArrayHasKey('manufacture_year', $products['Laptops']);
+		$this->assertInternalType('integer', $products['Laptops']['manufacture_year']);
+		$this->assertEquals(2013, $products['Laptops']['manufacture_year']);
+		
+		////
+		$this->assertInternalType('array', $products['Software']);
+		$this->assertArrayHasKey('product_id', $products['Software']);
+		$this->assertInternalType('integer', $products['Software']['product_id']);
+		$this->assertEquals(8, $products['Software']['product_id']);
+		
+		$this->assertArrayHasKey('product_code', $products['Software']);
+		$this->assertInternalType('string', $products['Software']['product_code']);
+		$this->assertEquals('SOFT0134', $products['Software']['product_code']);
+		
+		$this->assertArrayHasKey('description', $products['Software']);
+		$this->assertInternalType('string', $products['Software']['description']);
+		$this->assertEquals('Red Hat Linux', $products['Software']['description']);
+		
+		$this->assertArrayHasKey('color', $products['Software']);
+		$this->assertNull($products['Software']['color']);
+		
+		$this->assertArrayHasKey('price', $products['Software']);
+		$this->assertInternalType('float', $products['Software']['price']);
+		$this->assertEquals(250.35, $products['Software']['price']);
+		
+		$this->assertArrayHasKey('category', $products['Software']);
+		$this->assertInternalType('string', $products['Software']['category']);
+		$this->assertEquals('Software', $products['Software']['category']);
+		
+		$this->assertArrayHasKey('rating', $products['Software']);
+		$this->assertInternalType('float', $products['Software']['rating']);
+		$this->assertEquals(4.5, $products['Software']['rating']);
+		
+		$this->assertArrayHasKey('refurbished', $products['Software']);
+		$this->assertInternalType('boolean', $products['Software']['refurbished']);
+		$this->assertFalse($products['Software']['refurbished']);
+		
+		$this->assertArrayHasKey('manufacture_year', $products['Software']);
+		$this->assertInternalType('integer', $products['Software']['manufacture_year']);
+		$this->assertEquals(2013, $products['Software']['manufacture_year']);
+		
 		//PGSQL_ASSOC
 		$products = $this->mapper->type('array[category]', ArrayType::ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
 	
@@ -195,18 +271,24 @@ class ArrayMapperTest extends AbstractArrayMapperTest {
 		//MSQLI_BOTH
 		$products = $this->mapper->type('array<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertInternalType('array', $products['Laptops']);
+		$this->assertInternalType('array', $products['Software']);
 	
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 	
 		////
 		$this->assertArrayHasKey(0, $products['Clothes']);
@@ -365,6 +447,12 @@ class ArrayMapperTest extends AbstractArrayMapperTest {
 		////
 		$this->assertArrayHasKey(0, $products['Smartphones']);
 	
+		////
+		$this->assertArrayHasKey(0, $products['Laptops']);
+		
+		////
+		$this->assertArrayHasKey(0, $products['Software']);
+		
 		//PGSQL_ASSOC
 		$products = $this->mapper->type('array<category>', ArrayType::ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
 	
