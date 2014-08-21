@@ -2,10 +2,9 @@
 namespace eMapper\Reflection\Profile\Association;
 
 use eMapper\Reflection\Profile\PropertyProfile;
-use eMapper\Reflection\Profiler;
 use eMapper\Annotations\Annotation;
-use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Manager;
+use eMapper\Annotations\AnnotationsBag;
 
 /**
  * The AbstractAssociation class encapsulates common logic between the various types of entity associations.
@@ -17,15 +16,15 @@ abstract class AbstractAssociation extends PropertyProfile {
 	
 	/**
 	 * Referred entity profile
-	 * @var ClassProfile
+	 * @var \ReflectionClass
 	 */
 	protected $profile;
 	
 	/**
 	 * Declaring class profile
-	 * @var ClassProfile
+	 * @var \ReflectionClass
 	 */
-	protected $from;
+	protected $parent;
 	
 	/**
 	 * Foreign key
@@ -52,26 +51,20 @@ abstract class AbstractAssociation extends PropertyProfile {
 	protected $reversedBy;
 	
 	public function __construct($entity, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
-		//check if the specified class is a valid entity
 		try {
-			$profile = Profiler::getClassProfile($entity);
+			$reflectionClass = new \ReflectionClass($entity);
 		}
 		catch (\ReflectionException $re) {
 			//try using
 			$currentNamespace = $reflectionProperty->getDeclaringClass()->getNamespaceName();
-			$entity = $currentNamespace . '\\' . $entity;
-			$profile = Profiler::getClassProfile($entity);
-		}
-		
-		if (!$profile->isEntity()) {
-			throw new \UnexpectedValueException(sprintf("Class %s is not a valid entity", $entity));
+			$reflectionClass = new \ReflectionClass($currentNamespace . '\\' . $entity);
 		}
 		
 		$this->name = $name;
 		
 		//get entities profiles
-		$this->profile = $profile;
-		$this->from = Profiler::getClassProfile($reflectionProperty->getDeclaringClass()->getName());
+		$this->profile = $reflectionClass;
+		$this->parent = $reflectionProperty->getDeclaringClass();
 		
 		//get additional configuration
 		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : null;
@@ -88,8 +81,20 @@ abstract class AbstractAssociation extends PropertyProfile {
 		return $this->profile;
 	}
 	
+	public function getParent() {
+		return $this->parent;
+	}
+	
+	public function getForeignKey() {
+		return $this->foreignKey;
+	}
+	
 	public function getReversedBy() {
 		return $this->reversedBy;
+	}
+	
+	public function getJoinWith() {
+		return $this->joinWith;
 	}
 	
 	public function isLazy() {
