@@ -105,10 +105,12 @@ abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
 			$row->edoc = strrev($row->product_code);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		foreach ($products as $group) {
 			foreach ($group as $product) {
@@ -126,10 +128,12 @@ abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
 			$row['edoc'] = strrev($row['product_code']);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		foreach ($products as $group) {
 			foreach ($group as $product) {
@@ -147,10 +151,12 @@ abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
 			$row->edoc = strrev($row->product_code);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		foreach ($products as $group) {
 			foreach ($group as $product) {
@@ -168,10 +174,12 @@ abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
 			$row['edoc'] = strrev($row['product_code']);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		foreach ($products as $group) {
 			foreach ($group as $product) {

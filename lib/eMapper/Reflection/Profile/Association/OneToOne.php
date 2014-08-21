@@ -1,6 +1,10 @@
 <?php
 namespace eMapper\Reflection\Profile\Association;
 
+/**
+ * The OneToOne class is an abstraction of one-to-one associations.
+ * @author emaphp
+ */
 class OneToOne extends AbstractAssociation {
 	public function buildJoin($alias, $mainAlias) {
 		if (isset($this->foreignKey)) {

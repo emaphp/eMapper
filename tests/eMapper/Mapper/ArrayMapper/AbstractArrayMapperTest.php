@@ -385,10 +385,12 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 	public function testIndexOverrideList() {
 		$products = $this->mapper->type('array[category]')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		$this->assertInternalType('array', $products['Clothes']);
 		
@@ -478,23 +480,23 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		$this->assertInternalType('array', $products['Smartphones']);
 		$this->assertArrayHasKey('product_id', $products['Smartphones']);
 		$this->assertInternalType('integer', $products['Smartphones']['product_id']);
-		$this->assertEquals(5, $products['Smartphones']['product_id']);
+		$this->assertEquals(7, $products['Smartphones']['product_id']);
 		
 		$this->assertArrayHasKey('product_code', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['product_code']);
-		$this->assertEquals('PHN00098', $products['Smartphones']['product_code']);
+		$this->assertEquals('PHN00666', $products['Smartphones']['product_code']);
 		
 		$this->assertArrayHasKey('description', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['description']);
-		$this->assertEquals('Android phone', $products['Smartphones']['description']);
+		$this->assertEquals('Apple Iphone', $products['Smartphones']['description']);
 		
 		$this->assertArrayHasKey('color', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['color']);
-		$this->assertEquals('00a7eb', $products['Smartphones']['color']);
+		$this->assertEquals('ffffff', $products['Smartphones']['color']);
 		
 		$this->assertArrayHasKey('price', $products['Smartphones']);
 		$this->assertInternalType('float', $products['Smartphones']['price']);
-		$this->assertEquals(300.3, $products['Smartphones']['price']);
+		$this->assertEquals(340.54, $products['Smartphones']['price']);
 		
 		$this->assertArrayHasKey('category', $products['Smartphones']);
 		$this->assertInternalType('string', $products['Smartphones']['category']);
@@ -502,15 +504,15 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		
 		$this->assertArrayHasKey('rating', $products['Smartphones']);
 		$this->assertInternalType('float', $products['Smartphones']['rating']);
-		$this->assertEquals(4.8, $products['Smartphones']['rating']);
+		$this->assertEquals(4.7, $products['Smartphones']['rating']);
 		
 		$this->assertArrayHasKey('refurbished', $products['Smartphones']);
 		$this->assertInternalType('integer', $products['Smartphones']['refurbished']);
-		$this->assertEquals(1, $products['Smartphones']['refurbished']);
+		$this->assertEquals(0, $products['Smartphones']['refurbished']);
 		
 		$this->assertArrayHasKey('manufacture_year', $products['Smartphones']);
 		$this->assertInternalType('integer', $products['Smartphones']['manufacture_year']);
-		$this->assertEquals(2011, $products['Smartphones']['manufacture_year']);
+		$this->assertEquals(2013, $products['Smartphones']['manufacture_year']);
 		
 		$products = $this->mapper->type('array[category]', ArrayType::ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
 		
@@ -558,18 +560,24 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 	public function testGroupedList() {
 		$products = $this->mapper->type('array<category>')->query("SELECT * FROM products ORDER BY product_id ASC");
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertInternalType('array', $products['Laptops']);
+		$this->assertInternalType('array', $products['Software']);
 		
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 		
 		$this->assertArrayHasKey(0, $products['Clothes']);
 		$this->assertArrayHasKey(1, $products['Clothes']);
@@ -725,6 +733,11 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		
 		////
 		$this->assertArrayHasKey(0, $products['Smartphones']);
+		$this->assertArrayHasKey(1, $products['Smartphones']);
+		
+		$this->assertArrayHasKey(0, $products['Laptops']);
+		
+		$this->assertArrayHasKey(0, $products['Software']);
 		
 		$products = $this->mapper->type('array<category>', ArrayType::ASSOC)->query("SELECT * FROM products ORDER BY product_id ASC");
 		
@@ -775,19 +788,25 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		$products = $this->mapper->type('array<category>[product_id]')->query("SELECT * FROM products ORDER BY product_id ASC");
 		
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertInternalType('array', $products['Software']);
+		$this->assertInternalType('array', $products['Laptops']);
 		
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Software']);
+		$this->assertCount(1, $products['Laptops']);
 		
 		////
 		$this->assertArrayHasKey(1, $products['Clothes']);
@@ -795,6 +814,9 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		$this->assertArrayHasKey(3, $products['Clothes']);
 		$this->assertArrayHasKey(4, $products['Hardware']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
+		$this->assertArrayHasKey(6, $products['Laptops']);
+		$this->assertArrayHasKey(7, $products['Smartphones']);
+		$this->assertArrayHasKey(8, $products['Software']);
 		
 		////
 		$this->assertArrayHasKey('product_id', $products['Clothes'][1]);
@@ -845,12 +867,17 @@ abstract class AbstractArrayMapperTest extends AbstractMapperTest {
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		$this->assertArrayHasKey(1, $products['Clothes']);
 		$this->assertArrayHasKey(2, $products['Clothes']);
 		$this->assertArrayHasKey(3, $products['Clothes']);
 		$this->assertArrayHasKey(4, $products['Hardware']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
+		$this->assertArrayHasKey(6, $products['Laptops']);
+		$this->assertArrayHasKey(7, $products['Smartphones']);
+		$this->assertArrayHasKey(8, $products['Software']);
 		
 		////
 		$this->assertArrayNotHasKey('product_id', $products['Clothes'][1]);

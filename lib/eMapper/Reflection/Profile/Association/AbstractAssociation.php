@@ -7,7 +7,14 @@ use eMapper\Annotations\Annotation;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Manager;
 
+/**
+ * The AbstractAssociation class encapsulates common logic between the various types of entity associations.
+ * @author emaphp
+ */
 abstract class AbstractAssociation extends PropertyProfile {
+	const DEFAULT_ALIAS = '_t';
+	const CONTEXT_ALIAS = '_c';
+	
 	/**
 	 * Referred entity profile
 	 * @var ClassProfile

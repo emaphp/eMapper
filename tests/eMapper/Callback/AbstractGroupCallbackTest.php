@@ -33,11 +33,17 @@ abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('stdClass', $list['12'][0]);
 		$this->assertEquals(2, $list['12'][0]->product_id);
 	
-		$this->assertCount(2, $list['13']);
+		$this->assertCount(5, $list['13']);
 		$this->assertInstanceOf('stdClass', $list['13'][0]);
 		$this->assertEquals(3, $list['13'][0]->product_id);
 		$this->assertInstanceOf('stdClass', $list['13'][1]);
 		$this->assertEquals(4, $list['13'][1]->product_id);
+		$this->assertInstanceOf('stdClass', $list['13'][2]);
+		$this->assertEquals(6, $list['13'][2]->product_id);
+		$this->assertInstanceOf('stdClass', $list['13'][3]);
+		$this->assertEquals(7, $list['13'][3]->product_id);
+		$this->assertInstanceOf('stdClass', $list['13'][4]);
+		$this->assertEquals(8, $list['13'][4]->product_id);
 	}
 	
 	public function createGroup($product) {
@@ -63,11 +69,17 @@ abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType('array', $list['cheap'][2]);
 		$this->assertEquals(4, $list['cheap'][2]['product_id']);
 	
-		$this->assertCount(2, $list['expensive']);
+		$this->assertCount(5, $list['expensive']);
 		$this->assertInternalType('array', $list['expensive'][0]);
 		$this->assertEquals(2, $list['expensive'][0]['product_id']);
 		$this->assertInternalType('array', $list['expensive'][1]);
 		$this->assertEquals(5, $list['expensive'][1]['product_id']);
+		$this->assertInternalType('array', $list['expensive'][2]);
+		$this->assertEquals(6, $list['expensive'][2]['product_id']);
+		$this->assertInternalType('array', $list['expensive'][3]);
+		$this->assertEquals(7, $list['expensive'][3]['product_id']);
+		$this->assertInternalType('array', $list['expensive'][4]);
+		$this->assertEquals(8, $list['expensive'][4]['product_id']);
 	}
 	
 	public function tearDown() {

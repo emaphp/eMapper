@@ -73,7 +73,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'IND00054','Red dress','e11a1a',150.65,'Clothes',4.5,0,2011),(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes',3.9,0,2012),(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013),(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013),(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011),(6,'TEC00010','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013),(7,'PHN00666','Apple Iphone','ffffff',340.54,'Smartphones',4.7,0,2013),(8,'SOFT0013','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
+INSERT INTO `products` VALUES (1,'IND00054','Red dress','e11a1a',150.65,'Clothes',4.5,0,2011),(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes',3.9,0,2012),(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013),(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013),(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011),(6,'TEC00103','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013),(7,'PHN00666','Apple Iphone','ffffff',340.54,'Smartphones',4.7,0,2013),(8,'SOFT0134','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -313,4 +313,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-18  2:07:15
+-- Dump completed on 2014-08-19 19:35:30

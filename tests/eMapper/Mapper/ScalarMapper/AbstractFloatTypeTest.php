@@ -66,13 +66,16 @@ abstract class AbstractFloatTypeTest extends AbstractMapperTest {
 		$values = $this->mapper->type('float[]')->query("SELECT rating FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
+		$this->assertCount(8, $values);
 	
 		$this->assertEquals(4.5, $values[0]);
 		$this->assertEquals(3.9, $values[1]);
 		$this->assertEquals(4.1, $values[2]);
 		$this->assertEquals(3.8, $values[3]);
 		$this->assertEquals(4.8, $values[4]);
+		$this->assertEquals(4.3, $values[5]);
+		$this->assertEquals(4.7, $values[6]);
+		$this->assertEquals(4.5, $values[7]);
 	}
 	
 	public function testFloatColumnList() {

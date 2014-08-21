@@ -93,23 +93,33 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(3, $values);
+		$this->assertCount(5, $values);
 	
 		$this->assertArrayHasKey('Clothes', $values);
 		$this->assertArrayHasKey('Hardware', $values);
 		$this->assertArrayHasKey('Smartphones', $values);
+		$this->assertArrayHasKey('Software', $values);
+		$this->assertArrayHasKey('Laptops', $values);
 	
 		$this->assertCount(2, $values['Clothes']);
 		$this->assertCount(0, $values['Hardware']);
-		$this->assertCount(1, $values['Smartphones']);
+		$this->assertCount(2, $values['Smartphones']);
+		$this->assertCount(1, $values['Software']);
+		$this->assertCount(1, $values['Laptops']);
 	
 		$this->assertArrayHasKey(0, $values['Clothes']);
 		$this->assertArrayHasKey(1, $values['Clothes']);
 		$this->assertArrayHasKey(0, $values['Smartphones']);
+		$this->assertArrayHasKey(1, $values['Smartphones']);
+		$this->assertArrayHasKey(0, $values['Software']);
+		$this->assertArrayHasKey(0, $values['Laptops']);
 	
 		$this->assertEquals(1, $values['Clothes'][0]->product_id);
 		$this->assertEquals(2, $values['Clothes'][1]->product_id);
 		$this->assertEquals(5, $values['Smartphones'][0]->product_id);
+		$this->assertEquals(7, $values['Smartphones'][1]->product_id);
+		$this->assertEquals(8, $values['Software'][0]->product_id);
+		$this->assertEquals(6, $values['Laptops'][0]->product_id);
 	}
 	
 	public function testIndexedGroupedObjectList() {
@@ -118,23 +128,33 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(3, $values);
+		$this->assertCount(5, $values);
 	
 		$this->assertArrayHasKey('Clothes', $values);
 		$this->assertArrayHasKey('Hardware', $values);
 		$this->assertArrayHasKey('Smartphones', $values);
+		$this->assertArrayHasKey('Software', $values);
+		$this->assertArrayHasKey('Laptops', $values);
 	
 		$this->assertCount(2, $values['Clothes']);
 		$this->assertCount(0, $values['Hardware']);
-		$this->assertCount(1, $values['Smartphones']);
+		$this->assertCount(2, $values['Smartphones']);
+		$this->assertCount(1, $values['Software']);
+		$this->assertCount(1, $values['Laptops']);
 	
 		$this->assertArrayHasKey(1, $values['Clothes']);
 		$this->assertArrayHasKey(2, $values['Clothes']);
 		$this->assertArrayHasKey(5, $values['Smartphones']);
+		$this->assertArrayHasKey(7, $values['Smartphones']);
+		$this->assertArrayHasKey(6, $values['Laptops']);
+		$this->assertArrayHasKey(8, $values['Software']);
 	
 		$this->assertEquals(1, $values['Clothes'][1]->product_id);
 		$this->assertEquals(2, $values['Clothes'][2]->product_id);
 		$this->assertEquals(5, $values['Smartphones'][5]->product_id);
+		$this->assertEquals(7, $values['Smartphones'][7]->product_id);
+		$this->assertEquals(6, $values['Laptops'][6]->product_id);
+		$this->assertEquals(8, $values['Software'][8]->product_id);
 	}
 	
 	public function testSingleArray() {
@@ -195,23 +215,33 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(3, $values);
+		$this->assertCount(5, $values);
 	
 		$this->assertArrayHasKey('Clothes', $values);
 		$this->assertArrayHasKey('Hardware', $values);
 		$this->assertArrayHasKey('Smartphones', $values);
+		$this->assertArrayHasKey('Laptops', $values);
+		$this->assertArrayHasKey('Software', $values);
 	
 		$this->assertCount(2, $values['Clothes']);
 		$this->assertCount(0, $values['Hardware']);
-		$this->assertCount(1, $values['Smartphones']);
+		$this->assertCount(2, $values['Smartphones']);
+		$this->assertCount(1, $values['Laptops']);
+		$this->assertCount(1, $values['Software']);
 	
 		$this->assertArrayHasKey(0, $values['Clothes']);
 		$this->assertArrayHasKey(1, $values['Clothes']);
 		$this->assertArrayHasKey(0, $values['Smartphones']);
+		$this->assertArrayHasKey(1, $values['Smartphones']);
+		$this->assertArrayHasKey(0, $values['Laptops']);
+		$this->assertArrayHasKey(0, $values['Software']);
 	
 		$this->assertEquals(1, $values['Clothes'][0]['product_id']);
 		$this->assertEquals(2, $values['Clothes'][1]['product_id']);
 		$this->assertEquals(5, $values['Smartphones'][0]['product_id']);
+		$this->assertEquals(7, $values['Smartphones'][1]['product_id']);
+		$this->assertEquals(6, $values['Laptops'][0]['product_id']);
+		$this->assertEquals(8, $values['Software'][0]['product_id']);
 	}
 	
 	public function testIndexedGroupedArrayList() {
@@ -220,23 +250,33 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(3, $values);
+		$this->assertCount(5, $values);
 	
 		$this->assertArrayHasKey('Clothes', $values);
 		$this->assertArrayHasKey('Hardware', $values);
 		$this->assertArrayHasKey('Smartphones', $values);
+		$this->assertArrayHasKey('Software', $values);
+		$this->assertArrayHasKey('Laptops', $values);
 	
 		$this->assertCount(2, $values['Clothes']);
 		$this->assertCount(0, $values['Hardware']);
-		$this->assertCount(1, $values['Smartphones']);
+		$this->assertCount(2, $values['Smartphones']);
+		$this->assertCount(1, $values['Software']);
+		$this->assertCount(1, $values['Laptops']);
 	
 		$this->assertArrayHasKey(1, $values['Clothes']);
 		$this->assertArrayHasKey(2, $values['Clothes']);
 		$this->assertArrayHasKey(5, $values['Smartphones']);
+		$this->assertArrayHasKey(7, $values['Smartphones']);
+		$this->assertArrayHasKey(6, $values['Laptops']);
+		$this->assertArrayHasKey(8, $values['Software']);
 	
 		$this->assertEquals(1, $values['Clothes'][1]['product_id']);
 		$this->assertEquals(2, $values['Clothes'][2]['product_id']);
 		$this->assertEquals(5, $values['Smartphones'][5]['product_id']);
+		$this->assertEquals(7, $values['Smartphones'][7]['product_id']);
+		$this->assertEquals(6, $values['Laptops'][6]['product_id']);
+		$this->assertEquals(8, $values['Software'][8]['product_id']);
 	}
 	
 	public function tearDown() {

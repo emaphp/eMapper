@@ -140,21 +140,18 @@ class SelectQueryBuilder extends QueryBuilder {
 	}
 	
 	public function build(Driver $driver, $config = null) {
+		$alias = AbstractAssociation::DEFAULT_ALIAS;
+		$table = '@@' . $this->entity->getReferredTable() . ' ' . $alias;
+		$joins = [];
+		
 		if (isset($this->context)) {
-			$alias = '_t';
-			$table = '@@' . $this->entity->getReferredTable() . " $alias";
 			$reversedBy = $this->context->getReversedBy();
-			$joins = [isset($reversedBy) ? $reversedBy : '__context__' => [$this->context, '_c']];
-		}
-		else {
-			$alias = '';
-			$table = '@@' . $this->entity->getReferredTable();
-			$joins = [];
+			$joins = [isset($reversedBy) ? $reversedBy : '__context__' => [$this->context, AbstractAssociation::CONTEXT_ALIAS]];
 		}
 		
 		if (isset($this->function)) {
 			$function = $this->function->getExpression($this->entity, $alias);
-			
+
 			if (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
 				$args = [];
 				$filters = [];
@@ -182,7 +179,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		
 		if (isset($this->condition)) {
 			$args = [];
-			if (!empty($alias)) $condition->setAlias($alias);
+			if (!empty($alias)) $this->condition->setAlias($alias);
 			$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args);
 
 			$table .= $this->joinTables($joins, $alias);

@@ -129,10 +129,12 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		//
 		$this->assertArrayHasKey('code', $products['Clothes']);
@@ -161,18 +163,24 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertInternalType('array', $products['Laptops']);
+		$this->assertInternalType('array', $products['Software']);
 	
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 	
 		////
 		$this->assertArrayHasKey(0, $products['Clothes']);
@@ -180,6 +188,9 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 		$this->assertArrayHasKey(2, $products['Clothes']);
 		$this->assertArrayHasKey(0, $products['Hardware']);
 		$this->assertArrayHasKey(0, $products['Smartphones']);
+		$this->assertArrayHasKey(1, $products['Smartphones']);
+		$this->assertArrayHasKey(0, $products['Laptops']);
+		$this->assertArrayHasKey(0, $products['Software']);
 	
 		$this->assertArrayHasKey('code', $products['Clothes'][2]);
 		$this->assertInternalType('string', $products['Clothes'][2]['code']);
@@ -207,25 +218,34 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 	
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		$this->assertInternalType('array', $products['Clothes']);
 		$this->assertInternalType('array', $products['Hardware']);
 		$this->assertInternalType('array', $products['Smartphones']);
+		$this->assertInternalType('array', $products['Laptops']);
+		$this->assertInternalType('array', $products['Software']);
 	
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 	
 		$this->assertArrayHasKey('IND00054', $products['Clothes']);
 		$this->assertArrayHasKey('IND00043', $products['Clothes']);
 		$this->assertArrayHasKey('IND00232', $products['Clothes']);
 		$this->assertArrayHasKey('GFX00067', $products['Hardware']);
 		$this->assertArrayHasKey('PHN00098', $products['Smartphones']);
+		$this->assertArrayHasKey('PHN00666', $products['Smartphones']);
+		$this->assertArrayHasKey('TEC00103', $products['Laptops']);
+		$this->assertArrayHasKey('SOFT0134', $products['Software']);
 	
 		$this->assertArrayHasKey('code', $products['Clothes']['IND00232']);
 		$this->assertInternalType('string', $products['Clothes']['IND00232']['code']);

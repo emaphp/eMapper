@@ -75,7 +75,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testFindAll() {
 		$products = $this->productsManager->find();
 		$this->assertInternalType('array', $products);
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 	
 		foreach ($products as $product) {
 			$this->assertInstanceOf('Acme\Entity\Product', $product);
@@ -95,7 +95,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testReverseCondition() {
 		$products = $this->productsManager->find(Attr::category()->eq('Clothes', false));
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testFilter() {
@@ -105,7 +105,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testExclude() {
 		$products = $this->productsManager->exclude(Attr::id()->lt(3))->find();
-		$this->assertCount(3, $products);
+		$this->assertCount(6, $products);
 	}
 	
 	/**
@@ -118,7 +118,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testColumnCondition() {
 		$products = $this->productsManager->find(Column::manufacture_year()->eq(2013));
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testColumnReverseCondition() {
@@ -140,7 +140,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testIndex() {
 		$products = $this->productsManager->index(Attr::id())->find();
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		
 		//assert indexes
 		$this->assertArrayHasKey(1, $products);
@@ -148,6 +148,9 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey(3, $products);
 		$this->assertArrayHasKey(4, $products);
 		$this->assertArrayHasKey(5, $products);
+		$this->assertArrayHasKey(6, $products);
+		$this->assertArrayHasKey(7, $products);
+		$this->assertArrayHasKey(8, $products);
 		
 		//assert objects
 		$this->assertInstanceOf('Acme\Entity\Product', $products[1]);
@@ -164,11 +167,20 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertInstanceOf('Acme\Entity\Product', $products[5]);
 		$this->assertEquals('PHN00098', $products[5]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[6]);
+		$this->assertEquals('TEC00103', $products[6]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[7]);
+		$this->assertEquals('PHN00666', $products[7]->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products[8]);
+		$this->assertEquals('SOFT0134', $products[8]->code);
 	}
 	
 	public function testIndexType() {
 		$products = $this->productsManager->index(Attr::id('string'))->find();
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 	
 		//assert indexes
 		$this->assertArrayHasKey('1', $products);
@@ -176,6 +188,9 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('3', $products);
 		$this->assertArrayHasKey('4', $products);
 		$this->assertArrayHasKey('5', $products);
+		$this->assertArrayHasKey('6', $products);
+		$this->assertArrayHasKey('7', $products);
+		$this->assertArrayHasKey('8', $products);
 	
 		//assert objects
 		$this->assertInstanceOf('Acme\Entity\Product', $products['1']);
@@ -192,11 +207,20 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 		$this->assertInstanceOf('Acme\Entity\Product', $products['5']);
 		$this->assertEquals('PHN00098', $products['5']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['6']);
+		$this->assertEquals('TEC00103', $products['6']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['7']);
+		$this->assertEquals('PHN00666', $products['7']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['8']);
+		$this->assertEquals('SOFT0134', $products['8']->code);
 	}
 	
 	public function testIndexColumn() {
 		$products = $this->productsManager->index(Column::product_code())->find();
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		
 		//assert indexes
 		$this->assertArrayHasKey('IND00054', $products);
@@ -204,6 +228,9 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('IND00232', $products);
 		$this->assertArrayHasKey('GFX00067', $products);
 		$this->assertArrayHasKey('PHN00098', $products);
+		$this->assertArrayHasKey('TEC00103', $products);
+		$this->assertArrayHasKey('PHN00666', $products);
+		$this->assertArrayHasKey('SOFT0134', $products);
 		
 		//assert objects
 		$this->assertInstanceOf('Acme\Entity\Product', $products['IND00054']);
@@ -220,6 +247,15 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertInstanceOf('Acme\Entity\Product', $products['PHN00098']);
 		$this->assertEquals(5, $products['PHN00098']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['TEC00103']);
+		$this->assertEquals(6, $products['TEC00103']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['PHN00666']);
+		$this->assertEquals(7, $products['PHN00666']->id);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['SOFT0134']);
+		$this->assertEquals(8, $products['SOFT0134']->id);
 	}
 	
 	/**
@@ -234,7 +270,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 			return "prod_{$product->id}";
 		})->find();
 		
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		
 		//assert indexes
 		$this->assertArrayHasKey('prod_1', $products);
@@ -242,6 +278,9 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('prod_3', $products);
 		$this->assertArrayHasKey('prod_4', $products);
 		$this->assertArrayHasKey('prod_5', $products);
+		$this->assertArrayHasKey('prod_6', $products);
+		$this->assertArrayHasKey('prod_7', $products);
+		$this->assertArrayHasKey('prod_8', $products);
 		
 		//assert objects
 		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_1']);
@@ -258,6 +297,15 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_5']);
 		$this->assertEquals('PHN00098', $products['prod_5']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_6']);
+		$this->assertEquals('TEC00103', $products['prod_6']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_7']);
+		$this->assertEquals('PHN00666', $products['prod_7']->code);
+		
+		$this->assertInstanceOf('Acme\Entity\Product', $products['prod_8']);
+		$this->assertEquals('SOFT0134', $products['prod_8']->code);
 	}
 	
 	/*
@@ -265,17 +313,21 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testGroup() {
 		$products = $this->productsManager->group(Attr::category())->find();
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		
 		//assert groups
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		//assert values
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 	}
 	
 	public function testGroupIndex() {
@@ -284,12 +336,14 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		->index(Attr::id())
 		->find();
 		
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		
 		//assert groups
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 		
 		//assert values
 		$this->assertCount(3, $products['Clothes']);
@@ -300,8 +354,15 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount(1, $products['Hardware']);
 		$this->assertArrayHasKey(4, $products['Hardware']);
 		
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
 		$this->assertArrayHasKey(5, $products['Smartphones']);
+		$this->assertArrayHasKey(7, $products['Smartphones']);
+		
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertArrayHasKey(6, $products['Laptops']);
+		
+		$this->assertCount(1, $products['Software']);
+		$this->assertArrayHasKey(8, $products['Software']);
 		
 		//assert objects
 		$this->assertEquals(1, $products['Clothes'][1]->id);
@@ -309,21 +370,28 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(3, $products['Clothes'][3]->id);
 		$this->assertEquals(4, $products['Hardware'][4]->id);
 		$this->assertEquals(5, $products['Smartphones'][5]->id);
+		$this->assertEquals(6, $products['Laptops'][6]->id);
+		$this->assertEquals(7, $products['Smartphones'][7]->id);
+		$this->assertEquals(8, $products['Software'][8]->id);
 	}
 	
 	public function testGroupColumn() {
 		$products = $this->productsManager->group(Column::category())->find();
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 	
 		//assert groups
 		$this->assertArrayHasKey('Clothes', $products);
 		$this->assertArrayHasKey('Hardware', $products);
 		$this->assertArrayHasKey('Smartphones', $products);
+		$this->assertArrayHasKey('Laptops', $products);
+		$this->assertArrayHasKey('Software', $products);
 	
 		//assert values
 		$this->assertCount(3, $products['Clothes']);
 		$this->assertCount(1, $products['Hardware']);
-		$this->assertCount(1, $products['Smartphones']);
+		$this->assertCount(2, $products['Smartphones']);
+		$this->assertCount(1, $products['Laptops']);
+		$this->assertCount(1, $products['Software']);
 	}
 	
 	/**
@@ -339,11 +407,13 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 			return substr($product->code, 0, 3);
 		})
 		->find();
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 		
 		$this->assertArrayHasKey('IND', $products);
 		$this->assertArrayHasKey('GFX', $products);
 		$this->assertArrayHasKey('PHN', $products);
+		$this->assertArrayHasKey('TEC', $products);
+		$this->assertArrayHasKey('SOF', $products);
 	}
 	
 	/*
@@ -352,7 +422,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testValue() {
 		$total = $this->productsManager->execute('count');
 		$this->assertInternalType('integer', $total);
-		$this->assertEquals(5, $total);
+		$this->assertEquals(8, $total);
 	}
 	
 	public function testObject() {
@@ -375,7 +445,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testCount() {
 		$totalProducts = $this->productsManager->count();
 		$this->assertInternalType('integer', $totalProducts);
-		$this->assertEquals(5, $totalProducts);
+		$this->assertEquals(8, $totalProducts);
 		
 		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->count();
 		$this->assertEquals(3, $total);
@@ -388,21 +458,21 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testAverage() {
 		$avg = $this->productsManager->avg(Column::price());
 		$this->assertInternalType('float', $avg);
-		$this->assertEquals(175, floor($avg));
+		$this->assertEquals(252.0, floor($avg));
 		
 		$avg = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->avg(Column::price(), 'int');
 		$this->assertInternalType('integer', $avg);
-		$this->assertEquals(210, $avg);
+		$this->assertEquals(312, $avg);
 	}
 	
 	public function testMax() {
 		$max = $this->productsManager->max(Column::price());
 		$this->assertInternalType('float', $max);
-		$this->assertEquals(300, floor($max));
+		$this->assertEquals(550, floor($max));
 		
 		$max = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->max(Column::price(), 'int');
 		$this->assertInternalType('integer', $max);
-		$this->assertEquals(300, $max);
+		$this->assertEquals(550, $max);
 	}
 	
 	public function testMin() {
@@ -418,7 +488,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testSum() {
 		$sum = $this->productsManager->sum(Column::price());
 		$this->assertInternalType('float', $sum);
-		$this->assertEquals(878, floor($sum));
+		$this->assertEquals(2019.0, floor($sum));
 		
 		$sum = $this->productsManager->filter(Attr::category()->eq('Clothes'))->sum(Column::price(), 'integer');
 		$this->assertInternalType('integer', $sum);

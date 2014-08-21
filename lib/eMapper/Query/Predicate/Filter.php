@@ -42,7 +42,7 @@ class Filter extends SQLPredicate {
 		}
 		
 		if (count($this->predicates) == 1) {
-			if (!empty($this->alias)) $predicate->setAlias($this->alias);
+			if (!empty($this->alias)) $this->predicates[0]->setAlias($this->alias);
 			$condition = $this->predicates[0]->evaluate($driver, $profile, $joins, $args, $arg_index);
 			
 			if ($this->negate) {

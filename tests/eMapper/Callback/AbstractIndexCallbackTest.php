@@ -46,7 +46,7 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 		$list = $this->mapper->index_callback([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
 	
 		$this->assertInternalType('array', $list);
-		$this->assertCount(5, $list);
+		$this->assertCount(7, $list);
 	
 		//assert indexes
 		$this->assertArrayHasKey('Red', $list);
@@ -54,6 +54,8 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('Green', $list);
 		$this->assertArrayHasKey('ATI', $list);
 		$this->assertArrayHasKey('Android', $list);
+		$this->assertArrayHasKey('Notebook', $list);
+		$this->assertArrayHasKey('Apple', $list);
 	
 		//assert values
 		$this->assertInternalType('array', $list['Red']);
@@ -61,12 +63,16 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType('array', $list['Green']);
 		$this->assertInternalType('array', $list['ATI']);
 		$this->assertInternalType('array', $list['Android']);
+		$this->assertInternalType('array', $list['Notebook']);
+		$this->assertInternalType('array', $list['Apple']);
 	
-		$this->assertEquals(1, $list['Red']['product_id']);
+		$this->assertEquals(8, $list['Red']['product_id']);
 		$this->assertEquals(2, $list['Blue']['product_id']);
 		$this->assertEquals(3, $list['Green']['product_id']);
 		$this->assertEquals(4, $list['ATI']['product_id']);
 		$this->assertEquals(5, $list['Android']['product_id']);
+		$this->assertEquals(6, $list['Notebook']['product_id']);
+		$this->assertEquals(7, $list['Apple']['product_id']);
 	}
 	
 	public function tearDown() {

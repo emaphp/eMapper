@@ -31,7 +31,7 @@ abstract class AbstractCustomTypeTest extends AbstractMapperTest {
 		$values = $this->mapper->type('Acme\RGBColor[]')->query("SELECT color FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
+		$this->assertCount(8, $values);
 	
 		$this->assertInstanceOf('Acme\RGBColor', $values[0]);
 		$this->assertEquals(225, $values[0]->red);
@@ -54,13 +54,22 @@ abstract class AbstractCustomTypeTest extends AbstractMapperTest {
 		$this->assertEquals(0, $values[4]->red);
 		$this->assertEquals(167, $values[4]->green);
 		$this->assertEquals(235, $values[4]->blue);
+		
+		$this->assertNull($values[5]);
+		
+		$this->assertInstanceOf('Acme\RGBColor', $values[6]);
+		$this->assertEquals(255, $values[6]->red);
+		$this->assertEquals(255, $values[6]->green);
+		$this->assertEquals(255, $values[6]->blue);
+		
+		$this->assertNull($values[7]);
 	}
 	
 	public function testCustomTypeColumnList() {
 		$values = $this->mapper->type('Acme\RGBColor[]', 'color')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
+		$this->assertCount(8, $values);
 	
 		$this->assertInstanceOf('Acme\RGBColor', $values[0]);
 		$this->assertEquals(225, $values[0]->red);
@@ -83,6 +92,15 @@ abstract class AbstractCustomTypeTest extends AbstractMapperTest {
 		$this->assertEquals(0, $values[4]->red);
 		$this->assertEquals(167, $values[4]->green);
 		$this->assertEquals(235, $values[4]->blue);
+		
+		$this->assertNull($values[5]);
+		
+		$this->assertInstanceOf('Acme\RGBColor', $values[6]);
+		$this->assertEquals(255, $values[6]->red);
+		$this->assertEquals(255, $values[6]->green);
+		$this->assertEquals(255, $values[6]->blue);
+		
+		$this->assertNull($values[7]);
 	}
 }
 ?>

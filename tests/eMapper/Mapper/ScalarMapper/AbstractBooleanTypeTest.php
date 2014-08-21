@@ -112,26 +112,32 @@ abstract class AbstractBooleanTypeTest extends AbstractMapperTest {
 		$values = $this->mapper->type('bool[]')->query("SELECT refurbished FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
+		$this->assertCount(8, $values);
 	
 		$this->assertFalse($values[0]);
 		$this->assertFalse($values[1]);
 		$this->assertFalse($values[2]);
 		$this->assertFalse($values[3]);
 		$this->assertTrue($values[4]);
+		$this->assertFalse($values[5]);
+		$this->assertFalse($values[6]);
+		$this->assertFalse($values[7]);
 	}
 	
 	public function testBooleanColumnList() {
 		$values = $this->mapper->type('bool[]', 'refurbished')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $values);
-		$this->assertCount(5, $values);
+		$this->assertCount(8, $values);
 	
 		$this->assertFalse($values[0]);
 		$this->assertFalse($values[1]);
 		$this->assertFalse($values[2]);
 		$this->assertFalse($values[3]);
 		$this->assertTrue($values[4]);
+		$this->assertFalse($values[5]);
+		$this->assertFalse($values[6]);
+		$this->assertFalse($values[7]);
 	}
 }
 ?>

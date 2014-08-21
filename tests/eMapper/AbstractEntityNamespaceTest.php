@@ -22,12 +22,12 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testFindAll() {
 		$products = $this->mapper->execute('products.findAll');
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
 		
 		//test mapping type override
 		$products = $this->mapper->type('obj:Acme\Entity\Product[id]')->execute('products.findAll');
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		$this->assertArrayNotHasKey(0, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products[1]);
 		$this->assertEquals(1, $products[1]->id);
@@ -36,13 +36,13 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 			return $product->code;
 		})->execute('products.findAll');
 		
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 		$this->assertArrayNotHasKey(0, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products['PHN00098']);
 		$this->assertEquals(5, $products['PHN00098']->id);
 		
 		$products = $this->mapper->type('obj:Acme\Entity\Product<category>[id]')->execute('products.findAll');
-		$this->assertCount(3, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testFindByUnique() {
@@ -73,13 +73,13 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotEqualsUnique() {
 		$products = $this->mapper->execute('products.idNotEquals', 1);
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 		
 		$product = $this->mapper->execute('products.codeNotEquals', 'GFX00067');
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 		
 		$products = $this->mapper->execute('products.idNotEquals', 0);
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 	}
 	
 	public function testContains() {
@@ -90,7 +90,7 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotContains() {
 		$products = $this->mapper->execute('products.codeNotContains', 'HN');
-		$this->assertCount(4, $products);
+		$this->assertCount(6, $products);
 	}
 	
 	public function testIContains() {
@@ -101,7 +101,7 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotIContains() {
 		$products = $this->mapper->execute('products.categoryNotIContains', 'hard');
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
 	}
 	
@@ -118,20 +118,20 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotIn() {
 		$products = $this->mapper->execute('products.idNotIn', [1, 2, 3, 4]);
-		$this->assertCount(1, $products);
+		$this->assertCount(4, $products);
 		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
 		$this->assertEquals(5, $products[0]->id);
 		
 		$products = $this->mapper->execute('products.idNotIn', 1);
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 	}
 	
 	public function testGreaterThan() {
 		$products = $this->mapper->execute('products.idGreaterThan', 3);
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 		
 		$products = $this->mapper->execute('products.priceGreaterThan', 100);
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 	}
 	
 	public function testNotGreaterThan() {
@@ -152,10 +152,10 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotLessThan() {
 		$products = $this->mapper->execute('products.idNotLessThan', 3);
-		$this->assertCount(3, $products);
+		$this->assertCount(6, $products);
 		
 		$products = $this->mapper->execute('products.priceNotLessThan', 100);
-		$this->assertCount(4, $products);
+		$this->assertCount(7, $products);
 	}
 	
 	public function testStartsWith() {
@@ -170,42 +170,42 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotStartsWith() {
 		$products = $this->mapper->execute('products.codeNotStartsWith', 'IND');
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testNotIStartsWith() {
 		$products = $this->mapper->execute('products.codeNotIStartsWith', 'ind');
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testEndsWith() {
 		$products = $this->mapper->execute('products.categoryEndsWith', 's');
-		$this->assertCount(4, $products);
+		$this->assertCount(6, $products);
 	}
 	
 	public function testIEndsWith() {
 		$products = $this->mapper->execute('products.categoryIEndsWith', 's');
-		$this->assertCount(4, $products);
+		$this->assertCount(6, $products);
 	}
 	
 	public function testNotEndsWith() {
 		$products = $this->mapper->execute('products.categoryNotEndsWith', 's');
-		$this->assertCount(1, $products);
+		$this->assertCount(2, $products);
 	}
 	
 	public function testNotIEndsWith() {
 		$products = $this->mapper->execute('products.categoryNotIEndsWith', 's');
-		$this->assertCount(1, $products);
+		$this->assertCount(2, $products);
 	}
 	
 	public function testIsNull() {
 		$products = $this->mapper->execute('products.colorIsNull');
-		$this->assertCount(1, $products);
+		$this->assertCount(3, $products);
 	}
 	
 	public function testIsNotNull() {
 		$products = $this->mapper->execute('products.colorIsNotNull');
-		$this->assertCount(4, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function testBetween() {
@@ -215,7 +215,7 @@ abstract class AbstractEntityNamespaceTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testNotBetween() {
 		$products = $this->mapper->execute('products.idNotBetween', 2, 4);
-		$this->assertCount(2, $products);
+		$this->assertCount(5, $products);
 	}
 	
 	public function tearDown() {

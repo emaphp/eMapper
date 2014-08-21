@@ -12,7 +12,7 @@ class SQLCount extends SQLFunction {
 	}
 	
 	public function getExpression(ClassProfile $profile, $alias = '') {
-		return empty($alias) ? 'COUNT(*)' : "COUNT($alias.*)";
+		return 'COUNT(*)';
 	}
 }
 ?>

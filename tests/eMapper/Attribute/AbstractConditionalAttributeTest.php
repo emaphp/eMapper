@@ -29,25 +29,34 @@ abstract class AbstractConditionalAttributeTest extends \PHPUnit_Framework_TestC
 		$products = $this->mapper->type('obj:Acme\Result\Attribute\Good[id]')->query("SELECT * FROM products");
 	
 		$this->assertInternalType('array', $products);
-		$this->assertCount(5, $products);
+		$this->assertCount(8, $products);
 	
 		$this->assertArrayHasKey(1, $products);
 		$this->assertArrayHasKey(2, $products);
 		$this->assertArrayHasKey(3, $products);
 		$this->assertArrayHasKey(4, $products);
 		$this->assertArrayHasKey(5, $products);
+		$this->assertArrayHasKey(6, $products);
+		$this->assertArrayHasKey(7, $products);
+		$this->assertArrayHasKey(8, $products);
 	
 		$this->assertFalse($products[1]->refurbished);
 		$this->assertFalse($products[2]->refurbished);
 		$this->assertFalse($products[3]->refurbished);
 		$this->assertFalse($products[4]->refurbished);
 		$this->assertTrue($products[5]->refurbished);
+		$this->assertFalse($products[6]->refurbished);
+		$this->assertFalse($products[7]->refurbished);
+		$this->assertFalse($products[8]->refurbished);
 	
 		$this->assertNull($products[1]->specialDiscount);
 		$this->assertNull($products[2]->specialDiscount);
 		$this->assertNull($products[3]->specialDiscount);
 		$this->assertNull($products[4]->specialDiscount);
 		$this->assertEquals("Special offer: 50% OFF!!!", $products[5]->specialDiscount);
+		$this->assertNull($products[6]->specialDiscount);
+		$this->assertNull($products[7]->specialDiscount);
+		$this->assertNull($products[8]->specialDiscount);
 	}
 	
 	public function tearDown() {
