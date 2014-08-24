@@ -8,7 +8,7 @@ class UserArrayParameterMap {
 	public $name;
 	
 	/**
-	 * @Property lastname
+	 * @Attr lastname
 	 */
 	public $surname;
 }

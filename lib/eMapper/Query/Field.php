@@ -32,8 +32,21 @@ abstract class Field {
 	 */
 	protected $type;
 	
+	/**
+	 * Field path
+	 * @var array
+	 */
+	protected $path;
+	
 	public function __construct($name, $type = null) {
-		$this->name = $name;
+		if (strstr($name, '__')) {
+			$this->path = explode('__', $name);
+			$this->name = array_pop($this->path);
+		}
+		else {
+			$this->name = $name;
+		}
+		 
 		$this->type = $type;
 	}
 	
@@ -72,6 +85,81 @@ abstract class Field {
 	 */
 	public function getType() {
 		return $this->type;
+	}
+	
+	/**
+	 * Obtains field full path
+	 * @return NULL|string
+	 */
+	public function getFullPath() {
+		if (is_null($this->path)) {
+			return null;
+		}
+	
+		return implode('_', $this->path);
+	}
+	
+	/**
+	 * Obtains field associations as a list
+	 * @param ClassProfile $profile
+	 * @param string $return_profile
+	 * @throws \RuntimeException
+	 * @return mixed
+	 */
+	public function getAssociations(ClassProfile $profile, $return_profile = true) {
+		if (is_null($this->path)) {
+			if ($return_profile) {
+				return [null, null];
+			}
+				
+			return null;
+		}
+	
+		$associations = [];
+		$current = $profile;
+	
+		for ($i = 0; $i < count($this->path); $i++) {
+			//build name
+			$name = implode('_', array_slice($this->path, 0, $i + 1));
+				
+			$property = $this->path[$i];
+			$association = $current->getAssociation($property);
+	
+			if ($association === false) {
+				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
+			}
+				
+			$associations[$name] = $association;
+			$current = $association->getProfile();
+		}
+	
+		if ($return_profile) {
+			return [$associations, $current];
+		}
+	
+		return $associations;
+	}
+	
+	/**
+	 * Obtains the last referred profile of the current field
+	 * @param ClassProfile $profile
+	 * @throws \RuntimeException
+	 * @return ClassProfile
+	 */
+	protected function getReferredProfile(ClassProfile $profile) {
+		$current = $profile;
+		
+		foreach ($this->path as $property) {
+			$association = $current->getAssociation($property);
+				
+			if ($association === false) {
+				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
+			}
+				
+			$current = $association->getProfile();
+		}
+		
+		return $current;
 	}
 	
 	/*

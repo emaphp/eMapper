@@ -12,14 +12,24 @@ class Sale {
 	private $id;
 	
 	/**
-	 * @ManyToOne Product
 	 * @Column product_id
+	 */
+	private $productId;
+	
+	/**
+	 * @Column user_id
+	 */
+	private $userId;
+	
+	/**
+	 * @ManyToOne Product
+	 * @Attr(productId)
 	 */
 	private $product;
 	
 	/**
 	 * @ManyToOne Acme\Association\User
-	 * @Column user_id
+	 * @Attr(userId)
 	 * @Lazy
 	 */
 	private $user;
@@ -31,6 +41,14 @@ class Sale {
 	
 	public function getId() {
 		return $this->id;
+	}
+	
+	public function getProductId() {
+		return $this->productId;
+	}
+	
+	public function getUserId() {
+		return $this->userId;
 	}
 	
 	public function getProduct() {

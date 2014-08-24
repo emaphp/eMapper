@@ -3,27 +3,52 @@ namespace eMapper\Reflection\Profile\Association;
 
 use eMapper\Manager;
 use eMapper\Reflection\Profiler;
+use eMapper\Query\Column;
+
 /**
  * The ManyToMany class is an abstraction of many-to-many associations.
  * @author emaphp
  */
 class ManyToMany extends AbstractAssociation {
 	public function buildJoin($alias, $mainAlias) {
-		$parentProfile = Profiler::getClassProfile($this->parent->getName());
-		$entityProfile = Profiler::getClassProfile($this->profile->getName());
+		$parentProfile = Profiler::getClassProfile($this->parent);
+		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		$joinTable = $this->joinWith->getArgument();
-		$joinTableAlias = $alias . '_' . $mainAlias;
+		$joinTableAlias = $alias . $mainAlias;
 		$joinTableColumn = $this->joinWith->getValue();
-		$foreignKey = $this->foreignKey;
+
+		$column = $this->column->getValue();
+		
+		if (empty($column)) {
+			$column = $this->column->getArgument();
+		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s INNER JOIN @@%s %s ON %s.%s = %s.%s',
 						$joinTable, $joinTableAlias,
 						$joinTableAlias, $joinTableColumn,
 						$mainAlias, $entityProfile->getPrimaryKey(true),
 						$parentProfile->getReferredTable(), $alias,
-						$joinTableAlias, $this->foreignKey,
+						$joinTableAlias, $column,
 						$alias, $parentProfile->getPrimaryKey(true));
+	}
+	
+	public function buildCondition($entity) {
+		$parentProfile = Profiler::getClassProfile($this->parent);
+		
+		if (isset($this->column)) {
+			$value = $this->column->getValue();
+			
+			if (empty($value)) {
+				$value = $this->column->getArgument();
+			}
+			
+			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
+			$parameter = $pk->getReflectionProperty()->getValue($entity);
+			
+			$field = Column::__callstatic($value);
+			return $field->eq($parameter);
+		}
 	}
 	
 	protected function fetchValue(Manager $manager) {

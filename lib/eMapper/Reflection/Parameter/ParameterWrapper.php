@@ -92,7 +92,7 @@ abstract class ParameterWrapper implements \ArrayAccess {
 				return false;
 			}
 			
-			return $propertyProfile->getProperty();
+			return $propertyProfile->getAttribute();
 		}
 		
 		return $property;

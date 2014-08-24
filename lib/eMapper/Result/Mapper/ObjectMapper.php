@@ -296,7 +296,7 @@ class ObjectMapper extends ComplexMapper {
 	public function evaluateAssociations(&$row, $mapper) {
 		foreach ($this->resultMap->getAssociations() as $name => $association) {
 			$reflectionProperty = $association->getReflectionProperty();
-			$reflectionProperty->setValue($row, $association->evaluate($mapper));
+			$reflectionProperty->setValue($row, $association->evaluate($row, $mapper));
 		}
 	}
 }

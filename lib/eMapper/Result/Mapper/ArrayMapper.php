@@ -269,7 +269,7 @@ class ArrayMapper extends ComplexMapper {
 	
 	public function evaluateAssociations(&$row, $mapper) {
 		foreach ($this->resultMap->getAssociations() as $name => $association) {
-			$row[$name] = $association->evaluate($mapper);
+			$row[$name] = $association->evaluate($row, $mapper);
 		}
 	}
 }

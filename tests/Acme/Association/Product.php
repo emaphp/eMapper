@@ -18,7 +18,7 @@ class Product {
 	
 	/**
 	 * @OneToMany Sale
-	 * @ForeignKey product_id
+	 * @Column product_id
 	 * @ReversedBy product
 	 * @Lazy
 	 */

@@ -23,6 +23,10 @@ class Column extends Field {
 	}
 	
 	public function getColumnName(ClassProfile $profile) {
+		if (!is_null($this->path)) {
+			$current = $this->getReferredProfile($profile);
+		}
+		
 		return $this->name;
 	}
 }

@@ -46,17 +46,10 @@ class Manager {
 	 * @var string
 	 */
 	protected $expression;
-	
-	/**
-	 * Association context
-	 * @var AbstractAssociation
-	 */
-	protected $context;
-	
-	public function __construct(Mapper $mapper, ClassProfile $entity, AbstractAssociation $context = null) {
+		
+	public function __construct(Mapper $mapper, ClassProfile $entity) {
 		$this->mapper = $mapper;
 		$this->entity = $entity;
-		$this->context = $context;
 		
 		//default mapping expression
 		$this->expression = $this->buildExpression($entity);
@@ -141,12 +134,7 @@ class Manager {
 		
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
-		$query->setCondition($condition);
-		
-		if (isset($this->context)) {
-			$query->setContext($this->context);
-		}
-		
+		$query->setCondition($condition);		
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
@@ -166,11 +154,6 @@ class Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		
-		if (isset($this->context)) {
-			$query->setContext($this->context);
-		}
-		
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query

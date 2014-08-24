@@ -13,7 +13,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			$value = [];
 			
 			foreach ($this->parameterMap->getProperties() as $name => $propertyProfile) {
-				$key = $propertyProfile->getProperty();
+				$key = $propertyProfile->getAttribute();
 				
 				if (array_key_exists($key, $this->value)) {
 					$value[$name] = $this->value[$key];
@@ -62,7 +62,7 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			if ($key === false) {
 				return false;
 			}
-			
+
 			return array_key_exists($key, $this->value);
 		}
 		

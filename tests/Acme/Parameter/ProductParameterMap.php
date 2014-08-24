@@ -6,12 +6,12 @@ namespace Acme\Parameter;
  */
 class ProductParameterMap {
 	/**
-	 * @Property pcod
+	 * @Attr pcod
 	 */
 	public $code;
 	
 	/**
-	 * @Property price
+	 * @Attr price
 	 */
 	public $cost;
 	

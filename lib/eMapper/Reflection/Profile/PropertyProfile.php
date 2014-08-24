@@ -15,10 +15,10 @@ class PropertyProfile {
 	protected $name;
 	
 	/**
-	 * Referred property (used by parameter maps)
+	 * Attribute name
 	 * @var string
 	 */
-	protected $property;
+	protected $attribute;
 	
 	/**
 	 * Referred column
@@ -59,7 +59,7 @@ class PropertyProfile {
 	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		$this->name = $name;
 		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : $name;
-		$this->property = $annotations->has('Property') ? $annotations->get('Property')->getValue() : $name;
+		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr')->getValue() : $name;
 		
 		if ($annotations->has('Type')) {
 			$this->type = $annotations->get('Type')->getValue();
@@ -82,11 +82,11 @@ class PropertyProfile {
 	}
 	
 	/**
-	 * Obtains referred property (parameter maps)
+	 * Obtains attribute
 	 * @return string
 	 */
-	public function getProperty() {
-		return $this->property;
+	public function getAttribute() {
+		return $this->attribute;
 	}
 	
 	/**

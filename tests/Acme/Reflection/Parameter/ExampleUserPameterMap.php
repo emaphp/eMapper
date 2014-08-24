@@ -8,12 +8,12 @@ class ExampleUserPameterMap {
 	public $name;
 	
 	/**
-	 * @Property lastname
+	 * @Attr lastname
 	 */
 	public $surname;
 	
 	/**
-	 * @Property password
+	 * @Attr password
 	 */
 	public $pass;
 }

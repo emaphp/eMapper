@@ -197,6 +197,20 @@ class ClassProfile {
 	}
 	
 	/**
+	 * Obtains a property by its referred column
+	 * @param string $column
+	 * @return boolean|PropertyProfile
+	 */
+	public function getPropertyByColumn($column) {
+		if (!array_key_exists($column, $this->columnNames)) {
+			return false;
+		}
+		
+		$property = $this->columnNames[$column];
+		return $this->getProperty($property);
+	}
+	
+	/**
 	 * Obtains the class property names as an associative array (PROPERTY => COLUMN)
 	 * @return array
 	 */

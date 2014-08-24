@@ -25,14 +25,14 @@ class User {
 	/**
 	 * @ManyToMany Product
 	 * @JoinWith(favorites) prd_id
-	 * @ForeignKey usr_id
+	 * @Column usr_id
 	 * @Lazy
 	 */
 	private $favorites;
 	
 	/**
 	 * @OneToOne Profile
-	 * @ForeignKey user_id
+	 * @Column user_id
 	 * @Lazy
 	 */
 	private $profile;

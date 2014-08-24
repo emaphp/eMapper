@@ -5,6 +5,7 @@ use eMapper\Reflection\Profile\PropertyProfile;
 use eMapper\Annotations\Annotation;
 use eMapper\Manager;
 use eMapper\Annotations\AnnotationsBag;
+use eMapper\AssociationManager;
 
 /**
  * The AbstractAssociation class encapsulates common logic between the various types of entity associations.
@@ -16,21 +17,15 @@ abstract class AbstractAssociation extends PropertyProfile {
 	
 	/**
 	 * Referred entity profile
-	 * @var \ReflectionClass
+	 * @var string
 	 */
 	protected $profile;
 	
 	/**
 	 * Declaring class profile
-	 * @var \ReflectionClass
-	 */
-	protected $parent;
-	
-	/**
-	 * Foreign key
 	 * @var string
 	 */
-	protected $foreignKey;
+	protected $parent;
 	
 	/**
 	 * Join table configuration
@@ -57,18 +52,19 @@ abstract class AbstractAssociation extends PropertyProfile {
 		catch (\ReflectionException $re) {
 			//try using
 			$currentNamespace = $reflectionProperty->getDeclaringClass()->getNamespaceName();
-			$reflectionClass = new \ReflectionClass($currentNamespace . '\\' . $entity);
+			$entity = $currentNamespace . '\\' . $entity;
+			$reflectionClass = new \ReflectionClass($entity);
 		}
 		
 		$this->name = $name;
 		
 		//get entities profiles
-		$this->profile = $reflectionClass;
-		$this->parent = $reflectionProperty->getDeclaringClass();
+		$this->profile = $entity;
+		$this->parent = $reflectionProperty->getDeclaringClass()->getName();
 		
 		//get additional configuration
-		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : null;
-		$this->foreignKey = $annotations->has('ForeignKey') ? $annotations->get('ForeignKey')->getValue() : null;
+		$this->column = $annotations->has('Column') ? $annotations->get('Column') : null;
+		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->reversedBy = $annotations->has('ReversedBy') ? $annotations->get('ReversedBy')->getValue() : null;
 		$this->lazy = $annotations->has('Lazy');
@@ -103,12 +99,16 @@ abstract class AbstractAssociation extends PropertyProfile {
 	
 	/**
 	 * Evaluates current association
-	 * @param mixed $row
+	 * @param mixed $entity
 	 * @param Mapper $mapper
 	 * @return \eMapper\Manager
 	 */
-	public function evaluate($mapper) {
-		$manager = new Manager($mapper, $this->profile, $this);
+	public function evaluate($entity, $mapper) {
+		//build join condition
+		$condition = $this->buildCondition($entity);
+		
+		//build association manager
+		$manager = new AssociationManager($mapper, $this, $condition);
 		
 		if ($this->lazy) {
 			return $manager;
@@ -129,5 +129,11 @@ abstract class AbstractAssociation extends PropertyProfile {
 	 * @param string $mainAlias
 	 */
 	public abstract function buildJoin($alias, $mainAlias);
+	
+	/**
+	 * Builds the SQL predicate that determines the join condition
+	 * @param object $entity
+	 */
+	public abstract function buildCondition($entity);
 }
 ?>
