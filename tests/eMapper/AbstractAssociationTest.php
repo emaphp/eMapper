@@ -18,6 +18,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertNull($user->getFavorites());
 		$this->assertNull($user->getProfile());
 		
+		return;
 		$profile = $manager->findByPk(2);
 		$this->assertInstanceOf('Acme\Association\Profile', $profile);
 		$user = $profile->getUser();

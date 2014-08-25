@@ -34,9 +34,9 @@ class ManyToOne extends AbstractAssociation {
 		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-					   $parentProfile->getReferredTable(), $alias,
-					   $alias, $column,
-					   $mainAlias, $entityProfile->getPrimaryKey(true));
+					   $entityProfile->getReferredTable(), $alias,
+					   $mainAlias, $column,
+					   $alias, $entityProfile->getPrimaryKey(true));
 	}
 	
 	public function buildCondition($entity) {

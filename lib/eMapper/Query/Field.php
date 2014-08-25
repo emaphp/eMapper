@@ -14,6 +14,7 @@ use eMapper\Query\Predicate\EndsWith;
 use eMapper\Query\Predicate\Range;
 use eMapper\Query\Predicate\Regex;
 use eMapper\Query\Predicate\IsNull;
+use eMapper\Reflection\Profiler;
 
 /**
  * The Field class represents an entity attribute or table column.
@@ -108,11 +109,7 @@ abstract class Field {
 	 */
 	public function getAssociations(ClassProfile $profile, $return_profile = true) {
 		if (is_null($this->path)) {
-			if ($return_profile) {
-				return [null, null];
-			}
-				
-			return null;
+			return $return_profile ? [null, null] : null;
 		}
 	
 		$associations = [];
@@ -130,14 +127,10 @@ abstract class Field {
 			}
 				
 			$associations[$name] = $association;
-			$current = $association->getProfile();
+			$current = Profiler::getClassProfile($association->getProfile());
 		}
 	
-		if ($return_profile) {
-			return [$associations, $current];
-		}
-	
-		return $associations;
+		return $return_profile ? [$associations, $current] : $associations;
 	}
 	
 	/**

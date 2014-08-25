@@ -16,47 +16,46 @@ class OneToOne extends AbstractAssociation {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
-			$property = $this->attribute->getValue();
+			$property = $this->attribute->getArgument();
 		
-			if (empty($property)) {
+			if (!empty($property)) {
 				//@Attr(userId)
-				$property = $parentProfile->getProperty($this->attribute->getArgument());
+				$property = $parentProfile->getProperty($property);
 				
 				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						$parentProfile->getReferredTable(), $alias,
-						$alias, $entityProfile->getPrimaryKey(true),
-						$mainAlias, $property->getColumn());
+						$entityProfile->getReferredTable(), $alias,
+						$alias, $property->getColumn(),
+						$mainAlias, $parentProfile->getPrimaryKey(true));
 			}
 			else {
 				//@Attr userId
+				$property = $this->attribute->getValue();
 				$property = $entityProfile->getProperty($property);
 				
 				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						$parentProfile->getReferredTable(true), $alias,
-						$mainAlias, $property->getColumn(),
-						$alias, $parentProfile->getPrimaryKey(true));
+						$entityProfile->getReferredTable(), $alias,
+						$mainAlias, $parentProfile->getPrimaryKey(true),
+						$alias, $property->getColumn());
 			}
-		
-			$property = $entityProfile->getProperty($property);
-			$column = $property->getColumn();
 		}
 		elseif (isset($this->column)) {
-			$column = $this->column->getValue();
-		
-			if (empty($column)) {
+			$column = $this->column->getArgument();
+			
+			if (!empty($column)) {
 				//@Column(user_id)
-				$column = $this->column->getArgument();
 				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						   $parentProfile->getReferredTable(), $alias,
+						   $entityProfile->getReferredTable(), $alias,
 						   $alias, $entityProfile->getPrimaryKey(true),
 						   $mainAlias, $column);
 			}
 			else {
+				$column = $this->column->getValue();
+				
 				//@Column user_id
 				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						$parentProfile->getReferredTable(true), $alias,
-						$mainAlias, $column,
-						$alias, $parentProfile->getPrimaryKey(true));
+						$entityProfile->getReferredTable(), $alias,
+						$mainAlias, $parentProfile->getPrimaryKey(true),
+						$alias, $column);
 			}
 		}
 	}
@@ -83,7 +82,7 @@ class OneToOne extends AbstractAssociation {
 				$parameter = $property->getReflectionProperty()->getValue($entity);
 				
 				$field = Column::__callstatic($entityProfile->getPrimaryKey(true));
-				$predicate = $field->eq($arg);
+				$predicate = $field->eq($parameter);
 			}
 		}
 		elseif (isset($this->attribute)) {

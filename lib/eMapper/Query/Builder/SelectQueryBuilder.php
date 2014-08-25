@@ -9,6 +9,7 @@ use eMapper\Reflection\Profile\Association\AbstractAssociation;
 use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Profile\Association\ManyToMany;
 
 /**
  * The SelectQueryBuilder class generates SELECT queries for a given entity profile.
@@ -147,10 +148,15 @@ class SelectQueryBuilder extends QueryBuilder {
 	 * Produces the SQL joins for this query
 	 * @param array $joins
 	 * @param string $mainAlias
+	 * @param string $joinAlias
 	 * @return string
 	 */
-	protected function joinTables($joins, $mainAlias) {
+	protected function joinTables($joins, $mainAlias, $joinAlias) {
 		$sql = '';
+		
+		if ($this->association instanceof ManyToMany) {
+			$sql .= ' ' . $this->association->buildAssociationJoin($joinAlias, $mainAlias) . ' ';
+		}
 		
 		foreach ($joins as $join) {
 			list($assoc, $alias) = $join;
@@ -166,16 +172,8 @@ class SelectQueryBuilder extends QueryBuilder {
 		$joins = [];
 		
 		//check for many-to-many association (requires adding a join)
-		if (isset($this->association) && !is_null($this->association->getJoinWith())) {
+		if ($this->association instanceof ManyToMany) {
 			$joinAlias = '_t' . SQLPredicate::argNumber();
-			$reversedBy = $this->association->getReversedBy();
-			
-			if (empty($reversedBy)) {
-				$parent = Profiler::getClassProfile($this->association->getParent());
-				$reversedBy = $parent->getReferredTable();
-			}
-			
-			$joins = [$reversedBy => [$this->association, $joinAlias]];
 		}
 		
 		//call function
@@ -196,7 +194,7 @@ class SelectQueryBuilder extends QueryBuilder {
 					$filters[] = $filter->evaluate($driver, $this->entity, $joins, $args);
 				}
 
-				$table .= $this->joinTables($joins, $alias);
+				$table .= $this->joinTables($joins, $alias, $joinAlias);
 				$condition = implode(' AND ', $filters);
 				return [trim(sprintf("SELECT %s FROM %s WHERE %s", $function, $table, $condition)), $args];
 			}
@@ -216,7 +214,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		
 		if (isset($this->condition)) {
 			$args = [];
-			
+
 			if (isset($this->association)) {
 				$this->joinCondition->setAlias($joinAlias);
 				$this->condition->setAlias($alias);
@@ -228,7 +226,7 @@ class SelectQueryBuilder extends QueryBuilder {
 				$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args);
 			}
 			
-			$table .= $this->joinTables($joins, $alias);
+			$table .= $this->joinTables($joins, $alias, $joinAlias);
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
@@ -246,17 +244,14 @@ class SelectQueryBuilder extends QueryBuilder {
 			}
 				
 			$condition = implode(' AND ', $filters);
-			$table .= $this->joinTables($joins, $alias);
+			$table .= $this->joinTables($joins, $alias, $joinAlias);
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
-		}
-		
-		if (!empty($joins)) {
-			$table .= $this->joinTables($joins, $alias);
 		}
 		
 		if (isset($this->association)) {
 			$this->joinCondition->setAlias($joinAlias);
 			$condition = $this->joinCondition->evaluate($driver, $this->entity, $joins, $args);
+			$table .= $this->joinTables($joins, $alias, $joinAlias);
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		

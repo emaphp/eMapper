@@ -16,27 +16,27 @@ class OneToMany extends AbstractAssociation {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
-			$property = $this->attribute->getValue();
-				
+			$property = $this->attribute->getArgument();
+
 			if (empty($property)) {
-				$property = $this->attribute->getArgument();
+				$property = $this->attribute->getValue();
 			}
 				
 			$property = $entityProfile->getProperty($property);
 			$column = $property->getColumn();
 		}
 		elseif (isset($this->column)) {
-			$column = $this->column->getValue();
-				
+			$column = $this->column->getArgument();
+			
 			if (empty($column)) {
-				$column = $this->column->getArgument();
+				$column = $this->column->getValue();
 			}
 		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-					   $parentProfile->getReferredTable(true), $alias,
-					   $mainAlias, $column,
-					   $alias, $parentProfile->getPrimaryKey(true));
+					   $entityProfile->getReferredTable(true), $alias,
+					   $mainAlias, $parentProfile->getPrimaryKey(true),
+					   $alias, $column);
 	}
 	
 	public function buildCondition($entity) {

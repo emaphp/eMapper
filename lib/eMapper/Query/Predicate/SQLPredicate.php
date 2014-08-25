@@ -77,6 +77,11 @@ abstract class SQLPredicate {
 		
 		if ($this->field instanceof Attr) {
 			$property = $profile->getProperty($this->field->getName());
+			
+			if ($property === false) {
+				return null;
+			}
+			
 			return $property->getType();
 		}
 		
@@ -115,29 +120,21 @@ abstract class SQLPredicate {
 	}
 
 	protected function getColumnName(Field $field, ClassProfile $profile, &$joins) {
-		if ($field instanceof Attr) {
-			list($associations, $target) = $field->getAssociations($profile);
-	
-			if (!is_null($associations)) {
-				$diff = array_diff_key($associations, $joins);
-	
-				foreach ($diff as $key) {
-					$joins[$key] = [$associations[$key], '_t' . self::getArgumentIndex(1)];
-				}
-	
-				list($_, $alias) = $joins[$field->getFullPath()];
-				$field = Attr::__callstatic($field->getName());
-				$column = $alias . '.' . $field->getColumnName($target);
-			}
-			else {
-				$column = empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
-			}
-		}
-		else {
-			$column = empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
+		list($associations, $target) = $field->getAssociations($profile);
+		
+		if (is_null($associations)) {
+			return empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
 		}
 		
-		return $column;
+		$diff = array_keys(array_diff_key($associations, $joins));
+		
+		foreach ($diff as $key) {
+			$joins[$key] = [$associations[$key], '_t' . self::getArgumentIndex(1)];
+		}
+		
+		list($_, $alias) = $joins[$field->getFullPath()];
+		$field = Attr::__callstatic($field->getName());
+		return $alias . '.' . $field->getColumnName($target);
 	}
 	
 	/**

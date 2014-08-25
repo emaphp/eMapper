@@ -18,8 +18,13 @@ class Profile {
 	private $gender;
 	
 	/**
-	 * @OneToOne User
 	 * @Column user_id
+	 */
+	private $userId;
+	
+	/**
+	 * @OneToOne User
+	 * @Attr(userId)
 	 */
 	private $user;
 	
@@ -37,6 +42,10 @@ class Profile {
 	
 	public function getGender() {
 		return $this->gender;
+	}
+	
+	public function getUserId() {
+		return $this->userId;
 	}
 	
 	public function getUser() {
