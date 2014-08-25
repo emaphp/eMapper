@@ -57,7 +57,7 @@ abstract class SQLPredicate {
 	 * @param integer $arg_index
 	 * @return number|string
 	 */
-	protected function getArgumentIndex($arg_index) {
+	protected static function getArgumentIndex($arg_index) {
 		if ($arg_index != 0) {
 			return self::argNumber();
 		}
@@ -122,7 +122,7 @@ abstract class SQLPredicate {
 				$diff = array_diff_key($associations, $joins);
 	
 				foreach ($diff as $key) {
-					$joins[$key] = [$associations[$key], 't' . $this->getArgumentIndex(1)];
+					$joins[$key] = [$associations[$key], '_t' . self::getArgumentIndex(1)];
 				}
 	
 				list($_, $alias) = $joins[$field->getFullPath()];

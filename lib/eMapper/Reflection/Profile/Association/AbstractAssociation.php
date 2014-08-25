@@ -121,7 +121,7 @@ abstract class AbstractAssociation extends PropertyProfile {
 	 * Fetchs the requested value according to association type
 	 * @param Manager $manager
 	 */
-	protected abstract function fetchValue(Manager $manager);
+	public abstract function fetchValue(Manager $manager);
 	
 	/**
 	 * Builds the SQL for joining tables

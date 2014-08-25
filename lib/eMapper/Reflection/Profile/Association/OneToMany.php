@@ -73,7 +73,7 @@ class OneToMany extends AbstractAssociation {
 		return $predicate;
 	}
 	
-	protected function fetchValue(Manager $manager) {
+	public function fetchValue(Manager $manager) {
 		return $manager->find();
 	}
 }

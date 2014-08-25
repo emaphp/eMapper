@@ -167,7 +167,7 @@ class SelectQueryBuilder extends QueryBuilder {
 		
 		//check for many-to-many association (requires adding a join)
 		if (isset($this->association) && !is_null($this->association->getJoinWith())) {
-			$joinAlias = AbstractAssociation::DEFAULT_ALIAS . AbstractAssociation::CONTEXT_ALIAS;
+			$joinAlias = '_t' . SQLPredicate::argNumber();
 			$reversedBy = $this->association->getReversedBy();
 			
 			if (empty($reversedBy)) {

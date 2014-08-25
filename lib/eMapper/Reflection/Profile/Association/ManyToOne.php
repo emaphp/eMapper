@@ -16,20 +16,20 @@ class ManyToOne extends AbstractAssociation {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
-			$property = $this->attribute->getValue();
+			$property = $this->attribute->getArgument();
 			
 			if (empty($property)) {
-				$property = $this->attribute->getArgument();
+				$property = $this->attribute->getValue();
 			}
 			
 			$property = $parentProfile->getProperty($property);
 			$column = $property->getColumn();
 		}
 		elseif (isset($this->column)) {
-			$column = $this->column->getValue();
+			$column = $this->column->getArgument();
 			
 			if (empty($column)) {
-				$column = $this->column->getArgument();
+				$column = $this->column->getValue();
 			}
 		}
 		
@@ -44,10 +44,10 @@ class ManyToOne extends AbstractAssociation {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->column)) {
-			$value = $this->column->getValue();
+			$value = $this->column->getArgument();
 			
 			if (empty($value)) {
-				$value = $this->column->getArgument();
+				$value = $this->column->getValue();
 			}
 			
 			$property = $parentProfile->getPropertyByColumn($value);
@@ -58,10 +58,10 @@ class ManyToOne extends AbstractAssociation {
 			$predicate = $field->eq($parameter);
 		}
 		elseif (isset($this->attribute)) {
-			$value = $this->attribute->getValue();
-				
+			$value = $this->attribute->getArgument();
+			
 			if (empty($value)) {
-				$value = $this->attribute->getArgument();
+				$value = $this->attribute->getValue();
 			}
 			
 			$property = $parentProfile->getProperty($value);
@@ -74,7 +74,7 @@ class ManyToOne extends AbstractAssociation {
 		return $predicate;
 	}
 	
-	protected function fetchValue(Manager $manager) {
+	public function fetchValue(Manager $manager) {
 		return $manager->get();
 	}
 }

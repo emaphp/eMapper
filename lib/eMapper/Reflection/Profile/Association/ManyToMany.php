@@ -36,22 +36,14 @@ class ManyToMany extends AbstractAssociation {
 	public function buildCondition($entity) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		
-		if (isset($this->column)) {
-			$value = $this->column->getValue();
-			
-			if (empty($value)) {
-				$value = $this->column->getArgument();
-			}
-			
-			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
-			$parameter = $pk->getReflectionProperty()->getValue($entity);
-			
-			$field = Column::__callstatic($value);
-			return $field->eq($parameter);
-		}
+		$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
+		$parameter = $pk->getReflectionProperty()->getValue($entity);
+		
+		$field = Column::__callstatic($parentProfile->getPrimaryKey(true));
+		return $field->eq($parameter);
 	}
 	
-	protected function fetchValue(Manager $manager) {
+	public function fetchValue(Manager $manager) {
 		return $manager->find();
 	}
 }

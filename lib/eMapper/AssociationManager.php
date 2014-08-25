@@ -33,6 +33,13 @@ class AssociationManager extends Manager {
 	}
 	
 	/**
+	 * Fetchs the associated value(s)
+	 */
+	public function fetch() {
+		return $this->association->fetchValue($this);
+	}
+	
+	/**
 	 * Obtains a list of entities by the given condition
 	 * @param SQLPredicate $condition
 	 * @return mixed
@@ -47,7 +54,7 @@ class AssociationManager extends Manager {
 		$query->setJoin($this->association, $this->condition);
 	
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
-	
+		
 		//run query
 		$options = $this->clean_options(['map.type' => $this->getListMappingExpression()]);
 		return $this->mapper->merge($options)->query($query, $args);
