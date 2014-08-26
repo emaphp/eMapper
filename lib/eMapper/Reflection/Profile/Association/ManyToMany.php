@@ -10,18 +10,41 @@ use eMapper\Query\Column;
  * @author emaphp
  */
 class ManyToMany extends AbstractAssociation {
+	/**
+	 * Builds the SQL join for a many-to-many association
+	 * @param string $joinAlias
+	 * @param string $mainAlias
+	 * @return string
+	 */
 	public function buildAssociationJoin($joinAlias, $mainAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
-		$joinTable = $this->joinWith->getArgument();
 		$joinTableAlias = $joinAlias . $mainAlias;
+		
+		//get join table
+		$joinTable = $this->joinWith->getArgument();
+		
+		if (empty($joinTable)) {
+			throw new \RuntimeException(sprintf("Association %s in class %s does not define a join table", $this->name, $this->parent));
+		}
+		
+		//get join column
 		$joinTableColumn = $this->joinWith->getValue();
 		
-		$column = $this->column->getValue();
+		if (empty($joinTableColumn) || $joinTableColumn === true) {
+			throw new \RuntimeException(sprintf("Association %s in class %s must specify a join column for table %s", $this->name, $this->parent, $joinTable));
+		}
+		
+		//get foreign key
+		$column = $this->column->getArgument();
 		
 		if (empty($column)) {
-			$column = $this->column->getArgument();
+			$column = $this->column->getValue();
+			
+			if (empty($column) || $column === true) {
+				throw new \RuntimeException(sprintf("Association %s in class %s does not define a foreign key column", $this->name, $this->parent));
+			}
 		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s INNER JOIN @@%s %s ON %s.%s = %s.%s',
@@ -37,14 +60,31 @@ class ManyToMany extends AbstractAssociation {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
-		$joinTable = $this->joinWith->getArgument();
 		$joinTableAlias = $alias . $mainAlias;
+		
+		//get join table
+		$joinTable = $this->joinWith->getArgument();
+		
+		if (empty($joinTable)) {
+			throw new \RuntimeException(sprintf("Association %s in class %s does not define a join table", $this->name, $this->parent));
+		}
+		
+		//get join column
 		$joinTableColumn = $this->joinWith->getValue();
+		
+		if (empty($joinTableColumn) || $joinTableColumn === true) {
+			throw new \RuntimeException(sprintf("Association %s in class %s must specify a join column for table %s", $this->name, $this->parent, $joinTable));
+		}
 
+		//get foreign key
 		$column = $this->column->getArgument();
 		
 		if (empty($column)) {
 			$column = $this->column->getValue();
+			
+			if (empty($column) || $column === true) {
+				throw new \RuntimeException(sprintf("Association %s in class %s does not define a foreign key column", $this->name, $this->parent));
+			}
 		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s INNER JOIN @@%s %s ON %s.%s = %s.%s',

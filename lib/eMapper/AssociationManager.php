@@ -7,6 +7,11 @@ use eMapper\Reflection\Profiler;
 use eMapper\Query\Builder\SelectQueryBuilder;
 use eMapper\Query\Aggregate\SQLFunction;
 
+/**
+ * An AssociationManager is a class aimed to fetch a result from an existing association
+ * between 2 entity classes.
+ * @author emaphp
+ */
 class AssociationManager extends Manager {
 	/**
 	 * Association context
@@ -39,11 +44,6 @@ class AssociationManager extends Manager {
 		return $this->association->fetchValue($this);
 	}
 	
-	/**
-	 * Obtains a list of entities by the given condition
-	 * @param SQLPredicate $condition
-	 * @return mixed
-	 */
 	public function find(SQLPredicate $condition = null) {
 		//connect to database
 		$this->mapper->connect();
@@ -60,11 +60,6 @@ class AssociationManager extends Manager {
 		return $this->mapper->merge($options)->query($query, $args);
 	}
 	
-	/**
-	 * Returns the first result from a query
-	 * @param SQLPredicate $condition
-	 * @return NULL|object
-	 */
 	public function get(SQLPredicate $condition = null) {
 		//connect to database
 		$this->mapper->connect();

@@ -16,13 +16,22 @@ class OneToMany extends AbstractAssociation {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
-			$property = $this->attribute->getArgument();
-
-			if (empty($property)) {
-				$property = $this->attribute->getValue();
+			$name = $this->attribute->getArgument();
+			
+			if (empty($name)) {
+				$name = $this->attribute->getValue();
+				
+				if (empty($name) || $name === true) {
+					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
+				}
 			}
 				
-			$property = $entityProfile->getProperty($property);
+			$property = $entityProfile->getProperty($name);
+			
+			if ($property === false) {
+				throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->profile));
+			}
+			
 			$column = $property->getColumn();
 		}
 		elseif (isset($this->column)) {
@@ -30,7 +39,14 @@ class OneToMany extends AbstractAssociation {
 			
 			if (empty($column)) {
 				$column = $this->column->getValue();
+				
+				if (empty($column) || $column === true) {
+					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
+				}
 			}
+		}
+		else {
+			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
@@ -43,31 +59,42 @@ class OneToMany extends AbstractAssociation {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		
 		if (isset($this->column)) {
-			$value = $this->column->getValue();
+			$name = $this->column->getArgument();
+			
+			if (empty($name)) {
+				$name = $this->column->getValue();
 				
-			if (empty($value)) {
-				$value = $this->column->getArgument();
+				if (empty($name) || $name === true) {
+					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
+				}
 			}
 				
 			$pk = $parentProfile->getPropertyByColumn($parentProfile->getPrimaryKey(true));
 			$parameter = $pk->getReflectionProperty()->getValue($entity);
 				
 			//build predicate
-			$field = Column::__callstatic($value);
+			$field = Column::__callstatic($name);
 			$predicate = $field->eq($parameter);
 		}
 		elseif (isset($this->attribute)) {
-			$value = $this->attribute->getValue();
-		
-			if (empty($value)) {
-				$value = $this->attribute->getArgument();
+			$name = $this->attribute->getArgument();
+			
+			if (empty($name)) {
+				$name = $this->attribute->getValue();
+				
+				if (empty($name) || $name === true) {
+					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
+				}
 			}
 				
 			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 			$parameter = $pk->getReflectionProperty()->getValue($entity);
 				
-			$field = Attr::__callstatic($value);
+			$field = Attr::__callstatic($name);
 			$predicate = $field->eq($parameter);
+		}
+		else {
+			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
 		
 		return $predicate;

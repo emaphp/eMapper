@@ -5,6 +5,10 @@ namespace Acme\Reflection\Parameter;
  * @Entity users
  */
 class UserEntity {
+	/**
+	 * @Id
+	 */
+	public $user_id;
 	public $name;
 	public $surname;
 	

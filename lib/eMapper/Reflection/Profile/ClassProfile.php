@@ -148,6 +148,10 @@ class ClassProfile {
 		}
 		
 		$this->columnNames = array_flip($this->propertyNames);
+		
+		if ($this->isEntity() && is_null($this->primaryKey)) {
+			throw new \RuntimeException(sprintf("Entity class %s must define a primary key attribute", $this->reflectionClass->getName()));
+		}
 	}
 	
 	/**
@@ -184,7 +188,7 @@ class ClassProfile {
 	}
 	
 	/**
-	 * Obtains the property profilewith the given name (false if not found)
+	 * Obtains the property profile with the given name (false if not found)
 	 * @param string $property
 	 * @return PropertyProfile|boolean
 	 */

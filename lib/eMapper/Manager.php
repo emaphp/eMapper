@@ -19,7 +19,6 @@ use eMapper\Query\Aggregate\SQLAverage;
 use eMapper\Query\Aggregate\SQLMax;
 use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
-use eMapper\Reflection\Profile\Association\AbstractAssociation;
 
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.

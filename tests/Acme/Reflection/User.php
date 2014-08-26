@@ -2,10 +2,11 @@
 namespace Acme\Reflection;
 
 /**
- * @Entity
+ * @Entity users
  */
 class User {
 	/**
+	 * @Id
 	 * @Column user_id
 	 * @Type int
 	 */
