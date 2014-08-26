@@ -217,8 +217,8 @@ class Manager {
 		}
 		
 		//get primary key value
-		$pkProperty = $this->entity->getReflectionProperty($primaryKey);
-		return $pkProperty->getValue($entity);
+		$pkProperty = $this->entity->getProperty($this->entity->getPrimaryKey());
+		return $pkProperty->getReflectionProperty()->getValue($entity);
 	}
 	
 	/**
