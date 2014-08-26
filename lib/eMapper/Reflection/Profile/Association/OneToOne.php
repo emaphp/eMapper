@@ -96,7 +96,7 @@ class OneToOne extends AbstractAssociation {
 				//@Column user_id
 				$pk = $parentProfile->getPropertyByColumn($parentProfile->getPrimaryKey(true));
 				$parameter = $pk->getReflectionProperty()->getValue($entity);
-				
+
 				$field = Column::__callstatic($value);
 				$predicate = $field->eq($parameter);
 			}
@@ -109,6 +109,10 @@ class OneToOne extends AbstractAssociation {
 				}
 				
 				$parameter = $property->getReflectionProperty()->getValue($entity);
+				
+				if (is_null($parameter)) {
+					return false;
+				}
 				
 				$field = Column::__callstatic($entityProfile->getPrimaryKey(true));
 				$predicate = $field->eq($parameter);
@@ -141,6 +145,10 @@ class OneToOne extends AbstractAssociation {
 				}
 				
 				$parameter = $property->getReflectionProperty()->getValue($entity);
+				
+				if (is_null($parameter)) {
+					return false;
+				}
 				
 				$field = Attr::__callstatic($entityProfile->getPrimaryKey());
 				$predicate = $field->eq($parameter);

@@ -78,6 +78,10 @@ class ManyToOne extends AbstractAssociation {
 			
 			$parameter = $property->getReflectionProperty()->getValue($entity);
 			
+			if (is_null($parameter)) {
+				return false;
+			}
+			
 			//build predicate
 			$field = Column::__callstatic($entityProfile->getPrimaryKey(true));
 			$predicate = $field->eq($parameter);
@@ -100,6 +104,10 @@ class ManyToOne extends AbstractAssociation {
 			}
 			
 			$parameter = $property->getReflectionProperty()->getValue($entity);
+			
+			if (is_null($parameter)) {
+				return false;
+			}
 			
 			$field = Attr::__callstatic($entityProfile->getPrimaryKey());
 			$predicate = $field->eq($parameter);

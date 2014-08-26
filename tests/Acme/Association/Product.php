@@ -19,7 +19,6 @@ class Product {
 	/**
 	 * @OneToMany Sale
 	 * @Attr productId
-	 * @ReversedBy product
 	 * @Lazy
 	 */
 	private $sales;

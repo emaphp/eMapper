@@ -38,13 +38,7 @@ abstract class AbstractAssociation extends PropertyProfile {
 	 * @var boolean
 	 */
 	protected $lazy;
-	
-	/**
-	 * Property reversing this association
-	 * @var string
-	 */
-	protected $reversedBy;
-	
+		
 	public function __construct($entity, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		try {
 			$reflectionClass = new \ReflectionClass($entity);
@@ -66,7 +60,6 @@ abstract class AbstractAssociation extends PropertyProfile {
 		$this->column = $annotations->has('Column') ? $annotations->get('Column') : null;
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
-		$this->reversedBy = $annotations->has('ReversedBy') ? $annotations->get('ReversedBy')->getValue() : null;
 		$this->lazy = $annotations->has('Lazy');
 		
 		$this->reflectionProperty = $reflectionProperty;
@@ -83,10 +76,6 @@ abstract class AbstractAssociation extends PropertyProfile {
 	
 	public function getForeignKey() {
 		return $this->foreignKey;
-	}
-	
-	public function getReversedBy() {
-		return $this->reversedBy;
 	}
 	
 	public function getJoinWith() {
@@ -106,6 +95,10 @@ abstract class AbstractAssociation extends PropertyProfile {
 	public function evaluate($entity, $mapper) {
 		//build join condition
 		$condition = $this->buildCondition($entity);
+		
+		if ($condition === false) {
+			return null;
+		}
 		
 		//build association manager
 		$manager = new AssociationManager($mapper, $this, $condition);

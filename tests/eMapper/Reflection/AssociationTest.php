@@ -17,7 +17,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\Product', $assoc->getParent());
 		$this->assertEquals('Acme\Association\Sale', $assoc->getProfile());
 		$this->assertEquals('productId', $assoc->getAttribute()->getValue());
-		$this->assertEquals('product', $assoc->getReversedBy());
 		$this->assertTrue($assoc->isLazy());
 		$this->assertEquals('INNER JOIN @@sales _c ON _t.product_id = _c.product_id', $assoc->buildJoin('_c', '_t'));
 	}
