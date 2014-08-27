@@ -6,17 +6,15 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.1.0
+**Version**: 3.2.0
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-07-30 - Version 3.1.0 
+2014-08-XX - Version 3.2.0 
 
-  * Added: Entity Managers and Entity Namespaces (ORM).
-  * Modified: Annotation syntax. Now eMapper depends on emapper/annotations, a slightly modified version of minime/annotations. 
-  * Modified: Dynamic SQL syntax delimiters.
+  * Added: Associations.
 
 <br/>
 Dependencies
@@ -35,7 +33,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.1"
+        "emapper/emapper" : "3.2"
     }
 }
 ```
@@ -61,7 +59,7 @@ Introduction
 <br/>
 >Step 1: Pick an engine
 
-eMapper supports SQLite, MySQL (or MariaDB if you prefer) and PostgreSQL. Creating a connection requires creating an instance of the corresponding driver.
+eMapper supports SQLite, PostgreSQL and MySQL (or MariaDB if you prefer). Creating a connection requires creating an instance of the corresponding driver.
 
 ```php
 //MYSQL
@@ -261,7 +259,7 @@ $products = $mapper->type('array[]')
 ->query("SELECT * FROM products");
 
 // a group callback does what you expect
-//it can also be combined with indexes if needes
+//it can also be combined with indexes if needed
 $products = $mapper->type('obj[id]')
 ->group_callback(function ($product) {
     return substr($product->category, 0, 3);
@@ -414,7 +412,7 @@ Entity Managers
 
 <br/>
 #####Entities and Annotations
-Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows a class called *Product*. This class defines 5 attributes, each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can add a *@Column* annotation specifying the correct one. As a general rule, all entities must define a primary key attribute. The *Product* class sets its **id** attribute as primary key using the *@Id* annotation.
+Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows an entity class named *Product*. The *Product* class obtains its values from the *pŕoducts* table, indicated by the *@Entity* annotation. This class defines 5 attributes, and each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can specify a *@Column* annotation indicating the real one. As a general rule, all entities must define a primary key attribute. The *Product* class sets its **id** attribute as primary key using the *@Id* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -624,7 +622,7 @@ Entity Namespaces
 <br/>
 #####Introduction
 
-Entity namespaces are classes that generate statements from an entity class automatically. These classes receive their respective ids from the *@DefaultNamespace* annotation in the entity class declaration.
+Entity namespaces are classes that generate statements from an entity class automatically. These classes receive their respective ids from the *@DefaultNamespace* annotation in the entity class declaration. When not specified, the namespace takes the value indicated by the *@Entity* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -715,32 +713,31 @@ $products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('descriptionI
             <td><em>products.findByCode</em></td>
             <td>Instance if property is @Id or @Unique, a list otherwise</td>
         </tr>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not]Equals</td>
-        <td><em>products.codeEquals</em><br/><em>products.priceNotEquals</em></td>
-        <td>Instance if property is @Id or @Unique, a list otherwise</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not][I]Contains</td>
-        <td><em>products.categoryContains</em><br/><em>products.descriptionNotContains</em><br/><em>products.categoryIContains</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not][I]StartsWith</td>
-        <td><em>products.categoryStartsWith</em><br/><em>products.descriptionNotStartsWith</em><br/><em>products.categoryIStartsWith</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not][I]EndsWith</td>
-        <td><em>products.categoryEndsWith</em><br/><em>products.descriptionNotEndsWith</em><br/><em>products.categoryIEndsWith</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not]In</td>
-        <td><em>products.idIn</em><br/><em>products.idNotIn</em></td>
-        <td>List</td>
-    </tbody>
+        <tr>
+            <td>{PROPERTY}[Not]Equals</td>
+            <td><em>products.codeEquals</em><br/><em>products.priceNotEquals</em></td>
+            <td>Instance if property is @Id or @Unique, a list otherwise</td>
+        </tr>
+        <tr>
+            <td>{PROPERTY}[Not][I]Contains</td>
+            <td><em>products.categoryContains</em><br/><em>products.descriptionNotContains</em><br/><em>products.categoryIContains</em></td>
+            <td>List</td>
+        </tr>
+        <tr>
+            <td>{PROPERTY}[Not][I]StartsWith</td>
+            <td><em>products.categoryStartsWith</em><br/><em>products.descriptionNotStartsWith</em><br/><em>products.categoryIStartsWith</em></td>
+            <td>List</td>
+        </tr>
+        <tr>
+            <td>{PROPERTY}[Not][I]EndsWith</td>
+            <td><em>products.categoryEndsWith</em><br/><em>products.descriptionNotEndsWith</em><br/><em>products.categoryIEndsWith</em></td>
+            <td>List</td>
+        </tr>
+        <tr>
+            <td>{PROPERTY}[Not]In</td>
+            <td><em>products.idIn</em><br/><em>products.idNotIn</em></td>
+            <td>List</td>
+        </tr>
     <tbody>
         <td>{PROPERTY}[Not]GreaterThan[Equal]</td>
         <td><em>products.idGreaterThan</em><br/><em>products.priceGreaterThanEqual</em><br/><em>products.priceNotGreaterThan</em></td>
@@ -767,6 +764,274 @@ $products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('descriptionI
         <td>List</td>
     </tbody>
 </table>
+
+<br/>
+Associations
+-----------
+
+<br/>
+#####Introduction
+Associations provide an easy way to fetch data related to an entity. As expected, they also need to be declared using a special set of annotations. Their types include *one-to-one*, *one-to-many*, *many-to-one* and *many-to-many*.
+
+<br/>
+#####One-To-One
+
+The next example shows 2 entities (*Profile* and *User*) and how to declare a One-To-One association to obtain the user related to a profile.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity profiles
+ */
+class Profile {
+    /**
+     * @Id
+     * @Type integer
+     */
+    private $id;
+    
+    /**
+     * @Column user_id
+     */
+    private $userId;
+    
+    /**
+     * @Column firstname
+     */
+    private $firstName;
+    
+    /**
+     * @Type string
+     */
+    private $surname;
+    
+    /**
+     * @OneToOne User
+     * @Attr(userId)
+     */
+    private $user;
+    
+    //...
+}
+```
+In this example, the *Product* class declares a **user** property which defines a one-to-one association to the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity users
+ */
+class User {
+    /**
+     * @Id
+     * @Type integer
+     */
+    private $id;
+    
+    /**
+     * @Column username
+     */
+    private $name;
+    
+    /**
+     * @OneToOne Profile
+     * @Attr userId
+     * @Lazy
+     */
+    private $profile;
+    
+    //...
+}
+```
+The *User* class defines the **profile** property as a one-to-one associaton to the *Profile* class. Notice that this time the *@Attr* annotation defines the property name as a value, not as argument. Also, this association is declared as **lazy**, which means that is not evaluated right away. The following examples illustrate how these associations work.
+
+```php
+//obtain the profile with ID = 100
+$manager = $mapper->buildManager('Acme\Profile');
+$profile = $manager->findByPk(100); // returns a Profile instance
+$user = $profile->getUser(); // returns the associated User instance
+```
+
+Lazy associations returns an instance of *eMapper\AssociationManager*. This means that invoking the *getProfile* method will return a manager instance. In order to get the referred value we append a call to the *fetch* method.
+
+```php
+//obtain the user with ID = 100
+$manager = $mapper->buildManager('Acme\User');
+$user = $manager->findByPk(100);
+$profile = $user->getProfile(); // returns an AssociationManager instance
+$profile = $user->getProfile()->fetch(); // fetch() returns the desired result
+```
+Associations also provide a mechanism to query for related attributes. Suppose we want to obtain a profile by its user name. We can do this by using a special syntax that specifies the association property and the comparison attribute separated by a doble underscore.
+
+```php
+use eMapper\Query\Attr;
+
+//build manager
+$manager = $mapper->buildManager('Acme\Profile');
+
+//users.name = 'jdoe'
+$profile = $manager->get(Attr::user__name()->eq('jdoe'));
+```
+
+<br/>
+#####One-To-Many and Many-To-One
+
+The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation.
+```php
+namespace Acme;
+
+/**
+ * @Entity clients
+ */
+class Client {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $name;
+    
+    /**
+     * @Type string
+     */
+    private $surname;
+ 
+    /**
+     * @OneToMany Pet
+     * @Attr clientId
+     */   
+    private $pets;
+}
+```
+
+This small example obtains all clients that are associated to dog pets.
+```php
+use eMapper\Query\Attr;
+
+$manager = $mapper->buildManager('Acme\Client');
+
+//get all clients that have dogs
+$clients = $manager->find(Attr::pets__type()->eq('Dog'));
+```
+
+From the point of view of the *Pet* class this is a many-to-one association which is resolved through the **clientID** attribute of the current class, meaning that in this case has to be specified as an argument.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity pets
+ */
+class Pet {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Column client_id
+     */
+    private $clientId;
+    
+    /**
+     * @Type string
+     */
+    private $name;
+    
+    /**
+     * @Type string
+     */
+    private $type;
+    
+    /**
+     * @Column birth_date
+     * @Type string
+     */
+    private $birthDate;
+    
+    /**
+     * @ManyToOne Client
+     * @Attr(clientId)
+     */
+    private $owner;
+    //...
+}
+```
+This small example obtains all pets for a given client name and surname.
+```php
+use eMapper\Query\Attr;
+
+$manager = $mapper->buildManager('Acme\Pet');
+
+//get all pets of Joe Doe
+$pets = $manager->find(Attr::owner__name()->eq('Joe'),
+                       Attr::owner__surname()->eq('Doe'));
+```
+
+
+<br/>
+#####Many-To-Many
+
+This type of associations are kind of special as they need to provide the name of the join table that resolves the association. Suppose that we want to add a **favorites** association from the *User* class to the *Product* class.
+
+<br/>
+#####Recursive associations
+
+There are some scenarios in which an entity is associated to itself in more than one way. In this example we'll introduce the *Category* entity class to explore in detail this type of associations.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity categories
+ */
+class Category {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $name;
+    
+    /**
+     * @Type integer
+     */
+    private $parentId;
+    
+    /**
+     * @ManyToOne Category
+     * @Attr(parentId)
+     */
+    private $parent;
+    
+    /**
+     * @OneToMany Category
+     * @Attr parentId
+     */
+    private $subcategories;
+    //...
+}
+```
+
+The *Category* class its related to itself through the **parent** and **subcategories** associations. Both of them need to specify the *parentId* attribute as the join attribute. Obtaining all subcategories
+of a given category can be resolved in the following way.
+
+```php
+$manager = $mapper->buildManager('Acme\Category');
+
+//get all subcategories of 'Technology'
+$categories = $mapper->find(Attr::parent__name()->eq('Technology'));
+```
+
+
 
 <br/>
 Dynamic SQL
@@ -866,7 +1131,7 @@ Dynamic Attributes
 
 <br/>
 #####Introduction
-eMapper does not introduce the concept of association in entity classes (yet). In the meantime, obtaining data related to an entity (or a series of entities) requires adding dynamic attributes. A dynamic attibute is a property that is the result of a query or calculation. Dynamic attributes are specified through a special set of annotations.
+While associations are pretty useful by themselves you may want to go a step further. A dynamic attibute is a property that is the result of a query or calculation. This means that attributes could either be associated to a macro or a custom user query.
 
 <br/>
 #####Querys
@@ -1065,15 +1330,20 @@ class User {
     private $id;
     
     /**
+     * @Type string
+     */
+    private $type;
+
+    /**
      * @If (== (#type) 'member')
-     * @StatementId "..."
+     * @StatementId "users.loginHistory"
      * @Parameter(id)
      */
     private $loginHistory; //get login history if user is a member
     
     /**
      * @IfNot (or (== (#type) 'member') (== (#type) 'guest'))
-     * @StatementId '...'
+     * @StatementId 'admin.findNotifications'
      * @Parameter(id)
      */
     private $abuseNotifications; //get admin notifications if not a member nor guest
@@ -1095,7 +1365,7 @@ class User {
     private $id;
     
     /**
-     * @Query "SELECT * FROM contacts WHERE user_id = %{i} [? (if (@order?) (. 'ORDER BY ' (@order))) ?]"
+     * @Query "SELECT * FROM contacts WHERE user_id = %{i} [? (. 'ORDER BY ' (@order)) ?]"
      * @Parameter(id)
      * @Option(order) 'contact_type'
      */

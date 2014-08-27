@@ -149,8 +149,17 @@ class ClassProfile {
 		
 		$this->columnNames = array_flip($this->propertyNames);
 		
-		if ($this->isEntity() && is_null($this->primaryKey)) {
-			throw new \RuntimeException(sprintf("Entity class %s must define a primary key attribute", $this->reflectionClass->getName()));
+		//validate entity
+		if ($this->isEntity() ) {
+			$referredTable = $this->getReferredTable();
+			
+			if (empty($referredTable) || $referredTable === true) {
+				throw new \RuntimeException(sprintf("Entity class %s must declare a table name", $this->reflectionClass->getName()));
+			}
+			
+			if (is_null($this->primaryKey)) {
+				throw new \RuntimeException(sprintf("Entity class %s must define a primary key attribute", $this->reflectionClass->getName()));
+			}
 		}
 	}
 	
@@ -308,24 +317,27 @@ class ClassProfile {
 	 * @return string
 	 */
 	public function getReferredTable() {
-		if ($this->classAnnotations->has('Entity')) {
-			return $this->classAnnotations->get('Entity')->getValue();
-		}
-		
-		//return default table
-		return strtolower($this->reflectionClass->getShortName()) . 's';
+		return $this->classAnnotations->get('Entity')->getValue();
 	}
 	
 	/**
 	 * Obtains the default namespace of current class (entities only)
-	 * @return string|NULL
+	 * @return string
 	 */
 	public function getNamespace() {
+		$referredTable = $this->getReferredTable();
+		
 		if ($this->classAnnotations->has('DefaultNamespace')) {
-			return $this->classAnnotations->get('DefaultNamespace')->getValue();
+			$ns = $this->classAnnotations->get('DefaultNamespace')->getValue();
+			
+			if (empty($ns) || $ns === true) {
+				return $referredTable;
+			}
+			
+			return $ns;
 		}
 		
-		return null;
+		return $referredTable;
 	}
 	
 	public function getAssociations() {
