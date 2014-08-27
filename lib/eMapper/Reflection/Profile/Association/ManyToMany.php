@@ -9,7 +9,7 @@ use eMapper\Query\Column;
  * The ManyToMany class is an abstraction of many-to-many associations.
  * @author emaphp
  */
-class ManyToMany extends AbstractAssociation {
+class ManyToMany extends Association {
 	/**
 	 * Builds the SQL join for a many-to-many association
 	 * @param string $joinAlias

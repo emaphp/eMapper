@@ -2,7 +2,7 @@
 namespace Acme\Depth;
 
 /**
- * @Entity
+ * @Entity users
  */
 class User {
 	/**

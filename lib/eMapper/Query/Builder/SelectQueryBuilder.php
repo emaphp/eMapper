@@ -5,7 +5,7 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 use eMapper\Query\Aggregate\SQLFunction;
-use eMapper\Reflection\Profile\Association\AbstractAssociation;
+use eMapper\Reflection\Profile\Association\Association;
 use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
@@ -24,7 +24,7 @@ class SelectQueryBuilder extends QueryBuilder {
 	
 	/**
 	 * Association context
-	 * @var AbstractAssociation
+	 * @var Association
 	 */
 	protected $association;
 	
@@ -44,10 +44,10 @@ class SelectQueryBuilder extends QueryBuilder {
 	
 	/**
 	 * Sets the join conditions
-	 * @param AbstractAssociation $association
+	 * @param Association $association
 	 * @param SQLPredicate $joinCondition
 	 */
-	public function setJoin(AbstractAssociation $association, SQLPredicate $joinCondition) {
+	public function setJoin(Association $association, SQLPredicate $joinCondition) {
 		$this->association = $association;
 		$this->joinCondition = $joinCondition;
 	}
@@ -167,7 +167,7 @@ class SelectQueryBuilder extends QueryBuilder {
 	}
 	
 	public function build(Driver $driver, $config = null) {
-		$alias = $joinAlias = AbstractAssociation::DEFAULT_ALIAS;
+		$alias = $joinAlias = Association::DEFAULT_ALIAS;
 		$table = '@@' . $this->entity->getReferredTable() . ' ' . $alias;
 		$joins = [];
 		

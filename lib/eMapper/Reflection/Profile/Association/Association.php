@@ -8,10 +8,10 @@ use eMapper\Annotations\AnnotationsBag;
 use eMapper\AssociationManager;
 
 /**
- * The AbstractAssociation class encapsulates common logic between the various types of entity associations.
+ * The Association class encapsulates common logic between the various types of entity associations.
  * @author emaphp
  */
-abstract class AbstractAssociation extends PropertyProfile {
+abstract class Association extends PropertyProfile {
 	const DEFAULT_ALIAS = '_t';
 	const CONTEXT_ALIAS = '_c';
 	

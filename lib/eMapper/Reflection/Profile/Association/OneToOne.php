@@ -10,7 +10,7 @@ use eMapper\Query\Attr;
  * The OneToOne class is an abstraction of one-to-one associations.
  * @author emaphp
  */
-class OneToOne extends AbstractAssociation {
+class OneToOne extends Association {
 	public function buildJoin($alias, $mainAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);

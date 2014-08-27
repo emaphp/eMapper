@@ -1,7 +1,7 @@
 <?php
 namespace eMapper;
 
-use eMapper\Reflection\Profile\Association\AbstractAssociation;
+use eMapper\Reflection\Profile\Association\Association;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Builder\SelectQueryBuilder;
@@ -15,7 +15,7 @@ use eMapper\Query\Aggregate\SQLFunction;
 class AssociationManager extends Manager {
 	/**
 	 * Association context
-	 * @var AbstractAssociation
+	 * @var Association
 	 */
 	protected $association;
 	
@@ -25,7 +25,7 @@ class AssociationManager extends Manager {
 	 */
 	protected $condition;
 	
-	public function __construct(Mapper $mapper, AbstractAssociation $association, SQLPredicate $condition) {
+	public function __construct(Mapper $mapper, Association $association, SQLPredicate $condition) {
 		$this->mapper = $mapper;
 		$this->association = $association;
 		$this->condition = $condition;
