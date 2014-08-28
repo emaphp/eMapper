@@ -1,3 +1,8 @@
+2014-08-28 - Version 3.2.0
+
+  Added: Associations.
+  Removed: IndexGet and IndexExists macros.
+
 2014-07-30 - Version 3.1.0
 
   Added: Entity Managers and Entity Namespaces (ORM).

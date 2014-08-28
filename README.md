@@ -12,7 +12,7 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-08-XX - Version 3.2.0 
+2014-08-28 - Version 3.2.0 
 
   * Added: Associations.
 
@@ -776,7 +776,7 @@ Associations provide an easy way to fetch data related to an entity. As expected
 <br/>
 #####One-To-One
 
-The next example shows 2 entities (*Profile* and *User*) and how to declare a One-To-One association to obtain the user related to a profile.
+The next example shows 2 entities (*Profile* and *User*) and how to declare a One-To-One association to obtain a *User* entity from a fetched profile.
 
 ```php
 namespace Acme;
@@ -815,7 +815,7 @@ class Profile {
     //...
 }
 ```
-In this example, the *Product* class declares a **user** property which defines a one-to-one association to the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
+In this example, the *Product* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
 
 ```php
 namespace Acme;
@@ -845,7 +845,7 @@ class User {
     //...
 }
 ```
-The *User* class defines the **profile** property as a one-to-one associaton to the *Profile* class. Notice that this time the *@Attr* annotation defines the property name as a value, not as argument. Also, this association is declared as **lazy**, which means that is not evaluated right away. The following examples illustrate how these associations work.
+The *User* class defines the **profile** property as a one-to-one associaton with the *Profile* class. Notice that this time the *@Attr* annotation defines the property name as a value, not as an argument. Also, this association is declared as **lazy**, which means that is not evaluated right away. The following example shows how to obtain a *Profile* instance and its associated user.
 
 ```php
 //obtain the profile with ID = 100
@@ -878,7 +878,7 @@ $profile = $manager->get(Attr::user__name()->eq('jdoe'));
 <br/>
 #####One-To-Many and Many-To-One
 
-The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation.
+Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation.This annotation references to the attribute in the *Pet* class that stores the client identifier.
 ```php
 namespace Acme;
 
@@ -908,8 +908,7 @@ class Client {
     private $pets;
 }
 ```
-
-This small example obtains all clients that are associated to dog pets.
+This small example obtains all clients that have dogs.
 ```php
 use eMapper\Query\Attr;
 
@@ -919,7 +918,7 @@ $manager = $mapper->buildManager('Acme\Client');
 $clients = $manager->find(Attr::pets__type()->eq('Dog'));
 ```
 
-From the point of view of the *Pet* class this is a many-to-one association which is resolved through the **clientID** attribute of the current class, meaning that in this case has to be specified as an argument.
+From the point of view of the *Pet* class this is a many-to-one association. The **owner** association is resolved through the **clientId** attribute of the current class, meaning that in this case it has to be specified as an argument of the *@Attr* annotation.
 
 ```php
 namespace Acme;
@@ -962,7 +961,7 @@ class Pet {
     //...
 }
 ```
-This small example obtains all pets for a given client name and surname.
+This small example obtains all pets for a given client.
 ```php
 use eMapper\Query\Attr;
 
@@ -977,7 +976,49 @@ $pets = $manager->find(Attr::owner__name()->eq('Joe'),
 <br/>
 #####Many-To-Many
 
-This type of associations are kind of special as they need to provide the name of the join table that resolves the association. Suppose that we want to add a **favorites** association from the *User* class to the *Product* class.
+Many-To-Many associations are kind of special as they need to provide the name of the join table that resolves the association. Suppose that we want to add a **favorites** association from the *User* class to the *Product* class.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity users
+ */
+class User {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Column username
+     */
+    private $name;
+    
+    /**
+     * @Type string
+     */
+    private $mail;
+    
+    /**
+     * @ManyToMany Product
+     * @JoinWith(favorites) prod_id
+     * @Column usr_id
+     * @Lazy
+     */
+    private $favorites;
+}
+```
+The *@JoinWith* annotation must provide the join table name as argument and the column that references the associated entity as value. In this case, this association is resolved using the *favorites* table and the product identifier is stored using the *prod_id* column. The *@Column* annotation must then declare which column in the *favorites* table identifies the current entity. The following code shows an example on how to query for a user favorited products.
+
+```php
+use eMapper\Query\Attr;
+
+$manager = $mapper->buildManager('Acme\User');
+
+//get all users that like Android
+$users = $manager->find(Attr::favorites__description()->contains('Android'));
+```
 
 <br/>
 #####Recursive associations
@@ -1025,6 +1066,8 @@ The *Category* class its related to itself through the **parent** and **subcateg
 of a given category can be resolved in the following way.
 
 ```php
+use eMapper\Query\Attr;
+
 $manager = $mapper->buildManager('Acme\Category');
 
 //get all subcategories of 'Technology'
