@@ -4,12 +4,17 @@ namespace eMapper\Reflection\Profile\Association;
 use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
+use eMapper\Annotations\AnnotationsBag;
 
 /**
  * The ManyToMany class is an abstraction of many-to-many associations.
  * @author emaphp
  */
 class ManyToMany extends Association {
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct('ManyToMany', $name, $annotations, $reflectionProperty);
+	}
+	
 	/**
 	 * Builds the SQL join for a many-to-many association
 	 * @param string $joinAlias
@@ -104,6 +109,39 @@ class ManyToMany extends Association {
 		
 		$field = Column::__callstatic($parentProfile->getPrimaryKey(true));
 		return $field->eq($parameter);
+	}
+	
+	public function save($mapper, $parent, $value, $depth) {
+		if ($value instanceof AssociationManager) {
+			return null;
+		}
+	
+		if (!is_array($value)) {
+			return null;
+		}
+
+		$entityProfile = Profiler::getClassProfile($this->profile);
+		$parentProfile = Profiler::getClassProfile($this->parent);
+		
+		$manager = $mapper->buildManager($this->profile);
+		$property = $parentProfile->getProperty($parentProfile->getPrimaryKey());
+		$foreignKey = $property->getReflectionProperty()->getValue($parent);
+		
+		$keys = [];
+		$property = $entityProfile->getProperty($entityProfile->getPrimaryKey());
+		
+		foreach ($value as &$entity) {
+			$property->getReflectionProperty()->setValue($entity, $foreignKey);
+			$keys[] = $manager->save($entity, $depth);
+		}
+	
+		$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
+							$this->joinWith->getArgument(),
+							$this->column, $foreignKey,
+							$this->joinWith->getValue(), implode(',', $keys));
+		
+		$mapper->sql($query);
+		return null;
 	}
 	
 	public function fetchValue(Manager $manager) {

@@ -89,6 +89,7 @@ abstract class Association extends PropertyProfile {
 		//get additional configuration
 		$this->readOnly = $annotations->has('ReadOnly');
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;
+		$this->column = $annotations->has('Column') ? $annotations->get('Column') : null;
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->lazy = $annotations->has('Lazy');
 		

@@ -42,7 +42,7 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('eMapper\Reflection\Profile\Association\OneToOne', $assoc);
 		$this->assertEquals('Acme\Association\Profile', $assoc->getProfile());
 		$this->assertEquals('Acme\Association\User', $assoc->getParent());
-		$this->assertEquals('user_id', $assoc->getColumn()->getValue());
+		$this->assertEquals('userId', $assoc->getAttribute()->getValue());
 		$this->assertTrue($assoc->isLazy());
 		$this->assertEquals('INNER JOIN @@profiles _c ON _t.user_id = _c.user_id', $assoc->buildJoin('_c', '_t'));
 	}

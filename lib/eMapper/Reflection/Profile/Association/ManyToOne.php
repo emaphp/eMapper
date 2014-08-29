@@ -5,6 +5,8 @@ use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
+use eMapper\AssociationManager;
+use eMapper\Annotations\AnnotationsBag;
 
 /**
  * The ManyToOne class is an abstraction of many-to-one associations.
@@ -83,6 +85,15 @@ class ManyToOne extends Association {
 		}
 		
 		return $predicate;
+	}
+	
+	public function save($mapper, $parent, $value, $depth) {
+		if ($value instanceof AssociationManager) {
+			return null;
+		}
+		
+		$manager = $mapper->buildManager($this->profile);
+		return $manager->save($value, $depth);
 	}
 	
 	public function fetchValue(Manager $manager) {

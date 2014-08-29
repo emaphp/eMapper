@@ -5,6 +5,7 @@ use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
+use eMapper\Annotations\AnnotationsBag;
 
 /**
  * The OneToMany class is an abstraction of onte-to-many associations.
@@ -73,6 +74,38 @@ class OneToMany extends Association {
 		}
 		
 		return $predicate;
+	}
+	
+	public function save($mapper, $parent, $value, $depth) {
+		if ($value instanceof AssociationManager) {
+			return null;
+		}
+		
+		if (!is_array($value)) {
+			return null;
+		}
+		
+		$parentProfile = Profiler::getClassProfile($this->parent);
+		$entityProfile = Profiler::getClassProfile($this->profile);
+		
+		$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
+		$foreignKey = $pk->getReflectionProperty()->getValue($parent);
+		$attr = $this->attribute->getValue();
+			
+		if (empty($attr) || $attr === false) {
+			throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
+		}
+			
+		$property = $entityProfile->getProperty($attr);
+		
+		$manager = $mapper->buildManager($this->profile);
+		
+		foreach ($value as &$entity) {
+			$property->getReflectionProperty()->setValue($entity, $foreignKey);
+			$manager->save($entity, $depth);
+		}
+		
+		return null;
 	}
 	
 	public function fetchValue(Manager $manager) {
