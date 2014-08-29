@@ -70,6 +70,12 @@ class ClassProfile {
 	 */
 	private $associations = [];
 	
+	/**
+	 * Foreign keys
+	 * @var array
+	 */
+	private $foreignKeys = [];
+	
 	public function __construct($classname) {
 		//store class annotations
 		$this->reflectionClass = new \ReflectionClass($classname);
@@ -116,20 +122,27 @@ class ClassProfile {
 				}
 			}
 			elseif ($annotations->has('OneToOne')) {
-				$entity = $annotations->get('OneToOne')->getValue();
-				$this->associations[$propertyName] = new OneToOne($entity, $propertyName, $annotations, $reflectionProperty);
+				$assoc = new OneToOne($propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = $assoc;
+				
+				if ($assoc->isForeignKey()) {
+					$attr = $assoc->getAttribute()->getArgument();
+					$this->foreignKeys[$attr] = $propertyName;
+				}
 			}
 			elseif ($annotations->has('OneToMany')) {
-				$entity = $annotations->get('OneToMany')->getValue();
-				$this->associations[$propertyName] = new OneToMany($entity, $propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = new OneToMany($propertyName, $annotations, $reflectionProperty);
 			}
 			elseif ($annotations->has('ManyToOne')) {
-				$entity = $annotations->get('ManyToOne')->getValue();
-				$this->associations[$propertyName] = new ManyToOne($entity, $propertyName, $annotations, $reflectionProperty);
+				$assoc = new ManyToOne($propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = $assoc;
+				
+				//add foreign key
+				$attr = $assoc->getAttribute()->getArgument();
+				$this->foreignKeys[$attr] = $propertyName;
 			}
 			elseif ($annotations->has('ManyToMany')) {
-				$entity = $annotations->get('ManyToMany')->getValue();
-				$this->associations[$propertyName] = new ManyToMany($entity, $propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = new ManyToMany($propertyName, $annotations, $reflectionProperty);
 			}
 			else {
 				$this->properties[$propertyName] = new PropertyProfile($propertyName, $annotations, $reflectionProperty);
@@ -350,6 +363,14 @@ class ClassProfile {
 		}
 		
 		return false;
+	}
+	
+	public function hasForeignKeys() {
+		return !empty($this->foreignKeys);
+	}
+	
+	public function getForeignKeys() {
+		return $this->foreignKeys;
 	}
 }
 ?>

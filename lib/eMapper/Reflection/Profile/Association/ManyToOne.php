@@ -11,6 +11,10 @@ use eMapper\Query\Attr;
  * @author emaphp
  */
 class ManyToOne extends Association {
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct('ManyToOne', $name, $annotations, $reflectionProperty);
+	}
+	
 	public function buildJoin($alias, $mainAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -34,17 +38,6 @@ class ManyToOne extends Association {
 			
 			$column = $property->getColumn();
 		}
-		elseif (isset($this->column)) {
-			$column = $this->column->getArgument();
-			
-			if (empty($column)) {
-				$column = $this->column->getValue();
-				
-				if (empty($column) || $column === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-			}
-		}
 		else {
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
@@ -59,34 +52,7 @@ class ManyToOne extends Association {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
-		if (isset($this->column)) {
-			$name = $this->column->getArgument();
-			
-			if (empty($name)) {
-				$name = $this->column->getValue();
-				
-				if (empty($name) || $name === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-			}
-			
-			$property = $parentProfile->getPropertyByColumn($name);
-			
-			if ($property === false) {
-				throw new \RuntimeException(sprintf("No attribute found for column %s in class %s", $name, $this->parent));
-			}
-			
-			$parameter = $property->getReflectionProperty()->getValue($entity);
-			
-			if (is_null($parameter)) {
-				return false;
-			}
-			
-			//build predicate
-			$field = Column::__callstatic($entityProfile->getPrimaryKey(true));
-			$predicate = $field->eq($parameter);
-		}
-		elseif (isset($this->attribute)) {
+		if (isset($this->attribute)) {
 			$name = $this->attribute->getArgument();
 			
 			if (empty($name)) {

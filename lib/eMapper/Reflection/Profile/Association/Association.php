@@ -53,7 +53,14 @@ abstract class Association extends PropertyProfile {
 	 */
 	protected $order = [];
 		
-	public function __construct($entity, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($type, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		//get entity class
+		$entity = $annotations->get($type)->getValue();
+		
+		if (empty($entity) || $entity === true) {
+			throw new \RuntimeException(sprintf("Association %s in class %s must define a valid entity class", $name, $reflectionProperty->getDeclaringClass()->getName()));
+		}
+		
 		try {
 			$reflectionClass = new \ReflectionClass($entity);
 		}
@@ -65,13 +72,22 @@ abstract class Association extends PropertyProfile {
 		}
 		
 		$this->name = $name;
-		
-		//get entities profiles
 		$this->profile = $entity;
 		$this->parent = $reflectionProperty->getDeclaringClass()->getName();
+		$this->reflectionProperty = $reflectionProperty;
+		$this->reflectionProperty->setAccessible(true);
 		
+		//parse additional configuration
+		$this->parseConfig($annotations);
+	}
+
+	/**
+	 * Parses additional configuration values for this association
+	 * @param AnnotationsBag $annotations
+	 */
+	protected function parseConfig(AnnotationsBag $annotations) {
 		//get additional configuration
-		$this->column = $annotations->has('Column') ? $annotations->get('Column') : null;
+		$this->readOnly = $annotations->has('ReadOnly');
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->lazy = $annotations->has('Lazy');
@@ -84,9 +100,6 @@ abstract class Association extends PropertyProfile {
 		foreach ($order as $option) {
 			$this->order[$option->getArgument()] = $option->getValue();
 		}
-		
-		$this->reflectionProperty = $reflectionProperty;
-		$this->reflectionProperty->setAccessible(true);
 	}
 	
 	public function getProfile() {
@@ -174,5 +187,7 @@ abstract class Association extends PropertyProfile {
 	 * @param object $entity
 	 */
 	public abstract function buildCondition($entity);
+	
+	public abstract function save($mapper, $parent, $value, $depth);
 }
 ?>

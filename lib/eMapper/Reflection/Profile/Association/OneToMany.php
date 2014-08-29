@@ -11,6 +11,10 @@ use eMapper\Query\Attr;
  * @author emaphp
  */
 class OneToMany extends Association {
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct('OneToMany', $name, $annotations, $reflectionProperty);
+	}
+	
 	public function buildJoin($alias, $mainAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -34,17 +38,6 @@ class OneToMany extends Association {
 			
 			$column = $property->getColumn();
 		}
-		elseif (isset($this->column)) {
-			$column = $this->column->getArgument();
-			
-			if (empty($column)) {
-				$column = $this->column->getValue();
-				
-				if (empty($column) || $column === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-			}
-		}
 		else {
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
@@ -57,26 +50,8 @@ class OneToMany extends Association {
 	
 	public function buildCondition($entity) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
-		
-		if (isset($this->column)) {
-			$name = $this->column->getArgument();
-			
-			if (empty($name)) {
-				$name = $this->column->getValue();
-				
-				if (empty($name) || $name === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-			}
-				
-			$pk = $parentProfile->getPropertyByColumn($parentProfile->getPrimaryKey(true));
-			$parameter = $pk->getReflectionProperty()->getValue($entity);
-				
-			//build predicate
-			$field = Column::__callstatic($name);
-			$predicate = $field->eq($parameter);
-		}
-		elseif (isset($this->attribute)) {
+
+		if (isset($this->attribute)) {
 			$name = $this->attribute->getArgument();
 			
 			if (empty($name)) {

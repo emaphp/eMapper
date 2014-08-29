@@ -227,27 +227,95 @@ class Manager {
 	 * @throws \RuntimeException
 	 * @return boolean|integer
 	 */
-	public function save($entity) {
+	public function save($entity, $depth = 1) {
 		//connect to database
 		$this->mapper->connect();
 		
-		//get primary key
-		$pk = $this->getPrimaryKeyValue($entity);
+		if ($depth == 0) {
+			//get primary key
+			$pk = $this->getPrimaryKeyValue($entity);
+			
+			if (is_null($pk)) {
+				//build insert query
+				$query = new InsertQueryBuilder($this->entity);
+				list($query, $_) = $query->build($this->mapper->getDriver());
+				$this->mapper->sql($query, $entity);
+				$pk = $this->mapper->lastId();
+					
+				//set primary key value
+				$property = $this->entity->getProperty($this->entity->getPrimaryKey());
+				$property->getReflectionProperty()->setValue($entity, $pk);
+					
+				return $pk;
+			}
+			
+			//build update query
+			$query = new UpdateQueryBuilder($this->entity);
+			$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
+			list($query, $args) = $query->build($this->mapper->getDriver());
+			$this->mapper->sql($query, $entity, $args);
+			return $pk;
+		}
 		
+		$foreignKeys = [];
+		
+		//store parent object, if any
+		if ($this->entity->hasForeignKeys()) {
+			//try storing related entities first
+			$foreignKeys = $this->entity->getForeignKeys();
+			
+			foreach ($foreignKeys as $key => $value) {
+				$assoc = $this->entity->getAssociation($value);
+				
+				if ($assoc->isReadOnly()) {
+					continue;
+				}
+				
+				$related = $assoc->getReflectionProperty()->getValue($entity);
+				$id = $assoc->save($this->mapper, $entity, $related, $depth - 1);
+				
+				if (!is_null($id)) {
+					$property = $this->entity->getProperty($key);
+					$property->getReflectionProperty()->setValue($entity, $id);
+				}
+			}
+		}
+		
+		$pk = $this->getPrimaryKeyValue($entity);
+			
 		if (is_null($pk)) {
 			//build insert query
 			$query = new InsertQueryBuilder($this->entity);
 			list($query, $_) = $query->build($this->mapper->getDriver());
 			$this->mapper->sql($query, $entity);
-			return $this->mapper->lastId();
+			$pk = $this->mapper->lastId();
+				
+			//set primary key value
+			$property = $this->entity->getProperty($this->entity->getPrimaryKey());
+			$property->getReflectionProperty()->setValue($entity, $pk);
 		}
-		
+			
 		//build update query
 		$query = new UpdateQueryBuilder($this->entity);
 		$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
 		list($query, $args) = $query->build($this->mapper->getDriver());
 		$this->mapper->sql($query, $entity, $args);
-		return true;
+		
+		foreach ($this->entity->getAssociations() as $name => $association) {
+			if (in_array($name, $foreignKeys)) {
+				continue;
+			}
+			
+			if ($association->isReadOnly()) {
+				continue;
+			}
+			
+			$property = $this->entity->getProperty($name);
+			$value = $property->getReflectionProperty()->getValue($entity);
+			$association->save($this->mapper, $entity, $value, $depth - 1);
+		}
+		
+		return $pk;
 	}
 	
 	/**

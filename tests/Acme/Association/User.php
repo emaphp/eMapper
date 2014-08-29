@@ -32,7 +32,7 @@ class User {
 	
 	/**
 	 * @OneToOne Profile
-	 * @Column user_id
+	 * @Attr userId
 	 * @Lazy
 	 */
 	private $profile;

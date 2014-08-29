@@ -5,12 +5,18 @@ use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
+use eMapper\Annotations\AnnotationsBag;
+use eMapper\AssociationManager;
 
 /**
  * The OneToOne class is an abstraction of one-to-one associations.
  * @author emaphp
  */
 class OneToOne extends Association {
+	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct('OneToOne', $name, $annotations, $reflectionProperty);
+	}
+	
 	public function buildJoin($alias, $mainAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -51,30 +57,6 @@ class OneToOne extends Association {
 						$alias, $property->getColumn());
 			}
 		}
-		elseif (isset($this->column)) {
-			$column = $this->column->getArgument();
-			
-			if (!empty($column)) {
-				//@Column(user_id)
-				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						   $entityProfile->getReferredTable(), $alias,
-						   $alias, $entityProfile->getPrimaryKey(true),
-						   $mainAlias, $column);
-			}
-			else {
-				$column = $this->column->getValue();
-				
-				if (empty($column) || $column === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-				
-				//@Column user_id
-				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
-						$entityProfile->getReferredTable(), $alias,
-						$mainAlias, $parentProfile->getPrimaryKey(true),
-						$alias, $column);
-			}
-		}
 		else {
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
@@ -84,41 +66,7 @@ class OneToOne extends Association {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
-		if (isset($this->column)) {
-			$argument = $this->column->getArgument();
-			$value = $this->column->getValue();
-				
-			if (is_null($argument)) {
-				if (empty($value) || $value === true) {
-					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid column name", $this->name, $this->parent));
-				}
-				
-				//@Column user_id
-				$pk = $parentProfile->getPropertyByColumn($parentProfile->getPrimaryKey(true));
-				$parameter = $pk->getReflectionProperty()->getValue($entity);
-
-				$field = Column::__callstatic($value);
-				$predicate = $field->eq($parameter);
-			}
-			else {
-				//@Column(user_id)
-				$property = $parentProfile->getPropertyByColumn($argument);
-				
-				if ($property === false) {
-					throw new \RuntimeException(sprintf("No attribute found for column %s in class %s", $argument, $this->parent));
-				}
-				
-				$parameter = $property->getReflectionProperty()->getValue($entity);
-				
-				if (is_null($parameter)) {
-					return false;
-				}
-				
-				$field = Column::__callstatic($entityProfile->getPrimaryKey(true));
-				$predicate = $field->eq($parameter);
-			}
-		}
-		elseif (isset($this->attribute)) {
+		if (isset($this->attribute)) {
 			$argument = $this->attribute->getArgument();
 			$value = $this->attribute->getValue();
 			
@@ -161,8 +109,41 @@ class OneToOne extends Association {
 		return $predicate;
 	}
 	
+	public function save($mapper, $parent, $value, $depth) {
+		if ($value instanceof AssociationManager) {
+			return null;
+		}
+		
+		$manager = $mapper->buildManager($this->profile);
+		$attr = $this->attribute->getArgument();
+		
+		if (empty($attr)) {
+			$parentProfile = Profiler::getClassProfile($this->parent);
+			$entityProfile = Profiler::getClassProfile($this->profile);
+			
+			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
+			$foreignKey = $pk->getReflectionProperty()->getValue($parent);
+			
+			$attr = $this->attribute->getValue();
+			
+			if (empty($attr) || $attr === false) {
+				throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
+			}
+			
+			$property = $entityProfile->getProperty($attr);
+			$property->getReflectionProperty()->setValue($value, $foreignKey);
+		}
+
+		return $manager->save($value, $depth);
+	}
+	
 	public function fetchValue(Manager $manager) {		
 		return $manager->get();
+	}
+	
+	public function isForeignKey() {
+		$attr = $this->attribute->getArgument();
+		return !empty($attr);
 	}
 }
 ?>
