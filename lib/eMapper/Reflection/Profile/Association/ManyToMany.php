@@ -135,9 +135,24 @@ class ManyToMany extends Association {
 			$keys[] = $manager->save($entity, $depth);
 		}
 	
+		//update join table
+		$current = $mapper->type('int[]')->query(sprintf("SELECT %s FROM %s WHERE %s = %s",
+														 $this->joinWith->getValue(), $this->joinWith->getArgument(),
+														 $this->column->getValue(), $foreignKey));
+		
+		$diff = array_diff($keys, $current);
+		
+		if (!empty($diff)) {
+			foreach ($diff as $id) {
+				$mapper->sql(sprintf("INSERT INTO %s (%s, %s) VALUES (%s, %s)", $this->joinWith->getArgument(),
+																				$this->joinWith->getValue(), $this->column->getValue(),
+																				$id, $foreignKey));
+			}
+		}
+		
 		$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
 							$this->joinWith->getArgument(),
-							$this->column, $foreignKey,
+							$this->column->getValue(), $foreignKey,
 							$this->joinWith->getValue(), implode(',', $keys));
 		
 		$mapper->sql($query);
