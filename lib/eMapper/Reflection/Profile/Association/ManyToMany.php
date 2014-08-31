@@ -85,6 +85,7 @@ class ManyToMany extends Association {
 		$column = $this->column->getArgument();
 		
 		if (empty($column)) {
+			//try getting it from value instead
 			$column = $this->column->getValue();
 			
 			if (empty($column) || $column === true) {
@@ -104,9 +105,11 @@ class ManyToMany extends Association {
 	public function buildCondition($entity) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		
+		//obtain primary key value
 		$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 		$parameter = $pk->getReflectionProperty()->getValue($entity);
 		
+		//build predicate
 		$field = Column::__callstatic($parentProfile->getPrimaryKey(true));
 		return $field->eq($parameter);
 	}
@@ -120,18 +123,20 @@ class ManyToMany extends Association {
 			return null;
 		}
 
+		//get related profiles
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		
+		//build entity manager
 		$manager = $mapper->buildManager($this->profile);
+		
+		//get foreign key value
 		$property = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 		$foreignKey = $property->getReflectionProperty()->getValue($parent);
 		
 		$keys = [];
-		$property = $entityProfile->getProperty($entityProfile->getPrimaryKey());
 		
 		foreach ($value as &$entity) {
-			$property->getReflectionProperty()->setValue($entity, $foreignKey);
 			$keys[] = $manager->save($entity, $depth);
 		}
 	

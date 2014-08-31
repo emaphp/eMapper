@@ -18,14 +18,15 @@ class OneToOne extends Association {
 	}
 	
 	public function buildJoin($alias, $mainAlias) {
+		//get relate profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
 			$name = $this->attribute->getArgument();
 		
-			if (!empty($name)) {
-				//@Attr(userId)
+			if (!empty($name)) { //@Attr(userId) => instance has foreign key
+				//get property from parent profile
 				$property = $parentProfile->getProperty($name);
 				
 				if ($property === false) {
@@ -37,14 +38,15 @@ class OneToOne extends Association {
 						$alias, $property->getColumn(),
 						$mainAlias, $parentProfile->getPrimaryKey(true));
 			}
-			else {
-				//@Attr userId
+			else { //@Attr userId => instance is referenced
+				//get annotation as value
 				$name = $this->attribute->getValue();
 				
 				if (empty($name) || $name === true) {
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 				}
 				
+				//get property from current profile
 				$property = $entityProfile->getProperty($name);
 				
 				if ($property === false) {
@@ -63,19 +65,20 @@ class OneToOne extends Association {
 	}
 	
 	public function buildCondition($entity) {
+		//get relate profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
-			$argument = $this->attribute->getArgument();
-			$value = $this->attribute->getValue();
+			$name = $this->attribute->getArgument();
 			
-			if (is_null($argument)) {
+			if (empty($name)) { //@Attr userId
+				$value = $this->attribute->getValue();
+				
 				if (empty($value) || $value === true) {
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 				}
 				
-				//@Attr userId
 				//obtain primary key value
 				$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 				$parameter = $pk->getReflectionProperty()->getValue($entity);
@@ -84,12 +87,11 @@ class OneToOne extends Association {
 				$field = Attr::__callstatic($value);
 				$predicate = $field->eq($parameter);
 			}
-			else {
-				//@Attr(userId)
-				$property = $parentProfile->getProperty($argument);
+			else { //@Attr(userId)
+				$property = $parentProfile->getProperty($name);
 				
 				if ($property === false) {
-					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $argument, $this->parent));
+					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->parent));
 				}
 				
 				$parameter = $property->getReflectionProperty()->getValue($entity);
@@ -98,6 +100,7 @@ class OneToOne extends Association {
 					return false;
 				}
 				
+				//build predicate
 				$field = Attr::__callstatic($entityProfile->getPrimaryKey());
 				$predicate = $field->eq($parameter);
 			}
@@ -114,16 +117,20 @@ class OneToOne extends Association {
 			return null;
 		}
 		
+		//build manager
 		$manager = $mapper->buildManager($this->profile);
 		$attr = $this->attribute->getArgument();
 		
-		if (empty($attr)) {
+		if (empty($attr)) { //@Attr userId
+			//get related profiles
 			$parentProfile = Profiler::getClassProfile($this->parent);
 			$entityProfile = Profiler::getClassProfile($this->profile);
 			
+			//obtain foreign key value
 			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 			$foreignKey = $pk->getReflectionProperty()->getValue($parent);
 			
+			//set foreign key value
 			$attr = $this->attribute->getValue();
 			
 			if (empty($attr) || $attr === false) {

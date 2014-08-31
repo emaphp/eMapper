@@ -20,17 +20,21 @@ class OneToMany extends Association {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
+		//obtain annotation value
 		if (isset($this->attribute)) {
 			$name = $this->attribute->getArgument();
 			
+			//if no argument try getting as a value
 			if (empty($name)) {
 				$name = $this->attribute->getValue();
 				
+				//check for a valid value
 				if (empty($name) || $name === true) {
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 				}
 			}
-				
+			
+			//obtain related column
 			$property = $entityProfile->getProperty($name);
 			
 			if ($property === false) {
@@ -52,9 +56,11 @@ class OneToMany extends Association {
 	public function buildCondition($entity) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 
+		//obtain annotation value
 		if (isset($this->attribute)) {
 			$name = $this->attribute->getArgument();
 			
+			//if no argument try getting as a value
 			if (empty($name)) {
 				$name = $this->attribute->getValue();
 				
@@ -62,10 +68,12 @@ class OneToMany extends Association {
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 				}
 			}
-				
+			
+			//obtain primary key value
 			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 			$parameter = $pk->getReflectionProperty()->getValue($entity);
-				
+			
+			//build predicate
 			$field = Attr::__callstatic($name);
 			$predicate = $field->eq($parameter);
 		}
@@ -85,24 +93,50 @@ class OneToMany extends Association {
 			return null;
 		}
 		
+		//get related profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
+		//obtains parent identifier
 		$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
 		$foreignKey = $pk->getReflectionProperty()->getValue($parent);
+		
+		//get foreign key
 		$attr = $this->attribute->getValue();
 			
 		if (empty($attr) || $attr === false) {
 			throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 		}
-			
-		$property = $entityProfile->getProperty($attr);
 		
+		$fkProperty = $entityProfile->getProperty($attr);
+		$pkProperty = $entityProfile->getProperty($entityProfile->getPrimaryKey());
+		
+		//create manager instance
 		$manager = $mapper->buildManager($this->profile);
+		$ids = [];
 		
 		foreach ($value as &$entity) {
-			$property->getReflectionProperty()->setValue($entity, $foreignKey);
+			//get primary key
+			$ids[] = $pkProperty->getReflectionProperty()->getValue();
+			
+			//set foreign key before insert
+			$fkProperty->getReflectionProperty()->setValue($entity, $foreignKey);
+			
+			//store object
 			$manager->save($entity, $depth);
+		}
+		
+		if (!empty($value)) {
+			$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
+							 $entityProfile->getReferredTable(),
+							 $fkProperty->getColumn(), $foreignKey,
+							 $pkProperty->getColumn(), implode(',', $ids));
+			//clean related values
+			$mapper->sql($sql);
+		}
+		else {
+			//delete all
+			$query = sprintf("DELETE FROM %s WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey);
 		}
 		
 		return null;

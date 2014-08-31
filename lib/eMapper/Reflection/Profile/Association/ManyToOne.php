@@ -18,12 +18,15 @@ class ManyToOne extends Association {
 	}
 	
 	public function buildJoin($alias, $mainAlias) {
+		//get related profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
+			//get attribute name
 			$name = $this->attribute->getArgument();
 			
+			//try getting attribute as value instead
 			if (empty($name)) {
 				$name = $this->attribute->getValue();
 				
@@ -32,6 +35,7 @@ class ManyToOne extends Association {
 				}
 			}
 			
+			//obtain column name
 			$property = $parentProfile->getProperty($name);
 			
 			if ($property === false) {
@@ -51,12 +55,15 @@ class ManyToOne extends Association {
 	}
 	
 	public function buildCondition($entity) {
+		//get related profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		if (isset($this->attribute)) {
+			//get attribute name
 			$name = $this->attribute->getArgument();
 			
+			//get name as value instead
 			if (empty($name)) {
 				$name = $this->attribute->getValue();
 				
@@ -65,6 +72,7 @@ class ManyToOne extends Association {
 				}
 			}
 			
+			//obtain attribute value
 			$property = $parentProfile->getProperty($name);
 			
 			if ($property === false) {
@@ -77,6 +85,7 @@ class ManyToOne extends Association {
 				return false;
 			}
 			
+			//build predicate
 			$field = Attr::__callstatic($entityProfile->getPrimaryKey());
 			$predicate = $field->eq($parameter);
 		}
