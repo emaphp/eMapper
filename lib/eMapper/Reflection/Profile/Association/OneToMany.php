@@ -115,15 +115,12 @@ class OneToMany extends Association {
 		$manager = $mapper->buildManager($this->profile);
 		$ids = [];
 		
-		foreach ($value as &$entity) {
-			//get primary key
-			$ids[] = $pkProperty->getReflectionProperty()->getValue();
-			
+		foreach ($value as &$entity) {			
 			//set foreign key before insert
 			$fkProperty->getReflectionProperty()->setValue($entity, $foreignKey);
 			
 			//store object
-			$manager->save($entity, $depth);
+			$ids[] = $manager->save($entity, $depth);
 		}
 		
 		if (!empty($value)) {
@@ -132,7 +129,7 @@ class OneToMany extends Association {
 							 $fkProperty->getColumn(), $foreignKey,
 							 $pkProperty->getColumn(), implode(',', $ids));
 			//clean related values
-			$mapper->sql($sql);
+			$mapper->sql($query);
 		}
 		else {
 			//delete all

@@ -272,12 +272,20 @@ class Manager {
 				}
 				
 				$related = $assoc->getReflectionProperty()->getValue($entity);
-				$id = $assoc->save($this->mapper, $entity, $related, $depth - 1);
 				
-				if (!is_null($id)) {
+				if (is_null($related)) {
+					//set attribute to NULL
 					$property = $this->entity->getProperty($key);
-					$property->getReflectionProperty()->setValue($entity, $id);
+					$property->getReflectionProperty()->setValue($entity, null);
 				}
+				else {
+					$id = $assoc->save($this->mapper, $entity, $related, $depth - 1);
+				
+					if (!is_null($id)) {
+						$property = $this->entity->getProperty($key);
+						$property->getReflectionProperty()->setValue($entity, $id);
+					}
+				}				
 			}
 		}
 		
@@ -310,9 +318,12 @@ class Manager {
 				continue;
 			}
 			
-			$property = $this->entity->getProperty($name);
-			$value = $property->getReflectionProperty()->getValue($entity);
-			$association->save($this->mapper, $entity, $value, $depth - 1);
+			//obtain associated value
+			$value = $association->getReflectionProperty()->getValue($entity);
+			
+			if (!is_null($value)) {
+				$association->save($this->mapper, $entity, $value, $depth - 1);
+			}
 		}
 		
 		return $pk;
