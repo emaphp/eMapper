@@ -124,9 +124,11 @@ class OneToMany extends Association {
 		}
 		
 		if ($fkProperty->isNullable()) {
-			$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)",
-							 $entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
-			$mapper->sql($query);
+			if (!empty($value)) {
+				$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)",
+						$entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
+				$mapper->sql($query);
+			}
 		}
 		else {
 			if (!empty($value)) {
