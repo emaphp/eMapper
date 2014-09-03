@@ -49,7 +49,13 @@ class PropertyProfile {
 	 * @var boolean
 	 */
 	protected $readOnly;
-		
+	
+	/**
+	 * Determines if the property is nullable
+	 * @var boolean
+	 */
+	protected $nullable;
+	
 	/**
 	 * Reflection property instance
 	 * @var \ReflectionProperty
@@ -68,6 +74,7 @@ class PropertyProfile {
 		$this->primaryKey = $annotations->has('Id');
 		$this->unique = $annotations->has('Unique');
 		$this->readOnly = $annotations->has('ReadOnly');
+		$this->nullable = $annotations->has('Nullable');
 		
 		$this->reflectionProperty = $reflectionProperty;
 		$this->reflectionProperty->setAccessible(true);
@@ -127,6 +134,14 @@ class PropertyProfile {
 	 */
 	public function isReadOnly() {
 		return $this->readOnly;
+	}
+	
+	/**
+	 * Determines if the current property can take null values
+	 * @return boolean
+	 */
+	public function isNullable() { 
+		return $this->nullable;
 	}
 	
 	/**

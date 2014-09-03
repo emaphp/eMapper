@@ -24,8 +24,8 @@ class User {
 	
 	/**
 	 * @ManyToMany Product
-	 * @JoinWith(favorites) prd_id
-	 * @Column usr_id
+	 * @JoinWith(favorites) usr_id
+	 * @ForeignKey prd_id
 	 * @Lazy
 	 */
 	private $favorites;

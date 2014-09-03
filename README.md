@@ -6,15 +6,16 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.2.0
+**Version**: 3.2.1
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-08-28 - Version 3.2.0 
+2014-09-05 - Version 3.2.1
 
-  * Added: Associations.
+  * Fixed: Storing associated values in Manager::save method.
+  * Modified: Many-to-many annotation syntax.
 
 <br/>
 Dependencies
@@ -33,7 +34,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.2"
+        "emapper/emapper" : "3.2.*"
     }
 }
 ```
@@ -682,7 +683,7 @@ $products = $mapper->execute('products.findAll');
 $products = $mapper->execute('products.findByCategory', 'Laptops');
 
 //override mapping expression
-$products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('descriptionIsNull');
+$products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('products.descriptionIsNull');
 ```
 
 <br/>
@@ -1002,14 +1003,14 @@ class User {
     
     /**
      * @ManyToMany Product
-     * @JoinWith(favorites) prod_id
-     * @Column usr_id
+     * @JoinWith(favorites) user_id
+     * @ForeignKey prod_id
      * @Lazy
      */
     private $favorites;
 }
 ```
-The *@JoinWith* annotation must provide the join table name as argument and the column that references the associated entity as value. In this case, this association is resolved using the *favorites* table and the product identifier is stored using the *prod_id* column. The *@Column* annotation must then declare which column in the *favorites* table identifies the current entity. The following code shows an example on how to query for a user favorited products.
+The *@JoinWith* annotation must provide the join table name as argument and the column that references the current entity as its value. In this case, this association is resolved using the *favorites* table and the user identifier stored in the *user_id* column on that table. The *@ForeignKey* annotation must then define the column name in the join table that references the target entity (*Product*). The following code shows an example on how to query for a user favorited products.
 
 ```php
 use eMapper\Query\Attr;
@@ -1044,6 +1045,7 @@ class Category {
     
     /**
      * @Type integer
+     * @Nullable
      */
     private $parentId;
     
@@ -1073,8 +1075,97 @@ $manager = $mapper->buildManager('Acme\Category');
 //get all subcategories of 'Technology'
 $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
 ```
+You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column could also take null values. It is important to add this annotation when having one-to-many associations as it determines if an entity must be deleted if a foreing key is not properly set.
 
+<br/>
+Storing entities
+----------------
 
+<br/>
+The *Manager* class provides a *save* method which its pretty self explanatory.
+```php
+use Acme\Product;
+
+//build entity manager
+$manager = $mapper->buildManager('Acme\Product');
+
+//create product instance
+$product = new Product();
+$product->setDescription('Android phone');
+$product->setCode('PHN087');
+$product->setPrice(178.99);
+
+//store and obtain generated id
+$id = $manager->save($product);
+```
+This method can even store associated entities, which depending on the situation can save a bit of work.
+
+```php
+use Acme\User;
+use Acme\Profile;
+
+//build entity manager
+$manager = $mapper->buildManager('Acme\User');
+
+//create user instance
+$user = new User();
+$user->setName('emaphp');
+$user->setEmail('emaphp@localhost.com');
+
+//create profile instance
+$profile = new Profile();
+$profile->setFirstName('Emmanuel');
+$profile->setLastName('Antico');
+$profile->setGender('M');
+
+//assign profile and store
+$user->setProfile($profile);
+$manager->save($user);
+```
+
+When the primary key attribute of an entity is already set, the *save* method does an update query.
+
+```php
+use Acme\Product;
+use eMapper\Query\Attr;
+
+//build entity manager
+$manager = $mapper->buildManager('Acme\Product');
+
+//update product price and store
+$product = $manager->get(Attr::code()->eq('PHN087'));
+$product->setPrice(149.99);
+$manager->save($product);
+```
+
+By default, this saves the entity along with all associated values. There are some scenarios though in which this default behaviour is not necessary and could produce some unnecesary overhead. Let's take the  *Profile* -> *User* association example.
+
+```php
+use eMapper\Query\Attr;
+
+$manager = $mapper->buildManager('Acme\Profile');
+
+$profile = $manager->findByPk(100);
+$profile->setFirstName('Ishmael');
+
+$manager->save($profile);
+```
+Obtaining a profile in this way will also evaluate the **user** association defined in the *Profile* class. As explained before, saving this profile not only updates the *profiles* table but also the associated user. In order to reduce the number of queries to perform we'll set the *association depth* to 0 through the **depth** method.
+```php
+$profile = $manager->depth(0)->findByPk(100);
+```
+When the association depth is set to 0 no related data is obtained. That means that doing something like:
+```php
+$profile->getUser();
+```
+will return a NULL value. The *save* method also expects a depth parameter (default to 1) that we can manipulate to define if related data must be updated along with the entity. To simplify, if the related data is not updated we can use the *depth* method to optimize the amount of data to obtain. Then, we can store the modified entity and add a second argument to avoid storing any associated data. Finally, our example will look like the following.
+
+```php
+$manager = $mapper->buildManager('Acme\Profile');
+$profile = $manager->depth(0)->findByPk(100);
+$profile->setFirstName('Ishmael');
+$manager->save($profile, 0);
+```
 
 <br/>
 Dynamic SQL

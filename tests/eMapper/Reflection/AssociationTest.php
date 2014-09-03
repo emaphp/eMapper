@@ -4,6 +4,7 @@ namespace eMapper\Reflection;
 /**
  * 
  * @author emaphp
+ * @group reflection
  * @group association
  */
 class AssociationTest extends \PHPUnit_Framework_TestCase {
@@ -81,10 +82,10 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('eMapper\Reflection\Profile\Association\ManyToMany', $assoc);
 		$this->assertEquals('Acme\Association\Product', $assoc->getProfile());
 		$this->assertEquals('Acme\Association\User', $assoc->getParent());
-		$this->assertEquals('usr_id', $assoc->getColumn()->getValue());
+		$this->assertEquals('usr_id', $assoc->getJoinWith()->getValue());
 		$join = $assoc->getJoinWith();
 		$this->assertEquals('favorites', $join->getArgument());
-		$this->assertEquals('prd_id', $join->getValue());
+		$this->assertEquals('usr_id', $join->getValue());
 		$this->assertTrue($assoc->isLazy());
 		
 		$this->assertEquals('INNER JOIN @@favorites _c_t ON _c_t.usr_id = _t.user_id INNER JOIN @@products _c ON _c_t.prd_id = _c.product_id', $assoc->buildJoin('_c', '_t'));

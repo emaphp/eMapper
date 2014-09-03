@@ -123,17 +123,24 @@ class OneToMany extends Association {
 			$ids[] = $manager->save($entity, $depth);
 		}
 		
-		if (!empty($value)) {
-			$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
-							 $entityProfile->getReferredTable(),
-							 $fkProperty->getColumn(), $foreignKey,
-							 $pkProperty->getColumn(), implode(',', $ids));
-			//clean related values
+		if ($fkProperty->isNullable()) {
+			$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)",
+							 $entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
 			$mapper->sql($query);
 		}
 		else {
-			//delete all
-			$query = sprintf("DELETE FROM %s WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey);
+			if (!empty($value)) {
+				$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
+						$entityProfile->getReferredTable(),
+						$fkProperty->getColumn(), $foreignKey,
+						$pkProperty->getColumn(), implode(',', $ids));
+				//clean related values
+				$mapper->sql($query);
+			}
+			else {
+				//delete all
+				$query = sprintf("DELETE FROM %s WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey);
+			}	
 		}
 		
 		return null;
