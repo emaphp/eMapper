@@ -1,3 +1,12 @@
+2014-09-04 - Version 3.2.1
+
+  Fixed: Storing associated values through Manager.
+  Added: $depth parameter in Manager::save.
+  Added: @Nullable annotation.
+  Added: @OrderBy and @Index annotations for association attributes.
+  Added: @ForeignKey annotation for many-to-many associations.
+  Modified: Annotation syntax for @JoinWith.
+
 2014-08-28 - Version 3.2.0
 
   Added: Associations.

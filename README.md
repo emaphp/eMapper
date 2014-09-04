@@ -12,10 +12,14 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-09-05 - Version 3.2.1
+2014-09-04 - Version 3.2.1
 
-  * Fixed: Storing associated values in Manager::save method.
-  * Modified: Many-to-many annotation syntax.
+  * Fixed: Storing associated values through Manager.
+  * Added: $depth parameter in Manager::save.
+  * Added: @Nullable annotation.
+  * Added: @OrderBy and @Index annotations for association attributes.
+  * Added: @ForeignKey annotation for many-to-many associations.
+  * Modified: Annotation syntax for @JoinWith.
 
 <br/>
 Dependencies
@@ -669,8 +673,9 @@ class Product {
 #####Adding a entity namespace
 
 ```php
-//add an entity namespace
 use eMapper\SQL\EntityNamespace;
+
+//add an entity namespace
 $mapper->addEntityNamespace(new EntityNamespace('Acme\Factory\Product'));
 
 //find by primary key
@@ -879,7 +884,7 @@ $profile = $manager->get(Attr::user__name()->eq('jdoe'));
 <br/>
 #####One-To-Many and Many-To-One
 
-Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation.This annotation references to the attribute in the *Pet* class that stores the client identifier.
+Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation. This annotation references to the attribute in the *Pet* class that stores the client identifier.
 ```php
 namespace Acme;
 
@@ -909,16 +914,6 @@ class Client {
     private $pets;
 }
 ```
-This small example obtains all clients that have dogs.
-```php
-use eMapper\Query\Attr;
-
-$manager = $mapper->buildManager('Acme\Client');
-
-//get all clients that have dogs
-$clients = $manager->find(Attr::pets__type()->eq('Dog'));
-```
-
 From the point of view of the *Pet* class this is a many-to-one association. The **owner** association is resolved through the **clientId** attribute of the current class, meaning that in this case it has to be specified as an argument of the *@Attr* annotation.
 
 ```php
@@ -962,7 +957,16 @@ class Pet {
     //...
 }
 ```
-This small example obtains all pets for a given client.
+This small example obtains all clients that have dogs.
+```php
+use eMapper\Query\Attr;
+
+$manager = $mapper->buildManager('Acme\Client');
+
+//get all clients that have dogs
+$clients = $manager->find(Attr::pets__type()->eq('Dog'));
+```
+And this one obtains all pets for a given client.
 ```php
 use eMapper\Query\Attr;
 
@@ -1044,6 +1048,7 @@ class Category {
     private $name;
     
     /**
+     * @Column parent_id
      * @Type integer
      * @Nullable
      */
@@ -1075,7 +1080,35 @@ $manager = $mapper->buildManager('Acme\Category');
 //get all subcategories of 'Technology'
 $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
 ```
-You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column could also take null values. It is important to add this annotation when having one-to-many associations as it determines if an entity must be deleted if a foreing key is not properly set.
+You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column could also take null values. It is important to add this annotation when having many-to-one associations related to that attribute as it determines if an entity must be deleted if a foreing key is not properly set. In short, this allows the existence of entities without a parent category.
+
+
+<br/>
+#####Configuration
+
+One-To-Many and Many-To-Many associations support two additional configuration annotations:
+
+  * @Index: Indicates the attribute used for indexation.
+  * @OrderBy: Used to obtain a list ordered by the specified attribute.
+
+For example, the **subcategories** association in the *Category* class could be redefined to obtain a list of categories indexed by name and ordered by id. We can achieve this with the following declaration:
+
+```php
+/**
+ * @Entity categories
+ */
+class Category {
+    //...
+    
+    /**
+     * @OneToMany Category
+     * @Attr parentId
+     * @Index name
+     * @OrderBy(id) DESC
+     */
+    private $subcategories:
+}
+```
 
 <br/>
 Storing entities

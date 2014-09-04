@@ -157,7 +157,7 @@ abstract class Association extends PropertyProfile {
 			$order = [];
 			
 			foreach ($this->order as $key => $value) {
-				if (is_boolean($value) || (strtolower($value) != 'asc' && strtolower($value) != 'desc')) {
+				if (is_bool($value) || (strtolower($value) != 'asc' && strtolower($value) != 'desc')) {
 					$type = null;
 				}
 				else {
