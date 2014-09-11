@@ -120,8 +120,7 @@ class ManyToMany extends Association {
 		$manager = $mapper->buildManager($this->profile);
 		
 		//get foreign key value
-		$property = $parentProfile->getProperty($parentProfile->getPrimaryKey());
-		$foreignKey = $property->getReflectionProperty()->getValue($parent);
+		$foreignKey = $this->getPropertyValue($parentProfile, $parent, $parentProfile->getPrimaryKey());
 		
 		$keys = [];
 		
@@ -130,24 +129,17 @@ class ManyToMany extends Association {
 		}
 	
 		//update join table
-		$current = $mapper->type('int[]')->query(sprintf("SELECT %s FROM %s WHERE %s = %s",
-														 $this->foreignKey, $this->joinWith->getArgument(),
-														 $this->joinWith->getValue(), $foreignKey));
+		$current = $mapper->type('int[]')->query(sprintf("SELECT %s FROM %s WHERE %s = %s", $this->foreignKey, $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey));
 		
 		$diff = array_diff($keys, $current);
 		
 		if (!empty($diff)) {
 			foreach ($diff as $id) {
-				$mapper->sql(sprintf("INSERT INTO %s (%s, %s) VALUES (%s, %s)", $this->joinWith->getArgument(),
-																				$this->foreignKey, $this->joinWith->getValue(),
-																				$id, $foreignKey));
+				$mapper->sql(sprintf("INSERT INTO %s (%s, %s) VALUES (%s, %s)", $this->joinWith->getArgument(), $this->foreignKey, $this->joinWith->getValue(), $id, $foreignKey));
 			}
 		}
 		
-		$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
-							$this->joinWith->getArgument(),
-							$this->joinWith->getValue(), $foreignKey,
-							$this->foreignKey, implode(',', $keys));
+		$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)", $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey, $this->foreignKey, implode(',', $keys));
 		
 		$mapper->sql($query);
 		return null;

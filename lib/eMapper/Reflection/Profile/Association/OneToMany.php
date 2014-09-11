@@ -98,8 +98,7 @@ class OneToMany extends Association {
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
 		//obtains parent identifier
-		$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
-		$foreignKey = $pk->getReflectionProperty()->getValue($parent);
+		$foreignKey = $this->getPropertyValue($parentProfile, $parent, $parentProfile->getPrimaryKey());
 		
 		//get foreign key
 		$attr = $this->attribute->getValue();
@@ -117,7 +116,7 @@ class OneToMany extends Association {
 		
 		foreach ($value as &$entity) {			
 			//set foreign key before insert
-			$fkProperty->getReflectionProperty()->setValue($entity, $foreignKey);
+			$this->setPropertyValue($entityProfile, $entity, $entityProfile->getPrimaryKey(), $foreignKey);
 			
 			//store object
 			$ids[] = $manager->save($entity, $depth);
@@ -125,17 +124,13 @@ class OneToMany extends Association {
 		
 		if ($fkProperty->isNullable()) {
 			if (!empty($value)) {
-				$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)",
-						$entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
+				$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
 				$mapper->sql($query);
 			}
 		}
 		else {
 			if (!empty($value)) {
-				$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)",
-						$entityProfile->getReferredTable(),
-						$fkProperty->getColumn(), $foreignKey,
-						$pkProperty->getColumn(), implode(',', $ids));
+				$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey, $pkProperty->getColumn(), implode(',', $ids));
 				//clean related values
 				$mapper->sql($query);
 			}

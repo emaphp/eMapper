@@ -2,18 +2,22 @@
 namespace eMapper\Reflection\Profile\Association;
 
 use eMapper\Reflection\Profile\PropertyProfile;
+use eMapper\Reflection\PropertyAccessor;
 use eMapper\Annotations\Annotation;
 use eMapper\Manager;
 use eMapper\Annotations\AnnotationsBag;
 use eMapper\AssociationManager;
 use eMapper\Annotations\Filter;
 use eMapper\Query\Attr;
+use eMapper\Reflection\Profile\ClassProfile;
 
 /**
  * The Association class encapsulates common logic between the various types of entity associations.
  * @author emaphp
  */
 abstract class Association extends PropertyProfile {
+	use PropertyAccessor;
+	
 	const DEFAULT_ALIAS = '_t';
 	const CONTEXT_ALIAS = '_c';
 	
@@ -22,7 +26,7 @@ abstract class Association extends PropertyProfile {
 	 * @var string
 	 */
 	protected $profile;
-	
+		
 	/**
 	 * Declaring class profile
 	 * @var string
@@ -95,7 +99,6 @@ abstract class Association extends PropertyProfile {
 		//get additional configuration
 		$this->readOnly = $annotations->has('ReadOnly');
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;
-		//$this->column = $annotations->has('Column') ? $annotations->get('Column') : null;
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->foreignKey = $annotations->has('ForeignKey') ? $annotations->get('ForeignKey')->getValue() : null;
 		$this->lazy = $annotations->has('Lazy');

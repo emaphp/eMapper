@@ -2,6 +2,7 @@
 namespace eMapper;
 
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\PropertyAccessor;
 use eMapper\SQL\Configuration\StatementConfiguration;
 use eMapper\Reflection\EntityMapper;
 use eMapper\Query\Predicate\Filter;
@@ -27,6 +28,7 @@ use eMapper\Query\Aggregate\SQLSum;
 class Manager {
 	use StatementConfiguration;
 	use EntityMapper;
+	use PropertyAccessor;
 	
 	/**
 	 * Database mapper
@@ -205,23 +207,6 @@ class Manager {
 	}
 	
 	/**
-	 * Obtains an entity primary key value
-	 * @param object $entity
-	 * @throws \RuntimeException
-	 */
-	protected function getPrimaryKeyValue($entity) {
-		$primaryKey = $this->entity->getPrimaryKey();
-			
-		if (is_null($primaryKey)) {
-			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
-		}
-		
-		//get primary key value
-		$pkProperty = $this->entity->getProperty($this->entity->getPrimaryKey());
-		return $pkProperty->getReflectionProperty()->getValue($entity);
-	}
-	
-	/**
 	 * Stores an instance into the database
 	 * @param object $entity
 	 * @throws \RuntimeException
@@ -233,7 +218,7 @@ class Manager {
 		
 		if ($depth == 0) {
 			//get primary key
-			$pk = $this->getPrimaryKeyValue($entity);
+			$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 			
 			if (is_null($pk)) {
 				//build insert query
@@ -243,9 +228,7 @@ class Manager {
 				$pk = $this->mapper->lastId();
 					
 				//set primary key value
-				$property = $this->entity->getProperty($this->entity->getPrimaryKey());
-				$property->getReflectionProperty()->setValue($entity, $pk);
-					
+				$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
 				return $pk;
 			}
 			
@@ -267,29 +250,28 @@ class Manager {
 			foreach ($foreignKeys as $key => $value) {
 				$assoc = $this->entity->getAssociation($value);
 				
-				if ($assoc->isReadOnly()) {
+				if ($assoc->isReadOnly()) { //don't save read-only values
 					continue;
 				}
 				
-				$related = $assoc->getReflectionProperty()->getValue($entity);
+				$related = $this->getAssociationValue($this->entity, $entity, $assoc);
 				
 				if (is_null($related)) {
 					//set attribute to NULL
-					$property = $this->entity->getProperty($key);
-					$property->getReflectionProperty()->setValue($entity, null);
+					$this->setPropertyValue($this->entity, $entity, $key, null);
 				}
 				else {
 					$id = $assoc->save($this->mapper, $entity, $related, $depth - 1);
 				
 					if (!is_null($id)) {
-						$property = $this->entity->getProperty($key);
-						$property->getReflectionProperty()->setValue($entity, $id);
+						$this->setPropertyValue($this->entity, $entity, $key, $id);
 					}
 				}				
 			}
 		}
 		
-		$pk = $this->getPrimaryKeyValue($entity);
+		//get primary key value
+		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 			
 		if (is_null($pk)) {
 			//build insert query
@@ -299,8 +281,7 @@ class Manager {
 			$pk = $this->mapper->lastId();
 				
 			//set primary key value
-			$property = $this->entity->getProperty($this->entity->getPrimaryKey());
-			$property->getReflectionProperty()->setValue($entity, $pk);
+			$this->setPropertyValue($this->entity, $instance, $this->entity->getPrimaryKey(), $pk);
 		}
 			
 		//build update query
@@ -310,16 +291,16 @@ class Manager {
 		$this->mapper->sql($query, $entity, $args);
 		
 		foreach ($this->entity->getAssociations() as $name => $association) {
-			if (in_array($name, $foreignKeys)) {
+			if (in_array($name, $foreignKeys)) { //already persisted
 				continue;
 			}
 			
-			if ($association->isReadOnly()) {
+			if ($association->isReadOnly()) { //don't save read-only values
 				continue;
 			}
 			
 			//obtain associated value
-			$value = $association->getReflectionProperty()->getValue($entity);
+			$value = $this->getAssociationValue($this->entity, $instance, $association);
 			
 			if (!is_null($value)) {
 				$association->save($this->mapper, $entity, $value, $depth - 1);
@@ -340,7 +321,7 @@ class Manager {
 		$this->mapper->connect();
 		
 		//get primary key
-		$pk = $this->getPrimaryKeyValue($entity);
+		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);

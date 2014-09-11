@@ -282,6 +282,14 @@ class ClassProfile {
 	}
 	
 	/**
+	 * Obtains the entity primary key property
+	 * @return PropertyProfile
+	 */
+	public function getPrimaryKeyProperty() {
+		$this->properties[$this->primaryKey];
+	}
+	
+	/**
 	 * Determines if the current class is an entity
 	 * @return boolean
 	 */

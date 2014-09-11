@@ -116,19 +116,18 @@ class OneToOne extends Association {
 		if ($value instanceof AssociationManager) {
 			return null;
 		}
-		
+				
 		//build manager
 		$manager = $mapper->buildManager($this->profile);
 		$attr = $this->attribute->getArgument();
 		
-		if (empty($attr)) { //@Attr userId
+		if (empty($attr)) {
 			//get related profiles
 			$parentProfile = Profiler::getClassProfile($this->parent);
-			$entityProfile = Profiler::getClassProfile($this->profile);
+			$entityProfile = Profiler::getClassProfile($this->profile); 
 			
 			//obtain foreign key value
-			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
-			$foreignKey = $pk->getReflectionProperty()->getValue($parent);
+			$foreignKey = $this->getPropertyValue($parentProfile, $parent, $parentProfile->getPrimaryKey());
 			
 			//set foreign key value
 			$attr = $this->attribute->getValue();
@@ -137,8 +136,7 @@ class OneToOne extends Association {
 				throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 			}
 			
-			$property = $entityProfile->getProperty($attr);
-			$property->getReflectionProperty()->setValue($value, $foreignKey);
+			$this->setPropertyValue($entityProfile, $value, $attr, $value);
 		}
 
 		return $manager->save($value, $depth);
