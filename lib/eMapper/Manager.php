@@ -212,7 +212,7 @@ class Manager {
 	 * @throws \RuntimeException
 	 * @return boolean|integer
 	 */
-	public function save($entity, $depth = 1) {
+	public function save(&$entity, $depth = 1) {
 		//connect to database
 		$this->mapper->connect();
 		

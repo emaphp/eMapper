@@ -39,15 +39,9 @@ abstract class DynamicAttribute extends PropertyProfile {
 	
 	/**
 	 * Pre-condition macro
-	 * @var Program
+	 * @var \Closure
 	 */
 	protected $condition;
-	
-	/**
-	 * Determines if the condition value must be reversed
-	 * @var boolean
-	 */
-	protected $reverseCondition = false;
 	
 	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct($name, $annotations, $reflectionProperty);
@@ -116,11 +110,47 @@ abstract class DynamicAttribute extends PropertyProfile {
 		}
 		
 		if ($annotations->has('If')) {
-			$this->condition = new DynamicSQLProgram($annotations->get('If')->getValue());
+			$cond = $annotations->get('If')->getValue();
+			
+			if (empty($cond)) {
+				throw new \RuntimeException(sprintf("No condition defined for @If annotation in %s property", $this->name));
+			}
+				
+			$cond = new DynamicSQLProgram($cond);
+			
+			$this->condition = function ($row, $config) use ($cond) {
+				return (bool) $cond->executeWith($this->buildEnvironment($config), [$row]);
+			};
 		}
 		elseif ($annotations->has('IfNot')) {
-			$this->condition = new DynamicSQLProgram($annotations->get('IfNot')->getValue());
-			$this->reverseCondition = true;
+			$cond = $annotations->get('IfNot')->getValue();
+				
+			if (empty($cond)) {
+				throw new \RuntimeException(sprintf("No condition defined for @IfNot annotation in %s property", $this->name));
+			}
+			
+			$cond = new DynamicSQLProgram($cond);
+			
+			$this->condition = function ($row, $config) use ($cond) {
+				return !(bool) $cond->executeWith($this->buildEnvironment($config), [$row]);
+			};
+		}
+		elseif ($annotations->has('IfNotNull')) {
+			$attr = $annotations->get('IfNotNull')->getValue();
+			
+			if (empty($attr)) {
+				throw new \RuntimeException(sprintf("No attribute name defined for @IfNotNull annotation in %s property", $this->name));
+			}
+			
+			$this->condition = function($row, $config) use ($attr) {
+				$wrapper = ParameterWrapper::wrapValue($row);
+				
+				if ($wrapper->offsetExists($attr) && $wrapper->offsetGet($attr) === null) {
+					return false;
+				}
+				
+				return true;
+			};
 		}
 		
 		//get additional options [Option(KEY) VALUE]
@@ -168,13 +198,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	protected function checkCondition($row, $config) {
 		if (isset($this->condition)) {
-			$condition = (bool) $this->condition->executeWith($this->buildEnvironment($config), [$row]);
-			
-			if ($this->reverseCondition) {
-				return !$condition;
-			}
-			
-			return $condition;
+			return call_user_func($this->condition, $row, $config);
 		}
 		
 		return true;
