@@ -6,20 +6,17 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.2.1
+**Version**: 3.2.2
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-09-04 - Version 3.2.1
+2014-09-XX - Version 3.2.2
 
-  * Fixed: Storing associated values through Manager.
-  * Added: $depth parameter in Manager::save.
-  * Added: @Nullable annotation.
-  * Added: @OrderBy and @Index annotations for association attributes.
-  * Added: @ForeignKey annotation for many-to-many associations.
-  * Modified: Annotation syntax for @JoinWith.
+  * Fixed: Removing primary key attribute on INSERT queries.
+  * Added: Manager::save support for stdClass instances.
+  * Added: @IfNotNull annotation for dynamic attributes.
 
 <br/>
 Dependencies
@@ -1298,12 +1295,12 @@ Dynamic Attributes
 
 <br/>
 #####Introduction
-While associations are pretty useful by themselves you may want to go a step further. A dynamic attibute is a property that is the result of a query or calculation. This means that attributes could either be associated to a macro or a custom user query.
+A dynamic attibute is a property that is the result of a query or calculation. Dynamic attributes allow us to retrieve non-associated data for a given entity.
 
 <br/>
 #####Querys
 
-This example introduces a new entity class named *Sale*. A sale is obviously related to a product. Let's say that we want to obtain that product using the corresponding column. In order to do this, we add a **product** property which includes a special *@Query* annotation. This annotation expects a string containing the query that solves this association. Notice that *Sale* must define a **productId** property in order to store the value sent to the query.
+This example introduces a new entity class named *Sale*. A sale is obviously related to a product. Let's say that we want to obtain that product without declaring an association. In order to do this, we add a **product** property which includes a special *@Query* annotation. This annotation expects a string containing the query that solves this association. Notice that *Sale* must define a **productId** property in order to store the value to send to the query.
 
 ```php
 namespace Acme\Factory;
@@ -1344,16 +1341,18 @@ The *@Parameter* annotation can be used to define a list of arguments for a dyna
  * @Self
  * @Type obj:Acme\Factory\Product
  */
-private $product; //Here @Self is not required because the default
-                  //behaviour already uses the entity as unique argument
+private $product;
+//Here @Self is not required because the default
+//behaviour already uses the entity as unique argument
                   
 /**
  * @Query "SELECT * FROM products WHERE id = %{i}"
  * @Parameter(productId)
  * @Type obj:Acme\Factory\Product
  */
-private $product; //Here productId is the only argument for this query
-                  //This requires a modification in the query argument expression
+private $product;
+//Here productId is the only argument for this query
+//This requires a modification in the query argument expression
 ```
 
 In other words, *@Self* must be added if the specified query receives the current instance and an additional value as arguments. The next example adds a **relatedProducts** property in the *Product* class that includes 2 arguments: the current partial instance and a integer value that sets the amount of objects to return.
@@ -1484,7 +1483,7 @@ class Person {
 <br/>
 #####Conditional attributes
 
-The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must be expressed alaso as macros.
+The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must be expressed also as macros.
 
 ```php
 /**
@@ -1516,7 +1515,36 @@ class User {
     private $abuseNotifications; //get admin notifications if not a member nor guest
 }
 ```
-
+Additionally, the *@IfNotNull* annotation evaluates a dynamic attribute if the specified attribute is not null.
+```php
+/**
+ * @Entity categories
+ */
+class Category {
+    /**
+     * @Id
+     */
+    private $id;
+    
+    /**
+     * @Type string
+     */
+    private $name;
+    
+    /**
+     * @Type int
+     * @Column parent_id
+     */
+    private $parentId;
+    
+    /**
+     * @IfNotNull parentId
+     * @Statement categories.findByPk
+     * @Parameter(paremeterId)
+     */
+    private $parent;
+}
+```
 
 <br/>
 #####Options
