@@ -281,7 +281,7 @@ class Manager {
 			$pk = $this->mapper->lastId();
 				
 			//set primary key value
-			$this->setPropertyValue($this->entity, $instance, $this->entity->getPrimaryKey(), $pk);
+			$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
 		}
 			
 		//build update query

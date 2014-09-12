@@ -238,9 +238,14 @@ class ClassProfile {
 	
 	/**
 	 * Obtains the class property names as an associative array (PROPERTY => COLUMN)
+	 * @param boolean $filter_pk
 	 * @return array
 	 */
-	public function getPropertyNames() {
+	public function getPropertyNames($filter_pk = false) {
+		if ($filter_pk) {
+			return array_diff_key($this->propertyNames, array_flip([$this->primaryKey]));
+		}
+		
 		return $this->propertyNames;
 	}
 	

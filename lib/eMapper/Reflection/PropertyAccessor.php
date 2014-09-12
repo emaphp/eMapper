@@ -33,8 +33,9 @@ trait PropertyAccessor {
 			$alias = $rc->getProperty($name);
 			$alias->setValue($instance, $value);
 		}
-	
-		throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		else {
+			throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		}
 	}
 	
 	/**
@@ -64,8 +65,9 @@ trait PropertyAccessor {
 			$alias = $rc->getProperty($name);
 			return $alias->getValue($instance);
 		}
-	
-		throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		else {
+			throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		}
 	}
 	
 	/**
@@ -93,8 +95,9 @@ trait PropertyAccessor {
 			$alias = $rc->getProperty($name);
 			return $alias->getValue($instance);
 		}
-		
-		throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		else {
+			throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
+		}
 	}
 }
 ?>

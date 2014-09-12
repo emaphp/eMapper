@@ -388,7 +388,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query = new InsertQueryBuilder($this->profile);
 		list($query, $args) = $query->build($this->driver);
 		$this->assertNull($args);
-		$this->assertEquals("INSERT INTO @@products (product_id, product_code, price, category, color) VALUES (#{id:int}, #{code}, #{price:float}, #{category}, #{color:Acme\RGBColor})", $query);
+		$this->assertEquals("INSERT INTO @@products (product_code, price, category, color) VALUES (#{code}, #{price:float}, #{category}, #{color:Acme\RGBColor})", $query);
 	}
 	
 	//UPDATE
