@@ -16,7 +16,7 @@ trait PropertyAccessor {
 		$attr = $profile->getProperty($property);
 		
 		if ($profile->getReflectionClass()->isInstance($instance)) {
-			$attr->getReflectionProperty()->setValue($entity, $pk);
+			$attr->getReflectionProperty()->setValue($instance, $value);
 			return;
 		}
 	
@@ -31,6 +31,7 @@ trait PropertyAccessor {
 		elseif (property_exists($instance, $name)) {
 			$rc = new \ReflectionClass(get_class($instance));
 			$alias = $rc->getProperty($name);
+			$alias->setAccessible(true);
 			$alias->setValue($instance, $value);
 		}
 		else {
@@ -49,7 +50,7 @@ trait PropertyAccessor {
 		$attr = $profile->getProperty($property);
 		
 		if ($profile->getReflectionClass()->isInstance($instance)) {
-			$attr->getReflectionProperty()->getValue($instance);
+			return $attr->getReflectionProperty()->getValue($instance);
 		}
 	
 		$name = $attr->getName();
@@ -63,6 +64,7 @@ trait PropertyAccessor {
 		elseif (property_exists($instance, $name)) {
 			$rc = new \ReflectionClass(get_class($instance));
 			$alias = $rc->getProperty($name);
+			$alias->setAccessible(true);
 			return $alias->getValue($instance);
 		}
 		else {
@@ -79,7 +81,7 @@ trait PropertyAccessor {
 	 */
 	protected function getAssociationValue($profile, $instance, $association) {
 		if ($profile->getReflectionClass()->isInstance($instance)) {
-			$association->getReflectionProperty()->getValue($instance);
+			return $association->getReflectionProperty()->getValue($instance);
 		}
 		
 		$name = $association->getName();
@@ -93,6 +95,7 @@ trait PropertyAccessor {
 		elseif (property_exists($instance, $name)) {
 			$rc = new \ReflectionClass(get_class($instance));
 			$alias = $rc->getProperty($name);
+			$alias->setAccessible(true);
 			return $alias->getValue($instance);
 		}
 		else {

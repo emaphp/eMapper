@@ -283,12 +283,13 @@ class Manager {
 			//set primary key value
 			$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
 		}
-			
-		//build update query
-		$query = new UpdateQueryBuilder($this->entity);
-		$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
-		list($query, $args) = $query->build($this->mapper->getDriver());
-		$this->mapper->sql($query, $entity, $args);
+		else {
+			//build update query
+			$query = new UpdateQueryBuilder($this->entity);
+			$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
+			list($query, $args) = $query->build($this->mapper->getDriver());
+			$this->mapper->sql($query, $entity, $args);
+		}
 		
 		foreach ($this->entity->getAssociations() as $name => $association) {
 			if (in_array($name, $foreignKeys)) { //already persisted
@@ -300,7 +301,7 @@ class Manager {
 			}
 			
 			//obtain associated value
-			$value = $this->getAssociationValue($this->entity, $instance, $association);
+			$value = $this->getAssociationValue($this->entity, $entity, $association);
 			
 			if (!is_null($value)) {
 				$association->save($this->mapper, $entity, $value, $depth - 1);

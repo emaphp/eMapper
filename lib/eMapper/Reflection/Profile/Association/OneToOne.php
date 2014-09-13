@@ -136,7 +136,7 @@ class OneToOne extends Association {
 				throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
 			}
 			
-			$this->setPropertyValue($entityProfile, $value, $attr, $value);
+			$this->setPropertyValue($entityProfile, $value, $attr, $foreignKey);
 		}
 
 		return $manager->save($value, $depth);
