@@ -116,7 +116,7 @@ class OneToMany extends Association {
 		
 		foreach ($value as &$entity) {			
 			//set foreign key before insert
-			$this->setPropertyValue($entityProfile, $entity, $entityProfile->getPrimaryKey(), $foreignKey);
+			$this->setPropertyValue($entityProfile, $entity, $attr, $foreignKey);
 			
 			//store object
 			$ids[] = $manager->save($entity, $depth);
@@ -131,13 +131,14 @@ class OneToMany extends Association {
 		else {
 			if (!empty($value)) {
 				$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey, $pkProperty->getColumn(), implode(',', $ids));
-				//clean related values
-				$mapper->sql($query);
 			}
 			else {
 				//delete all
 				$query = sprintf("DELETE FROM %s WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey);
-			}	
+			}
+			
+			//clean related values
+			$mapper->sql($query);
 		}
 		
 		return null;
