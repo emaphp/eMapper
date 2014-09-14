@@ -76,6 +76,12 @@ class ClassProfile {
 	 */
 	private $foreignKeys = [];
 	
+	/**
+	 * Entity references
+	 * @var array
+	 */
+	private $references = [];
+	
 	public function __construct($classname) {
 		//store class annotations
 		$this->reflectionClass = new \ReflectionClass($classname);
@@ -129,9 +135,14 @@ class ClassProfile {
 					$attr = $assoc->getAttribute()->getArgument();
 					$this->foreignKeys[$attr] = $propertyName;
 				}
+				else {
+					$this->references[$propertyName] = $assoc->getAttribute()->getValue();
+				}
 			}
 			elseif ($annotations->has('OneToMany')) {
-				$this->associations[$propertyName] = new OneToMany($propertyName, $annotations, $reflectionProperty);
+				$assoc = new OneToMany($propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = $assoc;
+				$this->references[$propertyName] = $assoc->getAttribute()->getValue();
 			}
 			elseif ($annotations->has('ManyToOne')) {
 				$assoc = new ManyToOne($propertyName, $annotations, $reflectionProperty);

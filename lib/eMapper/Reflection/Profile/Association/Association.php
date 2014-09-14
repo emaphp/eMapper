@@ -62,7 +62,9 @@ abstract class Association extends PropertyProfile {
 	 * @var array
 	 */
 	protected $order = [];
-		
+	
+	protected $cascade;
+	
 	public function __construct($type, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
 		//get entity class
 		$entity = $annotations->get($type)->getValue();
@@ -102,6 +104,7 @@ abstract class Association extends PropertyProfile {
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->foreignKey = $annotations->has('ForeignKey') ? $annotations->get('ForeignKey')->getValue() : null;
 		$this->lazy = $annotations->has('Lazy');
+		$this->cascade = $annotations->has('Cascade') ? (bool) $annotations->get('Cascade')->getValue() : true;
 		
 		//parse options
 		$this->index = $annotations->has('Index') ? $annotations->get('Index')->getValue() : null;
