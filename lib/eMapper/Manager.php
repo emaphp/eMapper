@@ -20,6 +20,8 @@ use eMapper\Query\Aggregate\SQLAverage;
 use eMapper\Query\Aggregate\SQLMax;
 use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
+use eMapper\Reflection\Profile\Association\OneToMany;
+use eMapper\Reflection\Profile\Association\OneToOne;
 
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.
@@ -329,6 +331,31 @@ class Manager {
 		$condition = Attr::__callStatic($this->entity->getPrimaryKey())->eq($pk);
 		$query->setCondition($condition);
 		list($query, $args) = $query->build($this->mapper->getDriver());
+
+		//determine if related data must be eliminated as well
+		$references = $this->entity->getReferences();
+		
+		foreach ($references as $name => $attr) {
+			$assoc = $this->entity->getAssociation($name);
+			$manager = $this->mapper->buildManager($assoc->getProfile());
+			
+			if ($assoc instanceof OneToMany) {
+				//get associated values
+				$related = $manager->find(Attr::__callstatic($attr)->eq($pk));
+				
+				foreach ($related as $value) {
+					$manager->delete($value);
+				}
+			}
+			elseif ($assoc instanceof OneToOne) {
+				//get associated value
+				$related = $manager->get(Attr::__callstatic($attr)->eq($pk));
+				
+				if (!is_null($related)) {
+					$manager->delete($related);
+				}
+			}
+		}
 		
 		//run query
 		return $this->mapper->query($query, $args);

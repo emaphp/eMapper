@@ -63,6 +63,10 @@ abstract class Association extends PropertyProfile {
 	 */
 	protected $order = [];
 	
+	/**
+	 * Cascade option
+	 * @var boolean
+	 */
 	protected $cascade;
 	
 	public function __construct($type, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
@@ -104,7 +108,7 @@ abstract class Association extends PropertyProfile {
 		$this->joinWith = $annotations->has('JoinWith') ? $annotations->get('JoinWith') : null;
 		$this->foreignKey = $annotations->has('ForeignKey') ? $annotations->get('ForeignKey')->getValue() : null;
 		$this->lazy = $annotations->has('Lazy');
-		$this->cascade = $annotations->has('Cascade') ? (bool) $annotations->get('Cascade')->getValue() : true;
+		$this->cascade = $annotations->has('Cascade') ? (bool) $annotations->get('Cascade')->getValue() : false;
 		
 		//parse options
 		$this->index = $annotations->has('Index') ? $annotations->get('Index')->getValue() : null;
@@ -134,6 +138,10 @@ abstract class Association extends PropertyProfile {
 	
 	public function isLazy() {
 		return $this->lazy;
+	}
+	
+	public function isCascade() {
+		return $this->cascade;
 	}
 	
 	/**

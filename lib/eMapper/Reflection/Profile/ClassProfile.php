@@ -135,14 +135,17 @@ class ClassProfile {
 					$attr = $assoc->getAttribute()->getArgument();
 					$this->foreignKeys[$attr] = $propertyName;
 				}
-				else {
+				elseif ($assoc->isCascade()) {
 					$this->references[$propertyName] = $assoc->getAttribute()->getValue();
 				}
 			}
 			elseif ($annotations->has('OneToMany')) {
 				$assoc = new OneToMany($propertyName, $annotations, $reflectionProperty);
 				$this->associations[$propertyName] = $assoc;
-				$this->references[$propertyName] = $assoc->getAttribute()->getValue();
+				
+				if ($assoc->isCascade()) {
+					$this->references[$propertyName] = $assoc->getAttribute()->getValue();
+				}
 			}
 			elseif ($annotations->has('ManyToOne')) {
 				$assoc = new ManyToOne($propertyName, $annotations, $reflectionProperty);
@@ -395,6 +398,10 @@ class ClassProfile {
 	
 	public function getForeignKeys() {
 		return $this->foreignKeys;
+	}
+	
+	public function getReferences() {
+		return $this->references;
 	}
 }
 ?>
