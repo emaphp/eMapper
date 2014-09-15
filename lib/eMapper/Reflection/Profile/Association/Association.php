@@ -210,6 +210,20 @@ abstract class Association extends PropertyProfile {
 	 */
 	public abstract function buildCondition($entity);
 	
+	/**
+	 * Stores associated data
+	 * @param \eMapper\Mapper $mapper
+	 * @param mixed $parent
+	 * @param mixed $value
+	 * @param int $depth
+	 */
 	public abstract function save($mapper, $parent, $value, $depth);
+	
+	/**
+	 * Deletes associated data
+	 * @param \eMapper\Mapper $mapper
+	 * @param int $foreignKey
+	 */
+	public abstract function delete($mapper, $foreignKey);
 }
 ?>

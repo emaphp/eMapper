@@ -5,6 +5,7 @@ use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Annotations\AnnotationsBag;
+use eMapper\AssociationManager;
 
 /**
  * The ManyToMany class is an abstraction of many-to-many associations.
@@ -130,7 +131,6 @@ class ManyToMany extends Association {
 	
 		//update join table
 		$current = $mapper->type('int[]')->query(sprintf("SELECT %s FROM %s WHERE %s = %s", $this->foreignKey, $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey));
-		
 		$diff = array_diff($keys, $current);
 		
 		if (!empty($diff)) {
@@ -143,6 +143,10 @@ class ManyToMany extends Association {
 		
 		$mapper->sql($query);
 		return null;
+	}
+	
+	public function delete($mapper, $foreignKey) {
+		//
 	}
 	
 	public function fetchValue(Manager $manager) {

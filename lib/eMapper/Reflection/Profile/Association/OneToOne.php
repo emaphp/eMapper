@@ -142,6 +142,15 @@ class OneToOne extends Association {
 		return $manager->save($value, $depth);
 	}
 	
+	public function delete($mapper, $foreignKey) {
+		$manager = $mapper->buildManager($this->profile);
+		$related = $manager->get(Attr::__callstatic($this->attribute->getValue())->eq($foreignKey));
+		
+		if (!is_null($related)) {
+			$manager->delete($related);
+		}
+	}
+	
 	public function fetchValue(Manager $manager) {		
 		return $manager->get();
 	}

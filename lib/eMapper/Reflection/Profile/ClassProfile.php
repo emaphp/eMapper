@@ -136,7 +136,7 @@ class ClassProfile {
 					$this->foreignKeys[$attr] = $propertyName;
 				}
 				elseif ($assoc->isCascade()) {
-					$this->references[$propertyName] = $assoc->getAttribute()->getValue();
+					$this->references[] = $propertyName;
 				}
 			}
 			elseif ($annotations->has('OneToMany')) {
@@ -144,7 +144,7 @@ class ClassProfile {
 				$this->associations[$propertyName] = $assoc;
 				
 				if ($assoc->isCascade()) {
-					$this->references[$propertyName] = $assoc->getAttribute()->getValue();
+					$this->references[] = $propertyName;
 				}
 			}
 			elseif ($annotations->has('ManyToOne')) {

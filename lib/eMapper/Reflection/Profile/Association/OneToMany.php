@@ -6,6 +6,7 @@ use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
 use eMapper\Annotations\AnnotationsBag;
+use eMapper\AssociationManager;
 
 /**
  * The OneToMany class is an abstraction of onte-to-many associations.
@@ -108,7 +109,6 @@ class OneToMany extends Association {
 		}
 		
 		$fkProperty = $entityProfile->getProperty($attr);
-		$pkProperty = $entityProfile->getProperty($entityProfile->getPrimaryKey());
 		
 		//create manager instance
 		$manager = $mapper->buildManager($this->profile);
@@ -125,23 +125,44 @@ class OneToMany extends Association {
 		if ($fkProperty->isNullable()) {
 			if (!empty($value)) {
 				$query = sprintf("UPDATE %s SET %s = NULL WHERE %s NOT IN (%s)", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $pkProperty->getColumn(), implode(',', $ids));
-				$mapper->sql($query);
-			}
-		}
-		else {
-			if (!empty($value)) {
-				$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey, $pkProperty->getColumn(), implode(',', $ids));
 			}
 			else {
-				//delete all
-				$query = sprintf("DELETE FROM %s WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $foreignKey);
+				$query = sprintf("UPDATE %s SET %s = NULL WHERE %s = %s", $entityProfile->getReferredTable(), $fkProperty->getColumn(), $fkProperty->getColumn(), $foreignKey);
 			}
 			
-			//clean related values
 			$mapper->sql($query);
+		}
+		else {
+			$manager = $mapper->buildManager($this->profile);
+			
+			if (!empty($value)) {
+				$unrelated = $manager
+				->filter(Attr::__callstatic($attr)->eq($foreignKey), Attr::__callstatic($entityProfile->getPrimaryKey())->in($ids, false))
+				->find();
+				
+				foreach ($unrelated as $val) {
+					$manager->delete($val);
+				}
+			}
+			else {
+				$unrelated = $manager->find(Attr::__callstatic($attr)->eq($foreignKey));
+				
+				foreach ($unrelated as $val) {
+					$manager->delete($val);
+				}
+			}
 		}
 		
 		return null;
+	}
+	
+	public function delete($mapper, $foreignKey) {
+		$manager = $mapper->buildManager($this->profile);
+		$related = $manager->find(Attr::__callstatic($this->attribute->getValue())->eq($foreignKey));
+		
+		foreach ($related as $value) {
+			$manager->delete($value);
+		}
 	}
 	
 	public function fetchValue(Manager $manager) {

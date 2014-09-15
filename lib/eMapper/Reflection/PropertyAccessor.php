@@ -3,6 +3,10 @@ namespace eMapper\Reflection;
 
 use eMapper\Reflection\Profile\PropertyProfile;
 
+/**
+ * The PropertyAccessor trait allows access to all attributes in an entity.
+ * @author emaphp
+ */
 trait PropertyAccessor {
 	/**
 	 * Sets a property/key value

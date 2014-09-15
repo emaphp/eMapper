@@ -105,6 +105,10 @@ class ManyToOne extends Association {
 		return $manager->save($value, $depth);
 	}
 	
+	public function delete($mapper, $foreignKey) {
+		//
+	}
+	
 	public function fetchValue(Manager $manager) {
 		return $manager->get();
 	}

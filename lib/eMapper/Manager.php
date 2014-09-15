@@ -325,37 +325,20 @@ class Manager {
 		
 		//get primary key
 		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
+
+		//determine if related data must be eliminated as well
+		$references = $this->entity->getReferences();
+		
+		foreach ($references as $name) {
+			$assoc = $this->entity->getAssociation($name);
+			$assoc->delete($this->mapper, $pk);
+		}
 		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity);
 		$condition = Attr::__callStatic($this->entity->getPrimaryKey())->eq($pk);
 		$query->setCondition($condition);
 		list($query, $args) = $query->build($this->mapper->getDriver());
-
-		//determine if related data must be eliminated as well
-		$references = $this->entity->getReferences();
-		
-		foreach ($references as $name => $attr) {
-			$assoc = $this->entity->getAssociation($name);
-			$manager = $this->mapper->buildManager($assoc->getProfile());
-			
-			if ($assoc instanceof OneToMany) {
-				//get associated values
-				$related = $manager->find(Attr::__callstatic($attr)->eq($pk));
-				
-				foreach ($related as $value) {
-					$manager->delete($value);
-				}
-			}
-			elseif ($assoc instanceof OneToOne) {
-				//get associated value
-				$related = $manager->get(Attr::__callstatic($attr)->eq($pk));
-				
-				if (!is_null($related)) {
-					$manager->delete($related);
-				}
-			}
-		}
 		
 		//run query
 		return $this->mapper->query($query, $args);
