@@ -159,7 +159,6 @@ class OneToMany extends Association {
 	public function delete($mapper, $foreignKey) {
 		$manager = $mapper->buildManager($this->profile);
 		$attr = $this->attribute->getValue();
-		$related = $manager->find(Attr::__callstatic($attr)->eq($foreignKey));
 		
 		//determine if the attribute is nullable
 		$entityProfile = Profiler::getClassProfile($this->profile);
