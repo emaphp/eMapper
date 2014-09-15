@@ -565,7 +565,7 @@ class Mapper {
 					}
 				}
 			}
-			elseif (!is_null($mapped_result)) {
+			elseif (!is_null($mapped_result) && $mapping_callback[1] != 'mapList') {
 				$mapper->evaluateFirstOrderAttributes($mapped_result, $copy);
 				
 				if ($evaluateSecondOrder) {
