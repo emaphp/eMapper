@@ -144,10 +144,22 @@ class OneToOne extends Association {
 	
 	public function delete($mapper, $foreignKey) {
 		$manager = $mapper->buildManager($this->profile);
-		$related = $manager->get(Attr::__callstatic($this->attribute->getValue())->eq($foreignKey));
+		$attr = $this->attribute->getValue();
 		
-		if (!is_null($related)) {
-			$manager->delete($related);
+		//determine if the attribute is nullable
+		$entityProfile = Profiler::getClassProfile($this->profile);
+		$property = $entityProfile->getProperty($attr);
+		
+		if ($property->isNullable()) {
+			$query = sprintf("UPDATE %s SET %s = NULL WHERE %s = %s", $entityProfile->getReferredTable(), $property->getColumn(), $property->getColumn(), $foreignKey);
+			$mapper->sql($query);
+		}
+		else {
+			$related = $manager->get(Attr::__callstatic($attr)->eq($foreignKey));
+			
+			if (!is_null($related)) {
+				$manager->delete($related);
+			}
 		}
 	}
 	
