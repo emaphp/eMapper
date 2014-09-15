@@ -215,6 +215,10 @@ class Manager {
 	 * @return boolean|integer
 	 */
 	public function save(&$entity, $depth = 1) {
+		if (is_null($entity)) {
+			return null;
+		}
+		
 		//connect to database
 		$this->mapper->connect();
 		
@@ -320,6 +324,10 @@ class Manager {
 	 * @return boolean
 	 */
 	public function delete($entity) {
+		if (is_null($entity)) {
+			return;
+		}
+		
 		//connect to database
 		$this->mapper->connect();
 		
