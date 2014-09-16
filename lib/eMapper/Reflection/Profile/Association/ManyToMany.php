@@ -146,7 +146,7 @@ class ManyToMany extends Association {
 	}
 	
 	public function delete($mapper, $foreignKey) {
-		//
+		$mapper->sql(sprintf("DELETE FROM %s WHERE %s = %s", $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey));
 	}
 	
 	public function fetchValue(Manager $manager) {

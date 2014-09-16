@@ -156,7 +156,12 @@ class ClassProfile {
 				$this->foreignKeys[$attr] = $propertyName;
 			}
 			elseif ($annotations->has('ManyToMany')) {
-				$this->associations[$propertyName] = new ManyToMany($propertyName, $annotations, $reflectionProperty);
+				$assoc = new ManyToMany($propertyName, $annotations, $reflectionProperty);
+				$this->associations[$propertyName] = $assoc;
+				
+				if ($assoc->isCascade()) {
+					$this->associations[] = $propertyName;
+				}
 			}
 			else {
 				$this->properties[$propertyName] = new PropertyProfile($propertyName, $annotations, $reflectionProperty);
