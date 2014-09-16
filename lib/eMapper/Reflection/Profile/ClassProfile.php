@@ -305,7 +305,7 @@ class ClassProfile {
 	 * @return PropertyProfile
 	 */
 	public function getPrimaryKeyProperty() {
-		$this->properties[$this->primaryKey];
+		return $this->properties[$this->primaryKey];
 	}
 	
 	/**
