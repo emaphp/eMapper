@@ -109,6 +109,7 @@ class OneToMany extends Association {
 		}
 		
 		$fkProperty = $entityProfile->getProperty($attr);
+		$pkProperty = $entityProfile->getPrimaryKeyProperty();
 		
 		//create manager instance
 		$manager = $mapper->buildManager($this->profile);
