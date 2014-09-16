@@ -1,3 +1,8 @@
+2014-09-17 - Version 3.2.2
+
+  Added: @IfNotNull and @Cascade annotations.
+  Added: Manager::save now supports storing instances of stdClass and arrays.
+
 2014-09-04 - Version 3.2.1
 
   Fixed: Storing associated values through Manager.

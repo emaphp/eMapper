@@ -160,7 +160,7 @@ class ClassProfile {
 				$this->associations[$propertyName] = $assoc;
 				
 				if ($assoc->isCascade()) {
-					$this->associations[] = $propertyName;
+					$this->references[] = $propertyName;
 				}
 			}
 			else {

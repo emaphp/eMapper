@@ -12,11 +12,10 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-09-XX - Version 3.2.2
+2014-09-17 - Version 3.2.2
 
-  * Fixed: Removing primary key attribute on INSERT queries.
-  * Added: Manager::save support for stdClass instances.
-  * Added: @IfNotNull annotation for dynamic attributes.
+  * Added: @IfNotNull and @Cascade annotations.
+  * Added: Manager::save now supports storing instances of stdClass and arrays.
 
 <br/>
 Dependencies
