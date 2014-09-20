@@ -32,6 +32,10 @@ class Mapper {
 	const ARRAY_TYPE_REGEX  = '@^(?:array|arr+)(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
 	const SIMPLE_TYPE_REGEX = '@^([A-z]{1}[\w|\\\\]*)(\[\])?@';
 	
+	//transaction status
+	const TX_NOT_STARTED = 0;
+	const TX_STARTED = 1;
+	
 	/**
 	 * Database driver
 	 * @var Driver
@@ -49,6 +53,18 @@ class Mapper {
 	 * @var CacheProvider
 	 */
 	protected $cacheProvider;
+	
+	/**
+	 * Transaction status
+	 * @var int
+	 */
+	protected $txStatus = self::TX_NOT_STARTED;
+	
+	/**
+	 * Transaction internal counter
+	 * @var int
+	 */
+	protected $txCounter = 0;
 	
 	public function __construct(Driver $driver) {
 		$this->driver = $driver;
@@ -826,20 +842,36 @@ class Mapper {
 	 * Begins a transaction
 	 */
 	public function beginTransaction() {
-		return $this->driver->begin();
+		if ($this->txStatus == self::TX_NOT_STARTED) {
+			$this->txStatus = self::TX_STARTED;
+			$this->txCounter = 1;
+			return $this->driver->begin();
+		}
+		
+		$this->txCounter++;
+		return false;
 	}
 	
 	/**
 	 * Commits current transaction
 	 */
 	public function commit() {
-		return $this->driver->commit();
+		if ($this->txStatus == self::TX_STARTED && $this->txCounter == 1) {
+			$this->txStatus = self::TX_NOT_STARTED;
+			$this->txCounter = 0;
+			return $this->driver->commit();
+		}
+		
+		$this->txCounter--;
+		return false;
 	}
 	
 	/**
 	 * Rollbacks current transaction
 	 */
 	public function rollback() {
+		$this->txStatus = self::TX_NOT_STARTED;
+		$this->txCounter = 0;
 		return $this->driver->rollback();
 	}
 	
@@ -889,6 +921,13 @@ class Mapper {
 	 */
 	public function getCacheProvider() {
 		return $this->cacheProvider;
+	}
+	
+	/**
+	 * Obtains current transaction status
+	 */
+	public function getTransactionStatus() {
+		return $this->txStatus;
 	}
 }
 ?>

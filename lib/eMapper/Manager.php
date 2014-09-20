@@ -222,6 +222,9 @@ class Manager {
 		//connect to database
 		$this->mapper->connect();
 		
+		//begin transaction
+		$this->mapper->beginTransaction();
+		
 		if ($depth == 0) {
 			//get primary key
 			$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
@@ -235,6 +238,7 @@ class Manager {
 					
 				//set primary key value
 				$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
+				$this->mapper->commit();
 				return $pk;
 			}
 			
@@ -243,6 +247,7 @@ class Manager {
 			$query->setCondition(Attr::__callstatic($this->entity->getPrimaryKey())->eq($pk));
 			list($query, $args) = $query->build($this->mapper->getDriver());
 			$this->mapper->sql($query, $entity, $args);
+			$this->mapper->commit();
 			return $pk;
 		}
 		
@@ -314,6 +319,7 @@ class Manager {
 			}
 		}
 		
+		$this->mapper->commit();
 		return $pk;
 	}
 	
@@ -330,6 +336,9 @@ class Manager {
 		
 		//connect to database
 		$this->mapper->connect();
+		
+		//begin transaction
+		$this->mapper->beginTransaction();
 		
 		//get primary key
 		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
@@ -349,7 +358,11 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver());
 		
 		//run query
-		return $this->mapper->query($query, $args);
+		$result = $this->mapper->query($query, $args);
+		
+		//commit
+		$this->mapper->commit();
+		return $result;
 	}
 	
 	/**
@@ -357,17 +370,33 @@ class Manager {
 	 * @param SQLPredicate $condition
 	 * @return boolean
 	 */
-	public function deleteWhere(SQLPredicate $condition = null) {
+	public function deleteWhere(SQLPredicate $condition = null, $cascade = false) {
 		//connect to database
 		$this->mapper->connect();
 		
-		//build query
-		$query = new DeleteQueryBuilder($this->entity);
-		$query->setCondition($condition);
-		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
+		//begin transaction
+		$this->mapper->beginTransaction();
 		
-		//run query
-		return $this->mapper->query($query, $args);
+		if ($cascade) {
+			$result = $this->find($condition);
+			
+			foreach ($list as $entity) {
+				$this->delete($entity);
+			}
+		}
+		else {
+			//build query
+			$query = new DeleteQueryBuilder($this->entity);
+			$query->setCondition($condition);
+			list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
+			
+			//run query
+			$result = $this->mapper->query($query, $args);
+		}
+		
+		//commit
+		$this->mapper->commit();
+		return $result;
 	}
 	
 	/**
@@ -378,10 +407,17 @@ class Manager {
 		//connect to database
 		$this->mapper->connect();
 		
+		//begin transaction
+		$this->mapper->beginTransaction();
+		
 		//build query
 		$query = new DeleteQueryBuilder($this->entity, true);
 		list($query, $_) = $query->build($this->mapper->getDriver());
-		return $this->mapper->query($query);
+		$result = $this->mapper->query($query);
+		
+		//commit
+		$this->mapper->commit();
+		return $result;
 	}
 	
 	/*
@@ -456,8 +492,11 @@ class Manager {
 	 * @param Field $index
 	 * @return Manager
 	 */
-	public function index(Field $index) {
-		if ($index instanceof Attr) {
+	public function index(Field $index = null) {
+		if (is_null($index)) {
+			return $this->discard('query.index');
+		}
+		elseif ($index instanceof Attr) {
 			//get custom type (if any)
 			$type = $index->getType();
 			
@@ -496,8 +535,11 @@ class Manager {
 	 * @param Field $group
 	 * @return Manager
 	 */
-	public function group(Field $group) {
-		if ($group instanceof Attr) {
+	public function group(Field $group = null) {
+		if (is_null($group)) {
+			return $this->discard('query.group');
+		}
+		elseif ($group instanceof Attr) {
 			//get custom type (if any)
 			$type = $group->getType();
 				
@@ -532,7 +574,11 @@ class Manager {
 	 * Sets query order
 	 * @return Manager
 	 */
-	public function order_by() {
+	public function order_by($order) {
+		if (is_null($order)) {
+			return $this->discard('query.order');
+		}
+		
 		return $this->merge(['query.order' => func_get_args()]);
 	}
 	
@@ -543,6 +589,10 @@ class Manager {
 	 * @return Manager
 	 */
 	public function limit($from, $to = null) {
+		if (is_null($from)) {
+			return $this->discard('query.from', 'query.to');
+		}
+		
 		if (isset($to)) {
 			return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
 		}
@@ -578,8 +628,8 @@ class Manager {
 	 * Defines if current query uses the distinct clause
 	 * @return Manager
 	 */
-	public function distinct() {
-		return $this->merge(['query.distinct' => true]);
+	public function distinct($boolean = true) {
+		return $this->merge(['query.distinct' => $boolean]);
 	}
 }
 ?>
