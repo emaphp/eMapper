@@ -4,7 +4,7 @@
 
 -- Dumped from database version 9.3.4
 -- Dumped by pg_dump version 9.3.4
--- Started on 2014-08-19 19:35:20 ART
+-- Started on 2014-09-21 03:19:26 ART
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,7 +15,7 @@ SET client_min_messages = warning;
 
 DROP DATABASE emapper_testing;
 --
--- TOC entry 2081 (class 1262 OID 16393)
+-- TOC entry 2093 (class 1262 OID 16393)
 -- Name: emapper_testing; Type: DATABASE; Schema: -; Owner: postgres
 --
 
@@ -44,7 +44,7 @@ CREATE SCHEMA public;
 ALTER SCHEMA public OWNER TO postgres;
 
 --
--- TOC entry 2082 (class 0 OID 0)
+-- TOC entry 2094 (class 0 OID 0)
 -- Dependencies: 6
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
@@ -53,7 +53,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
--- TOC entry 180 (class 3079 OID 11829)
+-- TOC entry 182 (class 3079 OID 11829)
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -61,8 +61,8 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 2084 (class 0 OID 0)
--- Dependencies: 180
+-- TOC entry 2096 (class 0 OID 0)
+-- Dependencies: 182
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
@@ -72,7 +72,7 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
--- TOC entry 193 (class 1255 OID 16394)
+-- TOC entry 195 (class 1255 OID 16394)
 -- Name: products_create(character, character varying, character, double precision, character varying, real, boolean, numeric); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -94,7 +94,7 @@ END;$$;
 ALTER FUNCTION public.products_create(_code character, _description character varying, _color character, _price double precision, _category character varying, _rating real, _refurbished boolean, _manufacture_year numeric) OWNER TO postgres;
 
 --
--- TOC entry 194 (class 1255 OID 16395)
+-- TOC entry 196 (class 1255 OID 16395)
 -- Name: products_findavgpricebycategory(character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -131,7 +131,7 @@ CREATE TABLE products (
 ALTER TABLE public.products OWNER TO postgres;
 
 --
--- TOC entry 195 (class 1255 OID 16404)
+-- TOC entry 197 (class 1255 OID 16404)
 -- Name: products_findbestbycategory(character varying); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -161,7 +161,7 @@ CREATE TABLE sales (
 ALTER TABLE public.sales OWNER TO postgres;
 
 --
--- TOC entry 196 (class 1255 OID 16408)
+-- TOC entry 198 (class 1255 OID 16408)
 -- Name: sales_findbypk(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -173,7 +173,7 @@ CREATE FUNCTION sales_findbypk(_sale_id integer) RETURNS sales
 ALTER FUNCTION public.sales_findbypk(_sale_id integer) OWNER TO postgres;
 
 --
--- TOC entry 197 (class 1255 OID 16409)
+-- TOC entry 199 (class 1255 OID 16409)
 -- Name: sales_findlastbyproductid(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -204,7 +204,7 @@ CREATE TABLE users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 198 (class 1255 OID 16416)
+-- TOC entry 200 (class 1255 OID 16416)
 -- Name: users_findall(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -225,6 +225,44 @@ END;$$;
 
 
 ALTER FUNCTION public.users_findall() OWNER TO postgres;
+
+--
+-- TOC entry 181 (class 1259 OID 16506)
+-- Name: categories; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE categories (
+    category_id integer NOT NULL,
+    parent_id integer,
+    name character varying(45) NOT NULL
+);
+
+
+ALTER TABLE public.categories OWNER TO postgres;
+
+--
+-- TOC entry 180 (class 1259 OID 16504)
+-- Name: categories_category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE categories_category_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.categories_category_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2097 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: categories_category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE categories_category_id_seq OWNED BY categories.category_id;
+
 
 --
 -- TOC entry 179 (class 1259 OID 16477)
@@ -257,7 +295,7 @@ CREATE SEQUENCE favorites_favorite_id_seq
 ALTER TABLE public.favorites_favorite_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2085 (class 0 OID 0)
+-- TOC entry 2098 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: favorites_favorite_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -281,7 +319,7 @@ CREATE SEQUENCE products_product_id_seq
 ALTER TABLE public.products_product_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2086 (class 0 OID 0)
+-- TOC entry 2099 (class 0 OID 0)
 -- Dependencies: 173
 -- Name: products_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -321,7 +359,7 @@ CREATE SEQUENCE profiles_profile_id_seq
 ALTER TABLE public.profiles_profile_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2087 (class 0 OID 0)
+-- TOC entry 2100 (class 0 OID 0)
 -- Dependencies: 176
 -- Name: profiles_profile_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -345,7 +383,7 @@ CREATE SEQUENCE sales_sale_id_seq
 ALTER TABLE public.sales_sale_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2088 (class 0 OID 0)
+-- TOC entry 2101 (class 0 OID 0)
 -- Dependencies: 174
 -- Name: sales_sale_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -369,7 +407,7 @@ CREATE SEQUENCE users_user_id_seq
 ALTER TABLE public.users_user_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2089 (class 0 OID 0)
+-- TOC entry 2102 (class 0 OID 0)
 -- Dependencies: 175
 -- Name: users_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -378,7 +416,15 @@ ALTER SEQUENCE users_user_id_seq OWNED BY users.user_id;
 
 
 --
--- TOC entry 1939 (class 2604 OID 16480)
+-- TOC entry 1946 (class 2604 OID 16509)
+-- Name: category_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY categories ALTER COLUMN category_id SET DEFAULT nextval('categories_category_id_seq'::regclass);
+
+
+--
+-- TOC entry 1945 (class 2604 OID 16480)
 -- Name: favorite_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -386,7 +432,7 @@ ALTER TABLE ONLY favorites ALTER COLUMN favorite_id SET DEFAULT nextval('favorit
 
 
 --
--- TOC entry 1935 (class 2604 OID 16423)
+-- TOC entry 1941 (class 2604 OID 16423)
 -- Name: product_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -394,7 +440,7 @@ ALTER TABLE ONLY products ALTER COLUMN product_id SET DEFAULT nextval('products_
 
 
 --
--- TOC entry 1938 (class 2604 OID 16467)
+-- TOC entry 1944 (class 2604 OID 16467)
 -- Name: profile_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -402,7 +448,7 @@ ALTER TABLE ONLY profiles ALTER COLUMN profile_id SET DEFAULT nextval('profiles_
 
 
 --
--- TOC entry 1936 (class 2604 OID 16424)
+-- TOC entry 1942 (class 2604 OID 16424)
 -- Name: sale_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -410,7 +456,7 @@ ALTER TABLE ONLY sales ALTER COLUMN sale_id SET DEFAULT nextval('sales_sale_id_s
 
 
 --
--- TOC entry 1937 (class 2604 OID 16425)
+-- TOC entry 1943 (class 2604 OID 16425)
 -- Name: user_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -418,7 +464,40 @@ ALTER TABLE ONLY users ALTER COLUMN user_id SET DEFAULT nextval('users_user_id_s
 
 
 --
--- TOC entry 2076 (class 0 OID 16477)
+-- TOC entry 2088 (class 0 OID 16506)
+-- Dependencies: 181
+-- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO categories (category_id, parent_id, name) VALUES (1, NULL, 'Technology');
+INSERT INTO categories (category_id, parent_id, name) VALUES (2, NULL, 'Music');
+INSERT INTO categories (category_id, parent_id, name) VALUES (3, 1, 'Laptops');
+INSERT INTO categories (category_id, parent_id, name) VALUES (4, 1, 'Smartphones');
+INSERT INTO categories (category_id, parent_id, name) VALUES (5, 1, 'Software');
+INSERT INTO categories (category_id, parent_id, name) VALUES (6, 2, 'Electronic');
+INSERT INTO categories (category_id, parent_id, name) VALUES (7, 2, 'Rhythm & Blues');
+INSERT INTO categories (category_id, parent_id, name) VALUES (8, 2, 'Tango');
+INSERT INTO categories (category_id, parent_id, name) VALUES (9, 3, 'Lenovo');
+INSERT INTO categories (category_id, parent_id, name) VALUES (10, 3, 'Toshiba');
+INSERT INTO categories (category_id, parent_id, name) VALUES (11, 4, 'Android');
+INSERT INTO categories (category_id, parent_id, name) VALUES (12, 4, 'Iphone');
+INSERT INTO categories (category_id, parent_id, name) VALUES (13, 5, 'Operating Systems');
+INSERT INTO categories (category_id, parent_id, name) VALUES (14, 6, 'Trance');
+INSERT INTO categories (category_id, parent_id, name) VALUES (15, 6, 'House');
+INSERT INTO categories (category_id, parent_id, name) VALUES (16, 6, 'Drum & Bass');
+
+
+--
+-- TOC entry 2103 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: categories_category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('categories_category_id_seq', 1, false);
+
+
+--
+-- TOC entry 2086 (class 0 OID 16477)
 -- Dependencies: 179
 -- Data for Name: favorites; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -431,7 +510,7 @@ INSERT INTO favorites (favorite_id, usr_id, prd_id, created_at) VALUES (5, 4, 8,
 
 
 --
--- TOC entry 2090 (class 0 OID 0)
+-- TOC entry 2104 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: favorites_favorite_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -440,7 +519,7 @@ SELECT pg_catalog.setval('favorites_favorite_id_seq', 1, false);
 
 
 --
--- TOC entry 2067 (class 0 OID 16396)
+-- TOC entry 2077 (class 0 OID 16396)
 -- Dependencies: 170
 -- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -456,7 +535,7 @@ INSERT INTO products (product_id, product_code, description, color, price, categ
 
 
 --
--- TOC entry 2091 (class 0 OID 0)
+-- TOC entry 2105 (class 0 OID 0)
 -- Dependencies: 173
 -- Name: products_product_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -465,7 +544,7 @@ SELECT pg_catalog.setval('products_product_id_seq', 6, true);
 
 
 --
--- TOC entry 2074 (class 0 OID 16464)
+-- TOC entry 2084 (class 0 OID 16464)
 -- Dependencies: 177
 -- Data for Name: profiles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -478,7 +557,7 @@ INSERT INTO profiles (profile_id, user_id, name, surname, gender) VALUES (5, 5, 
 
 
 --
--- TOC entry 2092 (class 0 OID 0)
+-- TOC entry 2106 (class 0 OID 0)
 -- Dependencies: 176
 -- Name: profiles_profile_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -487,7 +566,7 @@ SELECT pg_catalog.setval('profiles_profile_id_seq', 1, false);
 
 
 --
--- TOC entry 2068 (class 0 OID 16405)
+-- TOC entry 2078 (class 0 OID 16405)
 -- Dependencies: 171
 -- Data for Name: sales; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -499,7 +578,7 @@ INSERT INTO sales (sale_id, user_id, product_id, sale_date, discount) VALUES (3,
 
 
 --
--- TOC entry 2093 (class 0 OID 0)
+-- TOC entry 2107 (class 0 OID 0)
 -- Dependencies: 174
 -- Name: sales_sale_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -508,7 +587,7 @@ SELECT pg_catalog.setval('sales_sale_id_seq', 4, true);
 
 
 --
--- TOC entry 2069 (class 0 OID 16410)
+-- TOC entry 2079 (class 0 OID 16410)
 -- Dependencies: 172
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -521,7 +600,7 @@ INSERT INTO users (user_id, user_name, birth_date, last_login, newsletter_time, 
 
 
 --
--- TOC entry 2094 (class 0 OID 0)
+-- TOC entry 2108 (class 0 OID 0)
 -- Dependencies: 175
 -- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -530,7 +609,16 @@ SELECT pg_catalog.setval('users_user_id_seq', 5, true);
 
 
 --
--- TOC entry 1954 (class 2606 OID 16482)
+-- TOC entry 1963 (class 2606 OID 16511)
+-- Name: categories_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY categories
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (category_id);
+
+
+--
+-- TOC entry 1961 (class 2606 OID 16482)
 -- Name: favorites_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -539,7 +627,7 @@ ALTER TABLE ONLY favorites
 
 
 --
--- TOC entry 1941 (class 2606 OID 16432)
+-- TOC entry 1948 (class 2606 OID 16432)
 -- Name: products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -548,7 +636,7 @@ ALTER TABLE ONLY products
 
 
 --
--- TOC entry 1943 (class 2606 OID 16494)
+-- TOC entry 1950 (class 2606 OID 16494)
 -- Name: products_product_code_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -557,7 +645,7 @@ ALTER TABLE ONLY products
 
 
 --
--- TOC entry 1952 (class 2606 OID 16469)
+-- TOC entry 1959 (class 2606 OID 16469)
 -- Name: profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -566,7 +654,7 @@ ALTER TABLE ONLY profiles
 
 
 --
--- TOC entry 1945 (class 2606 OID 16436)
+-- TOC entry 1952 (class 2606 OID 16436)
 -- Name: sales_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -575,7 +663,7 @@ ALTER TABLE ONLY sales
 
 
 --
--- TOC entry 1948 (class 2606 OID 16438)
+-- TOC entry 1955 (class 2606 OID 16438)
 -- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -584,7 +672,7 @@ ALTER TABLE ONLY users
 
 
 --
--- TOC entry 1950 (class 2606 OID 16440)
+-- TOC entry 1957 (class 2606 OID 16440)
 -- Name: users_user_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -593,7 +681,7 @@ ALTER TABLE ONLY users
 
 
 --
--- TOC entry 1946 (class 1259 OID 16441)
+-- TOC entry 1953 (class 1259 OID 16441)
 -- Name: pk_user_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -601,7 +689,16 @@ CREATE UNIQUE INDEX pk_user_id ON users USING btree (user_id);
 
 
 --
--- TOC entry 1959 (class 2606 OID 16488)
+-- TOC entry 1969 (class 2606 OID 16512)
+-- Name: categories_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY categories
+    ADD CONSTRAINT categories_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES categories(category_id);
+
+
+--
+-- TOC entry 1968 (class 2606 OID 16488)
 -- Name: favorites_prd_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -610,7 +707,7 @@ ALTER TABLE ONLY favorites
 
 
 --
--- TOC entry 1958 (class 2606 OID 16483)
+-- TOC entry 1967 (class 2606 OID 16483)
 -- Name: favorites_usr_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -619,7 +716,7 @@ ALTER TABLE ONLY favorites
 
 
 --
--- TOC entry 1957 (class 2606 OID 16470)
+-- TOC entry 1966 (class 2606 OID 16470)
 -- Name: profiles_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -628,7 +725,7 @@ ALTER TABLE ONLY profiles
 
 
 --
--- TOC entry 1955 (class 2606 OID 16442)
+-- TOC entry 1964 (class 2606 OID 16442)
 -- Name: sales_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -637,7 +734,7 @@ ALTER TABLE ONLY sales
 
 
 --
--- TOC entry 1956 (class 2606 OID 16447)
+-- TOC entry 1965 (class 2606 OID 16447)
 -- Name: sales_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -646,7 +743,7 @@ ALTER TABLE ONLY sales
 
 
 --
--- TOC entry 2083 (class 0 OID 0)
+-- TOC entry 2095 (class 0 OID 0)
 -- Dependencies: 6
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
@@ -657,7 +754,7 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2014-08-19 19:35:20 ART
+-- Completed on 2014-09-21 03:19:26 ART
 
 --
 -- PostgreSQL database dump complete

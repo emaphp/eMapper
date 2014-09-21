@@ -6,16 +6,15 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.2.2
+**Version**: 3.2.3
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-09-17 - Version 3.2.2
+2014-09-XX - Version 3.2.3
 
-  * Added: @IfNotNull and @Cascade annotations.
-  * Added: Manager::save now supports storing instances of stdClass and arrays.
+  * Fixed: Querying for attributes with depth >= 2.
 
 <br/>
 Dependencies

@@ -16,9 +16,9 @@ INSERT INTO "products" VALUES(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes'
 INSERT INTO "products" VALUES(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013);
 INSERT INTO "products" VALUES(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013);
 INSERT INTO "products" VALUES(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011);
-INSERT INTO "products" VALUES(6,'TEC00103','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013);
+INSERT INTO "products" VALUES(6,'TEC000103','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013);
 INSERT INTO "products" VALUES(7,'PHN00666','Apple Iphone','ffffff',340.54,'Smartphones',4.7,0,2013);
-INSERT INTO "products" VALUES(8,'SOFT0134','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
+INSERT INTO "products" VALUES(8,'SOFT00134','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
 CREATE TABLE "sales" (
     "sale_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "product_id" INTEGER NOT NULL,
@@ -66,12 +66,34 @@ INSERT INTO "favorites" VALUES(2,1,7,'2014-05-02 09:12:09');
 INSERT INTO "favorites" VALUES(3,3,3,'2014-01-04 11:22:13');
 INSERT INTO "favorites" VALUES(4,3,6,'2014-04-12 08:43:12');
 INSERT INTO "favorites" VALUES(5,4,8,'2013-03-15 15:06:35');
+CREATE TABLE "categories" (
+    "category_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "parent_id" INTEGER DEFAULT NULL,
+    "name" TEXT NOT NULL
+);
+INSERT INTO "categories" VALUES(1,NULL,'Technology');
+INSERT INTO "categories" VALUES(2,NULL,'Music');
+INSERT INTO "categories" VALUES(3,1,'Laptops');
+INSERT INTO "categories" VALUES(4,1,'Smartphones');
+INSERT INTO "categories" VALUES(5,1,'Software');
+INSERT INTO "categories" VALUES(6,2,'Electronic');
+INSERT INTO "categories" VALUES(7,2,'Rhythm & Blues');
+INSERT INTO "categories" VALUES(8,2,'Tango');
+INSERT INTO "categories" VALUES(9,3,'Lenovo');
+INSERT INTO "categories" VALUES(10,3,'Toshiba');
+INSERT INTO "categories" VALUES(11,4,'Android');
+INSERT INTO "categories" VALUES(12,4,'Iphone');
+INSERT INTO "categories" VALUES(13,5,'Operative Systems');
+INSERT INTO "categories" VALUES(14,6,'Trance');
+INSERT INTO "categories" VALUES(15,6,'House');
+INSERT INTO "categories" VALUES(16,6,'Drum & Bass');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('products',8);
 INSERT INTO "sqlite_sequence" VALUES('sales',4);
 INSERT INTO "sqlite_sequence" VALUES('users',5);
 INSERT INTO "sqlite_sequence" VALUES('favorites',5);
 INSERT INTO "sqlite_sequence" VALUES('profiles',5);
+INSERT INTO "sqlite_sequence" VALUES('categories',16);
 CREATE UNIQUE INDEX "pk_product_id" on products (product_id ASC);
 CREATE UNIQUE INDEX "unique_product_code" on products (product_code ASC);
 CREATE UNIQUE INDEX "pk_sale_id" on sales (sale_id ASC);

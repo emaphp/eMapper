@@ -16,6 +16,33 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `categories` (
+  `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(10) unsigned DEFAULT NULL,
+  `name` varchar(45) NOT NULL,
+  PRIMARY KEY (`category_id`),
+  KEY `fk_categories_1_idx` (`parent_id`),
+  CONSTRAINT `fk_categories_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`category_id`) ON DELETE SET NULL ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categories`
+--
+
+LOCK TABLES `categories` WRITE;
+/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+INSERT INTO `categories` VALUES (1,NULL,'Technology'),(2,NULL,'Music'),(3,1,'Laptops'),(4,1,'Smartphones'),(5,1,'Software'),(6,2,'Electronic'),(7,2,'Rhythm & Blues'),(8,2,'Tango'),(9,3,'Lenovo'),(10,3,'Toshiba'),(11,4,'Android'),(12,4,'Iphone'),(13,5,'Operating Systems'),(14,6,'Trance'),(15,6,'House'),(16,6,'Drum & Bass');
+/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `favorites`
 --
 
@@ -313,4 +340,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-19 19:35:30
+-- Dump completed on 2014-09-21  3:05:32
