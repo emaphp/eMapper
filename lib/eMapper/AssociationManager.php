@@ -51,7 +51,7 @@ class AssociationManager extends Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		$query->setJoin($this->association, $this->condition);
+		$query->setContext($this->association, $this->condition);
 	
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
@@ -67,7 +67,7 @@ class AssociationManager extends Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setCondition($condition);
-		$query->setJoin($this->association, $this->condition);
+		$query->setContext($this->association, $this->condition);
 	
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 	
@@ -83,7 +83,7 @@ class AssociationManager extends Manager {
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
 		$query->setFunction($function);
-		$query->setJoin($this->association, $this->condition);
+		$query->setContext($this->association, $this->condition);
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 	
 		//run query

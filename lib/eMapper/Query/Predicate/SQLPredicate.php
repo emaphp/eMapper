@@ -59,10 +59,10 @@ abstract class SQLPredicate {
 	 */
 	protected static function getArgumentIndex($arg_index) {
 		if ($arg_index != 0) {
-			return self::argNumber();
+			return self::$counter++;
 		}
 	
-		return 'arg' . self::argNumber();
+		return 'arg' . self::$counter++;
 	}
 	
 	/**
@@ -120,19 +120,40 @@ abstract class SQLPredicate {
 	}
 
 	protected function getColumnName(Field $field, ClassProfile $profile, &$joins) {
+		static $counter = 0;
+		
+		//get field associations and referred profile
 		list($associations, $target) = $field->getAssociations($profile);
 		
+		//check if specified field is a plain one (Ex: name)
 		if (is_null($associations)) {
 			return empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
 		}
 		
+		//field is associated (Ex: profile__name)
 		$diff = array_keys(array_diff_key($associations, $joins));
 		
+		//check is association already loaded
+		//key is a string like assoc1 or assoc1__assoc2
 		foreach ($diff as $key) {
-			$joins[$key] = [$associations[$key], '_t' . self::getArgumentIndex(1)];
+			$join = $associations[$key];
+			
+			//build table alias
+			$join->setAlias('_t' . $counter++);
+			
+			//set join parent (if any)
+			$parent = $join->getParentName();
+			
+			if (!is_null($parent)) {
+				$join->setParent($joins[$parent]);
+			}
+			
+			//add join to list
+			$joins[$key] = $join;
 		}
 		
-		list($_, $alias) = $joins[$field->getFullPath()];
+		//append alias to column name
+		$alias = $joins[$field->getFullPath()]->getAlias();
 		$field = Attr::__callstatic($field->getName());
 		return $alias . '.' . $field->getColumnName($target);
 	}
@@ -152,13 +173,5 @@ abstract class SQLPredicate {
 	 * @param Driver $driver
 	 */
 	public abstract function render(Driver $driver);
-	
-	/**
-	 * Incremental value generator
-	 * @return number
-	 */
-	public static function argNumber() {
-		return self::$counter++;
-	}
 }
 ?>

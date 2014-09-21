@@ -41,6 +41,9 @@ abstract class Field {
 	
 	public function __construct($name, $type = null) {
 		if (strstr($name, '__')) {
+			//path stores the associated field path
+			//assoc1__name => ['assoc1', 'name']
+			//assoc1__assoc2__name => ['assoc1', 'assoc2', 'name']
 			$this->path = explode('__', $name);
 			$this->name = array_pop($this->path);
 		}
@@ -103,34 +106,44 @@ abstract class Field {
 	/**
 	 * Obtains field associations as a list
 	 * @param ClassProfile $profile
-	 * @param string $return_profile
 	 * @throws \RuntimeException
 	 * @return mixed
 	 */
-	public function getAssociations(ClassProfile $profile, $return_profile = true) {
+	public function getAssociations(ClassProfile $profile) {
+		//check if field depends on an association (Ex: assoc__attr)
 		if (is_null($this->path)) {
-			return $return_profile ? [null, null] : null;
+			//no association found
+			return [null, null];
 		}
 	
 		$associations = [];
 		$current = $profile;
+		$parentName = null;
 	
 		for ($i = 0; $i < count($this->path); $i++) {
-			//build name
+			//build association key
+			//the generated array will include the association paths
+			//Ex: profile__name => ['profile']
+			//Ex: user__profile => ['user', 'user__profile']
 			$name = implode('_', array_slice($this->path, 0, $i + 1));
-				
+		
+			//get referred property
 			$property = $this->path[$i];
 			$association = $current->getAssociation($property);
 	
 			if ($association === false) {
 				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
 			}
-				
-			$associations[$name] = $association;
+			
+			//store association obtained from the current entity
+			$associations[$name] = new Join($name, $association, $parentName);
+			
+			//now move to the next entity
 			$current = Profiler::getClassProfile($association->getProfile());
+			$parentName = $name;
 		}
 	
-		return $return_profile ? [$associations, $current] : $associations;
+		return [$associations, $current];
 	}
 	
 	/**

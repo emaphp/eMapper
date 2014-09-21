@@ -17,10 +17,7 @@ use eMapper\Reflection\Profile\ClassProfile;
  */
 abstract class Association extends PropertyProfile {
 	use PropertyAccessor;
-	
-	const DEFAULT_ALIAS = '_t';
-	const CONTEXT_ALIAS = '_c';
-	
+
 	/**
 	 * Referred entity profile
 	 * @var string

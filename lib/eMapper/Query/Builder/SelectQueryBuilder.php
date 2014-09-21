@@ -16,6 +16,9 @@ use eMapper\Reflection\Profile\Association\ManyToMany;
  * @author emaphp
  */
 class SelectQueryBuilder extends QueryBuilder {
+	const DEFAULT_ALIAS = '_t';
+	const CONTEXT_ALIAS = '_c';
+	
 	/**
 	 * SQL function
 	 * @var SQLFunction
@@ -43,11 +46,11 @@ class SelectQueryBuilder extends QueryBuilder {
 	}
 	
 	/**
-	 * Sets the join conditions
+	 * Sets the query context (called from AssociationManager)
 	 * @param Association $association
 	 * @param SQLPredicate $joinCondition
 	 */
-	public function setJoin(Association $association, SQLPredicate $joinCondition) {
+	public function setContext(Association $association, SQLPredicate $joinCondition) {
 		$this->association = $association;
 		$this->joinCondition = $joinCondition;
 	}
@@ -159,21 +162,20 @@ class SelectQueryBuilder extends QueryBuilder {
 		}
 		
 		foreach ($joins as $join) {
-			list($assoc, $alias) = $join;
-			$sql .= ' ' . $assoc->buildJoin($alias, $mainAlias);
+			$sql .= ' ' . $join->toSQL($mainAlias);
 		}
 		
 		return $sql;
 	}
 	
 	public function build(Driver $driver, $config = null) {
-		$alias = $joinAlias = Association::DEFAULT_ALIAS;
+		$alias = $joinAlias = self::DEFAULT_ALIAS;
 		$table = '@@' . $this->entity->getReferredTable() . ' ' . $alias;
 		$joins = [];
 		
 		//check for many-to-many association (requires adding a join)
 		if ($this->association instanceof ManyToMany) {
-			$joinAlias = '_t' . SQLPredicate::argNumber();
+			$joinAlias = self::CONTEXT_ALIAS;
 		}
 		
 		//call function
