@@ -10,6 +10,7 @@ use eMapper\Query\Predicate\Filter;
 use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\Association\ManyToMany;
+use eMapper\Query\Join;
 
 /**
  * The SelectQueryBuilder class generates SELECT queries for a given entity profile.
@@ -156,12 +157,14 @@ class SelectQueryBuilder extends QueryBuilder {
 	 */
 	protected function joinTables($joins, $mainAlias, $joinAlias) {
 		$sql = '';
+		$left_join = count($joins) > 1;
 		
 		if ($this->association instanceof ManyToMany) {
 			$sql .= ' ' . $this->association->buildAssociationJoin($joinAlias, $mainAlias) . ' ';
 		}
 		
 		foreach ($joins as $join) {
+			if ($left_join) $join->setType(Join::LEFT);
 			$sql .= ' ' . $join->toSQL($mainAlias);
 		}
 		

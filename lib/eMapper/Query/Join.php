@@ -8,6 +8,9 @@ use eMapper\Reflection\Profile\Association\Association;
  * @author emaphp
  */
 class Join {
+	const INNER = 'INNER';
+	const LEFT = 'LEFT OUTER';
+	
 	/**
 	 * Join name
 	 * @var string
@@ -37,6 +40,12 @@ class Join {
 	 * @var string
 	 */
 	protected $alias;
+	
+	/**
+	 * Join type
+	 * @var string
+	 */
+	protected $type = self::INNER;
 	
 	public function __construct($name, $association, $parentName) {
 		$this->name = $name;
@@ -72,9 +81,17 @@ class Join {
 		return $this->parent;
 	}
 	
+	public function setType($type) {
+		$this->type = $type;
+	}
+	
+	public function getType() {
+		return $this->type;
+	}
+	
 	public function toSQL($defaultAlias) {
 		$parentAlias = is_null($this->parent) ? $defaultAlias : $this->parent->getAlias();
-		return $this->association->buildJoin($this->alias, $parentAlias);
+		return $this->association->buildJoin($this->alias, $parentAlias, $this->type);
 	}
 }
 ?>

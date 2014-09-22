@@ -17,7 +17,7 @@ class ManyToOne extends Association {
 		parent::__construct('ManyToOne', $name, $annotations, $reflectionProperty);
 	}
 	
-	public function buildJoin($alias, $mainAlias) {
+	public function buildJoin($alias, $mainAlias, $joinType) {
 		//get related profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -48,7 +48,8 @@ class ManyToOne extends Association {
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
 		
-		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
+		return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
+					   $joinType,
 					   $entityProfile->getReferredTable(), $alias,
 					   $mainAlias, $column,
 					   $alias, $entityProfile->getPrimaryKey(true));

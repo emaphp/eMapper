@@ -56,7 +56,7 @@ class ManyToMany extends Association {
 				$joinAlias, $parentProfile->getPrimaryKey(true));
 	}
 	
-	public function buildJoin($alias, $mainAlias) {
+	public function buildJoin($alias, $mainAlias, $joinType) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
@@ -83,10 +83,12 @@ class ManyToMany extends Association {
 			throw new \RuntimeException(sprintf("Association %s in class %s does not define a foreign key column", $this->name, $this->parent));
 		}
 		
-		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s INNER JOIN @@%s %s ON %s.%s = %s.%s',
+		return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s %s JOIN @@%s %s ON %s.%s = %s.%s',
+						$joinType,
 						$joinTable, $joinTableAlias,
 						$joinTableAlias, $column,
 						$mainAlias, $parentProfile->getPrimaryKey(true),
+						$joinType,
 						$entityProfile->getReferredTable(), $alias,
 						$joinTableAlias, $joinTableColumn,
 						$alias, $entityProfile->getPrimaryKey(true));

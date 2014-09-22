@@ -17,7 +17,7 @@ class OneToMany extends Association {
 		parent::__construct('OneToMany', $name, $annotations, $reflectionProperty);
 	}
 	
-	public function buildJoin($alias, $mainAlias) {
+	public function buildJoin($alias, $mainAlias, $joinType) {
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		
@@ -48,7 +48,8 @@ class OneToMany extends Association {
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
 		}
 		
-		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
+		return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
+					   $joinType,
 					   $entityProfile->getReferredTable(true), $alias,
 					   $mainAlias, $parentProfile->getPrimaryKey(true),
 					   $alias, $column);

@@ -66,5 +66,50 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 		$this->assertArrayHasKey(3, $users);
 		$this->assertArrayHasKey(4, $users);
 	}
+	
+	public function testParentAssociationDepth() {
+		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$categories = $manager->index(Attr::id())->find(Attr::parent__parent__name()->eq('Technology'));
+		$this->assertCount(5, $categories);
+		$this->assertArrayHasKey(9, $categories);
+		$this->assertArrayHasKey(10, $categories);
+		$this->assertArrayHasKey(11, $categories);
+		$this->assertArrayHasKey(12, $categories);
+		$this->assertArrayHasKey(13, $categories);
+		
+		$categories = $manager
+		->index(Attr::id())
+		->filter(Q::where(Attr::parent__parent__name()->eq('Technology'), Attr::parent__name()->eq('Music')))
+		->find();
+		$this->assertCount(8, $categories);
+	}
+	
+	public function testChildAssocationDepth() {
+		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		//$parent = $manager->depth(0)->get(Attr::subcategories__subcategories__name()->eq('House'));
+		//$this->assertInstanceOf('Acme\Association\Category', $parent);
+		//$this->assertEquals('Music', $parent->getName());
+		
+		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$parents = $manager
+		->depth(0)
+		->filter(Q::where(Attr::subcategories__subcategories__name()->eq('House'), Attr::subcategories__name()->eq('Operating Systems')))
+		->find();
+		$this->assertCount(2, $parents);
+	}
+	
+	public function testUsersAssociation() {
+		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$users = $manager->depth(0)
+		->filter(Attr::favorites__sales__discount()->gt(0.12))
+		->find();
+		$this->assertCount(1, $users);
+		
+		$users = $manager
+		->depth(0)
+		->filter(Q::where(Attr::favorites__sales__discount()->gt(0.12), Attr::profile__name()->eq('Emmanuel')))
+		->find();
+		$this->assertCount(2, $users);
+	}
 }
 ?>

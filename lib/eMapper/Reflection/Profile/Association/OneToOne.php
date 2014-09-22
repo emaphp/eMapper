@@ -17,7 +17,7 @@ class OneToOne extends Association {
 		parent::__construct('OneToOne', $name, $annotations, $reflectionProperty);
 	}
 	
-	public function buildJoin($alias, $mainAlias) {
+	public function buildJoin($alias, $mainAlias, $joinType) {
 		//get relate profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -33,7 +33,8 @@ class OneToOne extends Association {
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->parent));
 				}
 				
-				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
+				return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
+						$joinType,
 						$entityProfile->getReferredTable(), $alias,
 						$alias, $property->getColumn(),
 						$mainAlias, $parentProfile->getPrimaryKey(true));
@@ -53,7 +54,8 @@ class OneToOne extends Association {
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->profile));
 				}
 				
-				return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s',
+				return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
+						$joinType,
 						$entityProfile->getReferredTable(), $alias,
 						$mainAlias, $parentProfile->getPrimaryKey(true),
 						$alias, $property->getColumn());

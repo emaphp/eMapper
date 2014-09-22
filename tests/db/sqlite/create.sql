@@ -16,9 +16,9 @@ INSERT INTO "products" VALUES(2,'IND00043','Blue jeans','0c1bd9',235.7,'Clothes'
 INSERT INTO "products" VALUES(3,'IND00232','Green shirt','707c04',70.9,'Clothes',4.1,0,2013);
 INSERT INTO "products" VALUES(4,'GFX00067','ATI HD 9999',NULL,120.75,'Hardware',3.8,0,2013);
 INSERT INTO "products" VALUES(5,'PHN00098','Android phone','00a7eb',300.3,'Smartphones',4.8,1,2011);
-INSERT INTO "products" VALUES(6,'TEC000103','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013);
+INSERT INTO "products" VALUES(6,'TEC00103','Notebook Lenovo',NULL,550.75,'Laptops',4.3,0,2013);
 INSERT INTO "products" VALUES(7,'PHN00666','Apple Iphone','ffffff',340.54,'Smartphones',4.7,0,2013);
-INSERT INTO "products" VALUES(8,'SOFT00134','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
+INSERT INTO "products" VALUES(8,'SOFT0134','Red Hat Linux',NULL,250.35,'Software',4.5,0,2013);
 CREATE TABLE "sales" (
     "sale_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "product_id" INTEGER NOT NULL,
@@ -83,7 +83,7 @@ INSERT INTO "categories" VALUES(9,3,'Lenovo');
 INSERT INTO "categories" VALUES(10,3,'Toshiba');
 INSERT INTO "categories" VALUES(11,4,'Android');
 INSERT INTO "categories" VALUES(12,4,'Iphone');
-INSERT INTO "categories" VALUES(13,5,'Operative Systems');
+INSERT INTO "categories" VALUES(13,5,'Operating Systems');
 INSERT INTO "categories" VALUES(14,6,'Trance');
 INSERT INTO "categories" VALUES(15,6,'House');
 INSERT INTO "categories" VALUES(16,6,'Drum & Bass');

@@ -198,8 +198,9 @@ abstract class Association extends PropertyProfile {
 	 * Builds the SQL for joining tables
 	 * @param string $alias
 	 * @param string $mainAlias
+	 * @param string $joinType
 	 */
-	public abstract function buildJoin($alias, $mainAlias);
+	public abstract function buildJoin($alias, $mainAlias, $joinType);
 	
 	/**
 	 * Builds the SQL predicate that determines the join condition
