@@ -12,9 +12,10 @@ eMapper
 Changelog
 ------------------
 <br/>
-2014-09-XX - Version 3.2.3
+2014-09-24 - Version 3.2.3
 
   * Fixed: Querying for attributes with depth >= 2.
+  * Modified: Methods save, delete, deleteWhere and truncate using transactions.
 
 <br/>
 Dependencies
@@ -816,7 +817,7 @@ class Profile {
     //...
 }
 ```
-In this example, the *Product* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
+In this example, the *Profile* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
 
 ```php
 namespace Acme;
@@ -879,7 +880,7 @@ $profile = $manager->get(Attr::user__name()->eq('jdoe'));
 <br/>
 #####One-To-Many and Many-To-One
 
-Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation. This annotation references to the attribute in the *Pet* class that stores the client identifier.
+Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation. This annotation references the attribute in the *Pet* class that stores the client identifier.
 ```php
 namespace Acme;
 
@@ -1176,10 +1177,12 @@ $manager = $mapper->buildManager('Acme\Profile');
 $profile = $manager->findByPk(100);
 $profile->setFirstName('Ishmael');
 
+//save profile along with the related user
 $manager->save($profile);
 ```
 Obtaining a profile in this way will also evaluate the **user** association defined in the *Profile* class. As explained before, saving this profile not only updates the *profiles* table but also the associated user. In order to reduce the number of queries to perform we'll set the *association depth* to 0 through the **depth** method.
 ```php
+//get profile without associated data
 $profile = $manager->depth(0)->findByPk(100);
 ```
 When the association depth is set to 0 no related data is obtained. That means that doing something like:
@@ -1192,7 +1195,7 @@ will return a NULL value. The *save* method also expects a depth parameter (defa
 $manager = $mapper->buildManager('Acme\Profile');
 $profile = $manager->depth(0)->findByPk(100);
 $profile->setFirstName('Ishmael');
-$manager->save($profile, 0);
+$manager->save($profile, 0); //save only the profile data
 ```
 
 <br/>
@@ -1201,7 +1204,7 @@ Dynamic SQL
 
 <br/>
 #####Introduction
-Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on lisphp. Dynamic expressions are included between the delimiters [? and ?]. The next example shows a query that sets the condition dynamically according to the argument type.
+Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on [lisphp](https://github.com/lisphp/lisphp ""). Dynamic expressions are included between the delimiters *[?* and *?]*. The next example shows a query that sets the condition dynamically according to the argument type.
 ```sql
 SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
 ```

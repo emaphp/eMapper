@@ -1,7 +1,7 @@
-2014-09-XX - Version 3.2.3
+2014-09-24 - Version 3.2.3
 
   Fixed: Querying for associated attributes with 2 or more depth.
-  Added: Methods save, delete, deleteWhere and truncate using transactions.
+  Modified: Methods save, delete, deleteWhere and truncate using transactions.
 
 2014-09-17 - Version 3.2.2
 
