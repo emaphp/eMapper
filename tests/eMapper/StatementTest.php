@@ -85,11 +85,11 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testConfigFilter0() {
-		$config = Statement::config()->filter(0);
+		$config = Statement::config()->filter_callback(0);
 	}
 	
 	public function testConfigFilter1() {
-		$config = Statement::config()->filter(function() {});
+		$config = Statement::config()->filter_callback(function() {});
 		$this->assertTrue($config->hasOption('callback.filter'));
 		$this->assertInstanceOf('Closure', $config->getOption('callback.filter'));
 	}

@@ -85,7 +85,7 @@ trait StatementConfiguration {
 	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
-	public function filter($callable) {
+	public function filter_callback($callable) {
 		if (!is_callable($callable)) {
 			throw new \InvalidArgumentException("Method 'filter' expects a callable value.");
 		}
