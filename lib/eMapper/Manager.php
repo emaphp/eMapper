@@ -231,6 +231,32 @@ class Manager {
 			$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 			
 			if (is_null($pk)) {
+				//check for duplicated values
+				$checks = $this->entity->getDuplicateChecks();
+				
+				if (!empty($checks)) {
+					$ignore = true;
+					
+					foreach ($checks as $attr) {
+						$attribute = $this->entity->getProperty($attr);
+						$attrValue = $this->getPropertyValue($this->entity, $entity, $attr);
+						$pk = $this->mapper->type('int')->query("SELECT %s FROM @@%s WHERE %s = %s",
+																$this->entity->getPrimaryKeyProperty()->getColumn(),
+																$this->entity->getReferredTable(),
+																$attribute->getColumn(), $attrValue);
+						
+						if (!is_null($pk)) {
+							$ignore = $attribute->getCheckDuplicate() == 'ignore';
+							break;
+						}
+					}
+					
+					if (!is_null($pk)) {
+						$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
+						return $ignore ? $pk : $this->save($entity, $depth);
+					}
+				}
+				
 				//build insert query
 				$query = new InsertQueryBuilder($this->entity);
 				list($query, $_) = $query->build($this->mapper->getDriver());
@@ -286,6 +312,32 @@ class Manager {
 		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 			
 		if (is_null($pk)) {
+			//check for duplicated values
+			$checks = $this->entity->getDuplicateChecks();
+			
+			if (!empty($checks)) {
+				$ignore = true;
+				
+				foreach ($checks as $attr) {
+					$attribute = $this->entity->getProperty($attr);
+					$attrValue = $this->getPropertyValue($this->entity, $entity, $attr);
+					$pk = $this->mapper->type('int')->query("SELECT %s FROM @@%s WHERE %s = %s",
+															$this->entity->getPrimaryKeyProperty()->getColumn(),
+															$this->entity->getReferredTable(),
+															$attribute->getColumn(), $attrValue);
+					
+					if (!is_null($pk)) {
+						$ignore = $attribute->getCheckDuplicate() == 'ignore';
+						break;
+					}
+				}
+				
+				if (!is_null($pk)) {
+					$this->setPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey(), $pk);
+					return $ignore ? $pk : $this->save($entity, $depth);
+				}
+			}
+			
 			//build insert query
 			$query = new InsertQueryBuilder($this->entity);
 			list($query, $_) = $query->build($this->mapper->getDriver());

@@ -82,6 +82,12 @@ class ClassProfile {
 	 */
 	private $references = [];
 	
+	/**
+	 * Duplicated attributes checks
+	 * @var array
+	 */
+	private $duplicateChecks = [];
+	
 	public function __construct($classname) {
 		//store class annotations
 		$this->reflectionClass = new \ReflectionClass($classname);
@@ -169,6 +175,9 @@ class ClassProfile {
 				//check if property is declared as primary key
 				if ($this->properties[$propertyName]->isPrimaryKey()) {
 					$this->primaryKey = $propertyName;
+				}
+				elseif ($this->properties[$propertyName]->mustCheckDuplicate()) {
+					$this->duplicateChecks[] = $propertyName;
 				}
 			}
 		}
@@ -407,6 +416,10 @@ class ClassProfile {
 	
 	public function getReferences() {
 		return $this->references;
+	}
+	
+	public function getDuplicateChecks() {
+		return $this->duplicateChecks;
 	}
 }
 ?>

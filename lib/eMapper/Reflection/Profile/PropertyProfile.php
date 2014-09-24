@@ -45,6 +45,12 @@ class PropertyProfile {
 	protected $unique;
 	
 	/**
+	 * Duplicate field checks
+	 * @var boolean
+	 */
+	protected $checkDuplicate;
+	
+	/**
 	 * Determines if the property is not binded to a particular column
 	 * @var boolean
 	 */
@@ -73,6 +79,12 @@ class PropertyProfile {
 		
 		$this->primaryKey = $annotations->has('Id');
 		$this->unique = $annotations->has('Unique');
+		
+		if ($this->unique && $annotations->has('CheckDuplicate')) {
+			$duplicate = $annotations->get('CheckDuplicate')->getValue();
+			$this->checkDuplicate = !in_array($duplicate, ['ignore', 'update']) ? 'ignore' : $duplicate;
+		}
+		
 		$this->readOnly = $annotations->has('ReadOnly');
 		$this->nullable = $annotations->has('Nullable');
 		
@@ -126,6 +138,22 @@ class PropertyProfile {
 	 */
 	public function isUnique() {
 		return $this->unique;
+	}
+	
+	/**
+	 * Determines if the attribute is unique and must check for a duplicated value before insertion
+	 * @return boolean
+	 */
+	public function mustCheckDuplicate() {
+		return !is_null($this->checkDuplicate);
+	}
+	
+	/**
+	 * Returns the duplicate action associated to the current property
+	 * @return string
+	 */
+	public function getCheckDuplicate() {
+		return $this->checkDuplicate;
 	}
 	
 	/**
