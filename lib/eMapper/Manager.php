@@ -22,6 +22,7 @@ use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
 use eMapper\Reflection\Profile\Association\OneToMany;
 use eMapper\Reflection\Profile\Association\OneToOne;
+use eMapper\Query\Q;
 
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.
@@ -609,7 +610,7 @@ class Manager {
 	}
 	
 	/**
-	 * Filters results by a condition
+	 * Filters results by a condition (AND operator)
 	 * @return Manager
 	 */
 	public function filter() {
@@ -617,11 +618,27 @@ class Manager {
 	}
 	
 	/**
-	 * Excludes results by a condition
+	 * Excludes results by a condition (AND operator)
 	 * @return Manager
 	 */
 	public function exclude() {
 		return $this->push('query.filter', new Filter(func_get_args(), true));
+	}
+	
+	/**
+	 * Filters results by a condition (OR operator)
+	 * @return Manager
+	 */
+	public function where() {
+		return $this->push('query.filter', new Filter(func_get_args(), false, Q::LOGICAL_OR));
+	}
+	
+	/**
+	 * Excludes results by a condition (OR operator)
+	 * @return Manager
+	 */
+	public function where_not() {
+		return $this->push('query.filter', new Filter(func_get_args(), true, Q::LOGICAL_OR));
 	}
 	
 	/**

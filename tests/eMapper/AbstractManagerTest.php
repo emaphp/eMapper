@@ -143,6 +143,39 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/*
+	 * FILTERS
+	 */
+	public function testAndFilter() {
+		$products = $this->productsManager
+		->filter(Attr::category()->eq('Smartphones'), Attr::price()->lt(310))
+		->find();
+		$this->assertCount(1, $products);
+		$this->assertInstanceOf('Acme\Entity\Product', $products[0]);
+		$this->assertEquals(5, $products[0]->id);
+	}
+	
+	public function testNegatedAndFilter() {
+		$products = $this->productsManager
+		->exclude(Attr::category()->eq('Smartphones'), Attr::price()->lt(350))
+		->find();
+		$this->assertCount(6, $products);
+	}
+	
+	public function testOrFilter() {
+		$products = $this->productsManager
+		->where(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
+		->find();
+		$this->assertCount(3, $products);
+	}
+	
+	public function testNegatedOrFilter() {
+		$products = $this->productsManager
+		->where_not(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
+		->find();
+		$this->assertCount(5, $products);
+	}
+	
+	/*
 	 * INDEXATION
 	 */
 	
