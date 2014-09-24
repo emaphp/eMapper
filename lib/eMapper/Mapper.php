@@ -116,7 +116,7 @@ class Mapper {
 	 */
 	public function __copy() {
 		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
+				'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
 				'cache.key', 'cache.ttl',
 				'proc.types');
 	}
@@ -130,7 +130,7 @@ class Mapper {
 		
 		//remove transient options
 		$obj->setConfig(array_diff_key($this->config, array_flip(['map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.query', 'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
+				'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
 				'cache.key', 'cache.ttl',
 				'proc.types'])));
 		
@@ -273,13 +273,9 @@ class Mapper {
 			$stmt = $this->driver->build_statement($this->typeManager, $parameterMap);
 			$stmt = $stmt->build($query, $args, $this->config);
 			
-			//override query
-			if (array_key_exists('callback.query', $this->config)) {
-				$query = call_user_func($this->config['callback.query'], $stmt);
-					
-				if (!is_null($query)) {
-					$stmt = $query;
-				}
+			//debug query
+			if (array_key_exists('callback.debug', $this->config)) {
+				call_user_func($this->config['callback.debug'], $stmt);
 			}
 			
 			/*

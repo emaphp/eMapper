@@ -141,7 +141,7 @@ abstract class AbstractDynamicSQLTest extends \PHPUnit_Framework_TestCase {
 		$dt = new \DateTime('2013-05-22');
 		$query = "SELECT * FROM users [? (if (%0?) 'WHERE last_login > [?date (%0) ?]' ) ?]";
 		$users = $this->mapper->type('obj[user_id]')
-		->query_override(function($query) {
+		->debug(function($query) {
 			$this->assertEquals("SELECT * FROM users WHERE last_login > '2013-05-22'", $query);
 		})
 		->query($query, $dt);

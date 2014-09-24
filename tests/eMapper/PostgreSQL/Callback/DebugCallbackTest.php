@@ -2,16 +2,16 @@
 namespace eMapper\PostgreSQL\Callback;
 
 use eMapper\PostgreSQL\PostgreSQLConfig;
-use eMapper\Callback\AbstractOverrideCallbackTest;
+use eMapper\Callback\AbstractDebugCallbackTest;
 
 /**
- * Test setting a callback that overrides current query
+ * Test setting a debug callback for the current query
  *
  * @author emaphp
  * @group callback
  * @group postgre
  */
-class OverrideCallbackTest extends AbstractOverrideCallbackTest {
+class DebugCallbackTest extends AbstractDebugCallbackTest {
 	use PostgreSQLConfig;
 }
 ?>

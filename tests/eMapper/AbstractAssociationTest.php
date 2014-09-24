@@ -288,5 +288,34 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType('array', $favorites);
 		$this->assertEmpty($favorites);
 	}
+	
+	public function testDebugAssociation() {
+		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$user = $manager
+		->debug(function ($query) {
+			static $index = 0;
+			static $values = [
+				'SELECT _t.* FROM users _t WHERE _t.user_id = 1',
+				'SELECT _t.* FROM profiles _t WHERE _t.user_id = 1',
+			];
+			
+			$this->assertEquals($values[$index++], $query);
+		})
+		->findByPk(1);
+		
+		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$category = $manager
+		->debug(function ($query) {
+			static $index = 0;
+			static $values = [
+				'SELECT _t.* FROM categories _t WHERE _t.name = \'Tango\'',
+				'SELECT _t.* FROM categories _t WHERE _t.category_id = 2',
+				'SELECT _t.* FROM categories _t WHERE _t.parent_id = 8',
+			];
+			
+			$this->assertEquals($values[$index++], $query);
+		})
+		->get(Attr::name()->eq('Tango'));
+	}
 }
 ?>

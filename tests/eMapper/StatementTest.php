@@ -111,13 +111,13 @@ class StatementTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException InvalidArgumentException
 	 */
 	public function testConfigQueryOverride0() {
-		$config = Statement::config()->query_override(0);
+		$config = Statement::config()->debug(0);
 	}
 	
 	public function testConfigQueryOverride1() {
-		$config = Statement::config()->query_override(function() {});
-		$this->assertTrue($config->hasOption('callback.query'));
-		$this->assertInstanceOf('Closure', $config->getOption('callback.query'));
+		$config = Statement::config()->debug(function() {});
+		$this->assertTrue($config->hasOption('callback.debug'));
+		$this->assertInstanceOf('Closure', $config->getOption('callback.debug'));
 	}
 		
 	/**

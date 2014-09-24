@@ -14,6 +14,7 @@ use eMapper\Mapper;
  */
 class ManagerTest extends AbstractManagerTest {
 	public function build() {
+		SQLiteTest::setUpBeforeClass();//phpunit sucks
 		$this->driver = new SQLiteDriver(SQLiteTest::$filename);
 		$this->mapper = new Mapper($this->driver);
 		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());

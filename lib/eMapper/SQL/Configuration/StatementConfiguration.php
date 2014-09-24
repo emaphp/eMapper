@@ -109,17 +109,16 @@ trait StatementConfiguration {
 	
 	/**
 	 * Sets a callback which is called with the generated query
-	 * Returning a value will override the query to execute
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
 	 * @return StatementConfiguration
 	 */
-	public function query_override($callable) {
+	public function debug($callable) {
 		if (!is_callable($callable)) {
-			throw new \InvalidArgumentException("Method 'query_override' expects a callable value.");
+			throw new \InvalidArgumentException("Method 'debug' expects a callable value.");
 		}
 		
-		return $this->merge(['callback.query' => $callable]);
+		return $this->merge(['callback.debug' => $callable]);
 	}
 	
 	/**

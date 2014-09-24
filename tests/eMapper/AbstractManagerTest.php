@@ -134,6 +134,14 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertCount(2, $products);
 	}
 	
+	public function testQueryDebug() {
+		$product = $this->productsManager
+		->debug(function ($query) {
+			$this->assertEquals('SELECT _t.* FROM products _t WHERE _t.product_id = 1', $query);
+		})
+		->findByPK(1);
+	}
+	
 	/*
 	 * INDEXATION
 	 */
@@ -496,7 +504,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function tearDown() {
-		$this->mapper->close();
+		if ($this->mapper) $this->mapper->close();
 	}
 }
 ?>
