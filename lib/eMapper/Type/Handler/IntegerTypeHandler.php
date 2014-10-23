@@ -12,12 +12,10 @@ class IntegerTypeHandler extends TypeHandler {
 	}
 	
 	public function castParameter($parameter) {
-		if (is_integer($parameter)) {
+		if (is_integer($parameter))
 			return $parameter;
-		}
-		elseif (is_string($parameter) || is_float($parameter) || is_bool($parameter)) {
+		elseif (is_string($parameter) || is_float($parameter) || is_bool($parameter))
 			return intval($parameter);
-		}
 		
 		return null;
 	}

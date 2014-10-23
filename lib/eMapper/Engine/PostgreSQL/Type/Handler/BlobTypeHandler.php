@@ -2,13 +2,13 @@
 namespace eMapper\Engine\PostgreSQL\Type\Handler;
 
 use eMapper\Type\TypeHandler;
-use eMapper\Type\ValueExport;
+use eMapper\Type\ToString;
 
 /**
  * @Safe
  */
 class BlobTypeHandler extends TypeHandler {
-	use ValueExport;
+	use ToString;
 	
 	public function getValue($value) {
 		return pg_unescape_bytea($value);

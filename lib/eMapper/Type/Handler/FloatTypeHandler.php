@@ -12,12 +12,10 @@ class FloatTypeHandler extends TypeHandler {
 	}
 	
 	public function castParameter($parameter) {
-		if (is_float($parameter)) {
+		if (is_float($parameter))
 			return $parameter;
-		}
-		elseif (is_integer($parameter) || is_bool($parameter) || is_string($parameter)) {
+		elseif (is_integer($parameter) || is_bool($parameter) || is_string($parameter))
 			return floatval($parameter);
-		}
 		
 		return null;
 	}

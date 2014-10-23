@@ -2,22 +2,20 @@
 namespace eMapper\Type\Handler;
 
 use eMapper\Type\TypeHandler;
-use eMapper\Type\ValueExport;
+use eMapper\Type\ToString;
 
 class StringTypeHandler extends TypeHandler {
-	use ValueExport;
+	use ToString;
 	
 	public function getValue($value) {
 		return strval($value);
 	}
 	
 	public function castParameter($parameter) {
-		if ($parameter instanceof \DateTime) {
+		if ($parameter instanceof \DateTime)
 			return $parameter->format('Y-m-d H:i:s');
-		}
-		elseif (($parameter = $this->toString($parameter)) === false) {
+		elseif (($parameter = $this->toString($parameter)) === false)
 			return null;
-		}
 		
 		return $parameter;
 	}
