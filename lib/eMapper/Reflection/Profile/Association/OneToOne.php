@@ -29,9 +29,8 @@ class OneToOne extends Association {
 				//get property from parent profile
 				$property = $parentProfile->getProperty($name);
 				
-				if ($property === false) {
+				if ($property === false)
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->parent));
-				}
 				
 				return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
 						$joinType,
@@ -43,16 +42,14 @@ class OneToOne extends Association {
 				//get annotation as value
 				$name = $this->attribute->getValue();
 				
-				if (empty($name) || $name === true) {
+				if (empty($name) || $name === true)
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
-				}
 				
 				//get property from current profile
 				$property = $entityProfile->getProperty($name);
 				
-				if ($property === false) {
+				if ($property === false)
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->profile));
-				}
 				
 				return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s',
 						$joinType,
@@ -61,9 +58,8 @@ class OneToOne extends Association {
 						$alias, $property->getColumn());
 			}
 		}
-		else {
+		else
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
-		}
 	}
 	
 	public function buildCondition($entity) {
@@ -77,9 +73,8 @@ class OneToOne extends Association {
 			if (empty($name)) { //@Attr userId
 				$value = $this->attribute->getValue();
 				
-				if (empty($value) || $value === true) {
+				if (empty($value) || $value === true)
 					throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
-				}
 				
 				//obtain primary key value
 				$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
@@ -92,32 +87,26 @@ class OneToOne extends Association {
 			else { //@Attr(userId)
 				$property = $parentProfile->getProperty($name);
 				
-				if ($property === false) {
+				if ($property === false)
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->parent));
-				}
 				
 				$parameter = $property->getReflectionProperty()->getValue($entity);
 				
-				if (is_null($parameter)) {
-					return false;
-				}
+				if (is_null($parameter)) return false;
 				
 				//build predicate
 				$field = Attr::__callstatic($entityProfile->getPrimaryKey());
 				$predicate = $field->eq($parameter);
 			}
 		}
-		else {
+		else
 			throw new \RuntimeException(sprintf("Association %s in class must define either an attribute or a column name", $this->name, $this->parent));
-		}
 		
 		return $predicate;
 	}
 	
 	public function save($mapper, $parent, $value, $depth) {
-		if ($value instanceof AssociationManager) {
-			return null;
-		}
+		if ($value instanceof AssociationManager) return null;
 				
 		//build manager
 		$manager = $mapper->buildManager($this->profile);
@@ -134,9 +123,8 @@ class OneToOne extends Association {
 			//set foreign key value
 			$attr = $this->attribute->getValue();
 			
-			if (empty($attr) || $attr === false) {
+			if (empty($attr) || $attr === false)
 				throw new \RuntimeException(sprintf("Association %s in class %s must define a valid attribute name", $this->name, $this->parent));
-			}
 			
 			$this->setPropertyValue($entityProfile, $value, $attr, $foreignKey);
 		}
@@ -159,9 +147,8 @@ class OneToOne extends Association {
 		else {
 			$related = $manager->get(Attr::__callstatic($attr)->eq($foreignKey));
 			
-			if (!is_null($related)) {
+			if (!is_null($related))
 				$manager->delete($related);
-			}
 		}
 	}
 	

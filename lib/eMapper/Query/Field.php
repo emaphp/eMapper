@@ -47,9 +47,8 @@ abstract class Field {
 			$this->path = explode('__', $name);
 			$this->name = array_pop($this->path);
 		}
-		else {
+		else
 			$this->name = $name;
-		}
 		 
 		$this->type = $type;
 	}
@@ -96,9 +95,8 @@ abstract class Field {
 	 * @return NULL|string
 	 */
 	public function getFullPath() {
-		if (is_null($this->path)) {
+		if (is_null($this->path))
 			return null;
-		}
 	
 		return implode('_', $this->path);
 	}
@@ -111,10 +109,8 @@ abstract class Field {
 	 */
 	public function getAssociations(ClassProfile $profile) {
 		//check if field depends on an association (Ex: assoc__attr)
-		if (is_null($this->path)) {
-			//no association found
-			return [null, null];
-		}
+		if (is_null($this->path))
+			return [null, null]; //no association found
 	
 		$associations = [];
 		$current = $profile;
@@ -131,9 +127,8 @@ abstract class Field {
 			$property = $this->path[$i];
 			$association = $current->getAssociation($property);
 	
-			if ($association === false) {
+			if ($association === false)
 				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
-			}
 			
 			//store association obtained from the current entity
 			$associations[$name] = new Join($name, $association, $parentName);
@@ -158,9 +153,8 @@ abstract class Field {
 		foreach ($this->path as $property) {
 			$association = $current->getAssociation($property);
 				
-			if ($association === false) {
+			if ($association === false)
 				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
-			}
 				
 			$current = $association->getProfile();
 		}

@@ -133,7 +133,7 @@ class MySQLDriver extends Driver {
 		return $this->connection->query($query);
 	}
 	
-	public function free_result($result) {
+	public function freeResult($result) {
 		//free result
 		if ($result instanceof \mysqli_result)
 			$result->free();
@@ -152,14 +152,14 @@ class MySQLDriver extends Driver {
 			return $this->connection->close();
 	}
 	
-	public function get_last_error() {
+	public function getLastError() {
 		if (!($this->connection instanceof \mysqli))
 			throw new MySQLException("No valid MySQL connection available");
 	
 		return mysqli_error($this->connection);
 	}
 	
-	public function get_last_id() {
+	public function getLastId() {
 		if (!($this->connection instanceof \mysqli))
 			throw new MySQLException("No valid MySQL connection available");
 	
@@ -198,19 +198,19 @@ class MySQLDriver extends Driver {
 	 * BUILDER METHODS
 	 */
 	
-	public function build_type_manager() {
+	public function buildTypeManager() {
 		return new MySQLTypeManager();
 	}
 	
-	public function build_statement($typeManager, $parameterMap) {
+	public function buildStatement($typeManager, $parameterMap) {
 		return new MySQLStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_iterator($result) {
+	public function buildResultIterator($result) {
 		return new MySQLResultIterator($result);
 	}
 	
-	public function build_call($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $config) {
 		return "CALL $procedure(" . implode(',', $tokens) . ')';
 	}
 	
@@ -218,11 +218,11 @@ class MySQLDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throw_exception($message, \Exception $previous = null) {
-		throw new MySQLException($message, $previous);
+	public function throwException($message, \Exception $previous = null) {
+		throw new MySQLException($message, null, $previous);
 	}
 	
-	public function throw_query_exception($query) {
+	public function throwQueryException($query) {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
 	}
 }

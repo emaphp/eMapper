@@ -16,18 +16,15 @@ class UpdateQueryBuilder extends QueryBuilder {
 		foreach ($this->entity->getColumnNames() as $column => $property) {
 			$type = $this->entity->getProperty($property)->getType();
 				
-			if (isset($type)) {
+			if (isset($type))
 				$values[] = $column . ' = #{' . $property . ':' . $type . '}';
-			}
-			else {
+			else
 				$values[] = $column . ' = #{' . $property . '}';
-			}
 		}
 		
 		//evaluate condition
 		$args = [];
-		$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args, 1);
-		
+		$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args, 1);		
 		return [sprintf("UPDATE %s SET %s WHERE %s", $table, implode(', ', $values), $condition), $args];
 	}
 }

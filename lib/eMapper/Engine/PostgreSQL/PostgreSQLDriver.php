@@ -81,15 +81,13 @@ class PostgreSQLDriver extends Driver {
 	 */
 	
 	public function connect() {
-		if (is_resource($this->connection)) {
+		if (is_resource($this->connection))
 			return $this->connection;
-		}
 	
 		$this->connection = empty($this->config['db.connect_type']) ? @pg_connect($this->config['db.connection_string']) : @pg_connect($this->config['db.connection_string'], $this->config['db.connect_type']);
 	
-		if ($this->connection === false) {
+		if ($this->connection === false)
 			throw new PostgreSQLConnectionException("Failed to connect to PostgreSQL database. Connection string: " . $this->config['db.connection_string']);
-		}
 	
 		return $this->connection;
 	}
@@ -97,34 +95,30 @@ class PostgreSQLDriver extends Driver {
 	public function query($query) {
 		$result = pg_query($this->connection, $query);
 	
-		if (is_resource($result)) {
+		if (is_resource($result))
 			$this->last_id = pg_last_oid($result);
-		}
 	
 		return $result;
 	}
 	
-	public function free_result($result) {
-		if (is_resource($result)) {
+	public function freeResult($result) {
+		if (is_resource($result))
 			pg_free_result($result);
-		}
 	}
 	
 	public function close() {
-		if (is_resource($this->connection)) {
+		if (is_resource($this->connection))
 			pg_close($this->connection);
-		}
 	}
 	
-	public function get_last_error() {
-		if (!is_resource($this->connection)) {
+	public function getLastError() {
+		if (!is_resource($this->connection))
 			throw new PostgreSQLException("No valid PostgreSQL connection available");
-		}
 	
 		return pg_last_error($this->connection);
 	}
 	
-	public function get_last_id() {
+	public function getLastId() {
 		return $this->last_id;
 	}
 	
@@ -133,25 +127,22 @@ class PostgreSQLDriver extends Driver {
 	 */
 	
 	public function begin() {
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->connection))
 			throw new PostgreSQLException("No valid PostgreSQL connection available");
-		}
 	
 		return $this->query('BEGIN');
 	}
 	
 	public function commit() {
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->connection))
 			throw new PostgreSQLException("No valid PostgreSQL connection available");
-		}
 	
 		return $this->query('COMMIT');
 	}
 	
 	public function rollback() {
-		if (!is_resource($this->connection)) {
+		if (!is_resource($this->connection))
 			throw new PostgreSQLException("No valid PostgreSQL connection available");
-		}
 	
 		return $this->query('ROLLBACK');
 	}
@@ -159,28 +150,26 @@ class PostgreSQLDriver extends Driver {
 	/*
 	 * BUILDER METHODS
 	 */
-	public function build_type_manager() {
+	public function buildTypeManager() {
 		return new PostgreSQLTypeManager();
 	}
 	
-	public function build_statement($typeManager, $parameterMap) {
+	public function buildStatement($typeManager, $parameterMap) {
 		return new PostgreSQLStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_iterator($result) {
+	public function buildResultIterator($result) {
 		return new PostgreSQLResultIterator($result);
 	}
 	
-	public function build_call($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $config) {
 		//wrap procedure name
-		if (array_key_exists('proc.wrap', $config) && $config['proc.wrap'] === true) {
+		if (array_key_exists('proc.wrap', $config) && $config['proc.wrap'] === true)
 			$procedure = "\"$procedure\"";
-		}
 		
 		//use returned values as a table
-		if (array_key_exists('proc.as_table', $config) && $config['proc.as_table'] === true) {
+		if (array_key_exists('proc.as_table', $config) && $config['proc.as_table'] === true)
 			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
-		}
 		
 		return "SELECT $procedure(" . implode(',', $tokens) . ')';
 	}
@@ -189,11 +178,11 @@ class PostgreSQLDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throw_exception($message, \Exception $previous = null) {
+	public function throwException($message, \Exception $previous = null) {
 		throw new PostgreSQLException($message, $previous);
 	}
 	
-	public function throw_query_exception($query) {
+	public function throwQueryException($query) {
 		throw new PostgreSQLQueryException(pg_last_error($this->connection), $query);
 	}
 }

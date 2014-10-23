@@ -22,10 +22,8 @@ class QueryCallback extends DynamicAttribute {
 	
 	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
-			return null;
-		}
-		
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
+
 		//build argument list
 		$args = $this->evaluateArgs($row);
 		array_unshift($args, $this->query);

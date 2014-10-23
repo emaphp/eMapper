@@ -76,7 +76,7 @@ class SQLiteDriver extends Driver {
 		return $this->connection->query($query);
 	}
 	
-	public function free_result($result) {
+	public function freeResult($result) {
 		if ($result instanceof \SQLite3Result)
 			$result->finalize();
 	}
@@ -86,14 +86,14 @@ class SQLiteDriver extends Driver {
 			return $this->connection->close();
 	}
 	
-	public function get_last_error() {
+	public function getLastError() {
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
 	
 		return $this->connection->lastErrorMsg();
 	}
 	
-	public function get_last_id() {
+	public function getLastId() {
 		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
 	
@@ -129,19 +129,19 @@ class SQLiteDriver extends Driver {
 	 * BUILDER METHODS
 	 */
 	
-	public function build_type_manager() {
+	public function buildTypeManager() {
 		return new SQLiteTypeManager();
 	}
 	
-	public function build_statement($typeManager, $parameterMap) {
+	public function buildStatement($typeManager, $parameterMap) {
 		return new SQLiteStatement($this->connection, $typeManager, $parameterMap);
 	}
 	
-	public function build_result_iterator($result) {
+	public function buildResultIterator($result) {
 		return new SQLiteResultIterator($result);
 	}
 	
-	public function build_call($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $config) {
 		throw new SQLiteException("SQLite driver does not support stored procedures");
 	}
 	
@@ -149,11 +149,11 @@ class SQLiteDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throw_exception($message, \Exception $previous = null) {
+	public function throwException($message, \Exception $previous = null) {
 		throw new SQLiteException($message, $previous);
 	}
 	
-	public function throw_query_exception($query) {
+	public function throwQueryException($query) {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
 	}
 	

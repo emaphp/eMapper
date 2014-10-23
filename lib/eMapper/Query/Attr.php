@@ -21,9 +21,8 @@ class Attr extends Field {
 	 * @return \eMapper\Query\Attr
 	 */
 	public static function __callstatic($method, $args = null) {
-		if (!empty($args)) {
+		if (!empty($args))
 			return new Attr($method, $args[0]);
-		}
 		
 		return new Attr($method);
 	}
@@ -32,9 +31,8 @@ class Attr extends Field {
 		if (is_null($this->path)) {
 			$propertyNames = $profile->getPropertyNames();
 			
-			if (!array_key_exists($this->name, $propertyNames)) {
+			if (!array_key_exists($this->name, $propertyNames))
 				throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $profile->getReflectionClass()->getName()));
-			}
 			
 			return $propertyNames[$this->name];
 		}
@@ -42,9 +40,8 @@ class Attr extends Field {
 		$current = $this->getReferredProfile($profile);
 		$propertyNames = $current->getPropertyNames();
 			
-		if (!array_key_exists($this->name, $propertyNames)) {
+		if (!array_key_exists($this->name, $propertyNames))
 			throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $current->getReflectionClass()->getName()));
-		}
 			
 		return $propertyNames[$this->name];
 	}

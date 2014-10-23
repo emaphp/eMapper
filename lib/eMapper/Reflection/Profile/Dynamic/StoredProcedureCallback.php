@@ -31,9 +31,8 @@ class StoredProcedureCallback extends DynamicAttribute {
 				$name = $arg->getName();
 				
 				//check if the property is available
-				if (!$wrapper->offsetExists($name)) {
+				if (!$wrapper->offsetExists($name))
 					throw new \InvalidArgumentException(sprintf("Property '%s' was not found whe evaluating arguments for %s attribute", $arg->getName(), $this->name));
-				}
 				
 				//get attribute value and type
 				$value = $wrapper->offsetGet($name);
@@ -42,17 +41,15 @@ class StoredProcedureCallback extends DynamicAttribute {
 				if (is_null($type)) {
 					$type = $profile->getProperty($name)->getType();
 					
-					if (!isset($type)) {
+					if (!isset($type))
 						$type = strtolower(gettype($value));
-					}
 				}
 				
 				$args[] = $value;
 				$proc_types[] = $type;
 			}
-			else {
+			else
 				$args[] = $arg;
-			}
 		}
 	
 		return $args;
@@ -60,9 +57,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
-			return null;
-		}
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
 		
 		//build argument list
 		$proc_types = [];

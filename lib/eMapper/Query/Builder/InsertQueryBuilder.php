@@ -15,18 +15,13 @@ class InsertQueryBuilder extends QueryBuilder {
 		$pk = $this->entity->getPrimaryKey();
 		
 		foreach ($this->entity->getColumnNames() as $property) {
-			if ($property == $pk) {
-				continue;
-			}
-			
+			if ($property == $pk) continue;
 			$type = $this->entity->getProperty($property)->getType();
 			
-			if (isset($type)) {
+			if (isset($type))
 				$values[] = '#{' . $property . ':' . $type . '}';
-			}
-			else {
+			else
 				$values[] = '#{' . $property . '}';
-			}
 		}
 		
 		return [sprintf("INSERT INTO %s (%s) VALUES (%s)", $table, $fields, implode(', ', $values)), null];

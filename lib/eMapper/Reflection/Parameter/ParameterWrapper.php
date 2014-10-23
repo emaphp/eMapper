@@ -25,10 +25,8 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	public function __construct($value, $parameterMap = null) {
 		$this->value = $value;
 	
-		if (isset($parameterMap)) {
-			//initialize parameter map
-			$this->parameterMap = Profiler::getClassProfile($parameterMap);
-		}
+		if (isset($parameterMap))
+			$this->parameterMap = Profiler::getClassProfile($parameterMap); //initialize parameter map
 	}
 	
 	/**
@@ -54,22 +52,18 @@ abstract class ParameterWrapper implements \ArrayAccess {
 	 * @return ParameterWrapper
 	 */
 	public static function wrapValue($value, $parameterMap = null) {
-		if (is_array($value)) {
+		if (is_array($value))
 			return new ArrayParameterWrapper($value, $parameterMap);
-		}
-		elseif ($value instanceof \stdClass) {
+		elseif ($value instanceof \stdClass)
 			return new ArrayParameterWrapper(get_object_vars($value), $parameterMap);
-		}
-		elseif ($value instanceof \ArrayObject) {
+		elseif ($value instanceof \ArrayObject)
 			return new ArrayParameterWrapper($value->getArrayCopy(), $parameterMap);
-		}
 		elseif (is_object($value)) {
 			$classname = get_class($value);
 			
 			//use class as parameter map
-			if (is_null($parameterMap) && Profiler::getClassProfile($classname)->isEntity()) {
+			if (is_null($parameterMap) && Profiler::getClassProfile($classname)->isEntity())
 				$parameterMap = $classname;
-			}
 			
 			return new ObjectParameterWrapper($value, $parameterMap);
 		}
@@ -88,10 +82,7 @@ abstract class ParameterWrapper implements \ArrayAccess {
 			$propertyProfile = $this->parameterMap->getProperty($property);
 			
 			//if property does not exists return false
-			if ($propertyProfile === false) {
-				return false;
-			}
-			
+			if ($propertyProfile === false) return false;
 			return $propertyProfile->getAttribute();
 		}
 		
@@ -107,9 +98,8 @@ abstract class ParameterWrapper implements \ArrayAccess {
 		if (isset($this->parameterMap)) {
 			$propertyProfile = $this->parameterMap->getProperty($property);
 			
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->parameterMap->getReflectionClass()->getName()));
-			}
 			
 			return $propertyProfile->getType();
 		}

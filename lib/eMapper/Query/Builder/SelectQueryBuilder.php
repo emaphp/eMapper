@@ -68,14 +68,12 @@ class SelectQueryBuilder extends QueryBuilder {
 			$columns = [];
 			
 			foreach ($config['query.columns'] as $column) {
-				if ($column instanceof Field) {
+				if ($column instanceof Field)
 					$columns[] = empty($alias) ? $column->getColumnName($this->entity) : $alias . '.' . $column->getColumnName($this->entity);
-				}
 			}
 			
-			if (empty($columns)) {
+			if (empty($columns))
 				return empty($alias) ? '*' : "$alias.*";
-			}
 			
 			return implode(', ', $columns);
 		}
@@ -99,24 +97,18 @@ class SelectQueryBuilder extends QueryBuilder {
 					if ($order->hasType()) {
 						$type = strtolower($order->getType());
 		
-						if ($type == 'asc' || $type == 'desc') {
+						if ($type == 'asc' || $type == 'desc')
 							$order_list[] = $column . ' ' . strtoupper($type);
-						}
-						else {
+						else
 							$order_list[] = $column;
-						}
 					}
-					else {
+					else
 						$order_list[] = $column;
-					}
 				}
 			}
 		}
 		
-		if (empty($order)) {
-			return '';
-		}
-		
+		if (empty($order)) return '';
 		return 'ORDER BY ' . implode(', ', $order_list);
 	}
 	
@@ -127,12 +119,10 @@ class SelectQueryBuilder extends QueryBuilder {
 	 */
 	protected function getLimitClause($config) {
 		if (array_key_exists('query.from', $config)) {
-			if (array_key_exists('query.to', $config)) {
+			if (array_key_exists('query.to', $config))
 				return sprintf("LIMIT %d, %d", $config['query.from'], $config['query.to']);
-			}
-			else {
+			else
 				return sprintf("LIMIT %d", $config['query.from']);
-			}
 		}
 		
 		return '';
@@ -159,9 +149,8 @@ class SelectQueryBuilder extends QueryBuilder {
 		$sql = '';
 		$left_join = count($joins) > 1;
 		
-		if ($this->association instanceof ManyToMany) {
+		if ($this->association instanceof ManyToMany)
 			$sql .= ' ' . $this->association->buildAssociationJoin($joinAlias, $mainAlias) . ' ';
-		}
 		
 		foreach ($joins as $join) {
 			if ($left_join) $join->setType(Join::LEFT);
@@ -177,9 +166,8 @@ class SelectQueryBuilder extends QueryBuilder {
 		$joins = [];
 		
 		//check for many-to-many association (requires adding a join)
-		if ($this->association instanceof ManyToMany) {
+		if ($this->association instanceof ManyToMany)
 			$joinAlias = self::CONTEXT_ALIAS;
-		}
 		
 		//call function
 		if (isset($this->function)) {

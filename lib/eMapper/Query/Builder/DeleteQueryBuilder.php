@@ -28,21 +28,15 @@ class DeleteQueryBuilder extends QueryBuilder {
 		$table = '@@' . $this->entity->getReferredTable();
 		
 		//evaluate condition
-		if ($this->truncate) {
-			return [sprintf("DELETE FROM %s", $table), null];
-		}
-		elseif (isset($this->condition)) {
+		if ($this->truncate) return [sprintf("DELETE FROM %s", $table), null];
+		elseif (isset($this->condition))
 			$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args);
-		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
 			$filter = new Filter($config['query.filter']);
 			$condition = $filter->evaluate($driver, $this->entity, $joins, $args);
 		}
 		
-		if (isset($condition)) {
-			return [sprintf("DELETE FROM %s WHERE %s", $table, $condition), $args];
-		}
-		
+		if (isset($condition)) return [sprintf("DELETE FROM %s WHERE %s", $table, $condition), $args];
 		throw new \RuntimeException("No condition specified for deletion query");
 	}
 }

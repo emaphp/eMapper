@@ -106,32 +106,25 @@ class ClassProfile {
 			$propertyName = $reflectionProperty->getName();
 			
 			//determiny property type
-			if ($annotations->has('Eval')) {
+			if ($annotations->has('Eval'))
 				$this->firstOrderAttributes[$propertyName] = new MacroExpression($propertyName, $annotations, $reflectionProperty);
-			}
 			elseif ($annotations->has('StatementId')) {				
-				if ($isScalar) {
+				if ($isScalar)
 					$this->firstOrderAttributes[$propertyName] = new StatementCallback($propertyName, $annotations, $reflectionProperty);
-				}
-				else {
+				else
 					$this->secondOrderAttributes[$propertyName] = new StatementCallback($propertyName, $annotations, $reflectionProperty);
-				}
 			}
 			elseif ($annotations->has('Query')) {
-				if ($isScalar) {
+				if ($isScalar)
 					$this->firstOrderAttributes[$propertyName] = new QueryCallback($propertyName, $annotations, $reflectionProperty);
-				}
-				else {
+				else
 					$this->secondOrderAttributes[$propertyName] = new QueryCallback($propertyName, $annotations, $reflectionProperty);
-				}
 			}
 			elseif ($annotations->has('Procedure')) {
-				if ($isScalar) {
+				if ($isScalar)
 					$this->firstOrderAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
-				}
-				else {
+				else
 					$this->secondOrderAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
-				}
 			}
 			elseif ($annotations->has('OneToOne')) {
 				$assoc = new OneToOne($propertyName, $annotations, $reflectionProperty);
@@ -141,17 +134,15 @@ class ClassProfile {
 					$attr = $assoc->getAttribute()->getArgument();
 					$this->foreignKeys[$attr] = $propertyName;
 				}
-				elseif ($assoc->isCascade()) {
+				elseif ($assoc->isCascade())
 					$this->references[] = $propertyName;
-				}
 			}
 			elseif ($annotations->has('OneToMany')) {
 				$assoc = new OneToMany($propertyName, $annotations, $reflectionProperty);
 				$this->associations[$propertyName] = $assoc;
 				
-				if ($assoc->isCascade()) {
+				if ($assoc->isCascade())
 					$this->references[] = $propertyName;
-				}
 			}
 			elseif ($annotations->has('ManyToOne')) {
 				$assoc = new ManyToOne($propertyName, $annotations, $reflectionProperty);
@@ -165,27 +156,23 @@ class ClassProfile {
 				$assoc = new ManyToMany($propertyName, $annotations, $reflectionProperty);
 				$this->associations[$propertyName] = $assoc;
 				
-				if ($assoc->isCascade()) {
+				if ($assoc->isCascade())
 					$this->references[] = $propertyName;
-				}
 			}
 			else {
 				$this->properties[$propertyName] = new PropertyProfile($propertyName, $annotations, $reflectionProperty);
 				
 				//check if property is declared as primary key
-				if ($this->properties[$propertyName]->isPrimaryKey()) {
+				if ($this->properties[$propertyName]->isPrimaryKey())
 					$this->primaryKey = $propertyName;
-				}
-				elseif ($this->properties[$propertyName]->mustCheckDuplicate()) {
+				elseif ($this->properties[$propertyName]->mustCheckDuplicate())
 					$this->duplicateChecks[] = $propertyName;
-				}
 			}
 		}
 		
 		foreach ($this->properties as $propertyProfile) {
-			if (!$propertyProfile->isReadOnly()) {
+			if (!$propertyProfile->isReadOnly())
 				$this->propertyNames[$propertyProfile->getName()] = $propertyProfile->getColumn();
-			}
 		}
 		
 		$this->columnNames = array_flip($this->propertyNames);
@@ -194,13 +181,11 @@ class ClassProfile {
 		if ($this->isEntity() ) {
 			$referredTable = $this->getReferredTable();
 			
-			if (empty($referredTable) || $referredTable === true) {
+			if (empty($referredTable) || $referredTable === true)
 				throw new \RuntimeException(sprintf("Entity class %s must declare a table name", $this->reflectionClass->getName()));
-			}
 			
-			if (is_null($this->primaryKey)) {
+			if (is_null($this->primaryKey))
 				throw new \RuntimeException(sprintf("Entity class %s must define a primary key attribute", $this->reflectionClass->getName()));
-			}
 		}
 	}
 	
@@ -243,10 +228,7 @@ class ClassProfile {
 	 * @return PropertyProfile|boolean
 	 */
 	public function getProperty($property) {
-		if (!$this->hasProperty($property)) {
-			return false;
-		}
-		
+		if (!$this->hasProperty($property)) return false;
 		return $this->properties[$property];
 	}
 	
@@ -256,10 +238,7 @@ class ClassProfile {
 	 * @return boolean|PropertyProfile
 	 */
 	public function getPropertyByColumn($column) {
-		if (!array_key_exists($column, $this->columnNames)) {
-			return false;
-		}
-		
+		if (!array_key_exists($column, $this->columnNames)) return false;
 		$property = $this->columnNames[$column];
 		return $this->getProperty($property);
 	}
@@ -270,9 +249,8 @@ class ClassProfile {
 	 * @return array
 	 */
 	public function getPropertyNames($filter_pk = false) {
-		if ($filter_pk) {
+		if ($filter_pk)
 			return array_diff_key($this->propertyNames, array_flip([$this->primaryKey]));
-		}
 		
 		return $this->propertyNames;
 	}
@@ -307,10 +285,7 @@ class ClassProfile {
 	 * @return string|NULL
 	 */
 	public function getPrimaryKey($as_column = false) {
-		if ($as_column) {
-			return $this->propertyNames[$this->primaryKey];
-		}
-		
+		if ($as_column) return $this->propertyNames[$this->primaryKey];
 		return $this->primaryKey;
 	}
 	
@@ -359,9 +334,8 @@ class ClassProfile {
 	 * @return boolean
 	 */
 	public function isSafe() {
-		if ($this->classAnnotations->has('Safe')) {
+		if ($this->classAnnotations->has('Safe'))
 			return (bool) $this->classAnnotations->get('Safe')->getValue();
-		}
 		
 		return false;
 	}
@@ -384,10 +358,7 @@ class ClassProfile {
 		if ($this->classAnnotations->has('DefaultNamespace')) {
 			$ns = $this->classAnnotations->get('DefaultNamespace')->getValue();
 			
-			if (empty($ns) || $ns === true) {
-				return $referredTable;
-			}
-			
+			if (empty($ns) || $ns === true) return $referredTable;
 			return $ns;
 		}
 		
@@ -399,10 +370,7 @@ class ClassProfile {
 	}
 	
 	public function getAssociation($name) {
-		if (array_key_exists($name, $this->associations)) {
-			return $this->associations[$name];
-		}
-		
+		if (array_key_exists($name, $this->associations)) return $this->associations[$name];
 		return false;
 	}
 	

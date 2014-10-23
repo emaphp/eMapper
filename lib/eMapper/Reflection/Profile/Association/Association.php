@@ -112,9 +112,8 @@ abstract class Association extends PropertyProfile {
 		
 		$order = $annotations->find('OrderBy', Filter::HAS_ARGUMENT);
 		
-		foreach ($order as $option) {
+		foreach ($order as $option)
 			$this->order[$option->getArgument()] = $option->getValue();
-		}
 	}
 	
 	public function getProfile() {
@@ -150,30 +149,24 @@ abstract class Association extends PropertyProfile {
 	public function evaluate($entity, $mapper) {
 		//build join condition
 		$condition = $this->buildCondition($entity);
-		
-		if ($condition === false) {
-			return null;
-		}
-		
+		if ($condition === false) return null;
+
 		//build association manager
 		$manager = new AssociationManager($mapper, $this, $condition);
 		
 		//apply indexation
-		if (!empty($this->index) && is_string($this->index)) {
+		if (!empty($this->index) && is_string($this->index))
 			$manager = $manager->index(Attr::__callstatic($this->index));
-		}
 		
 		//apply order
 		if (!empty($this->order)) {
 			$order = [];
 			
 			foreach ($this->order as $key => $value) {
-				if (is_bool($value) || (strtolower($value) != 'asc' && strtolower($value) != 'desc')) {
+				if (is_bool($value) || (strtolower($value) != 'asc' && strtolower($value) != 'desc'))
 					$type = null;
-				}
-				else {
+				else
 					$type = $value;
-				}
 				
 				$order[] = Attr::__callstatic($key, [$type]);
 			}
@@ -181,10 +174,7 @@ abstract class Association extends PropertyProfile {
 			$manager = $manager->merge(['query.order' => $order]);
 		}
 		
-		if ($this->lazy) {
-			return $manager;
-		}
-		
+		if ($this->lazy) return $manager;
 		return $this->fetchValue($manager);
 	}
 	

@@ -15,9 +15,8 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			foreach ($this->parameterMap->getProperties() as $name => $propertyProfile) {
 				$key = $propertyProfile->getAttribute();
 				
-				if (array_key_exists($key, $this->value)) {
+				if (array_key_exists($key, $this->value))
 					$value[$name] = $this->value[$key];
-				}
 			}
 			
 			return $value;
@@ -35,33 +34,27 @@ class ArrayParameterWrapper extends ParameterWrapper {
 			$key = $this->getPropertyName($offset);
 			$this->value[$key] = $value;
 		}
-		else {
+		else
 			$this->value[$offset] = $value;
-		}
 	}
 	
 	public function offsetUnset($offset) {
 		if (isset($this->parameterMap)) {
 			$key = $this->getPropertyName($offset);
 			
-			if ($key === false) {
-				return;
-			}
-			
+			if ($key === false) return;
 			unset($this->value[$key]);
 		}
-		elseif (array_key_exists($offset, $this->value)) {
+		elseif (array_key_exists($offset, $this->value))
 			unset($this->value[$offset]);
-		}
 	}
 	
 	public function offsetExists($offset) {
 		if (isset($this->parameterMap)) {
 			$key = $this->getPropertyName($offset);
 			
-			if ($key === false) {
+			if ($key === false)
 				return false;
-			}
 
 			return array_key_exists($key, $this->value);
 		}
@@ -73,14 +66,12 @@ class ArrayParameterWrapper extends ParameterWrapper {
 		if (isset($this->parameterMap)) {
 			$offset = $this->getPropertyName($offset);
 			
-			if ($offset === false) {
+			if ($offset === false)
 				throw new \RuntimeException(sprintf("Offset '%s' does not exists", $offset));
-			}
 		}
 		
-		if (!array_key_exists($offset, $this->value)) {
+		if (!array_key_exists($offset, $this->value))
 			throw new \RuntimeException(sprintf("Offset '%s' does not exists", $offset));
-		}
 
 		return $this->value[$offset];
 	}

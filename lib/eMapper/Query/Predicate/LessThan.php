@@ -14,10 +14,7 @@ class LessThan extends ComparisonPredicate {
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
-		 if ($this->negate) {
-		 	return '%s >= %s';
-		 }
-		 
+		 if ($this->negate) return '%s >= %s';
 		 return '%s < %s';
 	}
 }

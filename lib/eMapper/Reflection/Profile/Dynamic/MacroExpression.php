@@ -25,10 +25,7 @@ class MacroExpression extends DynamicAttribute {
 	
 	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) {
-			return null;
-		}
-		
+		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
 		$args = $this->evaluateArgs($row);
 		return $this->program->executeWith($this->buildEnvironment($mapper->getConfig()), $args);
 	}

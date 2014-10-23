@@ -37,18 +37,13 @@ class Filter extends SQLPredicate {
 	}
 	
 	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
-		if (empty($this->predicates)) {
-			return '';
-		}
-		
+		if (empty($this->predicates)) return '';
+
 		if (count($this->predicates) == 1) {
 			if (!empty($this->alias)) $this->predicates[0]->setAlias($this->alias);
 			$condition = $this->predicates[0]->evaluate($driver, $profile, $joins, $args, $arg_index);
 			
-			if ($this->negate) {
-				return 'NOT ' . $condition;
-			}
-			
+			if ($this->negate) return 'NOT ' . $condition;
 			return $condition;
 		}
 		
@@ -61,40 +56,28 @@ class Filter extends SQLPredicate {
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
 		
-		if ($this->negate) {
-			return 'NOT ' . $condition;
-		}
-		
+		if ($this->negate) return 'NOT ' . $condition;
 		return $condition;
 	}
 	
 	public function render(Driver $driver) {
-		if (empty($this->predicates)) {
-			return '';
-		}
+		if (empty($this->predicates)) return '';
 		
 		if (count($this->predicates) == 1) {
 			$condition = $this->predicates[0]->render($driver);
 			
-			if ($this->negate) {
-				return 'NOT (' . $condition . ')';
-			}
-			
+			if ($this->negate) return 'NOT (' . $condition . ')';
 			return $condition;
 		}
 		
 		$predicates = [];
 		
-		foreach ($this->predicates as $predicate) {
+		foreach ($this->predicates as $predicate)
 			$predicates[] = $predicate->render($driver);
-		}
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
 		
-		if ($this->negate) {
-			return 'NOT ' . $condition ;
-		}
-		
+		if ($this->negate) return 'NOT ' . $condition ;
 		return $condition;
 	}
 }

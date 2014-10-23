@@ -58,9 +58,8 @@ abstract class SQLPredicate {
 	 * @return number|string
 	 */
 	protected static function getArgumentIndex($arg_index) {
-		if ($arg_index != 0) {
+		if ($arg_index != 0)
 			return self::$counter++;
-		}
 	
 		return 'arg' . self::$counter++;
 	}
@@ -71,16 +70,14 @@ abstract class SQLPredicate {
 	 * @return string|NULL
 	 */
 	protected function getFieldType(ClassProfile $profile) {
-		if ($this->field->hasType()) {
+		if ($this->field->hasType())
 			return $this->field->getType();
-		}
 		
 		if ($this->field instanceof Attr) {
 			$property = $profile->getProperty($this->field->getName());
 			
-			if ($property === false) {
+			if ($property === false)
 				return null;
-			}
 			
 			return $property->getType();
 		}
@@ -101,9 +98,8 @@ abstract class SQLPredicate {
 			$type = $this->getFieldType($profile);
 				
 			//build expression
-			if (isset($type)) {
+			if (isset($type))
 				return '%{' . $arg_index . "[$index]" . ":$type}";
-			}
 				
 			return '%{' . $arg_index . "[$index]" . '}';
 		}
@@ -112,9 +108,8 @@ abstract class SQLPredicate {
 		$type = $this->getFieldType($profile);
 	
 		//build expression
-		if (isset($type)) {
+		if (isset($type))
 			return '#{' . "$index:$type" . '}';
-		}
 	
 		return '#{' . $index . '}';
 	}
@@ -126,9 +121,8 @@ abstract class SQLPredicate {
 		list($associations, $target) = $field->getAssociations($profile);
 		
 		//check if specified field is a plain one (Ex: name)
-		if (is_null($associations)) {
+		if (is_null($associations))
 			return empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
-		}
 		
 		//field is associated (Ex: profile__name)
 		$diff = array_keys(array_diff_key($associations, $joins));
@@ -144,9 +138,8 @@ abstract class SQLPredicate {
 			//set join parent (if any)
 			$parent = $join->getParentName();
 			
-			if (!is_null($parent)) {
+			if (!is_null($parent))
 				$join->setParent($joins[$parent]);
-			}
 			
 			//add join to list
 			$joins[$key] = $join;

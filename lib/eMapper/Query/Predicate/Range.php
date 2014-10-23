@@ -55,17 +55,15 @@ class Range extends SQLPredicate {
 		$args[$to_index] = $this->to;
 		$to_expression = $this->buildArgumentExpression($profile, $to_index, $arg_index);
 		
-		if ($this->negate) {
+		if ($this->negate)
 			return sprintf("%s NOT BETWEEN %s AND %s", $column, $from_expression, $to_expression);
-		}
 		
 		return sprintf("%s BETWEEN %s AND %s", $column, $from_expression, $to_expression);
 	}
 	
 	public function render(Driver $driver) {
-		if ($this->negate) {
+		if ($this->negate)
 			return "%s NOT BETWEEN %s AND %s";
-		}
 		
 		return "%s BETWEEN %s AND %s";
 	}

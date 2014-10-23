@@ -73,9 +73,8 @@ class PropertyProfile {
 		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : $name;
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr')->getValue() : $name;
 		
-		if ($annotations->has('Type')) {
+		if ($annotations->has('Type'))
 			$this->type = $annotations->get('Type')->getValue();
-		}
 		
 		$this->primaryKey = $annotations->has('Id');
 		$this->unique = $annotations->has('Unique');

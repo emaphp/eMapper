@@ -28,16 +28,13 @@ trait EntityMapper {
 	protected function buildListExpression(ClassProfile $entity, $index = null, $group = null) {
 		$expr = 'obj:' . $entity->getReflectionClass()->getName();
 		
-		if (isset($group)) {
+		if (isset($group))
 			$expr .= '<' . $group . '>';	
-		}
 		
-		if (isset($index)) {
+		if (isset($index))
 			$expr .= '[' . $index . ']';
-		}
-		else {
+		else
 			$expr .= '[]';
-		}
 		
 		return $expr;
 	}

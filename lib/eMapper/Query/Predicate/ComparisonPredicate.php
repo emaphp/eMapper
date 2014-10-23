@@ -33,9 +33,8 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
 		$column = $this->getColumnName($this->field, $profile, $joins);
 
-		if ($this->expression instanceof Field) {
+		if ($this->expression instanceof Field)
 			$expression = $this->getColumnName($this->expression, $profile, $joins);
-		}
 		else {
 			//store expression in argument list
 			$index = $this->getArgumentIndex($arg_index);

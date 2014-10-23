@@ -15,10 +15,7 @@ class In extends ComparisonPredicate {
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
-		if ($this->negate) {
-			return "%s NOT IN (%s)";
-		}
-		
+		if ($this->negate) return "%s NOT IN (%s)";
 		return "%s IN (%s)";
 	}
 }

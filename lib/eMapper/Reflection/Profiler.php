@@ -20,9 +20,8 @@ abstract class Profiler {
 	 * @return ClassProfile
 	 */
 	public static function getClassProfile($classname) {
-		if (!array_key_exists($classname, self::$profiles)) {
+		if (!array_key_exists($classname, self::$profiles))
 			self::$profiles[$classname] = new ClassProfile($classname);
-		}
 		
 		return self::$profiles[$classname];
 	}

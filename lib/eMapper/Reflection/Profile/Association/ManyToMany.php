@@ -31,21 +31,18 @@ class ManyToMany extends Association {
 		//get join table
 		$joinTable = $this->joinWith->getArgument();
 		
-		if (empty($joinTable)) {
+		if (empty($joinTable))
 			throw new \RuntimeException(sprintf("Association %s in class %s does not define a join table", $this->name, $this->parent));
-		}
 		
 		//get join column		
-		if (empty($this->foreignKey) || $this->foreignKey === true) {
+		if (empty($this->foreignKey) || $this->foreignKey === true)
 			throw new \RuntimeException(sprintf("Association %s in class %s must specify a join column for table %s", $this->name, $this->parent, $joinTable));
-		}
 		
 		//get foreign key
 		$column = $this->joinWith->getValue();
 		
-		if (empty($column) || $column === true) {
+		if (empty($column) || $column === true)
 			throw new \RuntimeException(sprintf("Association %s in class %s does not define a foreign key column", $this->name, $this->parent));
-		}
 		
 		return sprintf('INNER JOIN @@%s %s ON %s.%s = %s.%s INNER JOIN @@%s %s ON %s.%s = %s.%s',
 				$joinTable, $joinTableAlias,
@@ -65,23 +62,20 @@ class ManyToMany extends Association {
 		//get join table
 		$joinTable = $this->joinWith->getArgument();
 		
-		if (empty($joinTable)) {
+		if (empty($joinTable))
 			throw new \RuntimeException(sprintf("Association %s in class %s does not define a join table", $this->name, $this->parent));
-		}
 		
 		//get join column
 		$joinTableColumn = $this->foreignKey;
 		
-		if (empty($joinTableColumn) || $joinTableColumn === true) {
+		if (empty($joinTableColumn) || $joinTableColumn === true)
 			throw new \RuntimeException(sprintf("Association %s in class %s must specify a join column for table %s", $this->name, $this->parent, $joinTable));
-		}
 
 		//get foreign key
 		$column = $this->joinWith->getValue();
 		
-		if (empty($column) || $column === true) {
+		if (empty($column) || $column === true)
 			throw new \RuntimeException(sprintf("Association %s in class %s does not define a foreign key column", $this->name, $this->parent));
-		}
 		
 		return sprintf('%s JOIN @@%s %s ON %s.%s = %s.%s %s JOIN @@%s %s ON %s.%s = %s.%s',
 						$joinType,
@@ -107,13 +101,11 @@ class ManyToMany extends Association {
 	}
 	
 	public function save($mapper, $parent, $value, $depth) {
-		if ($value instanceof AssociationManager) {
+		if ($value instanceof AssociationManager)
 			return null;
-		}
 	
-		if (!is_array($value)) {
+		if (!is_array($value))
 			return null;
-		}
 
 		//get related profiles
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -127,22 +119,19 @@ class ManyToMany extends Association {
 		
 		$keys = [];
 		
-		foreach ($value as &$entity) {
+		foreach ($value as &$entity)
 			$keys[] = $manager->save($entity, $depth);
-		}
 	
 		//update join table
 		$current = $mapper->type('int[]')->query(sprintf("SELECT %s FROM %s WHERE %s = %s", $this->foreignKey, $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey));
 		$diff = array_diff($keys, $current);
 		
 		if (!empty($diff)) {
-			foreach ($diff as $id) {
+			foreach ($diff as $id)
 				$mapper->sql(sprintf("INSERT INTO %s (%s, %s) VALUES (%s, %s)", $this->joinWith->getArgument(), $this->foreignKey, $this->joinWith->getValue(), $id, $foreignKey));
-			}
 		}
 		
 		$query = sprintf("DELETE FROM %s WHERE %s = %s AND %s NOT IN (%s)", $this->joinWith->getArgument(), $this->joinWith->getValue(), $foreignKey, $this->foreignKey, implode(',', $keys));
-		
 		$mapper->sql($query);
 		return null;
 	}

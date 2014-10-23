@@ -35,9 +35,8 @@ class ObjectParameterWrapper extends ParameterWrapper {
 			foreach ($this->parameterMap->getProperties() as $name => $propertyProfile) {
 				$property = $this->profile->getProperty($propertyProfile->getProperty());
 				
-				if ($property !== false) {
+				if ($property !== false)
 					$value[$name] = $property->getReflectionProperty()->getValue($this->value);
-				}
 			}
 			
 			return $value;
@@ -55,18 +54,16 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		if (isset($this->parameterMap)) {
 			$propertyProfile = $this->parameterMap->getProperty($property);
 				
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->parameterMap->getReflectionClass()->getName()));
-			}
 				
 			return $propertyProfile->getType();
 		}
 		elseif ($this->profile->isEntity()) {
 			$propertyProfile = $this->profile->getProperty($property);
 			
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \UnexpectedValueException(sprintf("Property '%s' was not found in class %s", $this->profile->getReflectionClass()->getName()));
-			}
 			
 			return $propertyProfile->getType();
 		}
@@ -83,9 +80,8 @@ class ObjectParameterWrapper extends ParameterWrapper {
 			//get referred property
 			$propertyProfile = $this->profile->getProperty($this->getPropertyName($offset));
 			
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \RuntimeException(sprintf("Property %s not found id class %s", $propertyName, $this->profile->getReflectionClass()->getName()));
-			}
 			
 			//set value
 			$reflectionProperty = $propertyProfile->getReflectionProperty();
@@ -94,9 +90,8 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		else {
 			$propertyProfile = $this->profile->getProperty($offset);
 			
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \RuntimeException(sprintf("Property %s not found id class %s", $offset, $this->profile->getReflectionClass()->getName()));
-			}
 			
 			//set value
 			$reflectionProperty = $propertyProfile->getReflectionProperty();
@@ -108,21 +103,15 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		if (isset($this->parameterMap)) {
 			//get referred property
 			$propertyProfile = $this->profile->getProperty($this->getPropertyName($offset));
-			
-			if ($propertyProfile === false) {
-				return;
-			}
-			
+			if ($propertyProfile === false) return;
+
 			//set value
 			$reflectionProperty = $propertyProfile->getReflectionProperty();
 			$reflectionProperty->setValue($this->value, null);
 		}
 		else {
-			$propertyProfile = $this->profile->getProperty($offset);
-			
-			if ($propertyProfile === false) {
-				return;
-			}
+			$propertyProfile = $this->profile->getProperty($offset);	
+			if ($propertyProfile === false) return;
 			
 			//set value
 			$reflectionProperty = $propertyProfile->getReflectionProperty();
@@ -132,15 +121,11 @@ class ObjectParameterWrapper extends ParameterWrapper {
 	
 	public function offsetExists($offset) {
 		if (isset($this->parameterMap)) {
-			$propertyName = $this->getPropertyName($offset);
-			
-			if ($propertyName === false) {
-				return false;
-			}
+			$propertyName = $this->getPropertyName($offset);			
+			if ($propertyName === false) return false;
 			
 			//get referred property
-			$propertyProfile = $this->profile->getProperty($propertyName);
-			
+			$propertyProfile = $this->profile->getProperty($propertyName);			
 			return $propertyProfile != false;
 		}
 		
@@ -151,16 +136,14 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		if (isset($this->parameterMap)) {
 			$propertyName = $this->getPropertyName($offset);
 			
-			if ($propertyName === false) {
+			if ($propertyName === false)
 				throw new \RuntimeException(sprintf("Property %s not found in class %s", $propertyName, $this->parameterMap->getReflectionClass()->getName()));
-			}
 			
 			//get referred property
 			$propertyProfile = $this->profile->getProperty($propertyName);
 			
-			if ($propertyProfile === false) {
+			if ($propertyProfile === false)
 				throw new \RuntimeException(sprintf("Property %s not found id class %s", $propertyName, $this->profile->getReflectionClass()->getName()));
-			}
 			
 			//set value
 			$reflectionProperty = $propertyProfile->getReflectionProperty();
@@ -169,9 +152,8 @@ class ObjectParameterWrapper extends ParameterWrapper {
 		
 		$propertyProfile = $this->profile->getProperty($offset);
 		
-		if ($propertyProfile === false) {
+		if ($propertyProfile === false)
 			throw new \RuntimeException(sprintf("Property %s not found id class %s", $offset, $this->profile->getReflectionClass()->getName()));
-		}
 		
 		//set value
 		$reflectionProperty = $propertyProfile->getReflectionProperty();

@@ -70,7 +70,7 @@ class Mapper {
 		$this->driver = $driver;
 		
 		//obtain defaul type handler
-		$this->typeManager = $this->driver->build_type_manager();
+		$this->typeManager = $this->driver->buildTypeManager();
 		
 		//build configuration
 		$this->setDefaultConfig();
@@ -264,7 +264,7 @@ class Mapper {
 			 */
 				
 			//build statement
-			$stmt = $this->driver->build_statement($this->typeManager, $parameterMap);
+			$stmt = $this->driver->buildStatement($this->typeManager, $parameterMap);
 			$stmt = $stmt->format($query, $args, $this->config);
 			
 			//debug query
@@ -436,12 +436,12 @@ class Mapper {
 				
 			//check query execution
 			if ($result === false)
-				$this->driver->throw_query_exception($stmt);
+				$this->driver->throwQueryException($stmt);
 			
 			//check if result is successful
 			if ($result === true) {
 				//free result
-				$this->driver->free_result($result);
+				$this->driver->freeResult($result);
 				return true;
 			}
 			
@@ -450,7 +450,7 @@ class Mapper {
 			 */
 				
 			$cacheable = true;
-			$ri = $this->driver->build_result_iterator($result);
+			$ri = $this->driver->buildResultIterator($result);
 				
 			//check if result is empty
 			if ($ri->countRows() === 0) {
@@ -486,7 +486,7 @@ class Mapper {
 			$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
 				
 			//free result
-			$this->driver->free_result($result);
+			$this->driver->freeResult($result);
 						
 			/*
 			 * CACHE STORE
@@ -691,14 +691,14 @@ class Mapper {
 		$query = array_shift($args);
 	
 		//build statement
-		$stmt = $this->driver->build_statement($this->typeManager, array_key_exists('map.parameter', $this->config) ? $this->config['map.parameter'] : null);
+		$stmt = $this->driver->buildStatement($this->typeManager, array_key_exists('map.parameter', $this->config) ? $this->config['map.parameter'] : null);
 	
 		//run query
 		$result = $this->driver->query($stmt->format($query, $args, $this->config));
 	
 		//check query execution
 		if ($result === false)
-			$this->driver->throw_query_exception($stmt);
+			$this->driver->throwQueryException($stmt);
 	
 		return $result;
 	}
@@ -734,7 +734,7 @@ class Mapper {
 		if (count($tokens) > count($args))
 			$tokens = array_slice($tokens, 0, count($args));
 		
-		$call = $this->driver->build_call($procedure_name, $tokens, $this->config);
+		$call = $this->driver->buildCall($procedure_name, $tokens, $this->config);
 		
 		array_unshift($args, $call);
 		
@@ -776,14 +776,14 @@ class Mapper {
 	 * Returns las generated error
 	 */
 	public function lastError() {
-		return $this->driver->get_last_error();
+		return $this->driver->getLastError();
 	}
 	
 	/**
 	 * Returns last generated id
 	 */
 	public function lastId() {
-		return $this->driver->get_last_id();
+		return $this->driver->getLastId();
 	}
 	
 	/*

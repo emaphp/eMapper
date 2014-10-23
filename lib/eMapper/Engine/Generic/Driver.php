@@ -59,7 +59,7 @@ abstract class Driver {
 	 * Frees a result
 	 * @param mixed $result
 	 */
-	public abstract function free_result($result);
+	public abstract function freeResult($result);
 	
 	/**
 	 * Closes a database connection
@@ -69,12 +69,12 @@ abstract class Driver {
 	/**
 	 * Obtains last generated error message
 	 */
-	public abstract function get_last_error();
+	public abstract function getLastError();
 	
 	/**
 	 * Obtains last generated id
 	 */
-	public abstract function get_last_id();
+	public abstract function getLastId();
 	
 	/**
 	 * Begins a transaction
@@ -94,20 +94,20 @@ abstract class Driver {
 	/**
 	 * Returns a TypeManager instance for current engine
 	 */
-	public abstract function build_type_manager();
+	public abstract function buildTypeManager();
 	
 	/**
 	 * Returns a statement instance for current engine
 	 * @param TypeManager $typeManager
 	 * @param object $parameterMap
 	 */
-	public abstract function build_statement($typeManager, $parameterMap);
+	public abstract function buildStatement($typeManager, $parameterMap);
 	
 	/**
 	 * Returns a result iterator for the given result
 	 * @param mixed $result
 	 */
-	public abstract function build_result_iterator($result);
+	public abstract function buildResultIterator($result);
 	
 	/**
 	 * Builds a procedure call
@@ -115,19 +115,19 @@ abstract class Driver {
 	 * @param array $tokens
 	 * @param array $config
 	 */
-	public abstract function build_call($procedure, $tokens, $config);
+	public abstract function buildCall($procedure, $tokens, $config);
 	
 	/**
 	 * Throws a generic exception
 	 * @param string $message
 	 * @param \Exception $previous
 	 */
-	public abstract function throw_exception($message, \Exception $previous = null);
+	public abstract function throwException($message, \Exception $previous = null);
 	
 	/**
 	 * Throws a query exception
 	 * @param string $query
 	 */
-	public abstract function throw_query_exception($query);
+	public abstract function throwQueryException($query);
 }
 ?>

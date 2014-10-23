@@ -59,9 +59,8 @@ abstract class DynamicAttribute extends PropertyProfile {
 		$this->args = [];
 		
 		//use object as argument
-		if ($annotations->has('Self')) {
+		if ($annotations->has('Self'))
 			$this->useDefaultArgument = true;
-		}
 		
 		//parse additional arguments
 		$parameters = $annotations->find('Parameter');
@@ -71,23 +70,19 @@ abstract class DynamicAttribute extends PropertyProfile {
 				$arg = $param->getArgument();
 				
 				if (preg_match(self::PARAMETER_PROPERTY_REGEX, $arg, $matches)) {
-					if (array_key_exists(2, $matches)) {
+					if (array_key_exists(2, $matches))
 						$this->args[] = Attr::__callstatic($matches[1], [substr($matches[2], 1)]);
-					}
-					else {
+					else
 						$this->args[] = Attr::__callstatic($matches[1]);
-					}
 				}
 			}
-			else {
+			else
 				$this->args[] = $param->getValue();
-			}
 		}
 		
 		//use default argument
-		if (empty($this->args)) {
+		if (empty($this->args))
 			$this->useDefaultArgument = true;
-		}
 	}
 	
 	/**
@@ -97,24 +92,20 @@ abstract class DynamicAttribute extends PropertyProfile {
 	protected function parseConfig(AnnotationBag $annotations) {
 		$this->config = [];
 		
-		if (isset($this->type)) {
+		if (isset($this->type))
 			$this->config['map.type'] = $this->type;
-		}
 		
-		if ($annotations->has('ResultMap')) {
+		if ($annotations->has('ResultMap'))
 			$this->config['map.result'] = $annotations->get('ResultMap')->getValue();
-		}
 		
-		if ($annotations->has('ParameterMap')) {
+		if ($annotations->has('ParameterMap'))
 			$this->config['map.parameter'] = $annotations->get('ParameterMap')->getValue();
-		}
 		
 		if ($annotations->has('If')) {
 			$cond = $annotations->get('If')->getValue();
 			
-			if (empty($cond)) {
+			if (empty($cond))
 				throw new \RuntimeException(sprintf("No condition defined for @If annotation in %s property", $this->name));
-			}
 				
 			$cond = new DynamicSQLProgram($cond);
 			
@@ -125,9 +116,8 @@ abstract class DynamicAttribute extends PropertyProfile {
 		elseif ($annotations->has('IfNot')) {
 			$cond = $annotations->get('IfNot')->getValue();
 				
-			if (empty($cond)) {
+			if (empty($cond))
 				throw new \RuntimeException(sprintf("No condition defined for @IfNot annotation in %s property", $this->name));
-			}
 			
 			$cond = new DynamicSQLProgram($cond);
 			
@@ -138,27 +128,20 @@ abstract class DynamicAttribute extends PropertyProfile {
 		elseif ($annotations->has('IfNotNull')) {
 			$attr = $annotations->get('IfNotNull')->getValue();
 			
-			if (empty($attr)) {
+			if (empty($attr))
 				throw new \RuntimeException(sprintf("No attribute name defined for @IfNotNull annotation in %s property", $this->name));
-			}
 			
 			$this->condition = function($row, $config) use ($attr) {
 				$wrapper = ParameterWrapper::wrapValue($row);
-				
-				if ($wrapper->offsetExists($attr) && $wrapper->offsetGet($attr) === null) {
-					return false;
-				}
-				
-				return true;
+				return !($wrapper->offsetExists($attr) && $wrapper->offsetGet($attr) === null);
 			};
 		}
 		
 		//get additional options [Option(KEY) VALUE]
 		$options = $annotations->find('Option', Filter::HAS_ARGUMENT);
 		
-		foreach ($options as $option) {
+		foreach ($options as $option)
 			$this->config[$option->getArgument()] = $option->getValue();
-		}
 	}
 	
 	/**
@@ -170,21 +153,18 @@ abstract class DynamicAttribute extends PropertyProfile {
 		$args = [];
 		$wrapper = ParameterWrapper::wrapValue($row);
 		
-		if ($this->useDefaultArgument) {
+		if ($this->useDefaultArgument)
 			$args[] = $row;
-		}
 		
 		foreach ($this->args as $arg) {
 			if ($arg instanceof Attr) {
-				if (!$wrapper->offsetExists($arg->getName())) {
+				if (!$wrapper->offsetExists($arg->getName()))
 					throw new \InvalidArgumentException(sprintf("Property '%s' was not found whe evaluating arguments for %s attribute", $arg->getName(), $this->name));
-				}
 				
 				$args[] = $wrapper->offsetGet($arg->getName());
 			}
-			else {
+			else
 				$args[] = $arg;
-			}
 		}
 		
 		return $args;
@@ -197,9 +177,8 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * @return boolean
 	 */
 	protected function checkCondition($row, $config) {
-		if (isset($this->condition)) {
+		if (isset($this->condition))
 			return call_user_func($this->condition, $row, $config);
-		}
 		
 		return true;
 	}

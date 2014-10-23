@@ -15,17 +15,15 @@ class Column extends Field {
 	 * @return \eMapper\Query\Column
 	 */
 	public static function __callstatic($method, $args = null) {
-		if (!empty($args)) {
+		if (!empty($args))
 			return new Column($method, $args[0]);
-		}
 		
 		return new Column($method);
 	}
 	
 	public function getColumnName(ClassProfile $profile) {
-		if (!is_null($this->path)) {
+		if (!is_null($this->path))
 			$current = $this->getReferredProfile($profile);
-		}
 		
 		return $this->name;
 	}
