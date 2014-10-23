@@ -4,9 +4,9 @@ namespace eMapper\Reflection\Profile\Dynamic;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profile\PropertyProfile;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\Filter;
+use Omocha\AnnotationBag;
 use eMapper\Query\Attr;
-use eMapper\Annotations\Filter;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
@@ -43,7 +43,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	protected $condition;
 	
-	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct($name, $annotations, $reflectionProperty);
 
 		$this->parseMetadata($annotations);
@@ -55,7 +55,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * Parses attribute arguments
 	 * @param AnnotationBag $attribute
 	 */
-	protected function parseArguments(AnnotationsBag $annotations) {
+	protected function parseArguments(AnnotationBag $annotations) {
 		$this->args = [];
 		
 		//use object as argument
@@ -94,7 +94,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * Parses attribute configuration
 	 * @param AnnotationBag $annotations
 	 */
-	protected function parseConfig(AnnotationsBag $annotations) {
+	protected function parseConfig(AnnotationBag $annotations) {
 		$this->config = [];
 		
 		if (isset($this->type)) {
@@ -206,9 +206,9 @@ abstract class DynamicAttribute extends PropertyProfile {
 
 	/**
 	 * Parse additional metadata in a property
-	 * @param AnnotationsBag $annotations
+	 * @param AnnotationBag $annotations
 	 */
-	protected abstract function parseMetadata(AnnotationsBag $annotations);
+	protected abstract function parseMetadata(AnnotationBag $annotations);
 	
 	/**
 	 * Evaluates the current attribute

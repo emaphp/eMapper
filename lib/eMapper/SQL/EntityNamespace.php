@@ -56,9 +56,8 @@ class EntityNamespace extends SQLNamespace {
 		$this->entity = Profiler::getClassProfile($classname);
 		
 		//check that this class is a valid entity
-		if (!$this->entity->isEntity()) {
+		if (!$this->entity->isEntity())
 			throw new \InvalidArgumentException();
-		}
 		
 		//obtain namespace id and validate
 		$namespaceId = $this->entity->getNamespace();
@@ -89,9 +88,8 @@ class EntityNamespace extends SQLNamespace {
 	
 	public function getStatement($statementId) {
 		//if it is available then return
-		if ($this->hasStatement($statementId)) {
+		if ($this->hasStatement($statementId))
 			return parent::getStatement($statementId);
-		}
 		
 		//find all
 		if ($statementId == 'findAll') {
@@ -126,12 +124,10 @@ class EntityNamespace extends SQLNamespace {
 			//check if the give property is unique or primary key
 			$propertyProfile = $this->entity->getProperty($property);
 			
-			if ($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique()) {
+			if ($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique())
 				$as_table = array_key_exists(2, $matches);
-			}
-			else {
+			else
 				$as_table = true;
-			}
 			
 			return $this->buildAndStore($matches[0], $stmt->build($matches), $as_table);
 		}

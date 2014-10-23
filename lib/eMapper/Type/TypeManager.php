@@ -74,10 +74,8 @@ class TypeManager {
 	 * @throws \InvalidArgumentException
 	 */
 	public function setTypeHandler($type, TypeHandler $typeHandler) {
-		if (!is_string($type) || empty($type)) {
-			throw new \InvalidArgumentException("Type must be defined as a string");
-		}
-		
+		if (!is_string($type) || empty($type))
+			throw new \InvalidArgumentException("Type must be defined as a string");	
 		$this->typeHandlers[$type] = $typeHandler;
 	}
 	
@@ -88,13 +86,11 @@ class TypeManager {
 	 * @throws \InvalidArgumentException
 	 */
 	public function addAlias($type, $alias) {
-		if (!is_string($type) || empty($type)) {
+		if (!is_string($type) || empty($type))
 			throw new \InvalidArgumentException("Type must be defined as a string");
-		}
 		
-		if (!is_string($alias) || empty($alias)) {
+		if (!is_string($alias) || empty($alias))
 			throw new \InvalidArgumentException("Alias must be defined as a string");
-		}
 		
 		$this->aliases[$alias] = $type;
 	}
@@ -106,14 +102,12 @@ class TypeManager {
 	 */
 	public function getTypeHandler($type_or_alias) {		
 		//verify if its an alias
-		if (array_key_exists($type_or_alias, $this->aliases)) {
+		if (array_key_exists($type_or_alias, $this->aliases))
 			$type_or_alias = $this->aliases[$type_or_alias];
-		}
 		
 		//check type existence
-		if (!array_key_exists($type_or_alias, $this->typeHandlers)) {
+		if (!array_key_exists($type_or_alias, $this->typeHandlers))
 			return false;
-		}
 		
 		return $this->typeHandlers[$type_or_alias];
 	}

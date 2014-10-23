@@ -14,11 +14,10 @@ class MySQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				
-				if ($this->case_sensitive) {
-					return "%s $op [?s (. '%%' (addcslashes (%%0) '%%_') '%%') ?]";
-				}
+				if ($this->case_sensitive)
+					return "%s $op [?s (. '%%' (call 'addcslashes' (%%0) '%%_') '%%') ?]";
 				
-				return "LOWER(%s) $op LOWER([?s (. '%%' (addcslashes (%%0) '%%_') '%%') ?])";
+				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_') '%%') ?])";
 			}
 			break;
 			
@@ -26,11 +25,10 @@ class MySQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				
-				if ($this->case_sensitive) {
-					return "%s $op [?s (. (addcslashes (%%0) '%%_') '%%') ?]";
-				}
+				if ($this->case_sensitive)
+					return "%s $op [?s (. (call 'addcslashes' (%%0) '%%_') '%%') ?]";
 				
-				return "LOWER(%s) $op LOWER([?s (. (addcslashes (%%0) '%%_') '%%') ?])";
+				return "LOWER(%s) $op LOWER([?s (. (call 'addcslashes' (%%0) '%%_') '%%') ?])";
 			}
 			break;
 			
@@ -38,11 +36,10 @@ class MySQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				
-				if ($this->case_sensitive) {
-					return "%s $op [?s (. '%%' (addcslashes (%%0) '%%_')) ?]";
-				}
+				if ($this->case_sensitive)
+					return "%s $op [?s (. '%%' (call 'addcslashes' (%%0) '%%_')) ?]";
 				
-				return "LOWER(%s) $op LOWER([?s (. '%%' (addcslashes (%%0) '%%_')) ?])";
+				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_')) ?])";
 			}
 			break;
 			
@@ -50,10 +47,8 @@ class MySQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT REGEXP' : 'REGEXP';
 				
-				if ($this->case_sensitive) {
-					$op .= ' BINARY';
-					return "%s $op [?s (%%0) ?]";
-				}
+				if ($this->case_sensitive)
+					return "%s $op BINARY [?s (%%0) ?]";
 				
 				return "%s $op [?s (%%0) ?]";
 			}
@@ -69,9 +64,8 @@ class MySQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				
-				if ($this->case_sensitive) {
+				if ($this->case_sensitive)
 					return "%s $op %s";
-				}
 				
 				return "LOWER(%s) $op LOWER(%s)";
 			}

@@ -2,7 +2,7 @@
 namespace eMapper\Reflection;
 
 use eMapper\Reflection\Profiler;
-use eMapper\Annotations\Facade;
+use Omocha\Omocha;
 
 /**
  * Tests parsing result map annotations through the Profiler class
@@ -14,29 +14,29 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	public function testTypeHandlerAnnotations() {
 		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->getClassAnnotations();
 		$this->assertNotNull($profile);
-		$this->assertInstanceOf("eMapper\Annotations\AnnotationsBag", $profile);
+		$this->assertInstanceOf("Omocha\AnnotationBag", $profile);
 		$this->assertTrue($profile->has('Safe'));
 	}
 	
 	public function testResultMapProfile() {		
 		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getClassAnnotations();
 		$this->assertNotNull($profile);
-		$this->assertInstanceOf("eMapper\Annotations\AnnotationsBag", $profile);
+		$this->assertInstanceOf("Omocha\AnnotationBag", $profile);
 		
 		$properties = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getProperties();
 		
 		$this->assertArrayHasKey('user_id', $properties);
-		$annotations = Facade::getAnnotations($properties['user_id']->getReflectionProperty());
+		$annotations = Omocha::getAnnotations($properties['user_id']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('integer', $annotations->get('Type')->getValue());
 		
 		$this->assertArrayHasKey('name', $properties);
-		$annotations = Facade::getAnnotations($properties['name']->getReflectionProperty());
+		$annotations = Omocha::getAnnotations($properties['name']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Column'));
 		$this->assertEquals('user_name', $annotations->get('Column')->getValue());
 		
 		$this->assertArrayHasKey('lastLogin', $properties);
-		$annotations = Facade::getAnnotations($properties['lastLogin']->getReflectionProperty());
+		$annotations = Omocha::getAnnotations($properties['lastLogin']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('string', $annotations->get('Type')->getValue());
 		$this->assertTrue($annotations->has('Column'));
@@ -53,11 +53,11 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('category', $properties);
 		$this->assertArrayHasKey('color', $properties);
 		
-		$annotations = Facade::getAnnotations($properties['code']->getReflectionProperty());
+		$annotations = Omocha::getAnnotations($properties['code']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Column'));
 		$this->assertEquals('product_code', $annotations->get('Column')->getValue());
 
-		$annotations = Facade::getAnnotations($properties['color']->getReflectionProperty());
+		$annotations = Omocha::getAnnotations($properties['color']->getReflectionProperty());
 		$this->assertTrue($annotations->has('Type'));
 		$this->assertEquals('Acme\\RGBColor', $annotations->get('Type')->getValue());
 	}
@@ -70,12 +70,12 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($profile->has('speed'));
 		$this->assertEquals('fast', $profile->get('speed')->getValue());
 		
-		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('capacity')->getReflectionProperty());
+		$properties = Omocha::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('capacity')->getReflectionProperty());
 		$this->assertTrue($properties->has('full'));
 		$this->assertEquals(4, $properties->get('full')->getValue());
 		$this->assertFalse($properties->has('measure'));
 
-		$properties = Facade::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('engine')->getReflectionProperty());
+		$properties = Omocha::getAnnotations(Profiler::getClassProfile('Acme\\Entity\\Car')->getProperty('engine')->getReflectionProperty());
 		$this->assertTrue($properties->has('requires'));
 		$this->assertEquals('fuel', $properties->get('requires')->getValue());
 	}
@@ -85,13 +85,13 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$secondOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getSecondOrderAttributes();
 		
 		//full name
-		$fullName = Facade::getAnnotations($firstOrderAttributes['fullName']->getReflectionProperty());
+		$fullName = Omocha::getAnnotations($firstOrderAttributes['fullName']->getReflectionProperty());
 		$this->assertTrue($fullName->has('Eval'));
 		$this->assertInternalType('string', $fullName->get('Eval')->getValue());
 		$this->assertEquals("(. (#surname) ', ' (#name))", $fullName->get('Eval')->getValue());
 		
 		//profiles
-		$profiles = Facade::getAnnotations($secondOrderAttributes['profiles']->getReflectionProperty());
+		$profiles = Omocha::getAnnotations($secondOrderAttributes['profiles']->getReflectionProperty());
 		$this->assertTrue($profiles->has('StatementId'));
 		$this->assertInternalType('string', $profiles->get('StatementId')->getValue());
 		$this->assertEquals("profiles.findByUserId", $profiles->get('StatementId')->getValue());
@@ -104,7 +104,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(3, $profiles->find('Parameter')[1]->getValue());
 		
 		//total profiles
-		$totalProfiles = Facade::getAnnotations($firstOrderAttributes['totalProfiles']->getReflectionProperty());
+		$totalProfiles = Omocha::getAnnotations($firstOrderAttributes['totalProfiles']->getReflectionProperty());
 		$this->assertTrue($totalProfiles->has('Eval'));
 		$this->assertInternalType('string', $totalProfiles->get('Eval')->getValue());
 		$this->assertEquals('(+ (count (#profiles)) (%0))', $totalProfiles->get('Eval')->getValue());
@@ -113,7 +113,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInternalType('integer', $totalProfiles->get('Parameter')->getValue());
 		
 		//last connection
-		$lastConnection = Facade::getAnnotations($firstOrderAttributes['lastConnection']->getReflectionProperty());
+		$lastConnection = Omocha::getAnnotations($firstOrderAttributes['lastConnection']->getReflectionProperty());
 		$this->assertTrue($lastConnection->has('Query'));
 		$this->assertInternalType('string', $lastConnection->get('Query')->getValue());
 		$this->assertEquals("SELECT last_login FROM login WHERE user_id = %{i}", $lastConnection->get('Query')->getValue());
@@ -124,7 +124,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('dt', $lastConnection->get('Type')->getValue());
 		
 		//favorites
-		$favorites = Facade::getAnnotations($secondOrderAttributes['favorites']->getReflectionProperty());
+		$favorites = Omocha::getAnnotations($secondOrderAttributes['favorites']->getReflectionProperty());
 		$this->assertTrue($favorites->has('Query'));
 		$this->assertInternalType('string', $favorites->get('Query')->getValue());
 		$this->assertEquals("SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}", $favorites->get('Query')->getValue());

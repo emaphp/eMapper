@@ -4,15 +4,15 @@ namespace eMapper\Reflection\Profile\Association;
 use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
-use eMapper\Annotations\AnnotationsBag;
 use eMapper\AssociationManager;
+use Omocha\AnnotationBag;
 
 /**
  * The ManyToMany class is an abstraction of many-to-many associations.
  * @author emaphp
  */
 class ManyToMany extends Association {
-	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct('ManyToMany', $name, $annotations, $reflectionProperty);
 	}
 	

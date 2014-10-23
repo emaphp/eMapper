@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Profile\Dynamic;
 
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 
 /**
  * The StatementCallback class implements the logic for evaluating named queries againts
@@ -15,7 +15,7 @@ class StatementCallback extends DynamicAttribute {
 	 */
 	protected $statementId;
 		
-	protected function parseMetadata(AnnotationsBag $attribute) {
+	protected function parseMetadata(AnnotationBag $attribute) {
 		//obtain statement id
 		$this->statementId = $attribute->get('StatementId')->getValue();
 	}

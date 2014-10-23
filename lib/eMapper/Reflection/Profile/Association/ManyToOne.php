@@ -6,14 +6,14 @@ use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
 use eMapper\AssociationManager;
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 
 /**
  * The ManyToOne class is an abstraction of many-to-one associations.
  * @author emaphp
  */
 class ManyToOne extends Association {
-	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct('ManyToOne', $name, $annotations, $reflectionProperty);
 	}
 	

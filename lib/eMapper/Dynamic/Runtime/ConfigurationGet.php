@@ -24,20 +24,17 @@ class ConfigurationGet implements Applicable {
 	public function apply(Scope $scope, GenericList $arguments) {		
 		//obtain option name
 		if (is_null($this->option)) {
-			if (count($arguments) == 0) {
+			if (count($arguments) == 0)
 				throw new \BadFunctionCallException("ConfigurationGet: No parameters found.");
-			}
 				
 			$option = $arguments[0]->evaluate($scope);
 		}
-		else {
+		else
 			$option = $this->option;
-		}
 
 		//check option
-		if (!$scope->hasOption($option)) {
+		if (!$scope->hasOption($option))
 			return '';
-		}
 		
 		return $scope->getOption($option);
 	}

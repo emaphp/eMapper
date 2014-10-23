@@ -5,15 +5,15 @@ use eMapper\Manager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Column;
 use eMapper\Query\Attr;
-use eMapper\Annotations\AnnotationsBag;
 use eMapper\AssociationManager;
+use Omocha\AnnotationBag;
 
 /**
  * The OneToOne class is an abstraction of one-to-one associations.
  * @author emaphp
  */
 class OneToOne extends Association {
-	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct('OneToOne', $name, $annotations, $reflectionProperty);
 	}
 	

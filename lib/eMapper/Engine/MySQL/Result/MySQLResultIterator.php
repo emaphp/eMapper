@@ -18,7 +18,7 @@ class MySQLResultIterator extends ResultIterator {
 	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		//get result fields
 		$fields = $this->result->fetch_fields();
-		$types = array();
+		$types = [];
 		
 		for ($i = 0, $n = count($fields); $i < $n; $i++) {
 			$field = $fields[$i];
@@ -73,13 +73,11 @@ class MySQLResultIterator extends ResultIterator {
 			}
 		
 			//store type
-			if ($resultType & ArrayType::NUM) {
+			if ($resultType & ArrayType::NUM)
 				$types[$i] = $type;
-			}
 			
-			if ($resultType & ArrayType::ASSOC) {
+			if ($resultType & ArrayType::ASSOC)
 				$types[$field->name] = $type;
-			}
 		}
 		
 		return $types;

@@ -22,67 +22,56 @@ class PostgreSQLDriver extends Driver {
 	protected $last_id;
 	
 	public function __construct($database, $connect_type = null) {
-		if (is_resource($database)) {
+		if (is_resource($database))
 			$this->connection = $database;
-		}
 		else {
-			if (empty($database)) {
+			if (empty($database))
 				throw new \InvalidArgumentException("Connection string is not a valid string");
-			}
 				
 			$this->config['db.connection_string'] = $database;
 				
-			if (!empty($connect_type)) {
+			if (!empty($connect_type))
 				$this->config['db.connect_type'] = $connect_type;
-			}
 		}
 		
 		$this->regex = new PostgreSQLRegex();
 	}
 	
 	public static function build($config) {
-		if (!is_array($config)) {
+		if (!is_array($config))
 			throw new \InvalidArgumentException("Static method 'build' expects an array as first argument");
-		}
 		
 		$conn_string = '';
 		
 		//validate database name
-		if (!array_key_exists('database', $config) || empty($config['database'])) {
+		if (!array_key_exists('database', $config) || empty($config['database']))
 			throw new \InvalidArgumentException("Configuration value 'database' not found");
-		}
 		
 		$conn_string .= sprintf('dbname=%s ', $config['database']);
 		
 		//add host name
-		if (array_key_exists('host', $config) && !empty($config['host'])) {
+		if (array_key_exists('host', $config) && !empty($config['host']))
 			$conn_string .= sprintf('host=%s ', $config['host']);
-		}
 		
 		//add port
-		if (array_key_exists('port', $config) && !empty($config['port'])) {
+		if (array_key_exists('port', $config) && !empty($config['port']))
 			$conn_string .= sprintf('port=%s ', $config['port']);
-		}
 		
 		//add user
-		if (array_key_exists('username', $config) && !empty($config['username'])) {
+		if (array_key_exists('username', $config) && !empty($config['username']))
 			$conn_string .= sprintf('user=%s ', $config['username']);
-		}
 		
 		//add password
-		if (array_key_exists('password', $config)) {
+		if (array_key_exists('password', $config))
 			$conn_string .= sprintf('password=%s ', $config['password']);
-		}
 		
 		//add timeout
-		if (array_key_exists('timeout', $config) && !empty($config['timeout'])) {
+		if (array_key_exists('timeout', $config) && !empty($config['timeout']))
 			$conn_string .= sprintf('connection_timeout=%s ', $config['timeout']);
-		}
 		
 		//add charset
-		if (array_key_exists('charset', $config) && !empty($config['charset'])) {
+		if (array_key_exists('charset', $config) && !empty($config['charset']))
 			$conn_string .= sprintf("options='--client_encoding=%s' ", strtoupper(addcslashes($config['charset'], "'\\")));
-		}
 		
 		return new static(trim($conn_string));
 	}

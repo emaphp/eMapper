@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Profile\Dynamic;
 
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 
 /**
  * The QueryCallback class implements the logic for evaluating queries againts
@@ -15,7 +15,7 @@ class QueryCallback extends DynamicAttribute {
 	 */
 	protected $query;
 	
-	protected function parseMetadata(AnnotationsBag $annotations) {
+	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain query
 		$this->query = $annotations->get('Query')->getValue();
 	}

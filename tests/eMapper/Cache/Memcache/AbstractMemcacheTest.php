@@ -2,7 +2,7 @@
 namespace eMapper\Cache\Memcache;
 
 use eMapper\Cache\AbstractCacheTest;
-use eMapper\Cache\MemcacheProvider;
+use SimpleCache\MemcacheProvider;
 
 abstract class AbstractMemcacheTest extends AbstractCacheTest {
 	protected function setUp() {

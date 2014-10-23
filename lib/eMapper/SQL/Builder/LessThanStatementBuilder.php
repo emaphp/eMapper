@@ -15,12 +15,10 @@ class LessThanStatementBuilder extends StatementBuilder {
 		$negate = array_key_exists(2, $matches) && !empty($matches[2]);
 		
 		//is an equal
-		if (array_key_exists(3, $matches)) {
+		if (array_key_exists(3, $matches))
 			$lt = new LessThanEqual(Attr::__callstatic($property), $negate);
-		}
-		else {
+		else
 			$lt = new LessThan(Attr::__callstatic($property), $negate);
-		}
 		
 		return $this->buildQuery(sprintf($lt->render($this->driver), $this->getColumnName($property), $this->getExpression($property)));
 	}

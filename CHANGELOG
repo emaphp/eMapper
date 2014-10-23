@@ -1,3 +1,11 @@
+2014-10-25 - Version 3.3
+
+  Deprecated: query_override callback.
+  Added: debug method in StatementConfiguration.
+  Added: Method 'filter' renamed to 'filter_callback'.
+  Added: Methods 'where' and 'where_not' in Manager class.
+  Added: 'CheckDuplicate' annotation.
+
 2014-09-24 - Version 3.2.3
 
   Fixed: Querying for associated attributes with 2 or more depth.

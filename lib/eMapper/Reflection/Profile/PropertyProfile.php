@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Profile;
 
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 
 /**
  * The PropertyProfile class provides access to a property metadata.
@@ -68,7 +68,7 @@ class PropertyProfile {
 	 */
 	protected $reflectionProperty;
 	
-	public function __construct($name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		$this->name = $name;
 		$this->column = $annotations->has('Column') ? $annotations->get('Column')->getValue() : $name;
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr')->getValue() : $name;

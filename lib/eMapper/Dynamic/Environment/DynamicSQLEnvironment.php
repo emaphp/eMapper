@@ -2,7 +2,6 @@
 namespace eMapper\Dynamic\Environment;
 
 use eMacros\Environment\Environment;
-use eMapper\Configuration\Configuration;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMapper\Dynamic\Package\CorePackage;
@@ -14,7 +13,7 @@ use eMapper\Reflection\Parameter\ParameterWrapper;
  * @author emaphp
  */
 class DynamicSQLEnvironment extends Environment {
-	use Configuration;
+	use \FluentConfiguration;
 
 	/**
 	 * Wrapper argument

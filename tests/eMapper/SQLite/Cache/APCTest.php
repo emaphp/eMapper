@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\SQLite\Cache;
 
-use eMapper\Cache\APCProvider;
+use SimpleCache\APCProvider;
 
 /**
  * Tests APCProvider with SQLiteMapper class

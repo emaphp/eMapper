@@ -34,7 +34,7 @@ class SQLiteResultIterator extends ResultIterator {
 	
 	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		$num_columns = $this->result->numColumns();
-		$types = array();
+		$types = [];
 		
 		for ($i = 0; $i < $num_columns; $i++) {
 			$name = $this->result->columnName($i);
@@ -50,13 +50,12 @@ class SQLiteResultIterator extends ResultIterator {
 			}
 			
 			//store type
-			if ($resultType & ArrayType::NUM) {
+			if ($resultType & ArrayType::NUM)
 				$types[$i] = $type;
-			}
 			
-			if ($resultType & ArrayType::ASSOC) {
+			if ($resultType & ArrayType::ASSOC)
 				$types[$name] = $type;
-			}
+
 		}
 		
 		return $types;
@@ -67,7 +66,6 @@ class SQLiteResultIterator extends ResultIterator {
 	}
 	
 	public function fetchObject() {
-		// TODO: Auto-generated method stub
 		return (object) $this->result->fetchArray(SQLITE3_ASSOC);
 	}
 	

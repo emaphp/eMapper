@@ -16,19 +16,16 @@ use eMapper\Engine\SQLite\Regex\SQLiteRegex;
  */
 class SQLiteDriver extends Driver {
 	public function __construct($database, $flags = 0, $encription_key = null) {
-		if ($database instanceof \SQLite3) {
+		if ($database instanceof \SQLite3)
 			$this->connection = $database;
-		}
 		else {
-			if (empty($database)) {
+			if (empty($database))
 				throw new \InvalidArgumentException("Filename is not a valid string");
-			}
 				
 			$this->config['db.filename'] = $database;
 				
-			if (empty($flags)) {
+			if (empty($flags))
 				$flags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
-			}
 				
 			$this->config['db.flags'] = $flags;
 			$this->config['db.encription_key'] = $encription_key;
@@ -38,14 +35,12 @@ class SQLiteDriver extends Driver {
 	}
 	
 	public static function build($config) {
-		if (!is_array($config)) {
+		if (!is_array($config))
 			throw new \InvalidArgumentException("Static method 'build' expects an array as first argument");
-		}
 		
 		//validate database filename
-		if (!array_key_exists('database', $config)) {
+		if (!array_key_exists('database', $config))
 			throw new \InvalidArgumentException("Configuration value 'database' not found");
-		}
 		
 		//get configuration values
 		$database = $config['database'];
@@ -60,9 +55,8 @@ class SQLiteDriver extends Driver {
 	 */
 	
 	public function connect() {
-		if ($this->connection instanceof \SQLite3) {
+		if ($this->connection instanceof \SQLite3)
 			return $this->connection;
-		}
 	
 		try {
 			$this->connection = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
@@ -72,7 +66,7 @@ class SQLiteDriver extends Driver {
 			$this->connection->createFunction('IREGEXP', [$this, 'iregexp']);
 		}
 		catch (\Exception $e) {
-			throw new SQLiteConnectionException($e->getMessage(), $e);
+			throw new SQLiteConnectionException($e->getMessage());
 		}
 	
 		return $this->connection;
@@ -83,29 +77,25 @@ class SQLiteDriver extends Driver {
 	}
 	
 	public function free_result($result) {
-		if ($result instanceof \SQLite3Result) {
+		if ($result instanceof \SQLite3Result)
 			$result->finalize();
-		}
 	}
 	
 	public function close() {
-		if ($this->connection instanceof \SQLite3) {
+		if ($this->connection instanceof \SQLite3)
 			return $this->connection->close();
-		}
 	}
 	
 	public function get_last_error() {
-		if (!($this->connection instanceof \SQLite3)) {
+		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
-		}
 	
 		return $this->connection->lastErrorMsg();
 	}
 	
 	public function get_last_id() {
-		if (!($this->connection instanceof \SQLite3)) {
+		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
-		}
 	
 		return $this->connection->lastInsertRowID();
 	}
@@ -115,25 +105,22 @@ class SQLiteDriver extends Driver {
 	 */
 	
 	public function begin() {
-		if (!($this->connection instanceof \SQLite3)) {
+		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
-		}
 	
 		return $this->query("BEGIN TRANSACTION");
 	}
 	
 	public function commit() {
-		if (!($this->connection instanceof \SQLite3)) {
+		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
-		}
 	
 		return $this->query("COMMIT");
 	}
 	
 	public function rollback() {
-		if (!($this->connection instanceof \SQLite3)) {
+		if (!($this->connection instanceof \SQLite3))
 			throw new SQLiteException("No valid SQLite database connection available");
-		}
 	
 		return $this->query("ROLLBACK");
 	}
@@ -175,17 +162,15 @@ class SQLiteDriver extends Driver {
 	 */
 	
 	public function regexp($pattern, $string) {
-		if (preg_match('/' . addcslashes($pattern, '/') . '/', $string)) {
+		if (preg_match('/' . addcslashes($pattern, '/') . '/', $string))
         	return true;
-    	}
     	
     	return false;
 	}
 	
 	public function iregexp($pattern, $stringR) {
-		if (preg_match('/' . addcslashes($pattern, '/') . '/i', $string)) {
+		if (preg_match('/' . addcslashes($pattern, '/') . '/i', $string))
 			return true;
-		}
 		 
 		return false;
 	}

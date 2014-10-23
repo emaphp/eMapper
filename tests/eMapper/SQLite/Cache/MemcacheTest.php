@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\SQLite\Cache;
 
-use eMapper\Cache\MemcacheProvider;
+use SimpleCache\MemcacheProvider;
 
 /**
  * Tests MemcacheProvider with SQLiteMapper class

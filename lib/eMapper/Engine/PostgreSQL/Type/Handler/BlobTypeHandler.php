@@ -15,9 +15,8 @@ class BlobTypeHandler extends TypeHandler {
 	}
 	
 	public function castParameter($parameter) {
-		if (($parameter = $this->toString($parameter)) === false) {
+		if (($parameter = $this->toString($parameter)) === false)
 			return null;
-		}
 		
 		return $parameter;
 	}

@@ -95,13 +95,11 @@ class PostgreSQLResultIterator extends ResultIterator {
 			}
 			
 			//store type
-			if ($resultType & ArrayType::NUM) {
+			if ($resultType & ArrayType::NUM)
 				$types[$i] = $type;
-			}
 			
-			if ($resultType & ArrayType::ASSOC) {
+			if ($resultType & ArrayType::ASSOC)
 				$types[$name] = $type;
-			}
 		}
 		
 		return $types;

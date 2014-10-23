@@ -1,15 +1,15 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Statement;
 
-use eMapper\Engine\Generic\Statement\GenericStatement;
 use eMapper\Type\TypeManager;
+use eMapper\Engine\Generic\Statement\StatementFormatter;
 
 /**
  * The PostgreSQLStatement class generates queries that are sent to the PostgreSQL
  * database server.
  * @author emaphp
  */
-class PostgreSQLStatement extends GenericStatement {
+class PostgreSQLStatement extends StatementFormatter {
 	/**
 	 * PostgreSQL connection
 	 * @var resource

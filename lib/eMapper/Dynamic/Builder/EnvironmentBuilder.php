@@ -18,9 +18,8 @@ trait EnvironmentBuilder {
 	protected function buildEnvironment($config) {
 		$environmentId = $config['environment.id'];
 		
-		if (!EnvironmentProvider::hasEnvironment($environmentId)) {
+		if (!EnvironmentProvider::hasEnvironment($environmentId))
 			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class']);
-		}
 		
 		//setup environment
 		$env = EnvironmentProvider::getEnvironment($environmentId);

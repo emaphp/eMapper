@@ -5,7 +5,7 @@ use eMapper\Reflection\Profile\Dynamic\MacroExpression;
 use eMapper\Reflection\Profile\Dynamic\StatementCallback;
 use eMapper\Reflection\Profile\Dynamic\QueryCallback;
 use eMapper\Reflection\Profile\Dynamic\StoredProcedureCallback;
-use eMapper\Annotations\Facade;
+use Omocha\Omocha;
 use eMapper\Reflection\Profile\Association\OneToOne;
 use eMapper\Reflection\Profile\Association\OneToMany;
 use eMapper\Reflection\Profile\Association\ManyToOne;
@@ -24,7 +24,7 @@ class ClassProfile {
 	
 	/**
 	 * Class annotations
-	 * @var AnnotationsBag
+	 * @var AnnotationBag
 	 */
 	private $classAnnotations;
 	
@@ -91,14 +91,14 @@ class ClassProfile {
 	public function __construct($classname) {
 		//store class annotations
 		$this->reflectionClass = new \ReflectionClass($classname);
-		$this->classAnnotations = Facade::getAnnotations($this->reflectionClass);
+		$this->classAnnotations = Omocha::getAnnotations($this->reflectionClass);
 		
 		//get properties annotations
 		$propertyList = $this->reflectionClass->getProperties();
 		
 		foreach ($propertyList as $reflectionProperty) {
 			//get property annotations
-			$annotations = Facade::getAnnotations($reflectionProperty);
+			$annotations = Omocha::getAnnotations($reflectionProperty);
 			
 			$isScalar = $annotations->has('Scalar');
 			
@@ -214,7 +214,7 @@ class ClassProfile {
 	
 	/**
 	 * Return current class annotations
-	 * @return AnnotationsBag
+	 * @return AnnotationBag
 	 */
 	public function getClassAnnotations() {
 		return $this->classAnnotations;

@@ -41,7 +41,7 @@ use eMacros\Runtime\Type\IsType;
 use eMacros\Runtime\Type\CastToType;
 use eMacros\Runtime\Method\MethodInvoke;
 use eMacros\Runtime\Callback\CallFunction;
-use eMacros\Runtime\Callback\CallFunctionArray;
+use eMacros\Runtime\Callback\ApplyFunction;
 use eMapper\Dynamic\Runtime\PropertyGet;
 use eMapper\Dynamic\Runtime\PropertyExists;
 use eMapper\Dynamic\Runtime\ConfigurationGet;
@@ -102,8 +102,8 @@ class CorePackage extends Package {
 		/**
 		 * CUSTOM INVOKE
 		 */
-		$this['call-func'] = new CallFunction();
-		$this['call-func-array'] = new CallFunctionArray();
+		$this['call'] = new CallFunction();
+		$this['apply'] = new ApplyFunction();
 		
 		/**
 		 * PROPERTY FUNCTIONS
@@ -112,17 +112,14 @@ class CorePackage extends Package {
 		$this['#?'] = new PropertyExists();
 		
 		$this->macro('/^#([^\s]*[^\?|=]+)$/', function ($matches) {
-			if (is_numeric($matches[1])) {
+			if (is_numeric($matches[1]))
 				return new PropertyGet(intval($matches[1]));
-			}
 			return new PropertyGet($matches[1]);
 		});
 		
 		$this->macro('/^#([^\s]+)\?$/', function ($matches) {
-			if (is_numeric($matches[1])) {
+			if (is_numeric($matches[1]))
 				return new PropertyExists(intval($matches[1]));
-			}
-			
 			return new PropertyExists($matches[1]);
 		});
 		
@@ -252,10 +249,8 @@ class CorePackage extends Package {
 		 * Returns: boolean
 		 */
 		$this->macro('/^(bool|boolean|int|integer|string|float|double|resource|object|array|numeric|scalar|null)\?$/', function ($matches) {
-			if ($matches[1] == 'boolean') {
+			if ($matches[1] == 'boolean')
 				$matches[1] = 'bool';
-			}
-		
 			return new IsType('is_' . $matches[1]);
 		});
 		
@@ -300,9 +295,8 @@ class CorePackage extends Package {
 			$function = $matches[0];
 			
 			//check function existence
-			if (!function_exists($function)) {
+			if (!function_exists($function))
 				throw new \UnexpectedValueException("Function '$function' does not exists");
-			}
 			
 			return new PHPFunction($function);
 		});

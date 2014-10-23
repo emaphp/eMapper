@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection\Profile\Dynamic;
 
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
 
 /**
@@ -18,7 +18,7 @@ class MacroExpression extends DynamicAttribute {
 	/* (non-PHPdoc)
 	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()
 	 */
-	protected function parseMetadata(AnnotationsBag $annotations) {
+	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain program source
 		$this->program = new DynamicSQLProgram($annotations->get('Eval')->getValue());
 	}

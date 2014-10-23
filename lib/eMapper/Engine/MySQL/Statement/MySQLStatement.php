@@ -2,13 +2,13 @@
 namespace eMapper\Engine\MySQL\Statement;
 
 use eMapper\Type\TypeManager;
-use eMapper\Engine\Generic\Statement\GenericStatement;
+use eMapper\Engine\Generic\Statement\StatementFormatter;
 
 /**
  * The MySQLStatement class builds queries which are sent to the MySQL database server.
  * @author emaphp
  */
-class MySQLStatement extends GenericStatement {
+class MySQLStatement extends StatementFormatter {
 	/**
 	 * MySQL connection
 	 * @var mysqli

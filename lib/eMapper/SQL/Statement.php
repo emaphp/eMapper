@@ -46,9 +46,8 @@ class Statement {
 		//validate statement id
 		$this->validateStatementId($id);
 		
-		if (!is_string($query)) {
+		if (!is_string($query))
 			throw new \InvalidArgumentException("Query is not a valid string");
-		}
 				
 		$this->id = $id;
 		$this->query = $query;
@@ -79,9 +78,8 @@ class Statement {
 	public static function config(array $options = null) {
 		$config = new StatementConfigurationContainer();
 		
-		if (is_array($options)) {
+		if (is_array($options))
 			return $config->merge($options);
-		}
 		
 		return $config;
 	}

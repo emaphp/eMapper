@@ -15,8 +15,7 @@ trait StatementAggregate {
 	 */
 	protected function validateStatementId($statementId) {
 		//validate id
-		if (!is_string($statementId) || !preg_match(Statement::STATEMENT_ID_REGEX, $statementId)) {
+		if (!is_string($statementId) || !preg_match(Statement::STATEMENT_ID_REGEX, $statementId))
 			throw new \InvalidArgumentException("Statement ID is not valid");
-		}
 	}
 }

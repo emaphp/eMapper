@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\Engine\Generic;
 
-use eMapper\Configuration\Configuration;
 use eMapper\Engine\Generic\Regex\GenericRegex;
 
 /**
@@ -9,7 +8,7 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 abstract class Driver {
-	use Configuration;
+	use \FluentConfiguration;
 	
 	/**
 	 * Database connection

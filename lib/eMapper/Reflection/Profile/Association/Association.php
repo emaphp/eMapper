@@ -3,13 +3,13 @@ namespace eMapper\Reflection\Profile\Association;
 
 use eMapper\Reflection\Profile\PropertyProfile;
 use eMapper\Reflection\PropertyAccessor;
-use eMapper\Annotations\Annotation;
-use eMapper\Manager;
-use eMapper\Annotations\AnnotationsBag;
-use eMapper\AssociationManager;
-use eMapper\Annotations\Filter;
-use eMapper\Query\Attr;
 use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Manager;
+use eMapper\AssociationManager;
+use eMapper\Query\Attr;
+use Omocha\Annotation;
+use Omocha\AnnotationBag;
+use Omocha\Filter;
 
 /**
  * The Association class encapsulates common logic between the various types of entity associations.
@@ -66,7 +66,7 @@ abstract class Association extends PropertyProfile {
 	 */
 	protected $cascade;
 	
-	public function __construct($type, $name, AnnotationsBag $annotations, \ReflectionProperty $reflectionProperty) {
+	public function __construct($type, $name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		//get entity class
 		$entity = $annotations->get($type)->getValue();
 		
@@ -96,9 +96,9 @@ abstract class Association extends PropertyProfile {
 
 	/**
 	 * Parses additional configuration values for this association
-	 * @param AnnotationsBag $annotations
+	 * @param AnnotationBag $annotations
 	 */
-	protected function parseConfig(AnnotationsBag $annotations) {
+	protected function parseConfig(AnnotationBag $annotations) {
 		//get additional configuration
 		$this->readOnly = $annotations->has('ReadOnly');
 		$this->attribute = $annotations->has('Attr') ? $annotations->get('Attr') : null;

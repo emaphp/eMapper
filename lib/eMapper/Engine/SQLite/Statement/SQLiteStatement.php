@@ -1,14 +1,14 @@
 <?php
 namespace eMapper\Engine\SQLite\Statement;
 
-use eMapper\Engine\Generic\Statement\GenericStatement;
 use eMapper\Type\TypeManager;
+use eMapper\Engine\Generic\Statement\StatementFormatter;
 
 /**
  * The SQLiteStatement class builds query string that are executed against a SQLite database.
  * @author emaphp
  */
-class SQLiteStatement extends GenericStatement {
+class SQLiteStatement extends StatementFormatter {
 	/**
 	 * SQLite database
 	 * @var \SQLite3

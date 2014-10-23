@@ -24,15 +24,13 @@ class ConfigurationExists implements Applicable {
 	public function apply(Scope $scope, GenericList $arguments) {
 		//obtain option name
 		if (is_null($this->option)) {
-			if (count($arguments) == 0) {
+			if (count($arguments) == 0)
 				throw new \BadFunctionCallException("ConfigurationExists: No parameters found.");
-			}
 			
 			$option = $arguments[0]->evaluate($scope);
 		}
-		else {
+		else
 			$option = $this->option;
-		}
 		
 		return $scope->hasOption($option);
 	}

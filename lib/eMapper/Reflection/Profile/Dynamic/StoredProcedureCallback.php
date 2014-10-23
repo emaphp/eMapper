@@ -3,7 +3,7 @@ namespace eMapper\Reflection\Profile\Dynamic;
 
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
-use eMapper\Annotations\AnnotationsBag;
+use Omocha\AnnotationBag;
 use eMapper\Query\Attr;
 
 class StoredProcedureCallback extends DynamicAttribute {
@@ -13,7 +13,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 */
 	protected $procedure;
 
-	protected function parseMetadata(AnnotationsBag $annotations) {
+	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain procedure name
 		$this->procedure = $annotations->get('Procedure')->getValue();
 	}

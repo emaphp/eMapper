@@ -91,12 +91,9 @@ class Manager {
 	 * @return multitype:
 	 */
 	protected function clean_options($values = null) {
-		$clean = array_diff_key($this->config, array_flip(['query.filter', 'query.index', 'query.group', 'query.distinct', 'query.columns', 'query.attrs', 'query.lefT_limit', 'query.right_limit', 'query.order_by']));
-		
-		if (is_array($values)) {
+		$clean = array_diff_key($this->config, array_flip(['query.filter', 'query.index', 'query.group', 'query.distinct', 'query.columns', 'query.attrs', 'query.lefT_limit', 'query.right_limit', 'query.order_by']));	
+		if (is_array($values))
 			return array_merge($clean, $values);
-		}
-		
 		return $clean;
 	}
 	
@@ -113,9 +110,8 @@ class Manager {
 		//get primary key field
 		$primaryKey = $this->entity->getPrimaryKey();
 	
-		if (is_null($primaryKey)) {
+		if (is_null($primaryKey))
 			throw new \RuntimeException(sprintf("Class %s does not appear to have a primary key", $this->entity->reflectionClass->getName()));
-		}
 	
 		//build query
 		$query = new SelectQueryBuilder($this->entity);
@@ -175,9 +171,8 @@ class Manager {
 		$args = func_get_args();
 		$statementId = array_shift($args);
 		
-		if (!is_string($statementId) || empty($statementId)) {
+		if (!is_string($statementId) || empty($statementId))
 			$this->driver->throw_exception("Statement id is not a valid string");
-		}
 		
 		//get current namespace
 		$ns = $this->entity->getNamespace();
@@ -192,9 +187,8 @@ class Manager {
 		//obtain statement
 		$stmt = $this->mapper->getStatement($statementId);
 		
-		if ($stmt === false) {
+		if ($stmt === false)
 			$this->mapper->driver->throw_exception("Statement '$statementId' could not be found");
-		}
 		
 		//get statement config
 		$query = $stmt->getQuery();
@@ -205,7 +199,6 @@ class Manager {
 		
 		//merge options
 		$options = array_merge($options, $this->clean_options());
-		
 		return call_user_func_array([$this->mapper->merge($options), 'query'], $args);
 	}
 	
@@ -288,22 +281,19 @@ class Manager {
 			foreach ($foreignKeys as $key => $value) {
 				$assoc = $this->entity->getAssociation($value);
 				
-				if ($assoc->isReadOnly()) { //don't save read-only values
+				//don't save read-only values
+				if ($assoc->isReadOnly())
 					continue;
-				}
 				
 				$related = $this->getAssociationValue($this->entity, $entity, $assoc);
 				
-				if (is_null($related)) {
-					//set attribute to NULL
-					$this->setPropertyValue($this->entity, $entity, $key, null);
-				}
+				if (is_null($related))
+					$this->setPropertyValue($this->entity, $entity, $key, null); //set attribute to NULL
 				else {
 					$id = $assoc->save($this->mapper, $entity, $related, $depth - 1);
 				
-					if (!is_null($id)) {
+					if (!is_null($id))
 						$this->setPropertyValue($this->entity, $entity, $key, $id);
-					}
 				}				
 			}
 		}
@@ -356,20 +346,17 @@ class Manager {
 		}
 		
 		foreach ($this->entity->getAssociations() as $name => $association) {
-			if (in_array($name, $foreignKeys)) { //already persisted
+			if (in_array($name, $foreignKeys))//already persisted
 				continue;
-			}
 			
-			if ($association->isReadOnly()) { //don't save read-only values
+			if ($association->isReadOnly()) //don't save read-only values
 				continue;
-			}
 			
 			//obtain associated value
 			$value = $this->getAssociationValue($this->entity, $entity, $association);
 			
-			if (!is_null($value)) {
+			if (!is_null($value))
 				$association->save($this->mapper, $entity, $value, $depth - 1);
-			}
 		}
 		
 		$this->mapper->commit();
@@ -383,9 +370,8 @@ class Manager {
 	 * @return boolean
 	 */
 	public function delete($entity) {
-		if (is_null($entity)) {
+		if (is_null($entity))
 			return;
-		}
 		
 		//connect to database
 		$this->mapper->connect();
@@ -433,9 +419,8 @@ class Manager {
 		if ($cascade) {
 			$result = $this->find($condition);
 			
-			foreach ($list as $entity) {
+			foreach ($list as $entity)
 				$this->delete($entity);
-			}
 		}
 		else {
 			//build query
@@ -546,37 +531,27 @@ class Manager {
 	 * @return Manager
 	 */
 	public function index(Field $index = null) {
-		if (is_null($index)) {
-			return $this->discard('query.index');
-		}
+		if (is_null($index)) return $this->discard('query.index');
 		elseif ($index instanceof Attr) {
 			//get custom type (if any)
 			$type = $index->getType();
 			
-			if (isset($type)) {
-				return $this->merge(['query.index' => $index->getName() . ':' . $type]);
-			}
-			
+			if (isset($type)) return $this->merge(['query.index' => $index->getName() . ':' . $type]);
 			return $this->merge(['query.index' => $index->getName()]);
 		}
 		elseif ($index instanceof Column) {
 			//check if the column is associated to a property
 			$columns = $this->entity->getColumnNames();
 			
-			if (!array_key_exists($index->getName(), $columns)) {
+			if (!array_key_exists($index->getName(), $columns))
 				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $index->getName(), $this->entity->getReflectionClass()->getName()));
-			}
 			
 			//get property name
 			$property = $columns[$index->getName()];
 			
 			//obtain custom type
 			$type = $index->getType();
-			
-			if (isset($type)) {
-				return $this->merge(['query.index' => $property . ':' . $type]);
-			}
-				
+			if (isset($type)) return $this->merge(['query.index' => $property . ':' . $type]);
 			return $this->merge(['query.index' => $property]);
 		}
 		
@@ -589,34 +564,25 @@ class Manager {
 	 * @return Manager
 	 */
 	public function group(Field $group = null) {
-		if (is_null($group)) {
-			return $this->discard('query.group');
-		}
+		if (is_null($group)) return $this->discard('query.group');
 		elseif ($group instanceof Attr) {
 			//get custom type (if any)
 			$type = $group->getType();
-				
-			if (isset($type)) {
-				return $this->merge(['query.group' => $group->getName() . ':' . $type]);
-			}
-				
+			
+			if (isset($type)) return $this->merge(['query.group' => $group->getName() . ':' . $type]);		
 			return $this->merge(['query.group' => $group->getName()]);
 		}
 		elseif ($group instanceof Column) {
 			//check if the column is associated to a property
 			$columns = $this->entity->getColumnNames();
 				
-			if (!array_key_exists($group->getName(), $columns)) {
+			if (!array_key_exists($group->getName(), $columns))
 				throw new \InvalidArgumentException(sprintf("Cannot index by non declared column %s in class %s", $group->getName(), $this->entity->getReflectionClass()->getName()));
-			}
 			
 			$property = $columns[$group->getName()];
 			$type = $group->getType();
 			
-			if (isset($type)) {
-				return $this->merge(['query.group' => $property . ':' . $type]);
-			}
-			
+			if (isset($type)) return $this->merge(['query.group' => $property . ':' . $type]);		
 			return $this->merge(['query.group' => $property]);
 		}
 		
@@ -628,10 +594,8 @@ class Manager {
 	 * @return Manager
 	 */
 	public function order_by($order) {
-		if (is_null($order)) {
-			return $this->discard('query.order');
-		}
-		
+		if (is_null($order))
+			return $this->discard('query.order');	
 		return $this->merge(['query.order' => func_get_args()]);
 	}
 	
@@ -642,14 +606,8 @@ class Manager {
 	 * @return Manager
 	 */
 	public function limit($from, $to = null) {
-		if (is_null($from)) {
-			return $this->discard('query.from', 'query.to');
-		}
-		
-		if (isset($to)) {
-			return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
-		}
-		
+		if (is_null($from)) return $this->discard('query.from', 'query.to');
+		if (isset($to)) return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
 		return $this->merge(['query.from' => intval($from)]);
 	}
 	
@@ -666,7 +624,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function filter() {
-		return $this->push('query.filter', new Filter(func_get_args()));
+		return $this->append('query.filter', new Filter(func_get_args()));
 	}
 	
 	/**
@@ -674,7 +632,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function exclude() {
-		return $this->push('query.filter', new Filter(func_get_args(), true));
+		return $this->append('query.filter', new Filter(func_get_args(), true));
 	}
 	
 	/**
@@ -682,7 +640,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function where() {
-		return $this->push('query.filter', new Filter(func_get_args(), false, Q::LOGICAL_OR));
+		return $this->append('query.filter', new Filter(func_get_args(), false, Q::LOGICAL_OR));
 	}
 	
 	/**
@@ -690,7 +648,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function where_not() {
-		return $this->push('query.filter', new Filter(func_get_args(), true, Q::LOGICAL_OR));
+		return $this->append('query.filter', new Filter(func_get_args(), true, Q::LOGICAL_OR));
 	}
 	
 	/**

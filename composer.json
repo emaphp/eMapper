@@ -15,9 +15,10 @@
 		"BSD-2-Clause"
 	],
 	"require" : {
-	    "emapper/configuration" :  "1.0.*",
-		"emapper/annotations" : "1.0.*",
-		"emacros/emacros" : "1.0.*"
+	    "emaphp/fluent-configuration": "1.0.*",
+		"omocha/omocha" : "1.1.*",
+		"emaphp/simplecache" :  "1.0.*",
+		"emacros/emacros" : "1.1.*"
 	},
 	"autoload" : {
 		"psr-0" : {

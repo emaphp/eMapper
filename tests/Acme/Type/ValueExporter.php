@@ -2,8 +2,9 @@
 namespace Acme\Type;
 
 use eMapper\Type\ValueExport;
+use eMapper\Type\ToString;
 
 class ValueExporter {
-	use ValueExport;
+	use ToString;
 }
 ?>

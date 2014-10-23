@@ -1,14 +1,12 @@
 <?php
 namespace eMapper\SQL\Configuration;
 
-use eMapper\Configuration\Configuration;
-
 /**
  * The StatementConfiguration trait implements the method to configure a mapping object.
  * @author emaphp
  */
 trait StatementConfiguration {
-	use Configuration;
+	use \FluentConfiguration;
 	
 	/**
 	 * Sets result mapping options

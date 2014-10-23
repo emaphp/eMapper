@@ -2,7 +2,7 @@
 namespace eMapper\Cache\APC;
 
 use eMapper\Cache\AbstractCacheTest;
-use eMapper\Cache\APCProvider;
+use SimpleCache\APCProvider;
 
 abstract class AbstractAPCTest extends AbstractCacheTest {
 	protected function setUp() {

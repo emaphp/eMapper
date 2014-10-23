@@ -28,9 +28,8 @@ abstract class EnvironmentProvider {
 	 * @throws \InvalidArgumentException
 	 */
 	public static function getEnvironment($id) {
-		if (!array_key_exists($id, self::$environments)) {
+		if (!array_key_exists($id, self::$environments))
 			throw new \InvalidArgumentException("Environment with ID $id does not exists");
-		}
 		
 		return self::$environments[$id];
 	}
@@ -44,24 +43,20 @@ abstract class EnvironmentProvider {
 	 */
 	public static function buildEnvironment($id, $classname) {
 		//validate id
-		if (!is_string($id) || empty($id)) {
+		if (!is_string($id) || empty($id))
 			throw new \InvalidArgumentException("Environment id must be defined as a valid string");
-		}
 		
 		//validate class name
-		if (!is_string($classname) || empty($classname)) {
+		if (!is_string($classname) || empty($classname))
 			throw new \InvalidArgumentException("Parameter is not a valid environment class");
-		}
-		elseif (!class_exists($classname, true)) {
+		elseif (!class_exists($classname, true))
 			throw new \InvalidArgumentException("Environment class $classname was not found");
-		}
 			
 		$rc = new \ReflectionClass($classname);
 		
 		//validate if class is a valid environment
-		if (!$rc->isSubclassOf('eMapper\Dynamic\Environment\DynamicSQLEnvironment') && $classname != 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
+		if (!$rc->isSubclassOf('eMapper\Dynamic\Environment\DynamicSQLEnvironment') && $classname != 'eMapper\Dynamic\Environment\DynamicSQLEnvironment')
 			throw new \InvalidArgumentException("Class $classname is not a valid environment class");
-		}
 			
 		self::$environments[$id] = new $classname();
 		return true;

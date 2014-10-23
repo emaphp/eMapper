@@ -6,24 +6,24 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.2.3
+**Version**: 3.3
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-09-24 - Version 3.2.3
+2014-10-25 - Version 3.3
 
-  * Fixed: Querying for attributes with depth >= 2.
-  * Modified: Methods save, delete, deleteWhere and truncate using transactions.
+  * 
 
 <br/>
 Dependencies
 --------------
 <br/>
 - PHP >= 5.4
-- [eMapper-annotations](https://github.com/emaphp/eMapper-annotations "") package
+- [Omocha](https://github.com/emaphp/omocha "") package
 - [eMacros](https://github.com/emaphp/eMacros "") package
+- [SimpleCache](https://github.com/emaphp/simplecache "") package
  
 <br/>
 Installation
@@ -34,7 +34,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.2.*"
+        "emapper/emapper" : "3.3.*"
     }
 }
 ```
