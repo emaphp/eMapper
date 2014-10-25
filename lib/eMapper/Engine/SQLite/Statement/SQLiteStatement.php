@@ -9,19 +9,8 @@ use eMapper\Engine\Generic\Statement\StatementFormatter;
  * @author emaphp
  */
 class SQLiteStatement extends StatementFormatter {
-	/**
-	 * SQLite database
-	 * @var \SQLite3
-	 */
-	protected $db;
-	
-	public function __construct(\SQLite3 $db, TypeManager $typeManager, $parameterMap = null) {
-		parent::__construct($typeManager, $parameterMap);
-		$this->db = $db;
-	}
-	
 	public function escapeString($string) {
-		return $this->db->escapeString($string);
+		return $this->driver->getConnection()->escapeString($string);
 	}
 }
 ?>

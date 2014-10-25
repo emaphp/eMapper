@@ -133,8 +133,8 @@ class SQLiteDriver extends Driver {
 		return new SQLiteTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap) {
-		return new SQLiteStatement($this->connection, $typeManager, $parameterMap);
+	public function buildStatement($typeManager) {
+		return new SQLiteStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {

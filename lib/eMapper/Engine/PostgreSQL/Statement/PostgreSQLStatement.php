@@ -10,19 +10,8 @@ use eMapper\Engine\Generic\Statement\StatementFormatter;
  * @author emaphp
  */
 class PostgreSQLStatement extends StatementFormatter {
-	/**
-	 * PostgreSQL connection
-	 * @var resource
-	 */
-	protected $connection;
-	
-	public function __construct($connection, TypeManager $typeManager, $parameterMap = null) {
-		parent::__construct($typeManager, $parameterMap);
-		$this->connection = $connection;
-	}
-	
 	public function escapeString($string) {
-		return pg_escape_string($this->connection, $string);
+		return pg_escape_string($this->driver->getConnection(), $string);
 	}
 }
 ?>

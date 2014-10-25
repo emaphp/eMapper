@@ -22,7 +22,7 @@ trait SQLiteConfig {
 	}
 	
 	protected function getStatement() {
-		return new SQLiteStatement(new \SQLite3($this->getFilename()), new SQLiteTypeManager());
+		return new SQLiteStatement(new SQLiteDriver(new \SQLite3($this->getFilename())), new SQLiteTypeManager());
 	}
 	
 	protected function getMapper() {

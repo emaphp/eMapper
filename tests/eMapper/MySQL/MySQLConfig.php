@@ -27,7 +27,7 @@ trait MySQLConfig {
 	
 	protected function getStatement() {
 		$conn = new \mysqli($this->config['host'], $this->config['user'], $this->config['password'], $this->config['database']);
-		return new MySQLStatement($conn, new MySQLTypeManager());
+		return new MySQLStatement(new MySQLDriver($conn), new MySQLTypeManager());
 	}
 	
 	protected function getBlob() {

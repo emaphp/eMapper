@@ -7,6 +7,8 @@ use eMapper\Reflection\Profiler;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Type\TypeHandler;
+use eMapper\Type\TypeManager;
+use eMapper\Engine\Generic\Driver;
 
 /**
  * The StatementFormatter class is responsible for generating a sql query which is then sent to the database.
@@ -15,8 +17,19 @@ use eMapper\Type\TypeHandler;
 abstract class StatementFormatter extends CacheKeyFormatter {
 	use EnvironmentBuilder;
 	
+	/**
+	 * Connection driver
+	 * @var Driver
+	 */
+	protected $driver;
+	
 	//Ex: [? (null? (#order)) ?] [?int (#limit) ?]
 	const DYNAMIC_SQL_REGEX = '/(?>\\[\?)([A-z]{1}[\w|\\\\]*)?\s+(.+?)\?\]/';
+	
+	public function __construct(Driver $driver, TypeManager $typeManager) {
+		parent::__construct($typeManager);
+		$this->driver = $driver;
+	}
 	
 	protected function castArray($value, TypeHandler $typeHandler, $join_string = ',') {
 		$list = [];

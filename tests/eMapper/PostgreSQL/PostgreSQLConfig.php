@@ -27,7 +27,7 @@ trait PostgreSQLConfig {
 	
 	protected function getStatement() {
 		$conn = pg_connect($this->conn_string);
-		return new PostgreSQLStatement($conn, new PostgreSQLTypeManager());
+		return new PostgreSQLStatement(new PostgreSQLDriver($conn), new PostgreSQLTypeManager());
 	}
 	
 	protected function getBlob() {

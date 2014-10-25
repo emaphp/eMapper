@@ -58,9 +58,24 @@ class CacheKeyFormatter {
 	 */
 	protected $wrappedArg;
 	
-	public function __construct(TypeManager $typeManager, $parameterMap = null) {
+	public function __construct(TypeManager $typeManager) {
 		$this->typeManager = $typeManager;
+	}
+	
+	public function setTypeManager(TypeManager $typeManager) {
+		$this->typeManager = $typeManager;
+	}
+	
+	public function getTypeManager() {
+		return $this->typeManager;
+	}
+	
+	public function setParameterMap($parameterMap) {
 		$this->parameterMap = $parameterMap;
+	}
+	
+	public function getParameterMap() {
+		return $this->parameterMap;
 	}
 	
 	/**

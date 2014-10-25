@@ -202,8 +202,8 @@ class MySQLDriver extends Driver {
 		return new MySQLTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap) {
-		return new MySQLStatement($this->connection, $typeManager, $parameterMap);
+	public function buildStatement($typeManager) {
+		return new MySQLStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {

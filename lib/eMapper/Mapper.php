@@ -18,6 +18,7 @@ use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Cache\Value\CacheValue;
 use SimpleCache\CacheProvider;
+use eMapper\Engine\Generic\Statement\StatementFormatter;
 
 /**
  * The Mapper class manages how a database result is converted to a given type.
@@ -49,6 +50,18 @@ class Mapper {
 	protected $typeManager;
 	
 	/**
+	 * Cache key formatter
+	 * @var CacheKeyFormatter
+	 */
+	protected $cacheKeyFormatter;
+	
+	/**
+	 * Statement formatter
+	 * @var StatementFormatter
+	 */
+	protected $statementFormatter;
+	
+	/**
 	 * Cache provider
 	 * @var CacheProvider
 	 */
@@ -69,8 +82,14 @@ class Mapper {
 	public function __construct(Driver $driver) {
 		$this->driver = $driver;
 		
-		//obtain defaul type handler
+		//obtain default type handler
 		$this->typeManager = $this->driver->buildTypeManager();
+		
+		//initialize cache key formatter
+		$this->cacheKeyFormatter = new CacheKeyFormatter($this->typeManager);
+		
+		//initialize statement formatter
+		$this->statementFormatter = $this->driver->buildStatement($this->typeManager);
 		
 		//build configuration
 		$this->setDefaultConfig();
@@ -234,8 +253,8 @@ class Mapper {
 			$cacheProvider = $this->cacheProvider;
 		
 			//build cache key
-			$cacheKeyBuilder = new CacheKeyFormatter($this->typeManager, $parameterMap);
-			$cache_key = $cacheKeyBuilder->format($this->config['cache.key'], $args, $this->config);
+			$this->cacheKeyFormatter->setParameterMap($parameterMap);
+			$cache_key = $this->cacheKeyFormatter->format($this->config['cache.key'], $args, $this->config);
 
 			//check if key is present
 			if ($cacheProvider->exists($cache_key)) {
@@ -264,8 +283,8 @@ class Mapper {
 			 */
 				
 			//build statement
-			$stmt = $this->driver->buildStatement($this->typeManager, $parameterMap);
-			$stmt = $stmt->format($query, $args, $this->config);
+			$this->statementFormatter->setParameterMap($parameterMap);
+			$stmt = $this->statementFormatter->format($query, $args, $this->config);
 			
 			//debug query
 			if (array_key_exists('callback.debug', $this->config)) 

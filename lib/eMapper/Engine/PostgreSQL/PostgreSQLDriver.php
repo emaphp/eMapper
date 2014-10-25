@@ -154,8 +154,8 @@ class PostgreSQLDriver extends Driver {
 		return new PostgreSQLTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap) {
-		return new PostgreSQLStatement($this->connection, $typeManager, $parameterMap);
+	public function buildStatement($typeManager) {
+		return new PostgreSQLStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {
