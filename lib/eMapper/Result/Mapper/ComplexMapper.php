@@ -80,12 +80,10 @@ abstract class ComplexMapper {
 		if (is_null($this->resultMap)) {
 			//find index column on given result
 			if (!array_key_exists($index, $this->columnTypes)) {
-				if (is_numeric($index) && array_key_exists(intval($index), $this->columnTypes)) {
+				if (is_numeric($index) && array_key_exists(intval($index), $this->columnTypes))
 					$index = intval($index);
-				}
-				else {
+				else
 					throw new \UnexpectedValueException("Index column '$index' not found");
-				}
 			}
 				
 			//get index type
@@ -95,15 +93,13 @@ abstract class ComplexMapper {
 			//obtain index type handler
 			$indexTypeHandler = $this->typeManager->getTypeHandler($indexType);
 				
-			if ($indexTypeHandler === false) {
+			if ($indexTypeHandler === false)
 				throw new \UnexpectedValueException("Unknown type '$indexType' defined for index '$index'");
-			}
 		}
 		else {
 			//find index property
-			if (!array_key_exists($index, $this->properties)) {
+			if (!array_key_exists($index, $this->properties))
 				throw new \UnexpectedValueException("Index property '$index' was not found in result map");
-			}
 				
 			//obtain index column and type handler
 			$indexColumn = $this->properties[$index]->getColumn();
@@ -124,12 +120,10 @@ abstract class ComplexMapper {
 		if (is_null($this->resultMap)) {
 			//find group column
 			if (!array_key_exists($group, $this->columnTypes)) {
-				if (is_numeric($group) && array_key_exists(intval($group), $this->columnTypes)) {
+				if (is_numeric($group) && array_key_exists(intval($group), $this->columnTypes))
 					$group = intval($group);
-				}
-				else {
+				else
 					throw new \UnexpectedValueException("Group column '$group' not found");
-				}
 			}
 		
 			//get group type
@@ -139,15 +133,13 @@ abstract class ComplexMapper {
 			//obtain group type handler
 			$groupTypeHandler = $this->typeManager->getTypeHandler($groupType);
 		
-			if ($groupTypeHandler === false) {
+			if ($groupTypeHandler === false)
 				throw new \UnexpectedValueException("Unknown type '$groupType' defined for group '$group'");
-			}
 		}
 		else {
 			//find group property
-			if (!array_key_exists($group, $this->properties)) {
+			if (!array_key_exists($group, $this->properties))
 				throw new \UnexpectedValueException("Group property '$group' was not found in result map");
-			}
 		
 			//obtain group column and type handler
 			$groupColumn = $this->properties[$group]->getColumn();
@@ -189,9 +181,7 @@ abstract class ComplexMapper {
 		foreach ($this->properties as $name => $propertyProfile) {
 			$column = $propertyProfile->getColumn();
 			
-			if (!array_key_exists($column, $this->columnTypes)) {
-				continue;
-			}
+			if (!array_key_exists($column, $this->columnTypes)) continue;
 			
 			$this->availableColumns[$name] = $column;
 			$type = $propertyProfile->getType();
@@ -199,9 +189,8 @@ abstract class ComplexMapper {
 			if (isset($type)) {
 				$typeHandler = $this->typeManager->getTypeHandler($type);
 	
-				if ($typeHandler == false) {
+				if ($typeHandler == false)
 					throw new \UnexpectedValueException("No typehandler assigned to type '$type' defined at property $name");
-				}
 	
 				$this->typeHandlers[$name] = $typeHandler;
 			}

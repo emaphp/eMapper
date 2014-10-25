@@ -105,9 +105,8 @@ class CacheValue {
 			$mapper = $rc->newInstance($typeManager, $this->argument);
 			$mapper->setGroupKeys($this->groupKeys);
 		}
-		else {
+		else
 			$mapper = $rc->newInstance(new $this->argument);
-		}
 		
 		return [$mapper, $this->method];
 	}

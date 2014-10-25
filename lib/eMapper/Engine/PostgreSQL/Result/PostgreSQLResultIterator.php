@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Engine\PostgreSQL\Result;
 
-use eMapper\Result\ResultIterator;
+use eMapper\Engine\Generic\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
 /**

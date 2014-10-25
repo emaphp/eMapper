@@ -70,9 +70,8 @@ abstract class Association extends PropertyProfile {
 		//get entity class
 		$entity = $annotations->get($type)->getValue();
 		
-		if (empty($entity) || $entity === true) {
+		if (empty($entity) || $entity === true)
 			throw new \RuntimeException(sprintf("Association %s in class %s must define a valid entity class", $name, $reflectionProperty->getDeclaringClass()->getName()));
-		}
 		
 		try {
 			$reflectionClass = new \ReflectionClass($entity);

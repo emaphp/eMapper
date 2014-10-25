@@ -1,7 +1,7 @@
 <?php
 namespace eMapper;
 
-use eMapper\Result\ResultIterator;
+use eMapper\Engine\Generic\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
 abstract class AbstractResultIteratorTest extends \PHPUnit_Framework_TestCase {

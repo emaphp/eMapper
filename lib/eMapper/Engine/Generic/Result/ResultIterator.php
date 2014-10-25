@@ -1,5 +1,7 @@
 <?php
-namespace eMapper\Result;
+namespace eMapper\Engine\Generic\Result;
+
+use eMapper\Result\ArrayType;
 
 /**
  * The ResultIterator class defines a basic iterator for database results.
@@ -73,9 +75,8 @@ abstract class ResultIterator implements \Iterator {
 	}
 	
 	public function current($as = self::AS_ARRAY, $resultType = ArrayType::BOTH, $className = null) {
-		if ($as == self::AS_ARRAY) {
+		if ($as == self::AS_ARRAY)
 			return $this->fetchArray($resultType);
-		}
 		
 		return $this->fetchObject($className);
 	}

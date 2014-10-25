@@ -2,7 +2,7 @@
 namespace eMapper\Result\Mapper;
 
 use eMapper\Type\TypeHandler;
-use eMapper\Result\ResultIterator;
+use eMapper\Engine\Generic\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
 /**
@@ -21,34 +21,26 @@ class ScalarTypeMapper {
 	}
 
 	public function mapResult(ResultIterator $result, $column = null) {
-		if ($result->countRows() == 0) {
-			return null;
-		}
+		if ($result->countRows() == 0) return null;
 		
-		if (empty($column)) {
+		if (empty($column))
 			$column = 0;
-		}
-		elseif (!is_integer($column) && !is_string($column)) {
+		elseif (!is_integer($column) && !is_string($column))
 			throw new \InvalidArgumentException("Column must be defined as a string or integer");
-		}
 		
 		$row = $result->fetchArray();
 		return is_null($row[$column]) ? null : $this->typeHandler->getValue($row[$column]);
 	}
 	
 	public function mapList(ResultIterator $result, $column = null) {
-		if ($result->countRows() == 0) {
-			return [];
-		}
+		if ($result->countRows() == 0) return [];
 		
 		$list = [];
 		
-		if (is_null($column) || empty($column)) {
+		if (is_null($column) || empty($column))
 			$column = 0;
-		}
-		elseif (!is_integer($column) && !is_string($column)) {
+		elseif (!is_integer($column) && !is_string($column))
 			throw new \InvalidArgumentException("Column must be defined as a string or integer");
-		}
 		
 		while ($result->valid()) {
 			$row = $result->fetchArray(ArrayType::BOTH);
