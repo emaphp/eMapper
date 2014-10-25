@@ -59,7 +59,7 @@ class ClassProfile {
 	private $secondOrderAttributes = [];
 	
 	/**
-	 * Primary key property
+	 * Primary key property (as an attribute of the class)
 	 * @var string
 	 */
 	private $primaryKey;
@@ -78,6 +78,7 @@ class ClassProfile {
 	
 	/**
 	 * Entity references
+	 * Stores property names that are referenced by other entities
 	 * @var array
 	 */
 	private $references = [];
@@ -233,17 +234,6 @@ class ClassProfile {
 	}
 	
 	/**
-	 * Obtains a property by its referred column
-	 * @param string $column
-	 * @return boolean|PropertyProfile
-	 */
-	public function getPropertyByColumn($column) {
-		if (!array_key_exists($column, $this->columnNames)) return false;
-		$property = $this->columnNames[$column];
-		return $this->getProperty($property);
-	}
-	
-	/**
 	 * Obtains the class property names as an associative array (PROPERTY => COLUMN)
 	 * @param boolean $filter_pk
 	 * @return array
@@ -353,16 +343,13 @@ class ClassProfile {
 	 * @return string
 	 */
 	public function getNamespace() {
-		$referredTable = $this->getReferredTable();
+		if (!$this->classAnnotations->has('DefaultNamespace'))
+			return $this->getReferredTable();
 		
-		if ($this->classAnnotations->has('DefaultNamespace')) {
-			$ns = $this->classAnnotations->get('DefaultNamespace')->getValue();
-			
-			if (empty($ns) || $ns === true) return $referredTable;
-			return $ns;
-		}
-		
-		return $referredTable;
+		$ns = $this->classAnnotations->get('DefaultNamespace')->getValue();
+		if (empty($ns) || $ns === true)
+			$ns = $this->getReferredTable();
+		return $ns;
 	}
 	
 	public function getAssociations() {
@@ -370,8 +357,7 @@ class ClassProfile {
 	}
 	
 	public function getAssociation($name) {
-		if (array_key_exists($name, $this->associations)) return $this->associations[$name];
-		return false;
+		return array_key_exists($name, $this->associations) ? $this->associations[$name] : false;
 	}
 	
 	public function hasForeignKeys() {

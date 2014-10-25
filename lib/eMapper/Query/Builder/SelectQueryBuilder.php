@@ -57,6 +57,19 @@ class SelectQueryBuilder extends QueryBuilder {
 	}
 	
 	/**
+	 * Returns a string containing a column list expression for the current entity
+	 * @param string $alias
+	 * @return string
+	 */
+	protected function getDefaultColumns($alias) {
+		$columns = array_values($this->entity->getPropertyNames());
+		array_walk($columns, function(&$column) use ($alias) {
+			$column = "$alias." . $column;
+		});
+		return implode(',', $columns);
+	}
+	
+	/**
 	 * Obtains columns expression for this query
 	 * @param array $config
 	 * @param string $alias
@@ -69,16 +82,16 @@ class SelectQueryBuilder extends QueryBuilder {
 			
 			foreach ($config['query.columns'] as $column) {
 				if ($column instanceof Field)
-					$columns[] = empty($alias) ? $column->getColumnName($this->entity) : $alias . '.' . $column->getColumnName($this->entity);
+					$columns[] = "$alias." . $column->getColumnName($this->entity);
 			}
 			
 			if (empty($columns))
-				return empty($alias) ? '*' : "$alias.*";
+				return $this->getDefaultColumns($alias);
 			
 			return implode(', ', $columns);
 		}
 		
-		return empty($alias) ? '*' : "$alias.*";
+		return $this->getDefaultColumns($alias);
 	}
 	
 	/**

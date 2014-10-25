@@ -294,8 +294,8 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		->debug(function ($query) {
 			static $index = 0;
 			static $values = [
-				'SELECT _t.* FROM users _t WHERE _t.user_id = 1',
-				'SELECT _t.* FROM profiles _t WHERE _t.user_id = 1',
+				'SELECT _t.user_id,_t.user_name,_t.avatar FROM users _t WHERE _t.user_id = 1',
+				'SELECT _t.profile_id,_t.name,_t.surname,_t.gender,_t.user_id FROM profiles _t WHERE _t.user_id = 1',
 			];
 			
 			$this->assertEquals($values[$index++], $query);
@@ -307,9 +307,9 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		->debug(function ($query) {
 			static $index = 0;
 			static $values = [
-				'SELECT _t.* FROM categories _t WHERE _t.name = \'Tango\'',
-				'SELECT _t.* FROM categories _t WHERE _t.category_id = 2',
-				'SELECT _t.* FROM categories _t WHERE _t.parent_id = 8',
+				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.name = \'Tango\'',
+				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.category_id = 2',
+				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.parent_id = 8',
 			];
 			
 			$this->assertEquals($values[$index++], $query);

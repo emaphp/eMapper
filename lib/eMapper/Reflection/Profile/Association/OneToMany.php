@@ -68,8 +68,7 @@ class OneToMany extends Association {
 			}
 			
 			//obtain primary key value
-			$pk = $parentProfile->getProperty($parentProfile->getPrimaryKey());
-			$parameter = $pk->getReflectionProperty()->getValue($entity);
+			$parameter = $this->getPropertyValue($parentProfile, $entity, $parentProfile->getPrimaryKey());
 			
 			//build predicate
 			$field = Attr::__callstatic($name);

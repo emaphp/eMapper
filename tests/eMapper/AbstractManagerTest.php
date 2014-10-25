@@ -137,7 +137,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	public function testQueryDebug() {
 		$product = $this->productsManager
 		->debug(function ($query) {
-			$this->assertEquals('SELECT _t.* FROM products _t WHERE _t.product_id = 1', $query);
+			$this->assertEquals('SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id = 1', $query);
 		})
 		->findByPK(1);
 	}

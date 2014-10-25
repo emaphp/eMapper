@@ -382,10 +382,8 @@ class Manager {
 		//get primary key
 		$pk = $this->getPropertyValue($this->entity, $entity, $this->entity->getPrimaryKey());
 
-		//determine if related data must be eliminated as well
-		$references = $this->entity->getReferences();
-		
-		foreach ($references as $name) {
+		//determine if related data must be eliminated as well		
+		foreach ($this->entity->getReferences() as $name) {
 			$assoc = $this->entity->getAssociation($name);
 			$assoc->delete($this->mapper, $pk);
 		}
