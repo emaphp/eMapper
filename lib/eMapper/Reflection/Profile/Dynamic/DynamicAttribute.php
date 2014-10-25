@@ -126,7 +126,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 			};
 		}
 		elseif ($annotations->has('IfNotNull')) {
-			$attr = $annotations->get('IfNotNull')->getValue();
+			$attr = $annotations->get('IfNotNull')->getArgument();
 			
 			if (empty($attr))
 				throw new \RuntimeException(sprintf("No attribute name defined for @IfNotNull annotation in %s property", $this->name));

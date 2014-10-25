@@ -14,7 +14,11 @@ Changelog
 <br/>
 2014-10-25 - Version 3.3
 
-  * 
+  * Deprecated: query_override callback.
+  * Added: debug method in StatementConfiguration.
+  * Added: Method 'filter' renamed to 'filter_callback'.
+  * Added: Methods 'where' and 'where_not' in Manager class.
+  * Added: 'CheckDuplicate' annotation.
 
 <br/>
 Dependencies
@@ -82,9 +86,9 @@ $driver = new PostgreSQLDriver('host=localhost port=5432 dbname=database user=po
 ```
 
 <br/>
->Step 2: The Data Mapper
+>Step 2: Initialize mapper instance
 
-Now that the connection driver is ready we create an intance of the *Mapper* class.
+Now that the connection driver is ready we create an instance of the *Mapper* class.
 ```php
 use eMapper\Mapper;
 
@@ -865,7 +869,7 @@ $user = $manager->findByPk(100);
 $profile = $user->getProfile(); // returns an AssociationManager instance
 $profile = $user->getProfile()->fetch(); // fetch() returns the desired result
 ```
-Associations also provide a mechanism to query for related attributes. Suppose we want to obtain a profile by its user name. We can do this by using a special syntax that specifies the association property and the comparison attribute separated by a doble underscore.
+Associations also provide a mechanism for querying for related attributes. Suppose we want to obtain a profile by its user name. We can do this by using a special syntax that specifies the association property and the comparison attribute separated by a doble underscore.
 
 ```php
 use eMapper\Query\Attr;
@@ -1539,7 +1543,7 @@ class Category {
     private $parentId;
     
     /**
-     * @IfNotNull parentId
+     * @IfNotNull(parentId)
      * @Statement categories.findByPk
      * @Parameter(paremeterId)
      */
@@ -1577,25 +1581,25 @@ Cache
 
 <br/>
 #####Introduction
-Currently, eMapper supports APC, Memcache and Memcached. Before setting a cache provider make sure the required extension is correctly installed.
+eMapper provides value caching through [SimpleCache](https://github.com/emaphp/simplecache ""), a small PHP library that supports APC and Memcache. Before setting a cache provider make sure the required extension is correctly installed.
 
 <br/>
 #####Providers
 ```php
 //APC
-use eMapper\Cache\APCProvider;
+use SimpleCache\APCProvider;
 
 $provider = new APCProvider;
 $mapper->setCacheProvider($provider);
 
 //Memcache
-use eMapper\Cache\MemcacheProvider;
+use SimpleCache\MemcacheProvider;
 
 $provider = new MemcacheProvider('localhost', 11211);
 $mapper->setCacheProvider($provider);
 
 //Memcached
-use eMapper\Cache\MemcachedProvider;
+use SimpleCache\MemcachedProvider;
 
 $provider = new MemcachedProvider('mem');
 $mapper->setProvider($provider);
