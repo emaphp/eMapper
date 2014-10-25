@@ -134,26 +134,26 @@ class Mapper {
 	 * @return \eMapper\Mapper
 	 */
 	public function __copy() {
-		return $this->discard('map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
-				'cache.key', 'cache.ttl',
-				'proc.types');
+		return $this->discard('map.type',
+							  'map.params',
+							  'map.result',
+							  'map.parameter',
+							  'callback.no_rows',
+							  'callback.each',
+							  'callback.filter',
+							  'callback.index',
+							  'callback.group',
+							  'cache.key',
+							  'cache.ttl',
+							  'proc.types');
 	}
 	
 	/**
 	 * Generates a copy of the current instance with an incremented depth
 	 * @return \eMapper\Mapper
 	 */
-	public function __increment() {
-		$obj = clone $this;
-		
-		//remove transient options
-		$obj->setConfig(array_diff_key($this->config, array_flip(['map.type', 'map.params', 'map.result', 'map.parameter',
-				'callback.no_rows', 'callback.each', 'callback.filter', 'callback.index', 'callback.group',
-				'cache.key', 'cache.ttl',
-				'proc.types'])));
-		
-		//increment current depth
+	public function __icopy() {
+		$obj = $this->__copy();
 		$obj->setOption('depth.current', $this->config['depth.current'] + 1);
 		return $obj;
 	}
@@ -355,10 +355,8 @@ class Mapper {
 						//add index and group to mapper parameters
 						$mapping_params = [$index, $index_type, $group, $group_type];
 					}
-					else {
-						//add method
-						$mapping_callback = [$mapper, 'mapResult'];
-					}
+					else
+						$mapping_callback = [$mapper, 'mapResult']; //set default method
 				}
 				//array mapping type: array, array[], array[column], array[column:type]
 				elseif (preg_match(self::ARRAY_TYPE_REGEX, $mapping_type, $matches)) {
@@ -413,9 +411,8 @@ class Mapper {
 					//set mapping callback
 					$mapping_callback = [$mapper, empty($matches[2]) ? 'mapResult' : 'mapList'];
 				}
-				else {
+				else
 					throw new \InvalidArgumentException("Unrecognized mapping expression '$mapping_type'");
-				}
 			}
 			else {
 				//obtain result map
@@ -544,7 +541,7 @@ class Mapper {
 			$copy = $this->__copy();
 			
 			if ($evaluateSecondOrder)
-				$incremented = $this->__increment();
+				$incremented = $this->__icopy();
 			
 			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
 				if ($mapper->hasGroupKeys()) {

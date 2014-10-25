@@ -84,17 +84,29 @@ class Manager {
 		$index = array_key_exists('query.index', $this->config) ? $this->config['query.index'] : null;
 		return $this->buildListExpression($this->entity, $index, $group);
 	}
-
+	
 	/**
 	 * Removes manager-only options from configuration values
-	 * @param string $values
-	 * @return multitype:
+	 * @param array $values
+	 * @return array
 	 */
-	protected function clean_options($values = null) {
-		$clean = array_diff_key($this->config, array_flip(['query.filter', 'query.index', 'query.group', 'query.distinct', 'query.columns', 'query.attrs', 'query.lefT_limit', 'query.right_limit', 'query.order_by']));	
-		if (is_array($values))
-			return array_merge($clean, $values);
-		return $clean;
+	protected function cleanConfig(array $values = null, $reverse = false) {
+		$clean = array_diff_key($this->config, array_flip([
+				'query.filter',
+				'query.index',
+				'query.group',
+				'query.distinct',
+				'query.columns',
+				'query.attrs',
+				'query.left_limit',
+				'query.right_limit',
+				'query.order_by'
+		]));
+		
+		if (is_null($values))
+			return $clean;
+		
+		return $reverse ? array_merge($values, $clean) : array_merge($clean, $values);
 	}
 	
 	/**
@@ -119,8 +131,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->expression]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->expression]))->query($query, $args);
 	}
 	
 	/**
@@ -138,8 +149,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->getListMappingExpression()]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->getListMappingExpression()]))->query($query, $args);
 	}
 	
 	/**
@@ -157,8 +167,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->expression]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->expression]))->query($query, $args);
 	}
 	
 	/**
@@ -172,7 +181,7 @@ class Manager {
 		$statementId = array_shift($args);
 		
 		if (!is_string($statementId) || empty($statementId))
-			$this->driver->throw_exception("Statement id is not a valid string");
+			$this->driver->throwException("Statement id is not a valid string");
 		
 		//get current namespace
 		$ns = $this->entity->getNamespace();
@@ -188,7 +197,7 @@ class Manager {
 		$stmt = $this->mapper->getStatement($statementId);
 		
 		if ($stmt === false)
-			$this->mapper->driver->throw_exception("Statement '$statementId' could not be found");
+			$this->mapper->driver->throwException("Statement '$statementId' could not be found");
 		
 		//get statement config
 		$query = $stmt->getQuery();
@@ -198,8 +207,7 @@ class Manager {
 		array_unshift($args, $query);
 		
 		//merge options
-		$options = array_merge($options, $this->clean_options());
-		return call_user_func_array([$this->mapper->merge($options), 'query'], $args);
+		return call_user_func_array([$this->mapper->merge($this->cleanConfig($options, true)), 'query'], $args);
 	}
 	
 	/**
@@ -470,8 +478,7 @@ class Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $type]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $type]))->query($query, $args);
 	}
 	
 	/**

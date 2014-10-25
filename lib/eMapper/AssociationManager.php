@@ -56,8 +56,7 @@ class AssociationManager extends Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 		
 		//run query
-		$options = $this->clean_options(['map.type' => $this->getListMappingExpression()]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->getListMappingExpression()]))->query($query, $args);
 	}
 	
 	public function get(SQLPredicate $condition = null) {
@@ -72,8 +71,7 @@ class AssociationManager extends Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 	
 		//run query
-		$options = $this->clean_options(['map.type' => $this->expression]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->expression]))->query($query, $args);
 	}
 	
 	protected function sqlFunction(SQLFunction $function, $type) {
@@ -87,8 +85,7 @@ class AssociationManager extends Manager {
 		list($query, $args) = $query->build($this->mapper->getDriver(), $this->config);
 	
 		//run query
-		$options = $this->clean_options(['map.type' => $type]);
-		return $this->mapper->merge($options)->query($query, $args);
+		return $this->mapper->merge($this->cleanConfig(['map.type' => $type]))->query($query, $args);
 	}
 }
 ?>
