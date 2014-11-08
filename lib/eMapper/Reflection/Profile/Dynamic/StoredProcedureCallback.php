@@ -12,10 +12,40 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 * @var string
 	 */
 	protected $procedure;
+	
+	/**
+	 * Determines if the procedure is evaluated as a table (PostgreSQL)
+	 * @var boolean
+	 */
+	protected $asTable = false;
+	
+	/**
+	 * Determines if the database prefix must be included in the procedure name
+	 * @var boolean
+	 */
+	protected $usePrefix = true;
+	
+	/**
+	 * Determines if the procedure name must be escaped
+	 * @var boolean
+	 */
+	protected $escapeName = false;
 
 	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain procedure name
 		$this->procedure = $annotations->get('Procedure')->getValue();
+		
+		if ($annotations->has('AsTable')) {
+			$this->asTable = (bool) $annotations->get('AsTable')->getValue();
+		}
+		
+		if ($annotations->has('UsePrefix')) {
+			$this->usePrefix = (bool) $annotations->get('UsePrefix')->getValue();
+		}
+		
+		if ($annotations->has('Escape')) {
+			$this->escapeName = (bool) $annotations->get('Escape')->getValue();
+		}
 	}
 		
 	protected function evaluateArgs($row, &$proc_types) {
@@ -57,15 +87,24 @@ class StoredProcedureCallback extends DynamicAttribute {
 	
 	public function evaluate($row, $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
+		if ($this->checkCondition($row, $mapper->getConfig()) === false)
+			return null;
 		
-		//build argument list
-		$proc_types = [];
-		$args = $this->evaluateArgs($row, $proc_types);
-		$this->config['proc.types'] = $proc_types;
-				
-		//call stored procedure
-		return call_user_func([$mapper->merge($this->config), '__call'], $this->procedure, $args);
+		//build argument type list
+		$types = [];
+		$args = $this->evaluateArgs($row, $types);
+		
+		//create procedure instance
+		$procedure = $mapper->merge($this->config)->newProcedureCall($this->procedure);
+		
+		//configure procedure
+		$procedure->types($types);
+		$procedure->as_table($this->asTable);
+		$procedure->use_prefix($this->usePrefix);
+		$procedure->escape($this->escapeName);
+		
+		//call procedure
+		return $procedure->callWith($args);
 	}
 }
 ?>

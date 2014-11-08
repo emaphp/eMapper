@@ -210,7 +210,10 @@ class MySQLDriver extends Driver {
 		return new MySQLResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $options) {
+		//append prefix
+		if ($options['use_prefix'])
+			$procedure = $options['prefix'] . $procedure;
 		return "CALL $procedure(" . implode(',', $tokens) . ')';
 	}
 	

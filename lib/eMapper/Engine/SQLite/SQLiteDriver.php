@@ -141,7 +141,7 @@ class SQLiteDriver extends Driver {
 		return new SQLiteResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $options) {
 		throw new SQLiteException("SQLite driver does not support stored procedures");
 	}
 	

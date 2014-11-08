@@ -19,6 +19,7 @@ use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Cache\Value\CacheValue;
 use SimpleCache\CacheProvider;
 use eMapper\Engine\Generic\Statement\StatementFormatter;
+use eMapper\Procedure\StoredProcedure;
 
 /**
  * The Mapper class manages how a database result is converted to a given type.
@@ -719,45 +720,6 @@ class Mapper {
 		return $result;
 	}
 	
-	public function __call($method, $args) {
-		//include database prefix
-		if (array_key_exists('proc.use_prefix', $this->config) && $this->config['proc.use_prefix'] === true) {
-			//get database prefix
-			$db_prefix = array_key_exists('db.prefix', $this->config) ? $this->config['db.prefix'] : '';
-	
-			//build procedure name
-			$procedure_name = $db_prefix . $method;
-		}
-		else
-			$procedure_name = $method;
-	
-		$tokens = [];
-	
-		//check if argument types are defined
-		if (array_key_exists('proc.types', $this->config)) {
-			$parameter_types = $this->config['proc.types'];
-	
-			//build argument types string
-			foreach ($parameter_types as $type)
-				$tokens[] = '%{' . $type . '}';
-		}
-	
-		//fill tokens array
-		for ($i = count($tokens), $n = count($args); $i < $n; $i++)
-			$tokens[] = '%{' . $i . '}';
-	
-		//check if tokens exceeds parameters
-		if (count($tokens) > count($args))
-			$tokens = array_slice($tokens, 0, count($args));
-		
-		$call = $this->driver->buildCall($procedure_name, $tokens, $this->config);
-		
-		array_unshift($args, $call);
-		
-		//call query
-		return call_user_func_array([$this, 'query'], $args);
-	}
-	
 	/**
 	 * Returns a manager instance for the given class name
 	 * @param string $classname
@@ -896,6 +858,27 @@ class Mapper {
 	 */
 	public function getTransactionStatus() {
 		return $this->txStatus;
+	}
+	
+	/*
+	 * BUILDER METHODS
+	 */
+	
+	/**
+	 * Creates a new StoredProcedure instance
+	 * @param string $name
+	 * @return \eMapper\Procedure\StoredProcedure
+	 */
+	public function newProcedureCall($name, $types = null) {
+		return new StoredProcedure($name, $this);
+	}
+	
+	public function newQuery() {
+		
+	}
+	
+	public function newManager($class) {
+		
 	}
 }
 ?>

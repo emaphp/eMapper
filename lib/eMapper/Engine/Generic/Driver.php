@@ -112,9 +112,9 @@ abstract class Driver {
 	 * Builds a procedure call
 	 * @param string $procedure
 	 * @param array $tokens
-	 * @param array $config
+	 * @param array $options
 	 */
-	public abstract function buildCall($procedure, $tokens, $config);
+	public abstract function buildCall($procedure, $tokens, $options);
 	
 	/**
 	 * Throws a generic exception

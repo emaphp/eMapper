@@ -162,13 +162,15 @@ class PostgreSQLDriver extends Driver {
 		return new PostgreSQLResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $config) {
+	public function buildCall($procedure, $tokens, $options) {
+		//append prefix
+		if ($options['use_prefix'])
+			$procedure = $options['prefix'] . $procedure;
 		//wrap procedure name
-		if (array_key_exists('proc.wrap', $config) && $config['proc.wrap'] === true)
+		if ($options['escape'])
 			$procedure = "\"$procedure\"";
-		
 		//use returned values as a table
-		if (array_key_exists('proc.as_table', $config) && $config['proc.as_table'] === true)
+		if ($options['as_table'])
 			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
 		
 		return "SELECT $procedure(" . implode(',', $tokens) . ')';
