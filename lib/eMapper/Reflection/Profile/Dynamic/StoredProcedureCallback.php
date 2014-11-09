@@ -5,13 +5,21 @@ use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
 use Omocha\AnnotationBag;
 use eMapper\Query\Attr;
+use eMapper\Procedure\StoredProcedure;
+use eMapper\Mapper;
 
 class StoredProcedureCallback extends DynamicAttribute {
+	/**
+	 * Stored procedure instance
+	 * @var StoredProcedure
+	 */
+	protected $procedure;
+	
 	/**
 	 * Stored procedure name
 	 * @var string
 	 */
-	protected $procedure;
+	protected $procedureName;
 	
 	/**
 	 * Determines if the procedure is evaluated as a table (PostgreSQL)
@@ -31,9 +39,19 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 */
 	protected $escapeName = false;
 
+	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
+		parent::__construct($name, $annotations, $reflectionProperty);
+	
+		$this->parseMetadata($annotations);
+		$this->parseArguments($annotations);
+		$this->parseConfig($annotations);
+		
+		
+	}
+	
 	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain procedure name
-		$this->procedure = $annotations->get('Procedure')->getValue();
+		$this->procedureName = $annotations->get('Procedure')->getValue();
 		
 		if ($annotations->has('AsTable')) {
 			$this->asTable = (bool) $annotations->get('AsTable')->getValue();
@@ -85,7 +103,19 @@ class StoredProcedureCallback extends DynamicAttribute {
 		return $args;
 	}
 	
-	public function evaluate($row, $mapper) {
+	protected function buildProcedure(Mapper $mapper) {
+		//create procedure instance
+		$this->procedure = $mapper->merge($this->config)->newProcedureCall($this->procedureName);
+		
+		//configure procedure
+		$this->procedure->as_table($this->asTable);
+		$this->procedure->use_prefix($this->usePrefix);
+		$this->procedure->escape($this->escapeName);
+	}
+	
+	public function evaluate($row, Mapper $mapper) {
+		$this->buildProcedure($mapper);
+		
 		//evaluate condition
 		if ($this->checkCondition($row, $mapper->getConfig()) === false)
 			return null;
@@ -93,18 +123,10 @@ class StoredProcedureCallback extends DynamicAttribute {
 		//build argument type list
 		$types = [];
 		$args = $this->evaluateArgs($row, $types);
-		
-		//create procedure instance
-		$procedure = $mapper->merge($this->config)->newProcedureCall($this->procedure);
-		
-		//configure procedure
-		$procedure->types($types);
-		$procedure->as_table($this->asTable);
-		$procedure->use_prefix($this->usePrefix);
-		$procedure->escape($this->escapeName);
-		
+		$this->procedure->types($types);
+
 		//call procedure
-		return $procedure->callWith($args);
+		return $this->procedure->callWith($args);
 	}
 }
 ?>

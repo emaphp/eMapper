@@ -20,6 +20,7 @@ use eMapper\Cache\Value\CacheValue;
 use SimpleCache\CacheProvider;
 use eMapper\Engine\Generic\Statement\StatementFormatter;
 use eMapper\Procedure\StoredProcedure;
+use eMapper\Query\FluentQuery;
 
 /**
  * The Mapper class manages how a database result is converted to a given type.
@@ -874,7 +875,7 @@ class Mapper {
 	}
 	
 	public function newQuery() {
-		
+		return new FluentQuery($this);
 	}
 	
 	public function newManager($class) {

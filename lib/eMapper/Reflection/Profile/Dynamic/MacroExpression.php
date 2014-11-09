@@ -3,6 +3,7 @@ namespace eMapper\Reflection\Profile\Dynamic;
 
 use Omocha\AnnotationBag;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
+use eMapper\Mapper;
 
 /**
  * The MacroExpression class provides the logic for macro attributes en entity classes.
@@ -23,7 +24,7 @@ class MacroExpression extends DynamicAttribute {
 		$this->program = new DynamicSQLProgram($annotations->get('Eval')->getValue());
 	}
 	
-	public function evaluate($row, $mapper) {
+	public function evaluate($row, Mapper $mapper) {
 		//evaluate condition
 		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
 		$args = $this->evaluateArgs($row);

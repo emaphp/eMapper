@@ -2,6 +2,7 @@
 namespace eMapper\Reflection\Profile\Dynamic;
 
 use Omocha\AnnotationBag;
+use eMapper\Mapper;
 
 /**
  * The StatementCallback class implements the logic for evaluating named queries againts
@@ -20,7 +21,7 @@ class StatementCallback extends DynamicAttribute {
 		$this->statementId = $attribute->get('StatementId')->getValue();
 	}
 	
-	public function evaluate($row, $mapper) {
+	public function evaluate($row, Mapper $mapper) {
 		//evaluate condition
 		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
 		

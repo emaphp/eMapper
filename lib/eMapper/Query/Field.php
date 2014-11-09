@@ -91,6 +91,14 @@ abstract class Field {
 	}
 	
 	/**
+	 * Obtains column path
+	 * @return array
+	 */
+	public function getPath() {
+		return $this->path;
+	}
+	
+	/**
 	 * Obtains field full path
 	 * @return NULL|string
 	 */

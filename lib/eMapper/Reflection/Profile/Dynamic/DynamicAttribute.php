@@ -8,6 +8,7 @@ use Omocha\Filter;
 use Omocha\AnnotationBag;
 use eMapper\Query\Attr;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
+use eMapper\Mapper;
 
 /**
  * The DynamicAttribute class defines the basic behaviour for entity dynamic attributes.
@@ -194,7 +195,7 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 * @param mixed $row
 	 * @param Mapper $mapper
 	 */
-	public abstract function evaluate($row, $mapper);
+	public abstract function evaluate($row, Mapper $mapper);
 }
 
 ?>
