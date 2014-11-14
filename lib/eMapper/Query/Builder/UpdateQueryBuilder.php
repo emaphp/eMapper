@@ -2,6 +2,7 @@
 namespace eMapper\Query\Builder;
 
 use eMapper\Engine\Generic\Driver;
+use eMapper\Query\SQL\ORMTranslator;
 
 /**
  * The UpdateQueryBuilder class generates UPDATE queries for a given entity profile.
@@ -23,8 +24,9 @@ class UpdateQueryBuilder extends QueryBuilder {
 		}
 		
 		//evaluate condition
-		$args = [];
-		$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args, 1);		
+		$args = new \ArrayObject();
+		$joins = new \ArrayObject();
+		$condition = $this->condition->evaluate(new ORMTranslator($this->entity), $driver, $args, $joins, 1);		
 		return [sprintf("UPDATE %s SET %s WHERE %s", $table, implode(', ', $values), $condition), $args];
 	}
 }

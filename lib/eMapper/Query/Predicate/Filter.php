@@ -4,6 +4,7 @@ namespace eMapper\Query\Predicate;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Q;
+use eMapper\Query\SQL\ColumnTranslator;
 
 /**
  * The Filter class is a container for various types of predicates.
@@ -36,37 +37,44 @@ class Filter extends SQLPredicate {
 		return $this->operator;
 	}
 	
-	public function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0) {
-		if (empty($this->predicates)) return '';
+	public function evaluate(ColumnTranslator $translator, Driver $driver, \ArrayObject &$args, \ArrayObject &$joins = null, $arg_index = 0) {
+		if (empty($this->predicates))
+			return '';
 
 		if (count($this->predicates) == 1) {
-			if (!empty($this->alias)) $this->predicates[0]->setAlias($this->alias);
-			$condition = $this->predicates[0]->evaluate($driver, $profile, $joins, $args, $arg_index);
+			if (!empty($this->alias))
+				$this->predicates[0]->setAlias($this->alias);
+			$condition = $this->predicates[0]->evaluate($translator, $driver, $args, $joins, $arg_index);
 			
-			if ($this->negate) return 'NOT ' . $condition;
+			if ($this->negate)
+				return 'NOT ' . $condition;
 			return $condition;
 		}
 		
 		$predicates = [];
 		
 		foreach ($this->predicates as $predicate) {
-			if (!empty($this->alias)) $predicate->setAlias($this->alias);
-			$predicates[] = $predicate->evaluate($driver, $profile, $joins, $args, $arg_index);
+			if (!empty($this->alias))
+				$predicate->setAlias($this->alias);
+			$predicates[] = $predicate->evaluate($translator, $driver, $args, $joins, $arg_index);
 		}
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
 		
-		if ($this->negate) return 'NOT ' . $condition;
+		if ($this->negate)
+			return 'NOT ' . $condition;
 		return $condition;
 	}
 	
 	public function render(Driver $driver) {
-		if (empty($this->predicates)) return '';
+		if (empty($this->predicates))
+			return '';
 		
 		if (count($this->predicates) == 1) {
 			$condition = $this->predicates[0]->render($driver);
 			
-			if ($this->negate) return 'NOT (' . $condition . ')';
+			if ($this->negate)
+				return 'NOT (' . $condition . ')';
 			return $condition;
 		}
 		
@@ -77,7 +85,8 @@ class Filter extends SQLPredicate {
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
 		
-		if ($this->negate) return 'NOT ' . $condition ;
+		if ($this->negate)
+			return 'NOT ' . $condition ;
 		return $condition;
 	}
 }

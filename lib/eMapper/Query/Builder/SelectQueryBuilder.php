@@ -11,6 +11,7 @@ use eMapper\Query\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
 use eMapper\Reflection\Profile\Association\ManyToMany;
 use eMapper\Query\Join;
+use eMapper\Query\SQL\ORMTranslator;
 
 /**
  * The SelectQueryBuilder class generates SELECT queries for a given entity profile.
@@ -176,7 +177,7 @@ class SelectQueryBuilder extends QueryBuilder {
 	public function build(Driver $driver, $config = null) {
 		$alias = $joinAlias = self::DEFAULT_ALIAS;
 		$table = '@@' . $this->entity->getReferredTable() . ' ' . $alias;
-		$joins = [];
+		$joins = new \ArrayObject();
 		
 		//check for many-to-many association (requires adding a join)
 		if ($this->association instanceof ManyToMany)
@@ -187,17 +188,19 @@ class SelectQueryBuilder extends QueryBuilder {
 			$function = $this->function->getExpression($this->entity, $alias);
 
 			if (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
-				$args = [];
+				$args = new \ArrayObject();
 				$filters = [];
 				
 				if (isset($this->association)) {
 					$this->joinCondition->setAlias($joinAlias);
-					$filters[] = $this->joinCondition->evaluate($driver, $this->entity, $joins, $args);
+					$filters[] = $this->joinCondition->evaluate(new ORMTranslator($this->entity), $driver, $args, $joins);
 				}
 				
+				$translator = new ORMTranslator($this->entity);
+						
 				foreach ($config['query.filter'] as $filter) {
 					$filter->setAlias($alias);
-					$filters[] = $filter->evaluate($driver, $this->entity, $joins, $args);
+					$filters[] = $filter->evaluate($translator, $driver, $args, $joins);
 				}
 
 				$table .= $this->joinTables($joins, $alias, $joinAlias);
@@ -219,34 +222,37 @@ class SelectQueryBuilder extends QueryBuilder {
 		$clauses = $this->getAdditionalClauses($config, $alias);
 		
 		if (isset($this->condition)) {
-			$args = [];
+			$args = new \ArrayObject();
+			$translator = new ORMTranslator($this->entity);
 
 			if (isset($this->association)) {
 				$this->joinCondition->setAlias($joinAlias);
 				$this->condition->setAlias($alias);
 				$filter = new Filter([$this->joinCondition, $this->condition]);
-				$condition = $filter->evaluate($driver, $this->entity, $joins, $args);
+				$condition = $filter->evaluate($translator, $driver, $args, $joins);
 			}
 			else {
 				$this->condition->setAlias($alias);
-				$condition = $this->condition->evaluate($driver, $this->entity, $joins, $args);
+				$condition = $this->condition->evaluate($translator, $driver, $args, $joins);
 			}
 			
 			$table .= $this->joinTables($joins, $alias, $joinAlias);
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
-			$args = [];
+			$args = new \ArrayObject();
 			$filters = [];
 			
 			if (isset($this->association)) {
 				$this->joinCondition->setAlias($joinAlias);
-				$filters[] = $this->joinCondition->evaluate($driver, $this->entity, $joins, $args);
+				$filters[] = $this->joinCondition->evaluate(new ORMTranslator($this->entity), $driver, $args, $joins);
 			}
+			
+			$translator = new ORMTranslator($this->entity);
 			
 			foreach ($config['query.filter'] as $filter) {
 				$filter->setAlias($alias);
-				$filters[] = $filter->evaluate($driver, $this->entity, $joins, $args);
+				$filters[] = $filter->evaluate($translator, $driver, $args, $joins);
 			}
 				
 			$condition = implode(' AND ', $filters);
@@ -254,9 +260,11 @@ class SelectQueryBuilder extends QueryBuilder {
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}
 		
+		$args = new \ArrayObject();
+		
 		if (isset($this->association)) {
 			$this->joinCondition->setAlias($joinAlias);
-			$condition = $this->joinCondition->evaluate($driver, $this->entity, $joins, $args);
+			$condition = $this->joinCondition->evaluate(new ORMTranslator($this->entity), $driver, $args, $joins);
 			$table .= $this->joinTables($joins, $alias, $joinAlias);
 			return [trim(sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $condition, $clauses)), $args];
 		}

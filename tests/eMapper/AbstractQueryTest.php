@@ -372,7 +372,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::color()->isnull());
 		list($query, $args) = $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT _t\.product_id,_t\.product_code,_t\.price,_t\.category,_t\.color FROM @@products _t WHERE _t\.color IS NULL/", $query, $matches);
-		$this->assertEmpty($args);
+		$this->assertEmpty($args->getArrayCopy());
 	}
 	
 	public function testSelectIsNotNull() {
@@ -380,7 +380,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::color()->isnull(false));
 		list($query, $args) = $query->build($this->driver, []);
 		$this->assertRegExpMatch("/SELECT _t\.product_id,_t\.product_code,_t\.price,_t\.category,_t\.color FROM @@products _t WHERE _t\.color IS NOT NULL/", $query, $matches);
-		$this->assertEmpty($args);
+		$this->assertEmpty($args->getArrayCopy());
 	}
 	
 	//INSERT
@@ -397,7 +397,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::id()->eq(2));
 		list($query, $args) = $query->build($this->driver);
 		$this->assertRegExpMatch('/UPDATE @@products SET product_id = #\{\w+:int\}, product_code = #\{\w+\}, price = #\{\w+:float\}, category = #\{\w+\}, color = #\{\w+:Acme\\\\RGBColor\} WHERE product_id = %\{1\[(\d+)\]:int\}/', $query, $matches);
-		$this->assertInternalType('array', $args);
+		$this->assertInstanceOf('ArrayObject', $args);
 		$this->assertCount(1, $args);
 		$index = intval($matches[1]);
 		$this->assertArrayHasKey($index, $args);
@@ -410,7 +410,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::id()->eq(1));
 		list($query, $args) = $query->build($this->driver);
 		$this->assertRegExpMatch("/DELETE FROM @@products WHERE product_id = #\{(arg[\d]+)(:[\w]+)?\}/", $query, $matches);
-		$this->assertInternalType('array', $args);
+		$this->assertInstanceOf('ArrayObject', $args);
 		$this->assertCount(1, $args);
 		$this->assertCount(3, $matches);
 		$key = $matches[1];
@@ -424,7 +424,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::color('s')->eq(null, false));
 		list($query, $args) = $query->build($this->driver);
 		$this->assertRegExp("/DELETE FROM @@products WHERE color IS NOT #\{(arg[\d]+):s\}/", $query);
-		$this->assertInternalType('array', $args);
+		$this->assertInstanceOf('ArrayObject', $args);
 		$this->assertContains(null, $args);
 	}
 	
@@ -433,7 +433,7 @@ abstract class AbstractQueryTest extends \PHPUnit_Framework_TestCase {
 		$query->setCondition(Attr::color()->isnull());
 		list($query, $args) = $query->build($this->driver);
 		$this->assertEquals("DELETE FROM @@products WHERE color IS NULL", $query);
-		$this->assertInternalType('array', $args);
+		$this->assertInstanceOf('ArrayObject', $args);
 		$this->assertCount(0, $args);
 	}
 	

@@ -5,6 +5,8 @@ use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 use eMapper\Query\Attr;
+use eMapper\Query\SQL\ColumnTranslator;
+use eMapper\Query\SQL\ORMTranslator;
 
 /**
  * A SQLPredicate class encapsulates the generic behaviour defined for query conditional clauses.
@@ -92,10 +94,12 @@ abstract class SQLPredicate {
 	 * @param unknown $arg_index Argument global index
 	 * @return string
 	 */
-	protected function buildArgumentExpression(ClassProfile $profile, $index, $arg_index) {
+	protected function buildArgumentExpression(ColumnTranslator $translator, $index, $arg_index) {
+		$profile = $translator instanceof ORMTranslator ? $translator->getProfile() : null;
+		
 		if ($arg_index != 0) {
 			//check type
-			$type = $this->getFieldType($profile);
+			$type = is_null($profile) ? null : $this->getFieldType($profile);
 				
 			//build expression
 			if (isset($type))
@@ -105,7 +109,7 @@ abstract class SQLPredicate {
 		}
 	
 		//check type
-		$type = $this->getFieldType($profile);
+		$type = is_null($profile) ? null : $this->getFieldType($profile);
 	
 		//build expression
 		if (isset($type))
@@ -113,53 +117,17 @@ abstract class SQLPredicate {
 	
 		return '#{' . $index . '}';
 	}
-
-	protected function getColumnName(Field $field, ClassProfile $profile, &$joins) {
-		static $counter = 0;
-		
-		//get field associations and referred profile
-		list($associations, $target) = $field->getAssociations($profile);
-		
-		//check if specified field is a plain one (Ex: name)
-		if (is_null($associations))
-			return empty($this->alias) ? $field->getColumnName($profile) : $this->alias . '.' . $field->getColumnName($profile);
-		
-		//field is associated (Ex: profile__name)
-		$diff = array_keys(array_diff_key($associations, $joins));
-		
-		//check is association already loaded
-		//key is a string like assoc1 or assoc1__assoc2
-		foreach ($diff as $key) {
-			$join = $associations[$key];
-			
-			//build table alias
-			$join->setAlias('_t' . $counter++);
-			
-			//set join parent (if any)
-			$parent = $join->getParentName();
-			
-			if (!is_null($parent))
-				$join->setParent($joins[$parent]);
-			
-			//add join to list
-			$joins[$key] = $join;
-		}
-		
-		//append alias to column name
-		$alias = $joins[$field->getFullPath()]->getAlias();
-		$field = Attr::__callstatic($field->getName());
-		return $alias . '.' . $field->getColumnName($target);
-	}
 	
 	/**
 	 * Evaluates a SQLPredicate getting any additional arguments
+	 * @param ColumnTranslator $translator
 	 * @param Driver $driver
-	 * @param ClassProfile $profile
-	 * @param array $joins
-	 * @param array $args
-	 * @param number $arg_index
+	 * @param ArrayObject $args
+	 * @param ArrayObject $joins
+	 * @param int $arg_index
+	 * @return string
 	 */
-	public abstract function evaluate(Driver $driver, ClassProfile $profile, &$joins, &$args, $arg_index = 0);
+	public abstract function evaluate(ColumnTranslator $translator, Driver $driver, \ArrayObject &$args, \ArrayObject &$joins = null, $arg_index = 0);
 	
 	/**
 	 * Renders a SQLPredicate to the corresponding Dynamic SQL expression

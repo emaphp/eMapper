@@ -24,11 +24,11 @@ class FluentQuery {
 		
 	}
 	
-	public function update($table) {
+	public function update($table, $alias = null) {
 		
 	}
 	
-	public function deleteFrom($table) {
+	public function deleteFrom($table, $alias = null) {
 		
 	}
 	

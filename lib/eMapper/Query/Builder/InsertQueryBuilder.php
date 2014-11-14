@@ -15,7 +15,9 @@ class InsertQueryBuilder extends QueryBuilder {
 		$pk = $this->entity->getPrimaryKey();
 		
 		foreach ($this->entity->getColumnNames() as $property) {
-			if ($property == $pk) continue;
+			if ($property == $pk)
+				continue;
+			
 			$type = $this->entity->getProperty($property)->getType();
 			
 			if (isset($type))

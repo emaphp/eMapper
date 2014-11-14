@@ -4,21 +4,24 @@ namespace eMapper\Query\Fluent;
 use eMapper\Query\FluentQuery;
 
 abstract class AbstractQuery {
-	protected $query;
-	protected $joins = [];
+	/**
+	 * The parent query this instance is created from
+	 * @var FluentQuery
+	 */
+	protected $fluent;
 	
-	public function __construct(FluentQuery $query) {
-		$this->query = $query;
+	public function __construct(FluentQuery $fluent) {
+		$this->fluent = $fluent;
 	}
 	
+	/**
+	 * Returns the query as a sql string 
+	 * @return string
+	 */
 	public abstract function build();
 	
 	public function __toString() {
 		return $this->build();
 	}
-	
-	public function run() {
-		$query = $this->build();
-	}	
 }
 ?>
