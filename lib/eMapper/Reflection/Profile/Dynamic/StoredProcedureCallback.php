@@ -38,6 +38,12 @@ class StoredProcedureCallback extends DynamicAttribute {
 	 * @var boolean
 	 */
 	protected $escapeName = false;
+	
+	/**
+	 * Declaring class name
+	 * @var string
+	 */
+	protected $className;
 
 	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct($name, $annotations, $reflectionProperty);
@@ -45,23 +51,23 @@ class StoredProcedureCallback extends DynamicAttribute {
 		$this->parseMetadata($annotations);
 		$this->parseArguments($annotations);
 		$this->parseConfig($annotations);
+		
+		//get current class name
+		$this->className = $this->reflectionProperty->getDeclaringClass()->getName();
 	}
 	
 	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain procedure name
 		$this->procedureName = $annotations->get('Procedure')->getValue();
 		
-		if ($annotations->has('AsTable')) {
+		if ($annotations->has('AsTable'))
 			$this->asTable = (bool) $annotations->get('AsTable')->getValue();
-		}
 		
-		if ($annotations->has('UsePrefix')) {
+		if ($annotations->has('UsePrefix'))
 			$this->usePrefix = (bool) $annotations->get('UsePrefix')->getValue();
-		}
 		
-		if ($annotations->has('Escape')) {
+		if ($annotations->has('Escape'))
 			$this->escapeName = (bool) $annotations->get('Escape')->getValue();
-		}
 	}
 		
 	protected function evaluateArgs($row, &$proc_types) {
@@ -69,7 +75,7 @@ class StoredProcedureCallback extends DynamicAttribute {
 		$wrapper = ParameterWrapper::wrapValue($row);
 	
 		//get class profile
-		$profile = Profiler::getClassProfile($this->reflectionProperty->getDeclaringClass()->getName());
+		$profile = Profiler::getClassProfile($this->className);
 	
 		foreach ($this->args as $arg) {
 			if ($arg instanceof Attr) {
@@ -102,14 +108,14 @@ class StoredProcedureCallback extends DynamicAttribute {
 	}
 	
 	protected function buildProcedure(Mapper $mapper) {
-		//TODO: optimizar
 		//create procedure instance
-		$this->procedure = $mapper->merge($this->config)->newProcedureCall($this->procedureName);
+		$this->procedure = $mapper->newProcedureCall($this->procedureName);
 		
 		//configure procedure
 		$this->procedure->asTable($this->asTable);
 		$this->procedure->usePrefix($this->usePrefix);
 		$this->procedure->escape($this->escapeName);
+		$this->procedure->setConfig($this->config);
 	}
 	
 	public function evaluate($row, Mapper $mapper) {

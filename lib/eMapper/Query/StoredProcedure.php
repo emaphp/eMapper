@@ -131,8 +131,7 @@ class StoredProcedure {
 			'as_table'   => $this->asTableOption
 		];
 		
-		$driver = $this->mapper->getDriver();
-		$this->expression = $driver->buildCall($this->name, $tokens, $options);
+		$this->expression = $this->mapper->getDriver()->buildCall($this->name, $tokens, $options);
 	}
 	
 	/**
@@ -146,6 +145,9 @@ class StoredProcedure {
 			$this->buildExpression($args);
 		
 		array_unshift($args, $this->expression);
+		
+		if (empty($this->config))
+			return call_user_func_array([$this->mapper, 'query'], $args);
 		return call_user_func_array([$this->mapper->merge($this->config), 'query'], $args);
 	}
 	
@@ -159,6 +161,8 @@ class StoredProcedure {
 			$this->buildExpression($args);
 		
 		array_unshift($args, $this->expression);
+		if (empty($this->config))
+			return call_user_func_array([$this->mapper, 'query'], $args);
 		return call_user_func_array([$this->mapper->merge($this->config), 'query'], $args);
 	}
 	

@@ -49,5 +49,11 @@ class EntityMappingTest extends AbstractEntityMappingTest {
 		$avg = $product->avgPrice;
 		$this->assertEquals(152, intval($avg));
 	}
+	
+	public function testProcedureAttributeList() {
+		$products = $this->mapper->type('obj:Acme\Result\Attribute\Product[]')->query("SELECT * FROM products");
+		$this->assertInternalType('array', $products);
+		$this->assertCount(8, $products);
+	}
 }
 ?>
