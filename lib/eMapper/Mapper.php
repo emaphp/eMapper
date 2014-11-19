@@ -47,19 +47,7 @@ class Mapper {
 	 * @var TypeManager
 	 */
 	protected $typeManager;
-	
-	/**
-	 * Cache key formatter
-	 * @var CacheKeyFormatter
-	 */
-	protected $cacheKeyFormatter;
-	
-	/**
-	 * Statement formatter
-	 * @var StatementFormatter
-	 */
-	protected $statementFormatter;
-	
+		
 	/**
 	 * Cache provider
 	 * @var CacheProvider
@@ -83,12 +71,6 @@ class Mapper {
 		
 		//obtain default type handler
 		$this->typeManager = $this->driver->buildTypeManager();
-		
-		//initialize cache key formatter
-		$this->cacheKeyFormatter = new CacheKeyFormatter($this->typeManager);
-		
-		//initialize statement formatter
-		$this->statementFormatter = $this->driver->buildStatement($this->typeManager);
 		
 		//build configuration
 		$this->setDefaultConfig();
@@ -242,8 +224,9 @@ class Mapper {
 			$cacheProvider = $this->cacheProvider;
 		
 			//build cache key
-			$this->cacheKeyFormatter->setParameterMap($parameterMap);
-			$cache_key = $this->cacheKeyFormatter->format($this->config['cache.key'], $args, $this->config);
+			$cacheKeyFormatter = new CacheKeyFormatter($this->typeManager);
+			$cacheKeyFormatter->setParameterMap($parameterMap);
+			$cache_key = $cacheKeyFormatter->format($this->config['cache.key'], $args, $this->config);
 
 			//check if key is present
 			if ($cacheProvider->exists($cache_key)) {
@@ -272,8 +255,9 @@ class Mapper {
 			 */
 				
 			//build statement
-			$this->statementFormatter->setParameterMap($parameterMap);
-			$stmt = $this->statementFormatter->format($query, $args, $this->config);
+			$statementFormatter = $this->driver->buildStatement($this->typeManager);
+			$statementFormatter->setParameterMap($parameterMap);
+			$stmt = $statementFormatter->format($query, $args, $this->config);
 			
 			//debug query
 			if (array_key_exists('callback.debug', $this->config)) 
