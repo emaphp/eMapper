@@ -2,9 +2,6 @@
 namespace eMapper\SQLite;
 
 use eMapper\AbstractManagerTest;
-use eMapper\Engine\SQLite\SQLiteDriver;
-use Acme\Type\RGBColorTypeHandler;
-use eMapper\Mapper;
 
 /**
  * SQLite manager test
@@ -13,12 +10,6 @@ use eMapper\Mapper;
  * @group manager
  */
 class ManagerTest extends AbstractManagerTest {
-	public function build() {
-		SQLiteTest::setUpBeforeClass();//phpunit sucks
-		$this->driver = new SQLiteDriver(SQLiteTest::$filename);
-		$this->mapper = new Mapper($this->driver);
-		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
-		$this->productsManager = $this->mapper->buildManager('Acme\Entity\Product');
-	}
+	use SQLiteConfig;
 }
 ?>

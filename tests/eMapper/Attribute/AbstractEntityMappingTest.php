@@ -1,17 +1,9 @@
 <?php
 namespace eMapper\Attribute;
 
-use eMapper\SQL\Statement;
+use eMapper\MapperTest;
 
-abstract class AbstractEntityMappingTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-		$this->mapper->addStatement(new Statement('getProduct', "SELECT * FROM products WHERE product_id = #{productId}"));
-		$this->mapper->addStatement(new Statement('getUser', "SELECT * FROM users WHERE user_id = %{int}", Statement::type('array')));
-	}
-	
+abstract class AbstractEntityMappingTest extends MapperTest {
 	public function testMacroAttribute() {
 		$user = $this->mapper->type('obj:Acme\Result\Attribute\User')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertInstanceOf('Acme\Result\Attribute\User', $user);
@@ -129,10 +121,6 @@ abstract class AbstractEntityMappingTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('2013-01-06 12:34:10', $sale->user->last_login->format('Y-m-d H:i:s'));
 		$this->assertEquals('00:00:00', $sale->user->newsletter_time);
 		$this->assertEquals($this->getBlob(), $sale->user->avatar);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

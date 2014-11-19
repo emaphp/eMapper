@@ -59,16 +59,17 @@ abstract class DynamicAttribute extends PropertyProfile {
 	protected function parseArguments(AnnotationBag $annotations) {
 		$this->args = [];
 		
-		//use object as argument
-		if ($annotations->has('Self'))
-			$this->useDefaultArgument = true;
-		
 		//parse additional arguments
-		$parameters = $annotations->find('Parameter');
+		$parameters = $annotations->find('Param');
 		
 		foreach ($parameters as $param) {
 			if ($param->hasArgument()) {
 				$arg = $param->getArgument();
+				
+				if (strtolower($arg) == 'self') {
+					$this->useDefaultArgument = true;
+					continue;
+				}
 				
 				if (preg_match(self::PARAMETER_PROPERTY_REGEX, $arg, $matches)) {
 					if (array_key_exists(2, $matches))

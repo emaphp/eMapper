@@ -69,7 +69,6 @@ class MySQLResultIterator extends ResultIterator {
 		
 				default:
 					$type = 'string';
-					break;
 			}
 		
 			//store type

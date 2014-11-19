@@ -5,7 +5,7 @@ use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Reflection\Profiler;
 use Omocha\AnnotationBag;
 use eMapper\Query\Attr;
-use eMapper\Procedure\StoredProcedure;
+use eMapper\Query\StoredProcedure;
 use eMapper\Mapper;
 
 class StoredProcedureCallback extends DynamicAttribute {
@@ -45,8 +45,6 @@ class StoredProcedureCallback extends DynamicAttribute {
 		$this->parseMetadata($annotations);
 		$this->parseArguments($annotations);
 		$this->parseConfig($annotations);
-		
-		
 	}
 	
 	protected function parseMetadata(AnnotationBag $annotations) {
@@ -104,12 +102,13 @@ class StoredProcedureCallback extends DynamicAttribute {
 	}
 	
 	protected function buildProcedure(Mapper $mapper) {
+		//TODO: optimizar
 		//create procedure instance
 		$this->procedure = $mapper->merge($this->config)->newProcedureCall($this->procedureName);
 		
 		//configure procedure
-		$this->procedure->as_table($this->asTable);
-		$this->procedure->use_prefix($this->usePrefix);
+		$this->procedure->asTable($this->asTable);
+		$this->procedure->usePrefix($this->usePrefix);
 		$this->procedure->escape($this->escapeName);
 	}
 	

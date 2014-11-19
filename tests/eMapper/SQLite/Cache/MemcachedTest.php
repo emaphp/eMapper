@@ -11,9 +11,13 @@ use SimpleCache\MemcachedProvider;
  * @group memcached
  */
 class MemcachedTest extends SQLiteCacheTest {
-	protected function setUp() {
+	public function getProvider() {
+		return new MemcachedProvider();
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new MemcachedProvider();
+			$this->provider = $this->getProvider();
 			$this->provider->addServer('localhost', 11211);
 		}
 		catch (\RuntimeException $re) {

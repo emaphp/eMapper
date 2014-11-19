@@ -31,9 +31,8 @@ class PostgreSQLResultIterator extends ResultIterator {
 			switch ($type) {
 				case 'bit':
 				case 'bool':
-				case 'boolean': {
+				case 'boolean':
 					$type = 'boolean';
-				}
 				break;
 				
 				case 'int2':
@@ -48,37 +47,31 @@ class PostgreSQLResultIterator extends ResultIterator {
 				case 'bigserial':
 				case 'int8range':
 				case 'decimal':
-				case 'numeric': {
+				case 'numeric':
 					$type = 'integer';
-				}
 				break;
 				
 				case 'float4':
 				case 'float8':
 				case 'real':
-				case 'double precision': {
+				case 'double precision':
 					$type = 'float';
-				}
 				break;
 				
-				case 'time': {
+				case 'time':
 					$type = 'string';
-				}
 				break;
 				
-				case 'date': {
+				case 'date':
 					$type = 'DateTime';
-				}
 				break;
 				
-				case 'timestamp': {
+				case 'timestamp':
 					$type = 'DateTime';
-				}
 				break;
 				
-				case 'bytea': {
+				case 'bytea':
 					$type = 'blob';
-				}
 				break;
 				
 				case 'character':
@@ -87,11 +80,8 @@ class PostgreSQLResultIterator extends ResultIterator {
 				case 'json':
 				case 'xml':
 				case 'varchar':
-				default: {
+				default:
 					$type = 'string';
-				}
-				break;
-				break;
 			}
 			
 			//store type

@@ -46,7 +46,6 @@ class SQLiteResultIterator extends ResultIterator {
 					//In order to avoid this, all values use 'default' as a default type
 					//This type handler just returns the value as is
 					$type = 'default';
-					break;
 			}
 			
 			//store type

@@ -3,7 +3,6 @@ namespace eMapper\PostgreSQL;
 
 use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
 use eMapper\Mapper;
-use eMapper\PostgreSQL\PostgreSQLConfig;
 
 /**
  * Test building PostgreSQLDriver intances
@@ -12,8 +11,9 @@ use eMapper\PostgreSQL\PostgreSQLConfig;
  * @group postgre
  * @group builder
  */
-class MapperBuilderTest extends PostgreSQLTest {
+class MapperBuilderTest extends \PHPUnit_Framework_TestCase {
 	use PostgreSQLConfig;
+	
 	/**
 	 * @expectedException InvalidArgumentException
 	 */

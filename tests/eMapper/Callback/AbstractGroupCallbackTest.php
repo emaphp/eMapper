@@ -1,15 +1,11 @@
 <?php
 namespace eMapper\Callback;
 
-abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractGroupCallbackTest extends MapperTest {
 	public function testClosureGroup() {
-		$list = $this->mapper->group_callback(function ($product) {
+		$list = $this->mapper->groupCallback(function ($product) {
 			return substr($product->manufacture_year, 2);
 		})
 		->type('obj[]')->query("SELECT * FROM products ORDER BY product_id ASC");
@@ -51,7 +47,7 @@ abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMethodGroup() {
-		$list = $this->mapper->group_callback([$this, 'createGroup'])->type('arr[]')->query("SELECT * FROM products ORDER BY product_id ASC");
+		$list = $this->mapper->groupCallback([$this, 'createGroup'])->type('arr[]')->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $list);
 		$this->assertCount(2, $list);
@@ -80,10 +76,6 @@ abstract class AbstractGroupCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(7, $list['expensive'][3]['product_id']);
 		$this->assertInternalType('array', $list['expensive'][4]);
 		$this->assertEquals(8, $list['expensive'][4]['product_id']);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

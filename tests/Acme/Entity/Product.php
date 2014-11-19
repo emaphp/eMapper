@@ -3,7 +3,6 @@ namespace Acme\Entity;
 
 /**
  * @Entity products
- * @DefaultNamespace products
  */
 class Product {
 	/**

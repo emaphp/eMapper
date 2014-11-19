@@ -15,7 +15,7 @@
 		"BSD-2-Clause"
 	],
 	"require" : {
-	    "emaphp/fluent-configuration": "1.0.*",
+	    "emaphp/fluent-configuration": "1.1.*",
 		"omocha/omocha" : "1.1.*",
 		"emaphp/simplecache" :  "1.0.*",
 		"emacros/emacros" : "1.1.*"

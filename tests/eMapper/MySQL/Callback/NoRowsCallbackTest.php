@@ -15,7 +15,7 @@ class NoRowsCallbackTest extends AbstractNoRowsCallbackTest {
 	use MySQLConfig;
 	
 	public function testNoRowsCallback() {
-		$value = $this->mapper->type('obj')->no_rows(function ($result) {
+		$value = $this->mapper->type('obj')->emptyCallback(function ($result) {
 			$this->assertInstanceOf('mysqli_result', $result);
 			$this->assertEquals(0, $result->num_rows);
 		})->query("SELECT * FROM users WHERE user_id = 0");

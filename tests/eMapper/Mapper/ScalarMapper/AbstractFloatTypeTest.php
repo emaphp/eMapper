@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractFloatTypeTest extends AbstractMapperTest {
+abstract class AbstractFloatTypeTest extends MapperTest {
 	public function testFloat() {
 		$value = $this->mapper->type('float')->query("SELECT 2.5");
 		$this->assertEquals(2.5, $value);

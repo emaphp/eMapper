@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractStringTypeTest extends AbstractMapperTest {
+abstract class AbstractStringTypeTest extends MapperTest {
 	public function testString() {
 		$value = $this->mapper->type('string')->query("SELECT 'hello'");
 		$this->assertEquals('hello', $value);

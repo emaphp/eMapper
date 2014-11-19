@@ -1,3 +1,10 @@
+2015-01-01 - Version 4.0
+
+ Added: StoredProcedure class.
+ Added: FluentQuery class.
+ Deprecated: Calling stored procedures through method overloading.
+ Deprecated: Mapper::execute.
+
 2014-10-25 - Version 3.3
 
   Deprecated: query_override callback.

@@ -101,7 +101,7 @@ class ClassProfile {
 			//get property annotations
 			$annotations = Omocha::getAnnotations($reflectionProperty);
 			
-			$isScalar = $annotations->has('Scalar');
+			$isCacheable = $annotations->has('Cacheable');
 			
 			//get property name for indexation
 			$propertyName = $reflectionProperty->getName();
@@ -109,20 +109,20 @@ class ClassProfile {
 			//determiny property type
 			if ($annotations->has('Eval'))
 				$this->firstOrderAttributes[$propertyName] = new MacroExpression($propertyName, $annotations, $reflectionProperty);
-			elseif ($annotations->has('StatementId')) {				
-				if ($isScalar)
+			elseif ($annotations->has('Statement')) {				
+				if ($isCacheable)
 					$this->firstOrderAttributes[$propertyName] = new StatementCallback($propertyName, $annotations, $reflectionProperty);
 				else
 					$this->secondOrderAttributes[$propertyName] = new StatementCallback($propertyName, $annotations, $reflectionProperty);
 			}
 			elseif ($annotations->has('Query')) {
-				if ($isScalar)
+				if ($isCacheable)
 					$this->firstOrderAttributes[$propertyName] = new QueryCallback($propertyName, $annotations, $reflectionProperty);
 				else
 					$this->secondOrderAttributes[$propertyName] = new QueryCallback($propertyName, $annotations, $reflectionProperty);
 			}
 			elseif ($annotations->has('Procedure')) {
-				if ($isScalar)
+				if ($isCacheable)
 					$this->firstOrderAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
 				else
 					$this->secondOrderAttributes[$propertyName] = new StoredProcedureCallback($propertyName, $annotations, $reflectionProperty);
@@ -336,20 +336,6 @@ class ClassProfile {
 	 */
 	public function getReferredTable() {
 		return $this->classAnnotations->get('Entity')->getValue();
-	}
-	
-	/**
-	 * Obtains the default namespace of current class (entities only)
-	 * @return string
-	 */
-	public function getNamespace() {
-		if (!$this->classAnnotations->has('DefaultNamespace'))
-			return $this->getReferredTable();
-		
-		$ns = $this->classAnnotations->get('DefaultNamespace')->getValue();
-		if (empty($ns) || $ns === true)
-			$ns = $this->getReferredTable();
-		return $ns;
 	}
 	
 	public function getAssociations() {

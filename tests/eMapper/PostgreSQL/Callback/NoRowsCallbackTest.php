@@ -15,7 +15,7 @@ class NoRowsCallbackTest extends AbstractNoRowsCallbackTest {
 	use PostgreSQLConfig;
 	
 	public function testNoRowsCallback() {
-		$value = $this->mapper->type('obj')->no_rows(function ($result) {
+		$value = $this->mapper->type('obj')->emptyCallback(function ($result) {
 			$this->assertInternalType('resource', $result);
 		})->query("SELECT * FROM users WHERE user_id = 0");
 	

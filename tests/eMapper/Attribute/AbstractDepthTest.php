@@ -2,29 +2,9 @@
 namespace eMapper\Attribute;
 
 use eMapper\SQL\Statement;
+use eMapper\MapperTest;
 
-abstract class AbstractDepthTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-		$this->mapper->stmt('findBoughtProducts',
-							"SELECT p.product_id, p.product_code, p.category, p.price
-							 FROM sales s INNER JOIN products p ON s.product_id = p.product_id
-							 WHERE s.user_id = %{i}",
-							 Statement::type('obj:Acme\Depth\Product[]'));
-		$this->mapper->stmt('totalBoughtProducts',
-							"SELECT COUNT(*)
-							 FROM sales s INNER JOIN products p ON s.product_id = p.product_id
-							 WHERE s.user_id = %{i}",
-							 Statement::type('int'));
-		$this->mapper->stmt('findRelatedProducts',
-							"SELECT * FROM products
-							 WHERE category = %{s} AND product_id <> %{i}
-							 ORDER BY product_id ASC",
-							 Statement::type('obj:Acme\Depth\Product[id]'));
-	}
-	
+abstract class AbstractDepthTest extends MapperTest {
 	public function testNoDepth() {
 		$user = $this->mapper->type('obj:Acme\Depth\User')
 		->depth(0)
@@ -93,10 +73,6 @@ abstract class AbstractDepthTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('IND00232', $product->related[3]->code);
 		$this->assertEquals('Clothes', $product->related[3]->category);
 		$this->assertEquals(70.9, $product->related[3]->price);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

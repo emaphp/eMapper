@@ -16,7 +16,7 @@ class ResultIteratorTest extends AbstractResultIteratorTest {
 		return pg_query($this->conn, $query);
 	}
 	
-	public function close() {
+	public function tearDown() {
 		pg_close($this->conn);
 	}
 }

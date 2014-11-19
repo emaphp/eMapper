@@ -1,7 +1,6 @@
 <?php
 namespace eMapper;
 
-use eMapper\MySQL\MySQLConfig;
 use eMapper\Query\Attr;
 use eMapper\Query\Q;
 
@@ -10,11 +9,9 @@ use eMapper\Query\Q;
  * @author emaphp
  * @group new
  */
-abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
+abstract class AbstractAssociationQueryTest extends MapperTest {	
 	public function testOneToOne() {
-		$manager = $this->mapper->buildManager('Acme\Association\Profile');
+		$manager = $this->mapper->newManager('Acme\Association\Profile');
 		$profile = $manager->get(Attr::user__name()->eq('okenobi'));
 		$this->assertInstanceOf('Acme\Association\Profile', $profile);
 		$this->assertEquals(2, $profile->getId());
@@ -23,7 +20,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 		$this->assertEquals(2, $profile->getUser()->getId());
 		$this->assertEquals('okenobi', $profile->getUser()->getName());
 		
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$user = $manager->get(Attr::profile__name()->eq('Ishmael'));
 		$this->assertEquals(5, $user->getId());
 		$this->assertEquals('ishmael', $user->getName());
@@ -35,7 +32,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 	}
 	
 	public function testOneToMany() {
-		$manager = $this->mapper->buildManager('Acme\Association\Product');
+		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$products = $manager->index(Attr::id())->find(Attr::sales__discount()->gte(0.15));
 		$this->assertInternalType('array', $products);
 		$this->assertCount(2, $products);
@@ -46,7 +43,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 	}
 	
 	public function testManyToOne() {
-		$manager = $this->mapper->buildManager('Acme\Association\Sale');
+		$manager = $this->mapper->newManager('Acme\Association\Sale');
 		$sales = $manager->index(Attr::id())->find(Attr::product__code()->startswith('IND'));
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(2, $sales);
@@ -57,7 +54,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 	}
 	
 	public function testManyToMany() {
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$users = $manager->index(Attr::id())
 		->find(Q::where(Attr::favorites__code()->startswith('IND'),
 						Attr::favorites__code()->startswith('SOF')));
@@ -68,7 +65,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 	}
 	
 	public function testParentAssociationDepth() {
-		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$manager = $this->mapper->newManager('Acme\Association\Category');
 		$categories = $manager
 		->index(Attr::id())
 		->depth(0)
@@ -117,7 +114,7 @@ abstract class AbstractAssociationQueryTest extends \PHPUnit_Framework_TestCase 
 	}
 	
 	public function testChildAssocationDepth() {
-		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$manager = $this->mapper->newManager('Acme\Association\Category');
 		$parent = $manager->depth(0)->get(Attr::subcategories__subcategories__name()->eq('House'));
 		$this->assertInstanceOf('Acme\Association\Category', $parent);
 		$this->assertEquals('Music', $parent->getName());

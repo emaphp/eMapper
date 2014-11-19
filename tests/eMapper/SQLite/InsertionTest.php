@@ -9,19 +9,25 @@ use eMapper\SQLite\SQLiteTest;
  * @group sqlite
  * @group blob
  */
-class InsertionTest extends SQLiteTest {
+class InsertionTest extends \PHPUnit_Framework_TestCase {
+	use SQLiteConfig;
+	
+	protected $mapper;
+	
 	public function setUp() {
-		self::$mapper->sql("CREATE TEMP TABLE \"blob_test\" ( \"test_id\" INTEGER NOT NULL, value BLOB);");
+		$this->mapper = $this->getMapper();
+		$this->mapper->sql("CREATE TEMP TABLE \"blob_test\" ( \"test_id\" INTEGER NOT NULL, value BLOB);");
 	}
 	
 	public function testInsert() {
-		self::$mapper->query("INSERT INTO blob_test VALUES (1, %{blob})", self::$blob);
-		$row = self::$mapper->type('obj')->query("SELECT * FROM blob_test WHERE test_id = 1");
-		$this->assertEquals(self::$blob, $row->value);
+		$this->mapper->query("INSERT INTO blob_test VALUES (1, %{blob})", $this->getBlob());
+		$row = $this->mapper->type('obj')->query("SELECT * FROM blob_test WHERE test_id = 1");
+		$this->assertEquals($this->getBlob(), $row->value);
 	}
 	
 	public function tearDown() {
-		self::$mapper->sql("DROP TABLE \"blob_test\";");
+		$this->mapper->sql("DROP TABLE \"blob_test\";");
+		$this->mapper->close();
 	}
 }
 

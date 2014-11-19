@@ -5,9 +5,13 @@ use eMapper\Cache\AbstractCacheTest;
 use SimpleCache\MemcachedProvider;
 
 abstract class AbstractMemcachedTest extends AbstractCacheTest {
-	protected function setUp() {
+	protected function getProvider() {
+		return new MemcachedProvider($this->getPrefix() . 'memcached_test');
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new MemcachedProvider($this->getPrefix() . 'memcached_test');
+			$this->provider = $this->getProvider();
 			$this->provider->addServer('localhost', 11211);
 		}
 		catch (\RuntimeException $re) {

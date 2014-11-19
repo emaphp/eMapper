@@ -1,15 +1,11 @@
 <?php
 namespace eMapper\Callback;
 
-abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractIndexCallbackTest extends MapperTest {
 	public function testClosureIndex() {
-		$list = $this->mapper->index_callback(function ($user) {
+		$list = $this->mapper->indexCallback(function ($user) {
 			return intval($user->birth_date->format('Y'));
 		})
 		->type('obj[]')->query("SELECT * FROM users");
@@ -43,7 +39,7 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMethodIndex() {
-		$list = $this->mapper->index_callback([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
+		$list = $this->mapper->indexCallback([$this, 'createIndex'])->type('arr[]')->query("SELECT * FROM products");
 	
 		$this->assertInternalType('array', $list);
 		$this->assertCount(7, $list);
@@ -73,10 +69,6 @@ abstract class AbstractIndexCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(5, $list['Android']['product_id']);
 		$this->assertEquals(6, $list['Notebook']['product_id']);
 		$this->assertEquals(7, $list['Apple']['product_id']);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

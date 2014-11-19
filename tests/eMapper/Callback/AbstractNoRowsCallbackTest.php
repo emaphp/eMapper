@@ -1,24 +1,16 @@
 <?php
 namespace eMapper\Callback;
 
-abstract class AbstractNoRowsCallbackTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractNoRowsCallbackTest extends MapperTest {	
 	/**
 	 * @expectedException UnexpectedValueException
 	 */
 	public function testNoRowsException () {
-		$value = $this->mapper->type('obj')->no_rows(function ($result) {
+		$value = $this->mapper->type('obj')->emptyCallback(function ($result) {
 			throw new \UnexpectedValueException("!!!");
 		})->query("SELECT * FROM users WHERE user_id = 0");
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

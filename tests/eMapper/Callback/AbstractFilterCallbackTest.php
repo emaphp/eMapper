@@ -1,21 +1,17 @@
 <?php
 namespace eMapper\Callback;
 
-abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractFilterCallbackTest extends MapperTest {
 	public function testSingleInteger() {
-		$value = $this->mapper->type('i')->filter_callback(function ($value) {
+		$value = $this->mapper->type('i')->filterCallback(function ($value) {
 			return ($value % 2) == 0;
 		})->query("SELECT 1");
 	
 		$this->assertNull($value);
 	
-		$value = $this->mapper->type('i')->filter_callback(function ($value) {
+		$value = $this->mapper->type('i')->filterCallback(function ($value) {
 			return ($value % 2) == 0;
 		})->query("SELECT 2");
 	
@@ -23,7 +19,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIntegerList() {
-		$values = $this->mapper->type('i[]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('i[]')->filterCallback(function ($value) {
 			return ($value % 2) == 0;
 		})->query("SELECT user_id FROM users");
 	
@@ -36,13 +32,13 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSingleObject() {
-		$value = $this->mapper->type('obj')->filter_callback(function ($value) {
+		$value = $this->mapper->type('obj')->filterCallback(function ($value) {
 			return ($value->user_id % 2) == 0;
 		})->query("SELECT * FROM users WHERE user_id = 1");
 	
 		$this->assertNull($value);
 	
-		$value = $this->mapper->type('obj')->filter_callback(function ($value) {
+		$value = $this->mapper->type('obj')->filterCallback(function ($value) {
 			return ($value->user_id % 2) == 0;
 		})->query("SELECT * FROM users WHERE user_id = 2");
 	
@@ -50,7 +46,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testObjectList() {
-		$values = $this->mapper->type('obj[]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('obj[]')->filterCallback(function ($value) {
 			return ($value->user_id % 2) == 0;
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
 	
@@ -69,7 +65,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexedObjectList() {
-		$values = $this->mapper->type('obj[user_id]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('obj[user_id]')->filterCallback(function ($value) {
 			return ($value->user_id % 2) == 0;
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
 	
@@ -88,7 +84,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testGroupedObjectList() {
-		$values = $this->mapper->type('obj<category>')->filter_callback(function ($value) {
+		$values = $this->mapper->type('obj<category>')->filterCallback(function ($value) {
 			return ($value->price >= 150);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
@@ -123,7 +119,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexedGroupedObjectList() {
-		$values = $this->mapper->type('obj<category>[product_id]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('obj<category>[product_id]')->filterCallback(function ($value) {
 			return ($value->price >= 150);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
@@ -158,13 +154,13 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSingleArray() {
-		$value = $this->mapper->type('arr')->filter_callback(function ($value) {
+		$value = $this->mapper->type('arr')->filterCallback(function ($value) {
 			return ($value['user_id'] % 2) == 0;
 		})->query("SELECT * FROM users WHERE user_id = 1");
 	
 		$this->assertNull($value);
 	
-		$value = $this->mapper->type('arr')->filter_callback(function ($value) {
+		$value = $this->mapper->type('arr')->filterCallback(function ($value) {
 			return ($value['user_id'] % 2) == 0;
 		})->query("SELECT * FROM users WHERE user_id = 2");
 	
@@ -172,7 +168,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testArrayList() {
-		$values = $this->mapper->type('array[]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('array[]')->filterCallback(function ($value) {
 			return ($value['user_id'] % 2) == 0;
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
 	
@@ -191,7 +187,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexedArrayList() {
-		$values = $this->mapper->type('arr[user_id]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('arr[user_id]')->filterCallback(function ($value) {
 			return ($value['user_id'] % 2) == 0;
 		})->query("SELECT * FROM users ORDER BY user_id ASC");
 	
@@ -210,7 +206,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testGroupedArrayList() {
-		$values = $this->mapper->type('arr<category>')->filter_callback(function ($value) {
+		$values = $this->mapper->type('arr<category>')->filterCallback(function ($value) {
 			return ($value['price'] >= 150);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
@@ -245,7 +241,7 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexedGroupedArrayList() {
-		$values = $this->mapper->type('arr<category>[product_id]')->filter_callback(function ($value) {
+		$values = $this->mapper->type('arr<category>[product_id]')->filterCallback(function ($value) {
 			return ($value['price'] >= 150);
 		})->query("SELECT * FROM products ORDER BY product_id ASC");
 	
@@ -277,10 +273,6 @@ abstract class AbstractFilterCallbackTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(7, $values['Smartphones'][7]['product_id']);
 		$this->assertEquals(6, $values['Laptops'][6]['product_id']);
 		$this->assertEquals(8, $values['Software'][8]['product_id']);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

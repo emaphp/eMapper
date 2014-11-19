@@ -23,9 +23,10 @@ class Product {
 	public $price;
 	
 	/**
-	 * @StatementId "findRelatedProducts"
-	 * @Parameter(category)
-	 * @Parameter(id)
+	 * @Query "SELECT * FROM products WHERE category = %{s} AND product_id <> %{i} ORDER BY product_id ASC"
+	 * @Param(category)
+	 * @Param(id)
+	 * @Type obj:Acme\Depth\Product[id]
 	 */
 	public $related;
 }

@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractCustomTypeTest extends AbstractMapperTest {
+abstract class AbstractCustomTypeTest extends MapperTest {
 	public function testCustomType() {
 		$value = $this->mapper->type('Acme\RGBColor')->query("SELECT 'FF00ff'");
 		$this->assertInstanceOf('Acme\RGBColor', $value);

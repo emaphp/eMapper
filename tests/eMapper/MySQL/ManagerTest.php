@@ -13,12 +13,6 @@ use Acme\Type\RGBColorTypeHandler;
  * @group manager
  */
 class ManagerTest extends AbstractManagerTest {
-	public function build() {
-		$config = MySQLTest::$config;
-		$this->driver = new MySQLDriver($config['database'], $config['host'], $config['user'], $config['password']);
-		$this->mapper = new Mapper($this->driver);
-		$this->mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
-		$this->productsManager = $this->mapper->buildManager('Acme\Entity\Product');
-	}
+	use MySQLConfig;
 }	
 ?>

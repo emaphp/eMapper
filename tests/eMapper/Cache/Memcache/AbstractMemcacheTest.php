@@ -5,9 +5,13 @@ use eMapper\Cache\AbstractCacheTest;
 use SimpleCache\MemcacheProvider;
 
 abstract class AbstractMemcacheTest extends AbstractCacheTest {
-	protected function setUp() {
+	protected function getProvider() {
+		return new MemcacheProvider();
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new MemcacheProvider();
+			$this->provider = $this->getProvider();
 		}
 		catch (\RuntimeException $re) {
 			$this->markTestSkipped(

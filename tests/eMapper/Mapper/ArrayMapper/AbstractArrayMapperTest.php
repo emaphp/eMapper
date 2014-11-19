@@ -1,10 +1,10 @@
 <?php
 namespace eMapper\Mapper\ArrayMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
 use eMapper\Result\ArrayType;
+use eMapper\MapperTest;
 
-abstract class AbstractArrayMapperTest extends AbstractMapperTest {	
+abstract class AbstractArrayMapperTest extends MapperTest {	
 	public function testRow() {
 		$user = $this->mapper->type('array')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertInternalType('array', $user);

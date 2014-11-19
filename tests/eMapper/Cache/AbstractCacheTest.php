@@ -1,10 +1,12 @@
 <?php
 namespace eMapper\Cache;
 
-abstract class AbstractCacheTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
+use eMapper\MapperTest;
+
+abstract class AbstractCacheTest extends MapperTest {
 	protected $provider;
 	
+	protected abstract function getProvider();
 	protected abstract function getPrefix();
 	
 	public function testSetInteger() {
@@ -185,10 +187,6 @@ abstract class AbstractCacheTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(5, $value[5]->user_id);
 		
 		$this->provider->delete($this->getPrefix() .'set_objectlist');
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

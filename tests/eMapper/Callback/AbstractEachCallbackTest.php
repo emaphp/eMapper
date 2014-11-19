@@ -1,14 +1,9 @@
 <?php
-
 namespace eMapper\Callback;
 
-abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractEachCallbackTest extends MapperTest {
 	public function testUniqueObject() {
 		$user = $this->mapper->type('obj')->each(function($row, $mapper) {
 			$this->assertInstanceOf('stdClass', $row);
@@ -187,10 +182,6 @@ abstract class AbstractEachCallbackTest extends \PHPUnit_Framework_TestCase {
 				$this->assertEquals($product['edoc'], strrev($product['product_code']));
 			}
 		}
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

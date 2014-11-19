@@ -9,10 +9,14 @@ use SimpleCache\MemcacheProvider;
  * @group cache
  * @group memcache
  */
-class MemcacheTest extends SQLiteCacheTest {	
-	protected function setUp() {
+class MemcacheTest extends SQLiteCacheTest {
+	public function getProvider() {
+		return new MemcacheProvider();
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new MemcacheProvider();
+			$this->provider = $this->getProvider();
 		}
 		catch (\RuntimeException $re) {
 			$this->markTestSkipped(

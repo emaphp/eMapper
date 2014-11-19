@@ -19,7 +19,6 @@ class MySQLRegex extends GenericRegex {
 				
 				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_') '%%') ?])";
 			}
-			break;
 			
 			case self::STARTS_WITH:
 			{
@@ -30,7 +29,6 @@ class MySQLRegex extends GenericRegex {
 				
 				return "LOWER(%s) $op LOWER([?s (. (call 'addcslashes' (%%0) '%%_') '%%') ?])";
 			}
-			break;
 			
 			case self::ENDS_WITH:
 			{
@@ -41,7 +39,6 @@ class MySQLRegex extends GenericRegex {
 				
 				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_')) ?])";
 			}
-			break;
 			
 			case self::REGEX:
 			{
@@ -52,7 +49,6 @@ class MySQLRegex extends GenericRegex {
 				
 				return "%s $op [?s (%%0) ?]";
 			}
-			break;
 		}
 	}
 	
@@ -69,7 +65,6 @@ class MySQLRegex extends GenericRegex {
 				
 				return "LOWER(%s) $op LOWER(%s)";
 			}
-			break;
 			
 			case self::REGEX:
 			{
@@ -81,7 +76,6 @@ class MySQLRegex extends GenericRegex {
 				$op = $this->negate ? 'NOT REGEXP' : 'REGEXP';
 				return "%s $op %s";
 			}
-			break;
 		}
 	}
 }

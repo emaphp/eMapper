@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ObjectMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractObjectMapperTest extends AbstractMapperTest {
+abstract class AbstractObjectMapperTest extends MapperTest {
 	public function testRow() {
 		$user = $this->mapper->type('obj:Acme\Generic\GenericUser')
 		->query("SELECT * FROM users WHERE user_id = 1");

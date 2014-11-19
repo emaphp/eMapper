@@ -25,8 +25,7 @@ trait MySQLConfig {
 		return $mapper;
 	}
 	
-	protected function getStatement() {
-		$conn = new \mysqli($this->config['host'], $this->config['user'], $this->config['password'], $this->config['database']);
+	protected function getStatement($conn) {
 		return new MySQLStatement(new MySQLDriver($conn), new MySQLTypeManager());
 	}
 	

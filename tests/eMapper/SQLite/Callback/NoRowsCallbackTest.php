@@ -14,7 +14,7 @@ class NoRowsCallbackTest extends AbstractNoRowsCallbackTest {
 	use SQLiteConfig;
 	
 	public function testNoRowsCallback() {
-		$value = $this->mapper->type('obj')->no_rows(function ($result) {
+		$value = $this->mapper->type('obj')->emptyCallback(function ($result) {
 			$this->assertInstanceOf('SQLite3Result', $result);
 		})->query("SELECT * FROM users WHERE user_id = 0");
 	

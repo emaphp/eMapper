@@ -20,7 +20,7 @@ class Sale {
 	
 	/**
 	 * @Query "SELECT * FROM products WHERE product_id = %{i}"
-	 * @Parameter(productId)
+	 * @Param(productId)
 	 * @Type obj
 	 */
 	public $product;

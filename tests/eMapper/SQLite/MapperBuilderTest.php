@@ -3,13 +3,16 @@ namespace eMapper\SQLite;
 
 use eMapper\Engine\SQLite\SQLiteDriver;
 use eMapper\Mapper;
+
 /**
  * Test creating instances of SQLiteMapper though different methods
  * @author emaphp
  * @group sqlite
  * @group builder
  */
-class MapperBuilderTest extends SQLiteTest {
+class MapperBuilderTest extends \PHPUnit_Framework_TestCase {
+	use SQLiteConfig;
+	
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
@@ -19,16 +22,18 @@ class MapperBuilderTest extends SQLiteTest {
 	}
 	
 	public function testBuild() {
-		$config = ['database' => self::$filename];
+		$filename = $this->getFilename();
+		$config = ['database' => $filename];
 		$driver = SQLiteDriver::build($config);
 	
 		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
 		$this->assertTrue($driver->hasOption('db.filename'));
-		$this->assertEquals(self::$filename, $driver->getOption('db.filename'));
+		$this->assertEquals($filename, $driver->getOption('db.filename'));
 	}
 	
 	public function testBuildFromConnection() {
-		$driver = new SQLiteDriver(self::$conn);
+		$conn = $this->getConnection();
+		$driver = new SQLiteDriver($conn);
 		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
 	
 		$mapper = new Mapper($driver);
@@ -40,6 +45,7 @@ class MapperBuilderTest extends SQLiteTest {
 	
 		$row = $mapper->type('object')->query("SELECT * FROM products WHERE product_id = 1");
 		$this->assertInstanceOf('stdClass', $row);
+		$conn->close();
 	}
 }
 ?>

@@ -11,9 +11,13 @@ use SimpleCache\APCProvider;
  * @group apc
  */
 class APCTest extends SQLiteCacheTest {
-	protected function setUp() {
+	public function getProvider() {
+		return new APCProvider();
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new APCProvider();
+			$this->provider = $this->getProvider();
 		}
 		catch (\RuntimeException $re) {
 			$this->markTestSkipped(

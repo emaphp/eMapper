@@ -2,10 +2,8 @@
 namespace eMapper\MySQL;
 
 use eMapper\AbstractQueryTest;
-use eMapper\Reflection\Profiler;
-use eMapper\MySQL\MySQLTest;
 use eMapper\Engine\MySQL\MySQLDriver;
-use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\SQL\Builder\SelectQueryBuilder;
 use eMapper\Query\Attr;
 
 /**
@@ -15,10 +13,10 @@ use eMapper\Query\Attr;
  * @group query
  */
 class QueryTest extends AbstractQueryTest {
-	public function build() {
-		$config = MySQLTest::$config;
-		$this->driver = new MySQLDriver($config['database'], $config['host'], $config['user'], $config['password']);
-		$this->profile = Profiler::getClassProfile('Acme\Entity\Product');
+	use MySQLConfig;
+	
+	public function getDriver() {
+		return new MySQLDriver($this->config['database'], $this->config['host'], $this->config['user'], $this->config['password']);
 	}
 	
 	//SELECT regex

@@ -5,9 +5,13 @@ use eMapper\Cache\AbstractCacheTest;
 use SimpleCache\APCProvider;
 
 abstract class AbstractAPCTest extends AbstractCacheTest {
-	protected function setUp() {
+	protected function getProvider() {
+		return new APCProvider();
+	}
+	
+	public function setUp() {
 		try {
-			$this->provider = new APCProvider();
+			$this->provider = $this->getProvider();
 		}
 		catch (\RuntimeException $re) {
 			$this->markTestSkipped(

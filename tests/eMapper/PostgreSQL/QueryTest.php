@@ -3,8 +3,7 @@ namespace eMapper\PostgreSQL;
 
 use eMapper\AbstractQueryTest;
 use eMapper\Engine\PostgreSQL\PostgreSQLDriver;
-use eMapper\Reflection\Profiler;
-use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\SQL\Builder\SelectQueryBuilder;
 use eMapper\Query\Attr;
 
 /**
@@ -14,10 +13,10 @@ use eMapper\Query\Attr;
  * @group query
  */
 class QueryTest extends AbstractQueryTest {
-	public function build() {
-		$connection_string = PostgreSQLTest::$connstring;
-		$this->driver = new PostgreSQLDriver($connection_string);
-		$this->profile = Profiler::getClassProfile('Acme\Entity\Product');
+	use PostgreSQLConfig;
+	
+	public function getDriver() {
+		return new PostgreSQLDriver($this->conn_string);
 	}
 	
 	//SELECT regex

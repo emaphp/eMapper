@@ -1,9 +1,7 @@
 <?php
 namespace eMapper;
 
-use eMapper\SQL\Configuration\StatementConfiguration;
-use eMapper\SQL\Aggregate\SQLNamespaceAggregate;
-use eMapper\SQL\EntityNamespace;
+use eMapper\Statement\Configuration\StatementConfiguration;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profiler;
 use eMapper\Result\Mapper\ComplexMapper;
@@ -19,7 +17,7 @@ use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Cache\Value\CacheValue;
 use SimpleCache\CacheProvider;
 use eMapper\Engine\Generic\Statement\StatementFormatter;
-use eMapper\Procedure\StoredProcedure;
+use eMapper\Query\StoredProcedure;
 use eMapper\Query\FluentQuery;
 
 /**
@@ -28,7 +26,6 @@ use eMapper\Query\FluentQuery;
  */
 class Mapper {
 	use StatementConfiguration;
-	use SQLNamespaceAggregate;
 	
 	//mapping expression regex
 	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
@@ -111,15 +108,6 @@ class Mapper {
 		//dynamic sql environment class
 		$this->config['environment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
 	
-		//use database prefix for procedure names
-		$this->config['proc.use_prefix'] = true;
-		
-		//wrap procedure name between quotes (PostgreSQL)
-		$this->config['proc.wrap'] = true;
-		
-		//procedure returning values directly (PostgreSQL)
-		$this->config['proc.as_table'] = false;
-	
 		//default relation depth
 		$this->config['depth.current'] = 0;
 	
@@ -140,14 +128,13 @@ class Mapper {
 							  'map.params',
 							  'map.result',
 							  'map.parameter',
-							  'callback.no_rows',
+							  'callback.empty',
 							  'callback.each',
 							  'callback.filter',
 							  'callback.index',
 							  'callback.group',
 							  'cache.key',
-							  'cache.ttl',
-							  'proc.types');
+							  'cache.ttl');
 	}
 	
 	/**
@@ -472,8 +459,8 @@ class Mapper {
 				
 			//check if result is empty
 			if ($ri->countRows() === 0) {
-				if (array_key_exists('callback.no_rows', $this->config))
-					return call_user_func($this->config['callback.no_rows'], $result);
+				if (array_key_exists('callback.empty', $this->config))
+					return call_user_func($this->config['callback.empty'], $result);
 					
 				$cacheable = false;
 			}
@@ -661,37 +648,7 @@ class Mapper {
 		
 		return $mapped_result;
 	}
-	
-	/**
-	 * Executes a declared statement
-	 * @param string $statementId
-	 * @return mixed
-	 */
-	public function execute($statementId) {
-		//obtain parameters
-		$args = func_get_args();
-		$statementId = array_shift($args);
 		
-		if (!is_string($statementId) || empty($statementId))
-			throw new \InvalidArgumentException("Statement id is not a valid string");
-		
-		//obtain statement
-		$stmt = $this->getStatement($statementId);
-		
-		if ($stmt === false)
-			throw new \RuntimeException("Statement '$statementId' could not be found");
-		
-		//get statement config
-		$query = $stmt->getQuery();
-		$options = $stmt->getOptions();
-		
-		//add query to method parameters
-		array_unshift($args, $query);
-		
-		//run query
-		return (empty($options)) ? call_user_func_array([$this, 'query'], $args) : call_user_func_array([$this->merge($options->getConfig(), true), 'query'], $args);
-	}
-	
 	/**
 	 * Runs a query
 	 * @param string $query
@@ -720,30 +677,7 @@ class Mapper {
 	
 		return $result;
 	}
-	
-	/**
-	 * Returns a manager instance for the given class name
-	 * @param string $classname
-	 * @return \eMapper\Manager
-	 */
-	public function buildManager($classname) {
-		$profile = Profiler::getClassProfile($classname);
 		
-		if (!$profile->isEntity())
-			throw new \InvalidArgumentException(sprintf("Class %s is not declared as an entity", $profile->reflectionClass->getName()));
-		
-		return new Manager($this, $profile);
-	}
-	
-	/**
-	 * Adds a new entity namespace to current instance
-	 * @param EntityNamespace $namespace
-	 */
-	public function addEntityNamespace(EntityNamespace $namespace) {
-		$namespace->setDriver($this->driver);
-		$this->addNamespace($namespace);
-	}
-	
 	/**
 	 * Closes a database connection
 	 */
@@ -866,20 +800,35 @@ class Mapper {
 	 */
 	
 	/**
-	 * Creates a new StoredProcedure instance
+	 * Returns a new StoredProcedure instance
 	 * @param string $name
 	 * @return \eMapper\Procedure\StoredProcedure
 	 */
-	public function newProcedureCall($name, $types = null) {
-		return new StoredProcedure($name, $this);
+	public function newProcedureCall($name) {
+		return new StoredProcedure($this, $name);
 	}
 	
+	/**
+	 * Returns a new FluentQuery instance
+	 * @return \eMapper\Query\FluentQuery
+	 */
 	public function newQuery() {
 		return new FluentQuery($this);
 	}
 	
-	public function newManager($class) {
+	/**
+	 * Returns a new Manager instance
+	 * @param string $classname
+	 * @throws \InvalidArgumentException
+	 * @return \eMapper\Manager
+	 */
+	public function newManager($classname) {
+		$profile = Profiler::getClassProfile($classname);
 		
+		if (!$profile->isEntity())
+			throw new \InvalidArgumentException(sprintf("Class %s is not declared as an entity", $profile->reflectionClass->getName()));
+		
+		return new Manager($this, $profile);
 	}
 }
 ?>

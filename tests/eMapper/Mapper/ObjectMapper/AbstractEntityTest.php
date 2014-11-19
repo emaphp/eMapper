@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ObjectMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractEntityTest extends AbstractMapperTest {
+abstract class AbstractEntityTest extends MapperTest {
 	public function testRow() {
 		$product = $this->mapper->type('obj:Acme\Entity\Product')
 		->query("SELECT * FROM products WHERE product_id = 1");

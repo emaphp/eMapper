@@ -2,9 +2,9 @@
 namespace eMapper;
 
 use eMapper\Reflection\Profile\Association\Association;
-use eMapper\Query\Predicate\SQLPredicate;
+use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
-use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\SQL\Builder\SelectQueryBuilder;
 use eMapper\Query\Aggregate\SQLFunction;
 
 /**

@@ -68,7 +68,8 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	
 			//a null type handler equals an empty list
 			if (is_null($typeHandler)) {
-				if (is_array($value) && count($value) > 0) return 'NULL';
+				if (is_array($value) && count($value) > 0)
+					return 'NULL';
 				return '';
 			}
 	
@@ -87,14 +88,16 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 			else {
 				$value = $typeHandler->castParameter($value);
 				//check if returned value is null
-				if (is_null($value)) return 'NULL';
+				if (is_null($value))
+					return 'NULL';
 			}
 		}
 	
 		//get parameter expression
 		$value = $typeHandler->setParameter($value);
 	
-		if (is_null($value)) return 'NULL';
+		if (is_null($value))
+			return 'NULL';
 		//cast to string
 		elseif (!is_string($value))
 			$value = strval($value);

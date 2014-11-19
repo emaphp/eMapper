@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractDatetimeTypeTest extends AbstractMapperTest {
+abstract class AbstractDatetimeTypeTest extends MapperTest {
 	public function testDatetime() {
 		$value = $this->mapper->type('DateTime')->query("SELECT NOW()");
 		$this->assertInstanceOf('DateTime', $value);

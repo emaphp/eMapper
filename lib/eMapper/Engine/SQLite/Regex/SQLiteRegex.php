@@ -15,21 +15,18 @@ class SQLiteRegex extends GenericRegex {
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				return "%s $op [?s (. '%%' (addcslashes (%%0) '%%_') '%%') ?]";
 			}
-			break;
 					
 			case self::STARTS_WITH:
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				return "%s $op [?s (. (addcslashes (%%0) '%%_') '%%') ?]";
 			}
-			break;
 					
 			case self::ENDS_WITH:
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				return "%s $op [?s (. '%%' (addcslashes (%%0) '%%_')) ?]";
 			}
-			break;
 							
 			case self::REGEX:
 			{
@@ -40,7 +37,6 @@ class SQLiteRegex extends GenericRegex {
 				
 				return "%s $op [?s (. '(?i)' (%%0)) ?]";
 			}
-			break;
 		}
 	}
 	
@@ -60,14 +56,12 @@ class SQLiteRegex extends GenericRegex {
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 				return "%s $op %s";
 			}
-			break;
 			
 			case self::REGEX:
 			{
 				$op = $this->negate ? 'NOT REGEXP' : 'REGEXP';
 				return "%s $op %s";
 			}
-			break;
 		}
 	}
 }

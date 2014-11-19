@@ -1,13 +1,9 @@
 <?php
 namespace eMapper\Attribute;
 
-abstract class AbstractConditionalAttributeTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
-	
+use eMapper\MapperTest;
+
+abstract class AbstractConditionalAttributeTest extends MapperTest {	
 	public function testConditionalAttribute() {
 		$product = $this->mapper->type('obj:Acme\Result\Attribute\Good')->query("SELECT * FROM products WHERE product_id = 1");
 	
@@ -57,10 +53,6 @@ abstract class AbstractConditionalAttributeTest extends \PHPUnit_Framework_TestC
 		$this->assertNull($products[6]->specialDiscount);
 		$this->assertNull($products[7]->specialDiscount);
 		$this->assertNull($products[8]->specialDiscount);
-	}
-	
-	public function tearDown() {
-		$this->mapper->close();
 	}
 }
 ?>

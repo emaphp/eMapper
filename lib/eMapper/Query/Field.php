@@ -1,20 +1,21 @@
 <?php
 namespace eMapper\Query;
 
-use eMapper\Reflection\Profile\ClassProfile;
-use eMapper\Query\Predicate\Equal;
-use eMapper\Query\Predicate\Contains;
-use eMapper\Query\Predicate\In;
-use eMapper\Query\Predicate\GreaterThan;
-use eMapper\Query\Predicate\GreaterThanEqual;
-use eMapper\Query\Predicate\LessThan;
-use eMapper\Query\Predicate\LessThanEqual;
-use eMapper\Query\Predicate\StartsWith;
-use eMapper\Query\Predicate\EndsWith;
-use eMapper\Query\Predicate\Range;
-use eMapper\Query\Predicate\Regex;
-use eMapper\Query\Predicate\IsNull;
 use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\SQL\Predicate\Equal;
+use eMapper\SQL\Predicate\Contains;
+use eMapper\SQL\Predicate\In;
+use eMapper\SQL\Predicate\GreaterThan;
+use eMapper\SQL\Predicate\GreaterThanEqual;
+use eMapper\SQL\Predicate\LessThan;
+use eMapper\SQL\Predicate\LessThanEqual;
+use eMapper\SQL\Predicate\StartsWith;
+use eMapper\SQL\Predicate\EndsWith;
+use eMapper\SQL\Predicate\Range;
+use eMapper\SQL\Predicate\Regex;
+use eMapper\SQL\Predicate\IsNull;
+use eMapper\SQL\Builder\AssociationJoin;
 
 /**
  * The Field class represents an entity attribute or table column.
@@ -139,7 +140,7 @@ abstract class Field {
 				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
 			
 			//store association obtained from the current entity
-			$associations[$name] = new Join($name, $association, $parentName);
+			$associations[$name] = new AssociationJoin($name, $association, $parentName);
 			
 			//now move to the next entity
 			$current = Profiler::getClassProfile($association->getProfile());

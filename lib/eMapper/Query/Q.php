@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Query;
 
-use eMapper\Query\Predicate\Filter;
+use eMapper\SQL\Predicate\Filter;
 
 /**
  * The Q class build instances of Filter dynamically

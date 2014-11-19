@@ -28,8 +28,8 @@ class User {
 	
 	/**
 	 * @Eval (+ (%0) (%1))
-	 * @Parameter(id)
-	 * @Parameter 5
+	 * @Param(id)
+	 * @Param 5
 	 */
 	public $fakeId;
 	

@@ -29,32 +29,31 @@ class User {
 	public $fullName;
 	
 	/**
-	 * @StatementId profiles.findByUserId
-	 * @Parameter(id)
-	 * @Parameter 3
+	 * @Statement Profile.findByUserId
+	 * @Param(id)
 	 */
 	public $profiles;
 	
 	/**
 	 * @Eval (+ (count (#profiles)) (%0))
-	 * @Self
-	 * @Parameter 1
+	 * @Param(self)
+	 * @Param 1
 	 */
 	public $totalProfiles;
 	
 	/**
 	 * @Query "SELECT last_login FROM login WHERE user_id = %{i}"
-	 * @Parameter(id)
+	 * @Param(id)
 	 * @Type dt
 	 * @Option(map.result) Acme\Reflection\ConnectionResultMap
-	 * @Scalar
+	 * @Cacheable
 	 */
 	public $lastConnection;
 	
 	/**
 	 * @Query "SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}"
-	 * @Self
-	 * @Parameter true
+	 * @Param(self)
+	 * @Param true
 	 * @Type string[]
 	 */
 	public $favorites;

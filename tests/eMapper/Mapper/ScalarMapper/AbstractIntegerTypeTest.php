@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractIntegerTypeTest extends AbstractMapperTest {
+abstract class AbstractIntegerTypeTest extends MapperTest {
 	public function testInteger() {
 		$value = $this->mapper->type('integer')->query("SELECT 2");
 		$this->assertEquals(2, $value);

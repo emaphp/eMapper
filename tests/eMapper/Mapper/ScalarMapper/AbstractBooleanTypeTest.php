@@ -1,9 +1,9 @@
 <?php
 namespace eMapper\Mapper\ScalarMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractBooleanTypeTest extends AbstractMapperTest {
+abstract class AbstractBooleanTypeTest extends MapperTest {
 	public function testBoolean() {
 		$result = $this->mapper->type('boolean')->query("SELECT NULL");
 		$this->assertNull($result);

@@ -11,7 +11,9 @@ use eMapper\Mapper;
  * @group mysql
  * @group builder
  */
-class MapperBuilderTest extends MySQLTest {
+class MapperBuilderTest extends \PHPUnit_Framework_TestCase {
+	use MySQLConfig;
+	
 	/**
 	 * @expectedException InvalidArgumentException
 	 */
@@ -21,16 +23,17 @@ class MapperBuilderTest extends MySQLTest {
 	}
 	
 	public function testBuild() {
-		$config = ['database' => self::$config['database']];
+		$config = ['database' => $this->config['database']];
 		$driver = MySQLDriver::build($config);
 		
 		$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLDriver', $driver);
 		$this->assertTrue($driver->hasOption('db.name'));
-		$this->assertEquals(self::$config['database'], $driver->getOption('db.name'));
+		$this->assertEquals($this->config['database'], $driver->getOption('db.name'));
 	}
 	
 	public function testBuildFromConnection() {
-		$driver = new MySQLDriver(self::$conn);
+		$conn = $this->getConnection();
+		$driver = new MySQLDriver($conn);
 		$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLDriver', $driver);
 		
 		$mapper = new Mapper($driver);

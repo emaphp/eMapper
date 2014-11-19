@@ -19,8 +19,6 @@ abstract class PostgreSQLTest extends \PHPUnit_Framework_TestCase {
 		self::$driver = new PostgreSQLDriver(self::$connstring);
 		self::$mapper = new Mapper(self::$driver);
 		self::$mapper->addType('Acme\RGBColor', new RGBColorTypeHandler(), 'color');
-		self::$mapper->addStatement(new Statement('getProduct', "SELECT * FROM products WHERE product_id = #{productId}"));
-		self::$mapper->addStatement(new Statement('getUser', "SELECT * FROM users WHERE user_id = %{int}", Statement::type('array')));
 		
 		self::$blob = file_get_contents(__DIR__ . '/../avatar.gif');
 	}

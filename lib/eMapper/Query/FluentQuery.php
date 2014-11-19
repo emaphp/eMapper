@@ -2,7 +2,7 @@
 namespace eMapper\Query;
 
 use eMapper\Mapper;
-use eMapper\Query\Fluent\SelectQuery;
+use eMapper\SQL\Fluent\SelectQuery;
 
 class FluentQuery {
 	/**

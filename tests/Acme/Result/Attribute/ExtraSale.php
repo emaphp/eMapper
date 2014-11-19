@@ -19,14 +19,15 @@ class ExtraSale {
 	public $userId;
 	
 	/**
-	 * @StatementId getProduct
+	 * @Statement Product.findByPk
+	 * @Param(productId)
 	 * @Type array
 	 */
 	public $product;
 	
 	/**
-	 * @StatementId getUser
-	 * @Parameter(userId)
+	 * @Statement User.findByPk
+	 * @Param(userId)
 	 * @Type obj
 	 */
 	public $user;

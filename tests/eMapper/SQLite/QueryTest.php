@@ -3,8 +3,7 @@ namespace eMapper\SQLite;
 
 use eMapper\AbstractQueryTest;
 use eMapper\Engine\SQLite\SQLiteDriver;
-use eMapper\Reflection\Profiler;
-use eMapper\Query\Builder\SelectQueryBuilder;
+use eMapper\SQL\Builder\SelectQueryBuilder;
 use eMapper\Query\Attr;
 
 /**
@@ -14,9 +13,8 @@ use eMapper\Query\Attr;
  * @group query
  */
 class QueryTest extends AbstractQueryTest {
-	public function build() {
-		$this->driver = new SQLiteDriver(__DIR__ . '/testing.db');
-		$this->profile = Profiler::getClassProfile('Acme\Entity\Product');
+	public function getDriver() {
+		return new SQLiteDriver(__DIR__ . '/testing.db');
 	}
 	
 	//SELECT icontains

@@ -92,9 +92,10 @@ class CacheKeyFormatter {
 			case 'null': return null;
 			case 'array':
 				//check empty array
-				if (count($value) == 0) return null;
-				//get first value type hanlder
-				elseif (count($value) == 1) return $this->getDefaultTypeHandler(current($value));
+				if (count($value) == 0)
+					return null;
+				elseif (count($value) == 1) //get first value type hanlder
+					return $this->getDefaultTypeHandler(current($value));
 				
 				$typeHandler = null;
 				
@@ -102,7 +103,8 @@ class CacheKeyFormatter {
 				foreach ($value as $val) {
 					$typeHandler = $this->getDefaultTypeHandler($val);
 					//get type of the first not null value
-					if (!is_null($typeHandler)) break;
+					if (!is_null($typeHandler))
+						break;
 				}
 				
 				return $typeHandler;
@@ -112,7 +114,8 @@ class CacheKeyFormatter {
 				$classname = get_class($value);	
 				//use class as type
 				$typeHandler = $this->typeManager->getTypeHandler($classname);
-				if ($typeHandler !== false) return $typeHandler;
+				if ($typeHandler !== false)
+					return $typeHandler;
 				//no typehandler found, throw exception
 				throw new \RuntimeException("No default type handler found for class '$classname'");
 	
@@ -168,7 +171,8 @@ class CacheKeyFormatter {
 		elseif (is_null($type)) {
 			//obtain default type handler
 			$typeHandler = $this->getDefaultTypeHandler($value);
-			if (is_null($typeHandler)) return 'NULL';
+			if (is_null($typeHandler))
+				return 'NULL';
 			if (is_array($value))
 				return $this->castArray($value, $typeHandler, '_');
 		}
@@ -184,14 +188,16 @@ class CacheKeyFormatter {
 			
 			//check if returned value is null
 			$value = $typeHandler->castParameter($value);
-			if (is_null($value)) return 'NULL';
+			if (is_null($value))
+				return 'NULL';
 		}
 	
 		//get parameter expression
 		$value = $typeHandler->setParameter($value);
 	
 		//check null value
-		if (is_null($value)) return 'NULL';
+		if (is_null($value))
+			return 'NULL';
 		//cast to string
 		if (!is_string($value))
 			$value = strval($value);
@@ -374,9 +380,11 @@ class CacheKeyFormatter {
 	protected function replaceConfigExpression($matches) {
 		$property = $matches[1];
 		//check key existence
-		if (!array_key_exists($property, $this->config)) return '';
+		if (!array_key_exists($property, $this->config))
+			return '';
 		//convert to string, if possible
-		if (($str = $this->toString($this->config[$property])) === false) return '';
+		if (($str = $this->toString($this->config[$property])) === false)
+			return '';
 		return $str;
 	}
 	

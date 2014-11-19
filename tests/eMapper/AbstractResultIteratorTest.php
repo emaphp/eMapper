@@ -4,15 +4,8 @@ namespace eMapper;
 use eMapper\Engine\Generic\Result\ResultIterator;
 use eMapper\Result\ArrayType;
 
-abstract class AbstractResultIteratorTest extends \PHPUnit_Framework_TestCase {
-	protected $conn;
-	
-	public function setUp() {
-		$this->conn = $this->getConnection(); 
-	}
-	
+abstract class AbstractResultIteratorTest extends ConnectionTest {
 	protected abstract function query($query);
-	protected abstract function close();
 	
 	public function testDefault() {
 		$result = $this->query("SELECT user_id FROM users ORDER BY user_id ASC");
@@ -149,10 +142,6 @@ abstract class AbstractResultIteratorTest extends \PHPUnit_Framework_TestCase {
 		}
 	
 		$ri->free();
-	}
-	
-	public function tearDown() {
-		$this->close();
 	}
 }
 ?>

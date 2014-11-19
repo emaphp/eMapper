@@ -25,8 +25,7 @@ trait PostgreSQLConfig {
 		return $mapper;
 	}
 	
-	protected function getStatement() {
-		$conn = pg_connect($this->conn_string);
+	protected function getStatement($conn) {
 		return new PostgreSQLStatement(new PostgreSQLDriver($conn), new PostgreSQLTypeManager());
 	}
 	

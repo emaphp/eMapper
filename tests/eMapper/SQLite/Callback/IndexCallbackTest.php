@@ -14,7 +14,7 @@ class IndexCallbackTest extends AbstractIndexCallbackTest {
 	use SQLiteConfig;
 	
 	public function testClosureIndex() {
-		$list = $this->mapper->index_callback(function ($user) {
+		$list = $this->mapper->indexCallback(function ($user) {
 			$date = \DateTime::createFromFormat('Y-m-d', $user->birth_date);
 			return intval($date->format('Y'));
 		})

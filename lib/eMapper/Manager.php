@@ -3,14 +3,14 @@ namespace eMapper;
 
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Reflection\PropertyAccessor;
-use eMapper\SQL\Configuration\StatementConfiguration;
+use eMapper\Statement\Configuration\StatementConfiguration;
 use eMapper\Reflection\EntityMapper;
-use eMapper\Query\Predicate\Filter;
-use eMapper\Query\Predicate\SQLPredicate;
-use eMapper\Query\Builder\InsertQueryBuilder;
-use eMapper\Query\Builder\UpdateQueryBuilder;
-use eMapper\Query\Builder\SelectQueryBuilder;
-use eMapper\Query\Builder\DeleteQueryBuilder;
+use eMapper\SQL\Predicate\Filter;
+use eMapper\SQL\Predicate\SQLPredicate;
+use eMapper\SQL\Builder\InsertQueryBuilder;
+use eMapper\SQL\Builder\UpdateQueryBuilder;
+use eMapper\SQL\Builder\SelectQueryBuilder;
+use eMapper\SQL\Builder\DeleteQueryBuilder;
 use eMapper\Query\Attr;
 use eMapper\Query\Field;
 use eMapper\Query\Column;
@@ -168,46 +168,6 @@ class Manager {
 		
 		//run query
 		return $this->mapper->merge($this->cleanConfig(['map.type' => $this->expression]))->query($query, $args);
-	}
-	
-	/**
-	 * Executes a declared statement
-	 * @param string $statementId
-	 * @return mixed
-	 */
-	public function execute($statementId) {
-		//obtain parameters
-		$args = func_get_args();
-		$statementId = array_shift($args);
-		
-		if (!is_string($statementId) || empty($statementId))
-			$this->driver->throwException("Statement id is not a valid string");
-		
-		//get current namespace
-		$ns = $this->entity->getNamespace();
-		
-		//build statement id
-		if (isset($ns)) {
-			$route = explode('.', $statementId);
-			array_unshift($route, $ns);
-			$statementId = implode('.', $route);
-		}
-		
-		//obtain statement
-		$stmt = $this->mapper->getStatement($statementId);
-		
-		if ($stmt === false)
-			$this->mapper->driver->throwException("Statement '$statementId' could not be found");
-		
-		//get statement config
-		$query = $stmt->getQuery();
-		$options = is_null($stmt->getOptions()) ? [] : $stmt->getOptions()->getConfig();
-		
-		//add query to method parameters
-		array_unshift($args, $query);
-		
-		//merge options
-		return call_user_func_array([$this->mapper->merge($this->cleanConfig($options, true)), 'query'], $args);
 	}
 	
 	/**
@@ -536,12 +496,14 @@ class Manager {
 	 * @return Manager
 	 */
 	public function index(Field $index = null) {
-		if (is_null($index)) return $this->discard('query.index');
+		if (is_null($index))
+			return $this->discard('query.index');
 		elseif ($index instanceof Attr) {
 			//get custom type (if any)
 			$type = $index->getType();
 			
-			if (isset($type)) return $this->merge(['query.index' => $index->getName() . ':' . $type]);
+			if (isset($type))
+				return $this->merge(['query.index' => $index->getName() . ':' . $type]);
 			return $this->merge(['query.index' => $index->getName()]);
 		}
 		elseif ($index instanceof Column) {
@@ -556,7 +518,8 @@ class Manager {
 			
 			//obtain custom type
 			$type = $index->getType();
-			if (isset($type)) return $this->merge(['query.index' => $property . ':' . $type]);
+			if (isset($type))
+				return $this->merge(['query.index' => $property . ':' . $type]);
 			return $this->merge(['query.index' => $property]);
 		}
 		
@@ -569,12 +532,14 @@ class Manager {
 	 * @return Manager
 	 */
 	public function group(Field $group = null) {
-		if (is_null($group)) return $this->discard('query.group');
+		if (is_null($group))
+			return $this->discard('query.group');
 		elseif ($group instanceof Attr) {
 			//get custom type (if any)
 			$type = $group->getType();
 			
-			if (isset($type)) return $this->merge(['query.group' => $group->getName() . ':' . $type]);		
+			if (isset($type))
+				return $this->merge(['query.group' => $group->getName() . ':' . $type]);		
 			return $this->merge(['query.group' => $group->getName()]);
 		}
 		elseif ($group instanceof Column) {
@@ -587,7 +552,8 @@ class Manager {
 			$property = $columns[$group->getName()];
 			$type = $group->getType();
 			
-			if (isset($type)) return $this->merge(['query.group' => $property . ':' . $type]);		
+			if (isset($type))
+				return $this->merge(['query.group' => $property . ':' . $type]);		
 			return $this->merge(['query.group' => $property]);
 		}
 		
@@ -611,8 +577,10 @@ class Manager {
 	 * @return Manager
 	 */
 	public function limit($from, $to = null) {
-		if (is_null($from)) return $this->discard('query.from', 'query.to');
-		if (isset($to)) return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
+		if (is_null($from))
+			return $this->discard('query.from', 'query.to');
+		if (isset($to))
+			return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
 		return $this->merge(['query.from' => intval($from)]);
 	}
 	

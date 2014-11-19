@@ -3,12 +3,10 @@ namespace eMapper;
 
 use eMapper\Query\Attr;
 
-abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
-	protected $mapper;
-	
+abstract class AbstractAssociationTest extends MapperTest {	
 	public function testOneToOne() {
 		//profiles
-		$manager = $this->mapper->buildManager('Acme\Association\Profile');
+		$manager = $this->mapper->newManager('Acme\Association\Profile');
 		$profile = $manager->findByPk(1);
 		$this->assertInstanceOf('Acme\Association\Profile', $profile);
 		$user = $profile->getUser();
@@ -25,7 +23,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, $user->getId());
 		
 		//users
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$user = $manager->findByPk(1);
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$profile = $user->getProfile();
@@ -36,7 +34,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testManyToOne() {
-		$manager = $this->mapper->buildManager('Acme\Association\Sale');
+		$manager = $this->mapper->newManager('Acme\Association\Sale');
 		$sale = $manager->findByPk(1);
 		$this->assertInstanceOf('Acme\Association\Sale', $sale);
 		$product = $sale->getProduct();
@@ -61,7 +59,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testOneToMany() {
-		$manager = $this->mapper->buildManager('Acme\Association\Product');
+		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$product = $manager->findByPk(5);
 		$sales = $product->getSales();
 		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
@@ -72,7 +70,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('Acme\Association\Sale', $sale);
 		$this->assertEquals(1, $sale->getId());
 		
-		$manager = $this->mapper->buildManager('Acme\Association\Product');
+		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$product = $manager->findByPk(1);
 		$sales = $product->getSales();
 		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
@@ -82,7 +80,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testManyToMany() {
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$user = $manager->findByPk(1);
 		$favorites = $user->getFavorites();
 		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
@@ -94,7 +92,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testOneToOneList() {
-		$manager = $this->mapper->buildManager('Acme\Association\Profile');
+		$manager = $this->mapper->newManager('Acme\Association\Profile');
 		$profiles = $manager->find();
 		$this->assertInternalType('array', $profiles);
 		$this->assertCount(5, $profiles);
@@ -116,7 +114,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testManyToOneList() {
-		$manager = $this->mapper->buildManager('Acme\Association\Sale');
+		$manager = $this->mapper->newManager('Acme\Association\Sale');
 		$sales = $manager->index(Attr::id())->find();
 		$this->assertInternalType('array', $sales);
 		$this->assertArrayHasKey(1, $sales);
@@ -158,7 +156,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testOneToManyList() {
-		$manager = $this->mapper->buildManager('Acme\Association\Product');
+		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$products = $manager->index(Attr::id())->find();
 		$this->assertInternalType('array', $products);
 		$this->assertCount(8, $products);
@@ -237,7 +235,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testManyToManyList() {
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$users = $manager->index(Attr::id())->find();
 		$this->assertInternalType('array', $users);
 		$this->assertCount(5, $users);
@@ -289,7 +287,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testDebugAssociation() {
-		$manager = $this->mapper->buildManager('Acme\Association\User');
+		$manager = $this->mapper->newManager('Acme\Association\User');
 		$user = $manager
 		->debug(function ($query) {
 			static $index = 0;
@@ -302,7 +300,7 @@ abstract class AbstractAssociationTest extends \PHPUnit_Framework_TestCase {
 		})
 		->findByPk(1);
 		
-		$manager = $this->mapper->buildManager('Acme\Association\Category');
+		$manager = $this->mapper->newManager('Acme\Association\Category');
 		$category = $manager
 		->debug(function ($query) {
 			static $index = 0;

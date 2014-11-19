@@ -5,22 +5,9 @@ use eMapper\Query\Attr;
 use eMapper\Query\Column;
 use eMapper\Query\Q;
 use eMapper\Engine\Generic\Driver;
-use eMapper\SQL\Statement;
 use Acme\Entity\Product;
 
-abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
-	/**
-	 * Engine driver
-	 * @var Driver
-	 */
-	protected $driver;
-	
-	/**
-	 * Mapper instance
-	 * @var Mapper
-	 */
-	protected $mapper;
-	
+abstract class AbstractManagerTest extends MapperTest {	
 	/**
 	 * Test manager
 	 * @var Manager
@@ -28,15 +15,9 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	protected $productsManager;
 	
 	public function setUp() {
-		$this->build();
-		
-		//add statements
-		$this->mapper->ns('products')
-		->stmt('count', "SELECT COUNT(*) FROM products", Statement::type('i'))
-		->stmt('findByCode', "SELECT * FROM products WHERE product_code = %{s}", Statement::type('obj:Acme\Entity\Product')); 
+		$this->mapper = $this->getMapper();
+		$this->productsManager = $this->mapper->newManager('Acme\Entity\Product'); 
 	}
-	
-	public abstract function build();
 	
 	public function testFindByPk() {
 		$product = $this->productsManager->findByPK(1);
@@ -307,7 +288,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testIndexCallback() {
-		$products = $this->productsManager->index_callback(function($product) {
+		$products = $this->productsManager->indexCallback(function($product) {
 			return "prod_{$product->id}";
 		})->find();
 		
@@ -444,7 +425,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testGroupCallback() {
 		$products = $this->productsManager
-		->group_callback(function ($product) {
+		->groupCallback(function ($product) {
 			return substr($product->code, 0, 3);
 		})
 		->find();
@@ -456,29 +437,7 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('TEC', $products);
 		$this->assertArrayHasKey('SOF', $products);
 	}
-	
-	/*
-	 * STATEMENTS
-	 */
-	public function testValue() {
-		$total = $this->productsManager->execute('count');
-		$this->assertInternalType('integer', $total);
-		$this->assertEquals(8, $total);
-	}
-	
-	public function testObject() {
-		$product = $this->productsManager->execute('findByCode', 'IND00232');
-		$this->assertInstanceOf('Acme\Entity\Product', $product);
-		$this->assertEquals(3, $product->id);
-	}
-	
-	public function testArray() {
-		$product = $this->productsManager->type('array')->execute('findByCode', 'IND00232');
-		$this->assertInternalType('array', $product);
-		$this->assertArrayHasKey('product_id', $product);
-		$this->assertEquals(3, $product['product_id']);
-	}
-	
+		
 	/**
 	 * AGGREGATE FUNCTIONS
 	 */
@@ -534,10 +493,6 @@ abstract class AbstractManagerTest extends \PHPUnit_Framework_TestCase {
 		$sum = $this->productsManager->filter(Attr::category()->eq('Clothes'))->sum(Column::price(), 'integer');
 		$this->assertInternalType('integer', $sum);
 		$this->assertEquals(457, floor($sum));
-	}
-	
-	public function tearDown() {
-		if ($this->mapper) $this->mapper->close();
 	}
 }
 ?>

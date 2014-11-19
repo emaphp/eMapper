@@ -1,12 +1,12 @@
 <?php
 namespace eMapper\Mapper\ObjectMapper;
 
-use eMapper\Mapper\AbstractMapperTest;
+use eMapper\MapperTest;
 
-abstract class AbstractResultMapTest extends AbstractMapperTest {
+abstract class AbstractResultMapTest extends MapperTest {
 	public function testRow() {
 		$user = $this->mapper->type('object')
-		->result_map('Acme\Result\UserResultMap')
+		->resultMap('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users WHERE user_id = 1");
 	
 		$this->assertInstanceOf('stdClass', $user);
@@ -26,7 +26,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testList() {
 		$users = $this->mapper->type('object[]')
-		->result_map('Acme\Result\UserResultMap')
+		->resultMap('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -55,7 +55,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testIndexedList() {
 		$users = $this->mapper->type('object[user_id]')
-		->result_map('Acme\Result\UserResultMap')
+		->resultMap('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -84,7 +84,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testCustomIndexList() {
 		$users = $this->mapper->type('object[user_id:s]')
-		->result_map('Acme\Result\UserResultMap')
+		->resultMap('Acme\Result\UserResultMap')
 		->query("SELECT * FROM users ORDER BY user_id ASC");
 	
 		$this->assertInternalType('array', $users);
@@ -113,7 +113,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testOverrideIndexList() {
 		$products = $this->mapper->type('object[category]')
-		->result_map('Acme\Result\GenericProductResultMap')
+		->resultMap('Acme\Result\GenericProductResultMap')
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
@@ -153,7 +153,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testGroupedList() {
 		$products = $this->mapper->type('object<category>')
-		->result_map('Acme\Result\GenericProductResultMap')
+		->resultMap('Acme\Result\GenericProductResultMap')
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);
@@ -219,7 +219,7 @@ abstract class AbstractResultMapTest extends AbstractMapperTest {
 	
 	public function testGroupedIndexedList() {
 		$products = $this->mapper->type('object<category>[code]')
-		->result_map('Acme\Result\GenericProductResultMap')
+		->resultMap('Acme\Result\GenericProductResultMap')
 		->query("SELECT * FROM products ORDER BY product_id ASC");
 	
 		$this->assertInternalType('array', $products);

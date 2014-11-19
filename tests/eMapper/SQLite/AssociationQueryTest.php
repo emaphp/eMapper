@@ -12,9 +12,5 @@ use eMapper\AbstractAssociationQueryTest;
  */
 class AssociationQueryTest extends AbstractAssociationQueryTest {
 	use SQLiteConfig;
-	
-	public function setUp() {
-		$this->mapper = $this->getMapper();
-	}
 }
 ?>

@@ -24,7 +24,7 @@ class Product {
 	
 	/**
 	 * @Procedure Sales_FindLastByProductId
-	 * @Parameter(id)
+	 * @Param(id)
 	 * @Type obj:Acme\Result\Attribute\Sale
 	 * @AsTable true
 	 * @Escape false
@@ -33,7 +33,7 @@ class Product {
 	
 	/**
 	 * @Procedure Products_FindBestByCategory
-	 * @Parameter(category)
+	 * @Param(category)
 	 * @Type obj:Acme\Result\Attribute\Product
 	 * @AsTable true
 	 * @Escape false
@@ -42,10 +42,10 @@ class Product {
 	
 	/**
 	 * @Procedure Products_FindAvgPriceByCategory
-	 * @Parameter(category)
+	 * @Param(category)
 	 * @Type float
 	 * @Escape false
-	 * @Scalar
+	 * @Cacheable
 	 */
 	public $avgPrice;
 }

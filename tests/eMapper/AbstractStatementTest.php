@@ -4,8 +4,10 @@ namespace eMapper;
 abstract class AbstractStatementTest extends \PHPUnit_Framework_TestCase {
 	protected $statement;
 	
+	abstract function getConnection();
+	
 	public function setUp() {
-		$this->statement = $this->getStatement();
+		$this->statement = $this->getStatement($this->getConnection());
 	}
 	
 	public function testEmpty() {

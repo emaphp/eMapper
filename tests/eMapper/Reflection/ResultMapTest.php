@@ -92,34 +92,34 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		
 		//profiles
 		$profiles = Omocha::getAnnotations($secondOrderAttributes['profiles']->getReflectionProperty());
-		$this->assertTrue($profiles->has('StatementId'));
-		$this->assertInternalType('string', $profiles->get('StatementId')->getValue());
-		$this->assertEquals("profiles.findByUserId", $profiles->get('StatementId')->getValue());
-		$this->assertTrue($profiles->has('Parameter'));
-		$this->assertInternalType('boolean', $profiles->get('Parameter')->getValue());
-		$this->assertEquals(true, $profiles->get('Parameter')->getValue());
-		$this->assertInternalType('boolean', $profiles->find('Parameter')[0]->getValue());
-		$this->assertInternalType('integer', $profiles->find('Parameter')[1]->getValue());
-		$this->assertEquals('id', $profiles->find('Parameter')[0]->getArgument());
-		$this->assertEquals(3, $profiles->find('Parameter')[1]->getValue());
+		$this->assertTrue($profiles->has('Statement'));
+		$this->assertInternalType('string', $profiles->get('Statement')->getValue());
+		$this->assertEquals("Profile.findByUserId", $profiles->get('Statement')->getValue());
+		$this->assertTrue($profiles->has('Param'));
+		$this->assertInternalType('boolean', $profiles->get('Param')->getValue());
+		$this->assertEquals(true, $profiles->get('Param')->getValue());
+		$this->assertInternalType('boolean', $profiles->find('Param')[0]->getValue());
+		$this->assertEquals('id', $profiles->find('Param')[0]->getArgument());
 		
 		//total profiles
 		$totalProfiles = Omocha::getAnnotations($firstOrderAttributes['totalProfiles']->getReflectionProperty());
 		$this->assertTrue($totalProfiles->has('Eval'));
 		$this->assertInternalType('string', $totalProfiles->get('Eval')->getValue());
 		$this->assertEquals('(+ (count (#profiles)) (%0))', $totalProfiles->get('Eval')->getValue());
-		$this->assertTrue($totalProfiles->has('Self'));
-		$this->assertTrue($totalProfiles->has('Parameter'));
-		$this->assertInternalType('integer', $totalProfiles->get('Parameter')->getValue());
+		$this->assertTrue($totalProfiles->has('Param'));
+		$this->assertInternalType('boolean', $totalProfiles->find('Param')[0]->getValue());
+		$this->assertInternalType('integer', $totalProfiles->find('Param')[1]->getValue());
+		$this->assertEquals('self', $totalProfiles->find('Param')[0]->getArgument());
+		$this->assertEquals(1, $totalProfiles->find('Param')[1]->getValue());
 		
 		//last connection
 		$lastConnection = Omocha::getAnnotations($firstOrderAttributes['lastConnection']->getReflectionProperty());
 		$this->assertTrue($lastConnection->has('Query'));
 		$this->assertInternalType('string', $lastConnection->get('Query')->getValue());
 		$this->assertEquals("SELECT last_login FROM login WHERE user_id = %{i}", $lastConnection->get('Query')->getValue());
-		$this->assertTrue($lastConnection->has('Parameter'));
-		$this->assertInternalType('boolean', $lastConnection->get('Parameter')->getValue());
-		$this->assertEquals('id', $lastConnection->get('Parameter')->getArgument());
+		$this->assertTrue($lastConnection->has('Param'));
+		$this->assertInternalType('boolean', $lastConnection->get('Param')->getValue());
+		$this->assertEquals('id', $lastConnection->get('Param')->getArgument());
 		$this->assertTrue($lastConnection->has('Type'));
 		$this->assertEquals('dt', $lastConnection->get('Type')->getValue());
 		
@@ -128,9 +128,9 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($favorites->has('Query'));
 		$this->assertInternalType('string', $favorites->get('Query')->getValue());
 		$this->assertEquals("SELECT link FROM favorites WHERE user_id = #{id} AND confirmed = %{bool}", $favorites->get('Query')->getValue());
-		$this->assertTrue($favorites->has('Self'));
-		$this->assertTrue($favorites->has('Parameter'));
-		$this->assertInternalType('boolean', $favorites->get('Parameter')->getValue());
+		$this->assertTrue($favorites->has('Param'));
+		$this->assertInternalType('boolean', $favorites->find('Param')[0]->getValue());
+		$this->assertInternalType('boolean', $favorites->find('Param')[1]->getValue());
 		$this->assertTrue($favorites->has('Type'));
 		$this->assertEquals('string[]', $favorites->get('Type')->getValue());
 	}
