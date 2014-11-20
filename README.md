@@ -6,19 +6,26 @@ eMapper
 <br/>
 **Author**: Emmanuel Antico
 <br/>
-**Version**: 3.3
+**Version**: 4.0
 
 <br/>
 Changelog
 ------------------
 <br/>
-2014-10-25 - Version 3.3
+2015-01-XX - Version 4.0
 
-  * Deprecated: query_override callback.
-  * Added: debug method in StatementConfiguration.
-  * Added: Method 'filter' renamed to 'filter_callback'.
-  * Added: Methods 'where' and 'where_not' in Manager class.
-  * Added: 'CheckDuplicate' annotation.
+  * Deprecated: Named Queries
+  * Added: Fluent Queries
+  * Deprecated: Calling stored procedures through method overloading.
+  * Added: StoredProcedure class.
+  * Modified: @StatementId renamed to @Statement. Now only accepts expressions containing an entity class and a statement id.
+  * Modified: @Scalar renamed to @Cacheable.
+  * Modified: @Parameter renamed to @Param.
+  * Modified: Mapper::buildManager renamed to newManager.
+  * Added: Methods newQuery and newProcedure in Mapper class.
+  * Deprecated: @JoinWith and @ForeignKey annotations.
+  * Added: @Join annotation.
+  * Modified: @OrderBy syntax.
 
 <br/>
 Dependencies
@@ -38,7 +45,7 @@ Installation
 ```javascript
 {
     "require": {
-        "emapper/emapper" : "3.3.*"
+        "emapper/emapper" : "4.0.*"
     }
 }
 ```
@@ -56,6 +63,7 @@ About
 - **Cache providers**: Obtained data can be stored in cache using APC or Memcache.
 - **Dynamic SQL**: Queries can contain Dynamic SQL clauses writted in *eMacros*.
 - **Entity Managers**: Managers provide a set of small ORM features which are common in similar frameworks.
+- **Fluent queries**: Fluent queries can generate SQL programatically using a fluent interface.
 
 <br/>
 Introduction
@@ -96,7 +104,7 @@ $mapper = new Mapper($driver);
 ```
 
 <br/>
->Step 3: Have fun
+>Step 3: Fetching data
 
 eMapper is not ORM-oriented but type-oriented. Everything revolves around queries and *mapping expressions*. The following examples try to give you an idea of how the data mapping engine works.
 
@@ -120,6 +128,9 @@ $user = $mapper->type('arr')->query("SELECT * FROM users WHERE name = %{s}", 'em
 
 //using 'obj' as mapping expression will convert a row to an instance of stdClass
 $user = $mapper->type('obj')->query("SELECT * FROM users WHERE id = %{i}", 42);
+
+//adding '[]' at the end converts a result to a list of the desired type
+$user = $mapper->type('obj[]')->query("SELECT * FROM users WHERE department = %{s}", 'Sales');
 
 //close connection
 $mapper->close();
@@ -257,7 +268,7 @@ $products = $mapper->type('obj<category>[id:int]')->query("SELECT * FROM product
 ```php
 //lists could also be indexed using a closure
 $products = $mapper->type('array[]')
-->index_callback(function ($product) {
+->indexCallback(function ($product) {
     //return a custom made index
     return $product['code'] . '_' . $product['id'];
 })
@@ -266,7 +277,7 @@ $products = $mapper->type('array[]')
 // a group callback does what you expect
 //it can also be combined with indexes if needed
 $products = $mapper->type('obj[id]')
-->group_callback(function ($product) {
+->groupCallback(function ($product) {
     return substr($product->category, 0, 3);
 })
 ->query("SELECT * FROM products");
@@ -308,108 +319,216 @@ $mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body})
 *Note*: The syntax for array/object attributes work as long as you provide the array/object as the first argument.
 
 <br/>
-Named Queries
+Fluent Queries
 -------------
 
 <br/>
-#####Statements
+Fluent queries provide a fluent interface for generating SQL programatically. We obtain a new FluentQuery instance by calling the *newQuery* method in the *Mapper* class.
+
+<br/>
+#####Select
 
 ```php
-//declaring a statement
-$mapper->stmt("findUserByPk", "SELECT * FROM users WHERE user_id = %{i}");
+/**
+ * BASIC USAGE
+ */
 
-//statements are invoked with the execute method
-$mapper->type('obj[]')->execute('findUserByPk', 100);
+$query = $mapper->newQuery();
+
+//SELECT * FROM users
+$users = $query->from('users')->fetch();
+
+//fetch accepts a mapping expression as an optional argument
+$user = $query->from('users')->where('id = 1')->fetch('array');
+
+//type method could be used instead
+$user = $query->from('users')->where('id = 1')->type('array')->fetch();
+
+//condition could be expressed using the Column class
+use eMapper\Query\Column;
+
+$user = $query->from('users')->where(Column::id()->eq(1))->fetch('obj');
+
+//using whereExpr
+$user = $query->from('users')
+->whereExpr('id = %{i}')
+->whereArgs(1)
+->fetch('obj');
+
+/**
+ * COLUMNS
+ */
+
+$query = $mapper->newQuery();
+
+//define columns to fetch
+$users = $query->from('users')
+->select('id', 'name', 'email')
+->fetch('obj[]');
+
+//using Column class
+$users = $query->from('users')
+->select(Column::id(), Column::name(), Column::email())
+->fetch('obj[]');
+
+/**
+ * LIMIT + OFFSET
+ */
+
+$query = $mapper->newQuery();
+$users = $query->from('users')->limit(10)->offset(5)->fetch();
+
+/**
+ * ORDER BY
+ */
+
+$query = $mapper->newQuery();
+
+$users = $query->from('users')->orderBy('name', 'id ASC')->fetch();
+
+//same but with Column class
+$users = $mapper->from('users')
+->orderBy(Column::name(), Column::id('ASC'))
+->fetch();
+
+/**
+ * JOINS
+ */
+
+$query = $mapper->newQuery();
+ 
+$users = $query->from('users', 'u')
+->innerJoin('profiles', 'p', 'u.id = p.user_id')
+->select('u.id', 'u.name AS username', 'p.name')
+->fetch();
+
+//using the Column class along with the double dash syntax
+$users = $query->from('users', 'u')
+->innerJoin('profiles', 'p', Column::u__id()->eq(Column::p__user_id()))
+->select(Column::u__id(), Column::u__name('username'), Column::p__name())
+->fetch();
+
+/**
+ * GROUP BY + HAVING
+ */
+
+$query = $mapper->newQuery();
+
+$employees = $query->from('Employees', 'emp')
+->innerJoin('Orders', 'ord', 'ord.employee_id = emp.id')
+->select('emp.lastname', 'COUNT(ord.id)')
+->having('COUNT(ord.id) > 10')
+//alternative syntax: ->having('COUNT(ord.id) > %{i}', 10)
+->fetch();
+
+use eMapper\Query\Func as F;
+
+$employees = $query->from('Employees', 'emp')
+->innerJoin('Orders', 'ord', Column::ord__employee_id()->eq(Column::emp__id()))
+->select(Column::emp__lastname(), F::COUNT(Column::ord__id()))
+->groupBy(Column::emp__lastname())
+->having(F::COUNT(Column::ord__id())->gt(10))
+->fetch();
 ```
 
 <br/>
-#####Configuration
+#####Insert
 
 ```php
-//the stmt method supports a third argument with the predefined configuration for that query
-use eMapper\SQL\Statement;
+$query = $mapper->newQuery();
 
-//declare statement
-$mapper->stmt('findProductsByCategory',
-              "SELECT * FROM products WHERE category = %{s}",
-              Statement::type('obj[]'));
+//INSERT INTO users VALUES ('emaphp', 'M', '1984-07-05')
+$query->insertInto('users')->values('emaphp', 'M', '1984-07-05')->exec();
 
-//get products as an object list
-$products = $mapper->execute('findProductsByCategory', 'Audio');
+//values as array
+$values = ['emaphp', 'M', '1984-07-05'];
+$query->insertInto('users')->valuesArray($values)->exec();
 
-//override default configuration and return result as an indexed list of arrays
-$products = $mapper->type('array[id]')->execute('findProductsByCategory', 'Smartphones');
+//INSERT INTO users (name, birth_date, sex) VALUES ('emaphp', '1984-07-05', 'M')
+$query->insertInto('users')
+->columns('name', 'birth_date', 'sex')
+->values('emaphp', '1984-07-05', 'M')
+->exec();
+
+//using valuesExpr
+$query->insertInto('users')
+->columns('name', 'birth_date', 'sex')
+->valuesExpr('%{s}, %{dt}, %{s}')
+->values('emaphp', '1984-07-05', 'M')
+->exec();
 ```
 
 <br/>
-#####Namespaces
+#####Update
 
 ```php
-//namespaces provide a more organized way of declaring statements
-use eMapper\SQL\SQLNamespace;
-use eMapper\SQL\Statement;
+use eMapper\Query\Column;
 
-class UsersNamespace extends SQLNamespace {
-    public function __construct() {
-        //set namespace id through parent constructor
-        parent::__construct('users');
-        
-        $this->stmt('findByPk',
-                    "SELECT * FROM users WHERE id = %{i}",
-                    Statement::type('obj'));
-                    
-        $this->stmt('findByName',
-                    "SELECT * FROM users WHERE name = %{s}",
-                    Statement::type('obj'));
-                    
-        $this->stmt('findRecent'
-                    "SELECT * FROM users WHERE created_at >= subdate(NOW(), INTERVAL 3 DAY)",
-                    Statement::type('obj[id:int]'));
-    }
-}
+$query = $mapper->newQuery();
 
-//add namespace
-$mapper->addNamespace(new UsersNamespace());
+//UPDATE users SET language = 'sp', last_login = 2015-01-01 00:00:00
+//WHERE name = 'emaphp'
+$query->update('users')
+->set('language', 'sp')
+->set('last_login', new \Datetime())
+->where(Column::name()->eq('emaphp'))
+->exec();
 
-//namespace id must be specified as a prefix
-$user = $mapper->execute('users.findByPK', 4);
+//using setExpr + whereExpr
+$query->update('users')
+->setExpr('language = %{s}, last_login = %{dt}')
+->setArgs('sp', new \Datetime())
+->whereExpr('name = %{s}')
+->whereArgs('emaphp')
+->exec();
 ```
+
+<br/>
+#####Delete
+
+```php
+use eMapper\Query\Column;
+
+$query = $mapper->newQuery();
+
+//DELETE FROM staff WHERE role <> 'developer'
+$query->deleteFrom('staff')
+->where(Column::role()->eq('developer', false))
+->exec();
+
+//using whereExpr
+$query->deleteFrom('staff')
+->whereExpr('role <> %{s}')
+->whereArgs('developer')
+->exec();
+```
+
 
 <br/>
 Stored procedures
 -----------------
 
 <br/>
-#####Invoking stored procedures
-
-The *Mapper* class uses [method overloading](http://php.net//manual/en/language.oop5.overloading.php "") to translate an invokation to an non-existant method into a stored procedure call.
-
-```php
-//MySQL: CALL Users_Clean()
-//PostgreSQL: SELECT Users_Clean()
-$mapper->Users_Clean();
-
-//if database prefix is set it is used as a prefix
-$mapper->setPrefix('COM_');
-
-//MySQL: CALL COM_Users_Clean()
-//PostgreSQL: SELECT COM_Users_Clean()
-$mapper->Users_Clean();
-```
-
+In order to call a stored procedure we create a *StoredProcedure* instance by calling the *newProcedure* method in the *Mapper* class. The procedure is then invoked through the *call* method.
 <br/>
-#####Mapping values
 ```php
-//simple values con be obtained like usual
-$total = $mapper->type('i')->Users_CountActive();
+//CALL Users_Clean
+$proc = $mapper->newProcedure('Users_Clean');
+$proc->call();
 
-//engines may differ in how to treat a structured value
-$user = $mapper->type('obj')->Users_FindByPK(3); //works in MySQL only
+//using the database prefix
+$mapper->setPrefix('ACME_');
 
-//PostgreSQL needs an additional configuration value
-//SQL: SELECT * FROM Users_FindByPK(3)
-$user = $mapper->type('obj')->option('proc.as_table', true)->Users_FindByPK(3);
+//CALL ACME_Backup_Orders(100)
+$proc = $mapper->newProcedure('Backup_Orders');
+$proc->call(100);
+
+//CALL Users_Create(...)
+$proc = $mapper->newProcedure('Users_Create');
+//if a procedure returns a value it can also be mapped
+$id = $proc->usePrefix(false)->type('i')->call('emaphp', '1984-07-05', 'M');
 ```
+
 
 <br/>
 Entity Managers
@@ -417,7 +536,7 @@ Entity Managers
 
 <br/>
 #####Entities and Annotations
-Writing all your queries can turn very frustating real soon. Luckily, eMapper provides a small set of ORM features that can save you a lot of time. Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows an entity class named *Product*. The *Product* class obtains its values from the *pŕoducts* table, indicated by the *@Entity* annotation. This class defines 5 attributes, and each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can specify a *@Column* annotation indicating the real one. As a general rule, all entities must define a primary key attribute. The *Product* class sets its **id** attribute as primary key using the *@Id* annotation.
+Entity managers are objects that behave like DAOs ([Data Access Object](http://en.wikipedia.org/wiki/Data_access_object "")) for a specified class. The first step to create an entity manager is designing an entity class. The following example shows an entity class named *Product*. The *Product* class obtains its values from the *pŕoducts* table, indicated by the *@Entity* annotation. This class defines 5 attributes, and each one defines its type through the *@Type* annotation. If the attribute name differs from the column name we can specify a *@Column* annotation indicating the real one. As a general rule, all entities must define a primary key attribute. The *Product* class sets its **id** attribute as primary key using the *@Id* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -490,11 +609,11 @@ class Product {
     }
 }
 ```
-Managers are created through the *buildManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually.
+Managers are created through the *newManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually.
 
 ```php
 //create a products manager
-$products = $mapper->buildManager('Acme\\Factory\\Product');
+$products = $mapper->newManager('Acme\\Factory\\Product');
 
 //get by id
 $product = $products->findByPk(4);
@@ -513,7 +632,7 @@ $list = $products
 ->find();
 
 //OR condition (category = 'E-Books' OR price < 799.99)
-use eMapper\Query\Q;
+use eMapper\Query\Cond as Q;
 
 $list = $products
 ->filter(Q::where(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99)))
@@ -544,20 +663,20 @@ $list = $products->group(Attr::category())->find();
 
 //callbacks work as well
 $list = $products
-->index_callback(function ($product) {
+->indexCallback(function ($product) {
     return $product->getId() . substr($product->getCode(), 0, 5);
 })
 ->find();
 
 //order and limit clauses
 $list = $products
-->order_by(Attr::id())
+->orderBy(Attr::id())
 ->limit(15)
 ->find();
 
 //setting the order type
 $list = $products
-->order_by(Attr::id('ASC'), Attr::category())
+->orderBy(Attr::id('ASC'), Attr::category())
 ->limit(10, 20)
 ->find();
 
@@ -584,7 +703,7 @@ $max = $products
 use Acme\Factory\Product;
 
 //create manager
-$products = $mapper->buildManager('Acme\Factory\Product');
+$products = $mapper->newManager('Acme\Factory\Product');
 
 $product = new Product;
 $product->setCode('ACM001');
@@ -607,7 +726,7 @@ $products->save($product);
 
 ```php
 //create manager
-$products = $mapper->buildManager('Acme\Factory\Product');
+$products = $mapper->newManager('Acme\Factory\Product');
 
 //delete expects an entity as parameter
 $product = $products->findByPk(20);
@@ -619,157 +738,6 @@ $products->deleteWhere(Attr::id()->eq(20));
 //for security reasions, truncating a table requires a special method
 $products->truncate();
 ```
-
-<br/>
-Entity Namespaces
------------------
-
-<br/>
-#####Introduction
-
-Entity namespaces are classes that generate statements from an entity class automatically. These classes receive their respective ids from the *@DefaultNamespace* annotation in the entity class declaration. When not specified, the namespace takes the value indicated by the *@Entity* annotation.
-
-```php
-namespace Acme\Factory;
-
-/**
- * @Entity products
- * @DefaultNamespace products
- */
-class Product {
-    /**
-     * @Id
-     * @Type integer
-     */
-    private $id;
-    
-    /**
-     * @Unique
-     * @Type string
-     */
-    private $code;
-    
-    /**
-     * @Type string
-     */
-    private $description;
-    
-    /**
-     * @Type string
-     */
-    private $category;
-    
-    /**
-     * @Type float
-     */
-    private $price;
-    
-    //...
-}
-
-```
-
-<br/>
-#####Adding a entity namespace
-
-```php
-use eMapper\SQL\EntityNamespace;
-
-//add an entity namespace
-$mapper->addEntityNamespace(new EntityNamespace('Acme\Factory\Product'));
-
-//find by primary key
-$product = $mapper->execute('products.findByPk', 2);
-
-//find all
-$products = $mapper->execute('products.findAll');
-
-//find by
-$products = $mapper->execute('products.findByCategory', 'Laptops');
-
-//override mapping expression
-$products = $mapper->type('obj:Acme\Factory\Product[id]')->execute('products.descriptionIsNull');
-```
-
-<br/>
-#####Statement list
-
-
-<table>
-    <thead>
-        <tr>
-            <th>Statement ID</th>
-            <th>Example</th>
-            <th>Returned Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>findByPk</td>
-            <td><em>products.findByPk</em></td>
-            <td>Instance (NULL if not found)</td>
-        </tr>
-        <tr>
-            <td>findAll</td>
-            <td><em>products.findAll</em></td>
-            <td>List</td>
-        </tr>
-        <tr>
-            <td>findBy{PROPERTY}</td>
-            <td><em>products.findByCode</em></td>
-            <td>Instance if property is @Id or @Unique, a list otherwise</td>
-        </tr>
-        <tr>
-            <td>{PROPERTY}[Not]Equals</td>
-            <td><em>products.codeEquals</em><br/><em>products.priceNotEquals</em></td>
-            <td>Instance if property is @Id or @Unique, a list otherwise</td>
-        </tr>
-        <tr>
-            <td>{PROPERTY}[Not][I]Contains</td>
-            <td><em>products.categoryContains</em><br/><em>products.descriptionNotContains</em><br/><em>products.categoryIContains</em></td>
-            <td>List</td>
-        </tr>
-        <tr>
-            <td>{PROPERTY}[Not][I]StartsWith</td>
-            <td><em>products.categoryStartsWith</em><br/><em>products.descriptionNotStartsWith</em><br/><em>products.categoryIStartsWith</em></td>
-            <td>List</td>
-        </tr>
-        <tr>
-            <td>{PROPERTY}[Not][I]EndsWith</td>
-            <td><em>products.categoryEndsWith</em><br/><em>products.descriptionNotEndsWith</em><br/><em>products.categoryIEndsWith</em></td>
-            <td>List</td>
-        </tr>
-        <tr>
-            <td>{PROPERTY}[Not]In</td>
-            <td><em>products.idIn</em><br/><em>products.idNotIn</em></td>
-            <td>List</td>
-        </tr>
-    <tbody>
-        <td>{PROPERTY}[Not]GreaterThan[Equal]</td>
-        <td><em>products.idGreaterThan</em><br/><em>products.priceGreaterThanEqual</em><br/><em>products.priceNotGreaterThan</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not]LessThan[Equal]</td>
-        <td><em>products.idLessThan</em><br/><em>products.priceLessThanEqual</em><br/><em>products.priceNotLessThan</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not]IsNull</td>
-        <td><em>products.descriptionIsNull</em><br/><em>products.descriptionIsNotNull</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not]Between</td>
-        <td><em>products.priceBetween</em><br/><em>products.priceNotBetween</em></td>
-        <td>List</td>
-    </tbody>
-    <tbody>
-        <td>{PROPERTY}[Not][I]Matches</td>
-        <td><em>products.categoryMatches</em><br/><em>products.codeNotMatches</em><br/><em>products.descriptionIMatches</em></td>
-        <td>List</td>
-    </tbody>
-</table>
 
 <br/>
 Associations
@@ -855,7 +823,7 @@ The *User* class defines the **profile** property as a one-to-one associaton wit
 
 ```php
 //obtain the profile with ID = 100
-$manager = $mapper->buildManager('Acme\Profile');
+$manager = $mapper->newManager('Acme\Profile');
 $profile = $manager->findByPk(100); // returns a Profile instance
 $user = $profile->getUser(); // returns the associated User instance
 ```
@@ -864,7 +832,7 @@ Lazy associations returns an instance of *eMapper\AssociationManager*. This mean
 
 ```php
 //obtain the user with ID = 100
-$manager = $mapper->buildManager('Acme\User');
+$manager = $mapper->newManager('Acme\User');
 $user = $manager->findByPk(100);
 $profile = $user->getProfile(); // returns an AssociationManager instance
 $profile = $user->getProfile()->fetch(); // fetch() returns the desired result
@@ -875,7 +843,7 @@ Associations also provide a mechanism for querying for related attributes. Suppo
 use eMapper\Query\Attr;
 
 //build manager
-$manager = $mapper->buildManager('Acme\Profile');
+$manager = $mapper->newManager('Acme\Profile');
 
 //users.name = 'jdoe'
 $profile = $manager->get(Attr::user__name()->eq('jdoe'));
@@ -961,7 +929,7 @@ This small example obtains all clients that have dogs.
 ```php
 use eMapper\Query\Attr;
 
-$manager = $mapper->buildManager('Acme\Client');
+$manager = $mapper->newManager('Acme\Client');
 
 //get all clients that have dogs
 $clients = $manager->find(Attr::pets__type()->eq('Dog'));
@@ -970,7 +938,7 @@ And this one obtains all pets for a given client.
 ```php
 use eMapper\Query\Attr;
 
-$manager = $mapper->buildManager('Acme\Pet');
+$manager = $mapper->newManager('Acme\Pet');
 
 //get all pets of Joe Doe
 $pets = $manager->find(Attr::owner__name()->eq('Joe'),
@@ -1007,8 +975,7 @@ class User {
     
     /**
      * @ManyToMany Product
-     * @JoinWith(favorites) user_id
-     * @ForeignKey prod_id
+     * @Join(->user_id,prod_id->) favorites
      * @Lazy
      */
     private $favorites;
@@ -1019,7 +986,7 @@ The *@JoinWith* annotation must provide the join table name as argument and the 
 ```php
 use eMapper\Query\Attr;
 
-$manager = $mapper->buildManager('Acme\User');
+$manager = $mapper->newManager('Acme\User');
 
 //get all users that like Android
 $users = $manager->find(Attr::favorites__description()->contains('Android'));
@@ -1075,7 +1042,7 @@ of a given category can be resolved in the following way.
 ```php
 use eMapper\Query\Attr;
 
-$manager = $mapper->buildManager('Acme\Category');
+$manager = $mapper->newManager('Acme\Category');
 
 //get all subcategories of 'Technology'
 $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
@@ -1104,7 +1071,7 @@ class Category {
      * @OneToMany Category
      * @Attr parentId
      * @Index name
-     * @OrderBy(id) DESC
+     * @OrderBy id DESC
      */
     private $subcategories:
 }
@@ -1120,7 +1087,7 @@ The *Manager* class provides a *save* method which its pretty self explanatory.
 use Acme\Product;
 
 //build entity manager
-$manager = $mapper->buildManager('Acme\Product');
+$manager = $mapper->newManager('Acme\Product');
 
 //create product instance
 $product = new Product();
@@ -1138,7 +1105,7 @@ use Acme\User;
 use Acme\Profile;
 
 //build entity manager
-$manager = $mapper->buildManager('Acme\User');
+$manager = $mapper->newManager('Acme\User');
 
 //create user instance
 $user = new User();
@@ -1163,7 +1130,7 @@ use Acme\Product;
 use eMapper\Query\Attr;
 
 //build entity manager
-$manager = $mapper->buildManager('Acme\Product');
+$manager = $mapper->newManager('Acme\Product');
 
 //update product price and store
 $product = $manager->get(Attr::code()->eq('PHN087'));
@@ -1176,7 +1143,7 @@ By default, this saves the entity along with all associated values. There are so
 ```php
 use eMapper\Query\Attr;
 
-$manager = $mapper->buildManager('Acme\Profile');
+$manager = $mapper->newManager('Acme\Profile');
 
 $profile = $manager->findByPk(100);
 $profile->setFirstName('Ishmael');
@@ -1196,7 +1163,7 @@ $profile->getUser();
 will return a NULL value. The *save* method also expects a depth parameter (default to 1) that we can manipulate to define if related data must be updated along with the entity. To simplify, if the related data is not updated we can use the *depth* method to optimize the amount of data to obtain. Then, we can store the modified entity and add a second argument to avoid storing any associated data. Finally, our example will look like the following.
 
 ```php
-$manager = $mapper->buildManager('Acme\Profile');
+$manager = $mapper->newManager('Acme\Profile');
 $profile = $manager->depth(0)->findByPk(100);
 $profile->setFirstName('Ishmael');
 $manager->save($profile, 0); //save only the profile data
@@ -1214,14 +1181,13 @@ SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
 ```
 
 ```php
-//add named query
-$mapper->stmt('findUser', "SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]");
+$query = "SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]";
 
 //find by id
-$user = $mapper->type('obj')->execute('findUser', 99);
+$user = $mapper->type('obj')->query($query, 99);
 
 //find by name
-$user = $mapper->type('obj')->execute('findUser', 'emaphp');
+$user = $mapper->type('obj')->query($query, 'emaphp');
 ```
 
 <br/>
@@ -1268,15 +1234,14 @@ SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]
 ```
 
 ```php
-//add named query
-$mapper->stmt('obtainUsers', "SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]");
+$query = "SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]";
 
 //get all users
-$mapper->type('obj[]')->execute('obtainUsers');
+$mapper->type('obj[]')->query($query);
 
 //the option method creates an instance with an additional configuration value
 //get ordered users
-$mapper->type('obj[]')->option('order', 'last_login')->execute('obtainUsers');
+$mapper->type('obj[]')->option('order', 'last_login')->query($query);
 ```
 
 <br/>
@@ -1287,11 +1252,10 @@ SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]
 ```
 
 ```php
-//add named query
-$mapper->stmt('searchUsers', "SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]");
+$query = "SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]";
 
 //search by name
-$users = $mapper->map('obj[]')->execute('searchUsers', 'ema');
+$users = $mapper->map('obj[]')->query($query, 'ema');
 ```
 
 <br/>
@@ -1343,7 +1307,7 @@ The *@Parameter* annotation can be used to define a list of arguments for a dyna
 ```php
 /**
  * @Query "SELECT * FROM products WHERE id = #{productId}"
- * @Self
+ * @Param(self)
  * @Type obj:Acme\Factory\Product
  */
 private $product;
@@ -1352,7 +1316,7 @@ private $product;
                   
 /**
  * @Query "SELECT * FROM products WHERE id = %{i}"
- * @Parameter(productId)
+ * @Param(productId)
  * @Type obj:Acme\Factory\Product
  */
 private $product;
@@ -1370,8 +1334,8 @@ class Product {
     
     /**
      * @Query "SELECT * FROM products WHERE category = #{category} LIMIT %{i}"
-     * @Self
-     * @Parameter 10
+     * @Param(self)
+     * @Param 10
      * @Type obj::Acme\Factory\Product[id]
      */
     private $relatedProducts;
@@ -1381,7 +1345,7 @@ class Product {
 <br/>
 #####Statements
 
-Named queries could also be called from a dynamic attribute by adding the *@StatementId* annotation.
+Named queries could also be called from a dynamic attribute by adding the *@Statement* annotation.
 
 ```php
 namespace Acme\Factory;
@@ -1401,9 +1365,8 @@ class Sale {
     private $productId;
     
     /**
-     * @StatementId products.findByPk
-     * @Parameter(productId)
-     * @Type obj:Acme\Factory\Product
+     * @Statement Product.findByPk
+     * @Param(productId)
      */
     private $product;
     
@@ -1433,7 +1396,7 @@ class Product {
     
     /**
      * @Procedure Products_AvgPriceByCategory
-     * @Parameter(category)
+     * @Param(category)
      * @Type float
      */
     private $averagePrice;
@@ -1506,18 +1469,20 @@ class User {
     private $type;
 
     /**
+     * Get login history if user is a member
      * @If (== (#type) 'member')
-     * @StatementId "users.loginHistory"
-     * @Parameter(id)
+     * @Query "..."
+     * @Param(id)
      */
-    private $loginHistory; //get login history if user is a member
+    private $loginHistory;
     
     /**
+     * Get admin notifications if not a member nor guest
      * @IfNot (or (== (#type) 'member') (== (#type) 'guest'))
-     * @StatementId 'admin.findNotifications'
-     * @Parameter(id)
+     * @Query "..."
+     * @Param(id)
      */
-    private $abuseNotifications; //get admin notifications if not a member nor guest
+    private $abuseNotifications;
 }
 ```
 Additionally, the *@IfNotNull* annotation evaluates a dynamic attribute if the specified attribute is not null.
@@ -1544,8 +1509,8 @@ class Category {
     
     /**
      * @IfNotNull(parentId)
-     * @Statement categories.findByPk
-     * @Parameter(paremeterId)
+     * @Statement Category.findByPk
+     * @Param(paremeterId)
      */
     private $parent;
 }
@@ -1566,7 +1531,7 @@ class User {
     
     /**
      * @Query "SELECT * FROM contacts WHERE user_id = %{i} [? (. 'ORDER BY ' (@order)) ?]"
-     * @Parameter(id)
+     * @Param(id)
      * @Option(order) 'contact_type'
      */
     private $contacts;
