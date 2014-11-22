@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\SQL\Fluent;
+namespace eMapper\SQL\Fluent\Clause;
 
 class JoinClause {
 	//joi types

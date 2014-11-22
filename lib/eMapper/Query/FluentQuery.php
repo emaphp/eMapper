@@ -3,6 +3,7 @@ namespace eMapper\Query;
 
 use eMapper\Mapper;
 use eMapper\SQL\Fluent\SelectQuery;
+use eMapper\SQL\Fluent\DeleteQuery;
 
 class FluentQuery {
 	/**
@@ -16,8 +17,7 @@ class FluentQuery {
 	}
 	
 	public function from($table, $alias = null) {
-		$select = new SelectQuery($this, $table, $alias);
-		return $select;
+		return new SelectQuery($this, $table, $alias);
 	}
 	
 	public function insertInto($table) {
@@ -29,7 +29,7 @@ class FluentQuery {
 	}
 	
 	public function deleteFrom($table, $alias = null) {
-		
+		return new DeleteQuery($this, $table, $alias);
 	}
 	
 	public function getMapper() {

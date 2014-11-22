@@ -349,10 +349,9 @@ use eMapper\Query\Column;
 
 $user = $query->from('users')->where(Column::id()->eq(1))->fetch('obj');
 
-//using whereExpr
+//using arguments
 $user = $query->from('users')
-->whereExpr('id = %{i}')
-->whereArgs(1)
+->where('id = %{i}', 1)
 ->fetch('obj');
 
 /**
@@ -417,8 +416,7 @@ $query = $mapper->newQuery();
 $employees = $query->from('Employees', 'emp')
 ->innerJoin('Orders', 'ord', 'ord.employee_id = emp.id')
 ->select('emp.lastname', 'COUNT(ord.id)')
-->having('COUNT(ord.id) > 10')
-//alternative syntax: ->having('COUNT(ord.id) > %{i}', 10)
+->having('COUNT(ord.id) > %{i}', 10)
 ->fetch();
 
 use eMapper\Query\Func as F;
@@ -438,20 +436,20 @@ $employees = $query->from('Employees', 'emp')
 $query = $mapper->newQuery();
 
 //INSERT INTO users VALUES ('emaphp', 'M', '1984-07-05')
-$query->insertInto('users')->values('emaphp', 'M', '1984-07-05')->exec();
+$id = $query->insertInto('users')->values('emaphp', 'M', '1984-07-05')->exec();
 
 //values as array
 $values = ['emaphp', 'M', '1984-07-05'];
-$query->insertInto('users')->valuesArray($values)->exec();
+$id = $query->insertInto('users')->valuesArray($values)->exec();
 
 //INSERT INTO users (name, birth_date, sex) VALUES ('emaphp', '1984-07-05', 'M')
-$query->insertInto('users')
+$id = $query->insertInto('users')
 ->columns('name', 'birth_date', 'sex')
 ->values('emaphp', '1984-07-05', 'M')
 ->exec();
 
 //using valuesExpr
-$query->insertInto('users')
+$id = $query->insertInto('users')
 ->columns('name', 'birth_date', 'sex')
 ->valuesExpr('%{s}, %{dt}, %{s}')
 ->values('emaphp', '1984-07-05', 'M')
@@ -474,12 +472,10 @@ $query->update('users')
 ->where(Column::name()->eq('emaphp'))
 ->exec();
 
-//using setExpr + whereExpr
+//using setExpr
 $query->update('users')
-->setExpr('language = %{s}, last_login = %{dt}')
-->setArgs('sp', new \Datetime())
-->whereExpr('name = %{s}')
-->whereArgs('emaphp')
+->setExpr('language = %{s}, last_login = %{dt}', 'sp', new \Datetime())
+->where('name = %{s}', 'emaphp')
 ->exec();
 ```
 
@@ -498,8 +494,7 @@ $query->deleteFrom('staff')
 
 //using whereExpr
 $query->deleteFrom('staff')
-->whereExpr('role <> %{s}')
-->whereArgs('developer')
+->where('role <> %{s}', 'developer')
 ->exec();
 ```
 

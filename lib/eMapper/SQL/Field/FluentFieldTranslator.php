@@ -9,10 +9,10 @@ class FluentFieldTranslator implements FieldTranslator {
 	 * Joined tables
 	 * @var array
 	 */
-	protected $tables;
+	protected $tableList;
 	
-	public function __construct(array $tables) {
-		$this->tables = $tables;
+	public function __construct(array $tableList) {
+		$this->tableList = $tableList;
 	}
 	
 	public function translate(Field $column, array &$joins = null, $alias = null) {
@@ -24,13 +24,10 @@ class FluentFieldTranslator implements FieldTranslator {
 				
 			$references = $column->getPath()[0];
 		
-			if (!array_key_exists($references, $this->tables))
+			if (!array_key_exists($references, $this->tableList))
 				throw new \UnexpectedValueException("Column {$column->getName()} references an unknown table '$references'");
-		
-			if (is_null($this->tables[$references]))
-				return $references . '.' . $column->getName();
-			else
-				return $this->tables[$references] . '.' . $column->getName();
+			
+			return $references . '.' . $column->getName();
 		}
 		elseif (is_string($column) && !empty($column))
 			return $column;

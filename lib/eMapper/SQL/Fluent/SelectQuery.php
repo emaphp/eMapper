@@ -2,38 +2,17 @@
 namespace eMapper\SQL\Fluent;
 
 use eMapper\Query\FluentQuery;
-use eMapper\Statement\Configuration\StatementConfiguration;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Query\Column;
 use eMapper\SQL\Field\FluentFieldTranslator;
 
-class SelectQuery extends AbstractQuery {
-	use StatementConfiguration;
-	
-	/**
-	 * Main table
-	 * @var string
-	 */
-	protected $table;
-	
-	/**
-	 * Main table alias
-	 * @var string
-	 */
-	protected $alias;
-	
+class SelectQuery extends AbstractQuery {	
 	/**
 	 * Columns to fetch
 	 * @var array
 	 */
 	protected $columns;
-	
-	/**
-	 * Condition clauses
-	 * @var array
-	 */
-	protected $whereClauses;
-	
+
 	/**
 	 * Order clauses
 	 * @var array
@@ -59,28 +38,10 @@ class SelectQuery extends AbstractQuery {
 	protected $groupByClause;
 	
 	/**
-	 * HAving clause
+	 * Having clause
 	 * @var mixed
 	 */
 	protected $havingClause;
-	
-	/**
-	 * Query arguments
-	 * @var \ArrayObject
-	 */
-	protected $args;
-	
-	/**
-	 * Table map (table -> alias)
-	 * @var \ArrayObject
-	 */
-	protected $tableMapping;
-	
-	/**
-	 * Table joins
-	 * @var array
-	 */
-	protected $joins = [];
 	
 	/**
 	 * Column translator
@@ -88,14 +49,6 @@ class SelectQuery extends AbstractQuery {
 	 */
 	protected $translator;
 	
-	public function __construct(FluentQuery $fluent, $table, $alias = null) {
-		parent::__construct($fluent);
-		$this->preserveInstance = true;
-		$this->table = $table;
-		$this->alias = $alias;
-		$this->tableMapping = [$table => $alias];
-		$this->args = [];
-	}
 	
 	/**
 	 * Sets columns to fetch
@@ -103,75 +56,6 @@ class SelectQuery extends AbstractQuery {
 	 */
 	public function select() {
 		$this->columns = func_get_args();
-		return $this;
-	}
-	
-	/**
-	 * Sets conditions to evaluate
-	 * @return \eMapper\SQL\Fluent\SelectQuery
-	 */
-	public function where() {
-		$this->whereClauses = func_get_args();
-		return $this;
-	}
-	
-	/**
-	 * Adds an inner join to the current query
-	 * @param string $table
-	 * @param string|SQLPredicate $alias_or_cond
-	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\SelectQuery
-	 */
-	public function innerJoin($table, $alias_or_cond, $cond = null) {
-		if (is_null($cond)) { //no alias
-			$this->joins[$table] = new JoinClause(JoinClause::INNER_JOIN, $table, null, $alias_or_cond);
-			$this->tableMapping[$table] = null;
-		}
-		else {
-			$this->joins[$table] = new JoinClause(JoinClause::INNER_JOIN, $table, $alias_or_cond, $cond);
-			$this->tableMapping[$table] = $alias_or_cond;
-		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Adds a left join to the current query
-	 * @param string $table
-	 * @param string|SQLPredicate $alias_or_cond
-	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\SelectQuery
-	 */
-	public function leftJoin($table, $alias_or_cond, $cond = null) {
-		if (is_null($cond)) {
-			$this->joins[$table] = new JoinClause(JoinClause::LEFT_JOIN, $table, null, $alias_or_cond);
-			$this->tableMapping[$table] = null;
-		}
-		else {
-			$this->joins[$table] = new JoinClause(JoinClause::LEFT_JOIN, $table, $alias_or_cond, $cond);
-			$this->tableMapping[$table] = $alias_or_cond;
-		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Adds a full outer join to the current query
-	 * @param string $table
-	 * @param string|SQLPredicate $alias_or_cond
-	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\SelectQuery
-	 */
-	public function fullOuterJoin($table, $alias_or_cond, $cond = null) {
-		if (is_null($cond)) {
-			$this->joins[$table] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, null, $alias_or_cond);
-			$this->tableMapping[$table] = null;
-		}
-		else {
-			$this->joins[$table] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, $alias_or_cond, $cond);
-			$this->tableMapping[$table] = $alias_or_cond;
-		}
-		
 		return $this;
 	}
 	
@@ -231,7 +115,7 @@ class SelectQuery extends AbstractQuery {
 	protected function translateColumn($column) {
 		if ($column instanceof Column) {
 			$_ = [];
-			return $this->translator->translate($column, $_, $this->alias);
+			return $this->translator->translate($column, $_, $this->fromClause->getAlias());
 		}
 		elseif (is_string($column) && !empty($column))
 			return $column;
@@ -249,65 +133,32 @@ class SelectQuery extends AbstractQuery {
 		if ($column instanceof Column) {
 			$path = $column->getPath();
 			$type = $column->getType();
+			$alias = $this->fromClause->getAlias();
+			$tableList = $this->fromClause->getTableList();
 				
 			if (empty($path)) {
-				if (is_null($this->alias))
+				if (is_null($alias))
 					return empty($type) ? $column->getName() : $column->getName() . ' ' . $type;
 				else
-					return empty($type) ? $this->alias . '.' . $column->getName() : $this->alias . '.' . $column->getName() . ' ' . $type;
+					return empty($type) ? $alias . '.' . $column->getName() : $alias . '.' . $column->getName() . ' ' . $type;
 			}
 				
 			$references = $column->getPath()[0];
 	
-			if (!array_key_exists($references, $this->tableMapping))
+			if (!array_key_exists($references, $tableList))
 				throw new \UnexpectedValueException("Column {$column->getName()} references an unknown table '$references'");
 	
-			if (is_null($this->tableMapping[$references]))
-				return empty($type) ? $references . '.' . $column->getName() : $references . '.' . $column->getName() . ' ' . $type;
-			else
-				return empty($type) ? $this->tableMapping[$references] . '.' . $column->getName() : $this->tableMapping[$references] . '.' . $column->getName() . ' ' . $type;
+			return empty($type) ? $references . '.' . $column->getName() : $references . '.' . $column->getName() . ' ' . $type;
 		}
 		else
 			return $this->translateColumn($column);
 	}
 	
 	/**
-	 * Returns a conditional clause as a string
-	 * @param string|SQLPredicate $condition
-	 * @throws \InvalidArgumentException
-	 * @return string
-	 */
-	protected function translateCondition($condition) {
-		if ($condition instanceof SQLPredicate) {
-			return $condition->evaluate($this->translator, $this->fluent->getMapper()->getDriver(), $this->args);
-		}
-		elseif (is_string($condition) && !empty($condition))
-			return $condition;
-		else
-			throw new \InvalidArgumentException("Conditions must be specified either by a SQLPredicate instance or a non-empty string");
-	}
-	
-	/**
-	 * Returns a join expression as a string
-	 * @param JoinClause $join
-	 * @return string
-	 */
-	protected function translateJoin(JoinClause $join) {
-		$expr = $join->getJoinType() . ' ';
-		
-		if ($join->getAlias())
-			$expr .= $join->getTable() . ' ' . $join->getAlias() . ' ON ' . $this->translateCondition($join->getCondition()) . ' ';
-		else
-			$expr .= $join->getTable() .  ' ON ' . $this->translateCondition($join->getCondition()) . ' ';
-		
-		return $expr;
-	}
-	
-	/**
 	 * Retuns the columns to fetch as a string
 	 * @return string
 	 */
-	protected function getColumnsExpression() {
+	protected function buildSelectClause() {
 		if (empty($this->columns))
 			return '*';
 		
@@ -318,56 +169,12 @@ class SelectQuery extends AbstractQuery {
 		
 		return implode(',', $columns);
 	}
-	
-	/**
-	 * Returns a FROM clause for the current query
-	 * @return string
-	 */
-	protected function getFromClause() {
-		$from = '';
 		
-		if (isset($this->alias))
-			$from .= $this->table . ' ' . $this->alias . ' ';
-		else
-			$from .= $this->table . ' ';
-		
-		foreach ($this->joins as $join) {
-			$from .= $this->translateJoin($join);
-		}
-		
-		return $from;
-	}
-	
-	/**
-	 * Retuns a WHERE clause as a string
-	 * @throws \UnexpectedValueException
-	 * @return string
-	 */
-	protected function getWhereClause() {
-		if (empty($this->whereClauses))
-			return '';
-		
-		$where = [];
-		
-		foreach ($this->whereClauses as $clause) {
-			if ($clause instanceof SQLPredicate) {
-				$where[] = $clause->evaluate($this->translator, $this->fluent->getMapper()->getDriver(), $this->args);
-			}
-			elseif (is_string($clause) && !empty($clause)) {
-				$where[] = $clause;
-			}
-			else
-				throw new \UnexpectedValueException("Query conditions must be defined either as a string or as a SQLPredicate instance");
-		}
-		
-		return implode(' ', $where);
-	}
-	
 	/**
 	 * Obtains additional clauses as a string
 	 * @return string
 	 */
-	protected function getAdditionalClauses() {
+	protected function buildAdditionalClauses() {
 		$clauses = '';
 		
 		//group by
@@ -411,26 +218,29 @@ class SelectQuery extends AbstractQuery {
 		return $clauses;
 	}
 	
-	/**
-	 * Builds a column translator for the current query
-	 */
-	protected function buildTranslator() {
-		$this->translator = new FluentFieldTranslator($this->tableMapping);
-	}
-	
 	public function build() {
-		$this->buildTranslator();
+		//FROM clause
+		$from = rtrim($this->fromClause->build());
 		
-		$columns = $this->getColumnsExpression();
-		$from = rtrim($this->getFromClause());
-		$where = $this->getWhereClause();
-		$clauses = $this->getAdditionalClauses();
+		//create field translator from joined tables
+		$this->translator = new FluentFieldTranslator($this->fromClause->getTableList());
+		
+		//SELECT clause
+		$columns = $this->buildSelectClause();
+
+		//WHERE clause
+		$where = rtrim($this->buildWhereClause($this->translator));
+		
+		//etc...
+		$clauses = $this->buildAdditionalClauses();
 		
 		if (!empty($where)) {
-			return rtrim("SELECT $columns FROM $from WHERE $where $clauses");
+			$query = rtrim("SELECT $columns FROM $from WHERE $where $clauses");
 		}
 		
-		return rtrim("SELECT $columns FROM $from $clauses");
+		$query = rtrim("SELECT $columns FROM $from $clauses");
+		
+		return [$query, [$this->fromClause->getArguments(), isset($this->whereClause) ? $this->whereClause->getArguments() : []]];
 	}
 	
 	/**
@@ -439,15 +249,13 @@ class SelectQuery extends AbstractQuery {
 	 * @return mixed
 	 */
 	public function fetch($mapping_type = null) {
-		$query = $this->build();		
+		list($query, $args) = $this->build();		
 		$mapper = $this->fluent->getMapper();
 		
 		if (is_null($mapping_type))
 			return $mapper->merge($this->config)->query($query);
-		
-		$config = $this->config;
-		$config['map.type'] = $mapping_type;
-		return $mapper->merge($config)->query($query);
+
+		return $mapper->merge(array_merge($this->config, ['map.type' => $mapping_type]))->query($query);
 	}
 	
 	public function getArguments() {
