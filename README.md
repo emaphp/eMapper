@@ -416,6 +416,7 @@ $query = $mapper->newQuery();
 $employees = $query->from('Employees', 'emp')
 ->innerJoin('Orders', 'ord', 'ord.employee_id = emp.id')
 ->select('emp.lastname', 'COUNT(ord.id)')
+->groupBy('emp.lastname')
 ->having('COUNT(ord.id) > %{i}', 10)
 ->fetch();
 

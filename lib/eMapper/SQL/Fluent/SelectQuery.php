@@ -5,6 +5,7 @@ use eMapper\Query\FluentQuery;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Query\Column;
 use eMapper\SQL\Field\FluentFieldTranslator;
+use eMapper\SQL\Fluent\Clause\HavingClause;
 
 class SelectQuery extends AbstractQuery {	
 	/**
@@ -39,16 +40,9 @@ class SelectQuery extends AbstractQuery {
 	
 	/**
 	 * Having clause
-	 * @var mixed
+	 * @var HavingClause
 	 */
-	protected $havingClause;
-	
-	/**
-	 * Column translator
-	 * @var FluentTranslator
-	 */
-	protected $translator;
-	
+	protected $havingClause;	
 	
 	/**
 	 * Sets columns to fetch
@@ -97,13 +91,25 @@ class SelectQuery extends AbstractQuery {
 		return $this;
 	}
 	
+	/*
+	 * HAVING
+	 */
+	
+	protected function buildHavingClause() {
+		if (isset($this->havingClause)) {
+			return $this->havingClause->build($this->translator, $this->fluent->getMapper()->getDriver());
+		}
+		
+		return '';
+	}
+	
 	/**
 	 * Sets the having clause
-	 * @param string|SQLPredicate $column
+	 * @param string|SQLPredicate $having
 	 * @return \eMapper\SQL\Fluent\SelectQuery
 	 */
-	public function having($column) {
-		$this->havingClause = $column;
+	public function having($having) {
+		$this->havingClause = new HavingClause(func_get_args());
 		return $this;
 	}
 	
@@ -121,6 +127,37 @@ class SelectQuery extends AbstractQuery {
 			return $column;
 		
 		throw new \InvalidArgumentException("Columns must be specified either by a Column instance or a non-empty string");
+	}
+	
+	/**
+	 * Obtains a select column as a string
+	 * @param mixed $column
+	 * @throws \UnexpectedValueException
+	 * @return string
+	 */
+	protected function translateSelectColumn($column) {
+		if ($column instanceof Column) {
+			$path = $column->getPath();
+			$name = $column->getType();
+			$alias = $this->fromClause->getAlias();
+			$tableList = $this->fromClause->getTableList();
+		
+			if (empty($path)) {
+				if (is_null($alias))
+					return empty($name) ? $column->getName() : $column->getName() . ' AS ' . $name;
+				else
+					return empty($name) ? $alias . '.' . $column->getName() : $alias . '.' . $column->getName() . ' AS ' . $name;
+			}
+		
+			$references = $column->getPath()[0];
+		
+			if (!array_key_exists($references, $tableList))
+				throw new \UnexpectedValueException("Column {$column->getName()} references an unknown table '$references'");
+		
+			return empty($name) ? $references . '.' . $column->getName() : $references . '.' . $column->getName() . ' AS ' . $name;
+		}
+		else
+			return $this->translateColumn($column);
 	}
 	
 	/**
@@ -165,7 +202,7 @@ class SelectQuery extends AbstractQuery {
 		$columns = [];
 		
 		foreach($this->columns as $column)
-			$columns[] = $this->translateColumn($column);
+			$columns[] = $this->translateSelectColumn($column);
 		
 		return implode(',', $columns);
 	}
@@ -186,15 +223,8 @@ class SelectQuery extends AbstractQuery {
 			
 			$clauses .= 'GROUP BY ' . implode(',', $group_by) . ' ';
 			
-			//having
-			if (isset($this->havingClause)) {
-				$having = [];
-				
-				foreach ($this->havingClause as $have)
-					$having[] = $this->translateColumn($have);
-				
-				$clauses .= 'HAVING ' . implode(',', $having) . ' ';
-			}
+			//add having clause
+			$clauses .= $this->buildHavingClause();
 		}
 		
 		//order by
@@ -229,18 +259,47 @@ class SelectQuery extends AbstractQuery {
 		$columns = $this->buildSelectClause();
 
 		//WHERE clause
-		$where = rtrim($this->buildWhereClause($this->translator));
+		$where = rtrim($this->buildWhereClause());
 		
 		//etc...
 		$clauses = $this->buildAdditionalClauses();
 		
-		if (!empty($where)) {
-			$query = rtrim("SELECT $columns FROM $from WHERE $where $clauses");
+		$query = empty($where) ? rtrim("SELECT $columns FROM $from $clauses") : rtrim("SELECT $columns FROM $from WHERE $where $clauses"); 
+		
+		$args = [];
+		$counter = 0;
+		$complexArg = null;
+		
+		//TODO: append arguments from joins in fromClause
+		
+		if (isset($this->whereClause)) {
+			$whereArgs = $this->whereClause->getArguments();
+			
+			if ($this->whereClause->getClause() instanceof SQLPredicate) {
+				$complexArg = $whereArgs;
+			}
+			elseif (!empty($whereArgs)) {
+				foreach ($whereArgs as $arg)
+					array_push($args, $arg);
+			}
 		}
 		
-		$query = rtrim("SELECT $columns FROM $from $clauses");
+		if (isset($this->havingClause)) {
+			$havingArgs = $this->havingClause->getArguments();
+			
+			if ($this->havingClause->getClause() instanceof SQLPredicate) {
+				$complexArg = array_merge($havingArgs, (array) $complexArg);
+			}
+			elseif (!empty($havingArgs)) {
+				foreach ($havingArgs as $arg)
+					array_push($args, $arg);
+			}
+		}
 		
-		return [$query, [$this->fromClause->getArguments(), isset($this->whereClause) ? $this->whereClause->getArguments() : []]];
+		if (!empty($complexArg))
+			array_unshift($args, $complexArg);
+		
+		return [$query, $args];
 	}
 	
 	/**

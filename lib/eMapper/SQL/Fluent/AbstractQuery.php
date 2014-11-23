@@ -29,6 +29,12 @@ abstract class AbstractQuery {
 	 */
 	protected $whereClause;
 	
+	/**
+	 * Field translator
+	 * @var FieldTranslator
+	 */
+	protected $translator;
+	
 	public function __construct(FluentQuery $fluent, $table, $alias = null) {
 		$this->fluent = $fluent;
 		$this->fromClause = new FromClause($fluent->getMapper()->getDriver(), $table, $alias);
@@ -97,15 +103,17 @@ abstract class AbstractQuery {
 	 * WHERE
 	 */
 	
-	protected function buildWhereClause(FieldTranslator $translator) {
-		if (isset($this->whereClause))
-			return $this->whereClause->build($translator, $this->fluent->getMapper()->getDriver());
-		
+	protected function buildWhereClause() {
+		if (isset($this->whereClause)) {
+			return $this->whereClause->build($this->translator, $this->fluent->getMapper()->getDriver());
+		}
+
 		return '';
 	}
 	
 	public function where($where) {
-		$this->whereClauses = new WhereClause(func_get_args());
+		$this->whereClause = new WhereClause(func_get_args());
+		return $this;
 	}
 	
 	/**

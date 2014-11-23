@@ -31,12 +31,6 @@ abstract class SQLPredicate {
 	 */
 	protected $alias;
 	
-	/**
-	 * Argument counter (used for additional parameters in query)
-	 * @var integer
-	 */
-	protected static $counter = 0;
-	
 	public function __construct(Field $field, $negate = false) {
 		$this->field = $field;
 		$this->negate = $negate;
@@ -60,10 +54,12 @@ abstract class SQLPredicate {
 	 * @return number|string
 	 */
 	protected static function getArgumentIndex($arg_index) {
+		static $counter = 0;
+		
 		if ($arg_index != 0)
-			return self::$counter++;
+			return $counter++;
 	
-		return 'arg' . self::$counter++;
+		return 'arg' . $counter++;
 	}
 	
 	/**

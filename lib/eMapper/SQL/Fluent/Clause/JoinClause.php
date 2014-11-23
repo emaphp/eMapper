@@ -66,7 +66,7 @@ class JoinClause {
 			case self::INNER_JOIN:
 				return 'INNER JOIN';
 				
-			case FULL_OUTER_JOIN:
+			case self::FULL_OUTER_JOIN:
 				return 'FULL OUTER JOIN';
 		}
 	}
