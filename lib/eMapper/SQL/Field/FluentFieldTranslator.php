@@ -15,7 +15,7 @@ class FluentFieldTranslator implements FieldTranslator {
 		$this->tableList = $tableList;
 	}
 	
-	public function translate(Field $column, array &$joins = null, $alias = null) {
+	public function translate(Field $column, $alias, &$joins = null) {
 		if ($column instanceof Column) {
 			$path = $column->getPath();
 				

@@ -23,7 +23,7 @@ class DeleteQueryBuilder extends QueryBuilder {
 	}
 	
 	public function build(Driver $driver, $config = null) {
-		$args = $joins = [];
+		$args = [];
 		
 		//get table name
 		$table = '@@' . $this->entity->getReferredTable();
@@ -32,10 +32,10 @@ class DeleteQueryBuilder extends QueryBuilder {
 		if ($this->truncate)
 			return [sprintf("DELETE FROM %s", $table), null];
 		elseif (isset($this->condition))
-			$condition = $this->condition->evaluate(new ORMFieldTranslator($this->entity), $driver, $args, $joins);
+			$condition = $this->condition->evaluate(new ORMFieldTranslator($this->entity), $driver, $args);
 		elseif (array_key_exists('query.filter', $config) && !empty($config['query.filter'])) {
 			$filter = new Filter($config['query.filter']);
-			$condition = $filter->evaluate(new ORMFieldTranslator($this->entity), $driver, $args, $joins);
+			$condition = $filter->evaluate(new ORMFieldTranslator($this->entity), $driver, $args);
 		}
 		
 		if (isset($condition))

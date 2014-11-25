@@ -16,7 +16,7 @@ class ORMFieldTranslator implements FieldTranslator {
 		$this->profile = $profile;
 	}
 	
-	public function translate(Field $field, array &$joins = null, $alias = null) {
+	public function translate(Field $field, $alias, &$joins = null) {
 		static $counter = 0;
 		list($associations, $target) = $field->getAssociations($this->profile);
 

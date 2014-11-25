@@ -34,8 +34,7 @@ abstract class ArgumentClause {
 	
 	public function build(FieldTranslator $translator, Driver $driver) {
 		if ($this->clause instanceof SQLPredicate) {
-			$joins = [];
-			$sql = $this->clause->evaluate($translator, $driver, $this->args, $joins, 0);
+			$sql = $this->clause->evaluate($translator, $driver, $this->args);
 			return $sql;
 		}
 	

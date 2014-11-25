@@ -16,8 +16,8 @@ class IsNull extends SQLPredicate {
 		return '%s IS NULL';
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, array &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $joins, $this->alias);
+	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
+		$column = $translator->translate($this->field, $this->alias, $joins);
 		
 		if ($this->negate)
 			return "$column IS NOT NULL";

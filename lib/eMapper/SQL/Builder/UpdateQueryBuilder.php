@@ -24,8 +24,8 @@ class UpdateQueryBuilder extends QueryBuilder {
 		}
 		
 		//evaluate condition
-		$args = $joins = [];
-		$condition = $this->condition->evaluate(new ORMFieldTranslator($this->entity), $driver, $args, $joins, 1);		
+		$args = [];
+		$condition = $this->condition->evaluate(new ORMFieldTranslator($this->entity), $driver, $args, $_ = null, 1);
 		return [sprintf("UPDATE %s SET %s WHERE %s", $table, implode(', ', $values), $condition), $args];
 	}
 }

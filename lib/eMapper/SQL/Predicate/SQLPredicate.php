@@ -118,12 +118,12 @@ abstract class SQLPredicate {
 	 * Evaluates a SQLPredicate getting any additional arguments
 	 * @param FieldTranslator $translator
 	 * @param Driver $driver
-	 * @param ArrayObject $args
-	 * @param ArrayObject $joins
+	 * @param array $args
+	 * @param array $joins
 	 * @param int $arg_index
 	 * @return string
 	 */
-	public abstract function evaluate(FieldTranslator $translator, Driver $driver, array &$args, array &$joins = null, $arg_index = 0);
+	public abstract function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0);
 	
 	/**
 	 * Renders a SQLPredicate to the corresponding Dynamic SQL expression

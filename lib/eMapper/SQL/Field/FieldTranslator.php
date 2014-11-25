@@ -7,9 +7,9 @@ interface FieldTranslator {
 	/**
 	 * Translates a field reference to the corresponding column
 	 * @param Field $field
-	 * @param array $joins
 	 * @param string $alias
+	 * @param array $joins
 	 */
-	function translate(Field $field, array &$joins = null, $alias = null);
+	function translate(Field $field, $alias, &$joins = null);
 }
 ?>

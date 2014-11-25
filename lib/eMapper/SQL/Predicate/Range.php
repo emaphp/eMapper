@@ -42,8 +42,8 @@ class Range extends SQLPredicate {
 		return $this->to;
 	}
 
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, array &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $joins, $this->alias);
+	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
+		$column = $translator->translate($this->field, $this->alias, $joins);
 		
 		//add from argument
 		$from_index = $this->getArgumentIndex($arg_index);

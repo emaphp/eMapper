@@ -31,11 +31,11 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return "%s [? (if (null? (%%0)) 'IS $op NULL' '$eq_op %s') ?]";
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, array &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $joins, $this->alias);
+	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
+		$column = $translator->translate($this->field, $this->alias, $joins);
 
 		if ($this->expression instanceof Field)
-			$expression = $translator->translate($this->expression, $joins, $this->alias);
+			$expression = $translator->translate($this->expression, $this->alias, $joins);
 		else {
 			//store expression in argument list
 			$index = $this->getArgumentIndex($arg_index);

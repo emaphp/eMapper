@@ -120,8 +120,7 @@ class SelectQuery extends AbstractQuery {
 	 */
 	protected function translateColumn($column) {
 		if ($column instanceof Column) {
-			$_ = [];
-			return $this->translator->translate($column, $_, $this->fromClause->getAlias());
+			return $this->translator->translate($column, $this->fromClause->getAlias());
 		}
 		elseif (is_string($column) && !empty($column))
 			return $column;

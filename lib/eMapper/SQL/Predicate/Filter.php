@@ -37,7 +37,7 @@ class Filter extends SQLPredicate {
 		return $this->operator;
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, array &$joins = null, $arg_index = 0) {
+	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
 		if (empty($this->predicates))
 			return '';
 
