@@ -250,6 +250,7 @@ class SelectQuery extends AbstractQuery {
 	public function build() {
 		//FROM clause
 		$from = rtrim($this->fromClause->build());
+		$fromArgs = $this->fromClause->getArguments();
 		
 		//create field translator from joined tables
 		$this->translator = new FluentFieldTranslator($this->fromClause->getTableList());
@@ -263,38 +264,39 @@ class SelectQuery extends AbstractQuery {
 		//etc...
 		$clauses = $this->buildAdditionalClauses();
 		
+		//build query structure
 		$query = empty($where) ? rtrim("SELECT $columns FROM $from $clauses") : rtrim("SELECT $columns FROM $from WHERE $where $clauses"); 
 		
+		//generate query arguments
 		$args = [];
 		$counter = 0;
-		$complexArg = null;
-		
-		//TODO: append arguments from joins in fromClause
-		
+		$complexArg = !empty($fromArgs) ? $fromArgs : [];
+
+		//append arguments in WHERE clause
 		if (isset($this->whereClause)) {
 			$whereArgs = $this->whereClause->getArguments();
 			
-			if ($this->whereClause->getClause() instanceof SQLPredicate) {
-				$complexArg = $whereArgs;
-			}
+			if ($this->whereClause->getClause() instanceof SQLPredicate)
+				$complexArg = array_merge($whereArgs, $complexArg);
 			elseif (!empty($whereArgs)) {
 				foreach ($whereArgs as $arg)
-					array_push($args, $arg);
+					$args[$counter++] = $arg;
 			}
 		}
 		
+		//append arguments in HAVING clause
 		if (isset($this->havingClause)) {
 			$havingArgs = $this->havingClause->getArguments();
 			
-			if ($this->havingClause->getClause() instanceof SQLPredicate) {
-				$complexArg = array_merge($havingArgs, (array) $complexArg);
-			}
+			if ($this->havingClause->getClause() instanceof SQLPredicate)
+				$complexArg = array_merge($havingArgs, $complexArg);
 			elseif (!empty($havingArgs)) {
 				foreach ($havingArgs as $arg)
-					array_push($args, $arg);
+					$args[$counter++] = $arg;
 			}
 		}
 		
+		//append complexArg to argument list if necessary
 		if (!empty($complexArg))
 			array_unshift($args, $complexArg);
 		
@@ -307,17 +309,23 @@ class SelectQuery extends AbstractQuery {
 	 * @return mixed
 	 */
 	public function fetch($mapping_type = null) {
-		list($query, $args) = $this->build();		
-		$mapper = $this->fluent->getMapper();
-		
-		if (is_null($mapping_type))
-			return $mapper->merge($this->config)->query($query);
+		list($query, $args) = $this->build();
 
-		return $mapper->merge(array_merge($this->config, ['map.type' => $mapping_type]))->query($query);
-	}
-	
-	public function getArguments() {
-		return $this->args;
+		//generate a mapper instance
+		if (is_null($mapping_type)) {
+			$mapper = empty($this->config) ? $this->fluent->getMapper() : $this->fluent->getMapper()->merge($this->config);
+		}
+		else {
+			$config = empty($this->config) ? ['map.type' => $mapping_type] : array_merge($this->config, ['map.type' => $mapping_type]);
+			$mapper = $this->fluent->getMapper()->merge($config);
+		}
+				
+		if (empty($args))
+			return $mapper->query($query);
+		
+		//append query to argument list
+		array_unshift($args, $query);
+		return call_user_func_array([$mapper, 'query'], $args);
 	}
 }
 ?>

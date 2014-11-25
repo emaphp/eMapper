@@ -170,10 +170,15 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 	
 		//join condition
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users')
+		list($sql, $args) = $query->from('users')
 		->innerJoin('profiles', Column::users__name()->eq('test'))
 		->build();
 		$this->assertRegExp("/^SELECT \* FROM users INNER JOIN profiles ON users\.name = #\{arg\d+\}$/", $sql);
+		$this->assertInternalType('array', $args);
+		$this->assertCount(1, $args);
+		$this->assertInternalType('array', $args[0]);
+		$key = key($args[0]);
+		$this->assertEquals('test', $args[0][$key]);
 	
 		$query = $this->mapper->newQuery();
 		list($sql, $_) = $query->from('users')

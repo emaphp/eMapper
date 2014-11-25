@@ -6,11 +6,40 @@ use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\SQL\Field\FluentFieldTranslator;
 
 class FromClause {
+	/**
+	 * Connection driver
+	 * @var Driver
+	 */
 	protected $driver;
+	
+	/**
+	 * Main table
+	 * @var string
+	 */
 	protected $table;
+	
+	/**
+	 * Main table alias
+	 * @var string
+	 */
 	protected $alias;
+	
+	/**
+	 * Table joins
+	 * @var array
+	 */
 	protected $joins = [];
+	
+	/**
+	 * Joined tables list
+	 * @var array
+	 */
 	protected $tableList = [];
+	
+	/**
+	 * Join arguments
+	 * @var array
+	 */
 	protected $args = [];
 	
 	public function __construct(Driver $driver, $table, $alias) {
