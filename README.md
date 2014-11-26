@@ -151,7 +151,7 @@ $total = $mapper->type('i')->query("SELECT COUNT(*) FROM users WHERE sex = %{s}"
 $suscribed = $mapper->type('b')->query("SELECT is_suscribed FROM users WHERE id = %{i}", 99);
 
 //mapping to a float ('f', 'float', 'real', 'double')
-$price = $mapper->type('f')->query("SELECT MAX(price) FROM products WHERE refurbished = {b}", false);
+$price = $mapper->type('f')->query("SELECT MAX(price) FROM products WHERE refurbished = %{b}", false);
 
 //mapping to a string ('s', 'str', 'string')
 $body = $mapper->type('s')->query("SELECT message FROM posts WHERE slug = %{s}", 'emapper_rocks');
@@ -452,8 +452,7 @@ $id = $query->insertInto('users')
 //using valuesExpr
 $id = $query->insertInto('users')
 ->columns('name', 'birth_date', 'sex')
-->valuesExpr('%{s}, %{dt}, %{s}')
-->values('emaphp', '1984-07-05', 'M')
+->valuesExpr('%{s}, %{dt}, %{s}', 'emaphp', '1984-07-05', 'M')
 ->exec();
 ```
 

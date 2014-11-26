@@ -5,6 +5,7 @@ use eMapper\Mapper;
 use eMapper\SQL\Fluent\SelectQuery;
 use eMapper\SQL\Fluent\DeleteQuery;
 use eMapper\SQL\Fluent\UpdateQuery;
+use eMapper\SQL\Fluent\InsertQuery;
 
 class FluentQuery {
 	/**
@@ -22,7 +23,7 @@ class FluentQuery {
 	}
 	
 	public function insertInto($table) {
-		
+		return new InsertQuery($this, $table);
 	}
 	
 	public function update($table, $alias = null) {
