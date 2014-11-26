@@ -4,6 +4,7 @@ namespace eMapper\Query;
 use eMapper\Mapper;
 use eMapper\SQL\Fluent\SelectQuery;
 use eMapper\SQL\Fluent\DeleteQuery;
+use eMapper\SQL\Fluent\UpdateQuery;
 
 class FluentQuery {
 	/**
@@ -25,7 +26,7 @@ class FluentQuery {
 	}
 	
 	public function update($table, $alias = null) {
-		
+		return new UpdateQuery($this, $table, $alias);
 	}
 	
 	public function deleteFrom($table, $alias = null) {

@@ -478,6 +478,13 @@ $query->update('users')
 ->setExpr('language = %{s}, last_login = %{dt}', 'sp', new \Datetime())
 ->where('name = %{s}', 'emaphp')
 ->exec();
+
+//using setValue
+$value = ['language' => 'sp', 'last_login' => new \Datetime()];
+$query->update('users')
+->setValue($value)
+->where('name = %{s}', 'emaphp')
+->exec();
 ```
 
 <br/>
@@ -493,7 +500,7 @@ $query->deleteFrom('staff')
 ->where(Column::role()->eq('developer', false))
 ->exec();
 
-//using whereExpr
+//alternative syntax
 $query->deleteFrom('staff')
 ->where('role <> %{s}', 'developer')
 ->exec();
