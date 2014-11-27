@@ -74,7 +74,6 @@ class Mapper {
 		
 		//build configuration
 		$this->setDefaultConfig();
-		$this->config = array_merge($this->config, $driver->getConfig());
 	}
 	
 	/**

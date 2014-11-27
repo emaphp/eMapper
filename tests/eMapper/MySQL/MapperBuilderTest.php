@@ -27,8 +27,8 @@ class MapperBuilderTest extends \PHPUnit_Framework_TestCase {
 		$driver = MySQLDriver::build($config);
 		
 		$this->assertInstanceOf('eMapper\Engine\MySQL\MySQLDriver', $driver);
-		$this->assertTrue($driver->hasOption('db.name'));
-		$this->assertEquals($this->config['database'], $driver->getOption('db.name'));
+		$this->assertTrue($driver->hasOption('database'));
+		$this->assertEquals($this->config['database'], $driver->getOption('database'));
 	}
 	
 	public function testBuildFromConnection() {

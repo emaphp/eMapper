@@ -4,7 +4,7 @@ namespace eMapper;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Attr;
-use eMapper\Query\Q;
+use eMapper\Query\Cond as Q;
 use eMapper\Query\Column;
 use eMapper\SQL\Builder\InsertQueryBuilder;
 use eMapper\SQL\Builder\UpdateQueryBuilder;

@@ -4,10 +4,10 @@ namespace eMapper\Query;
 use eMapper\SQL\Predicate\Filter;
 
 /**
- * The Q class build instances of Filter dynamically
+ * The Cond class build instances of Filter dynamically
  * @author emaphp
  */
-abstract class Q {
+abstract class Cond {
 	/*
 	 * OPERATORS
 	 */
@@ -16,7 +16,7 @@ abstract class Q {
 	
 	/**
 	 * Builds an OR filter
-	 * Ex: Q::where(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
+	 * Ex: Cond::where(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
 	 * @return \eMapper\Query\Predicate\Filter
 	 */
 	public static function where() {
@@ -25,7 +25,7 @@ abstract class Q {
 	
 	/**
 	 * Builds a negated OR filter
-	 * Ex: Q::where_not(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
+	 * Ex: Cond::where_not(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
 	 * @return \eMapper\Query\Predicate\Filter
 	 */
 	public static function where_not() {

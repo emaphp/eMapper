@@ -16,6 +16,8 @@ use eMapper\Engine\MySQL\Regex\MySQLRegex;
  */
 class MySQLDriver extends Driver {
 	public function __construct($database, $host = null, $user = null, $password = null, $port = null, $socket = null, $charset = 'UTF-8', $autocommit = true) {
+		parent::__construct();
+		
 		if ($database instanceof \mysqli)
 			$this->connection = $database;
 		else {
@@ -23,52 +25,52 @@ class MySQLDriver extends Driver {
 				throw new \InvalidArgumentException("Invalid database specified");
 				
 			//initialize configuration
-			$this->config['db.name'] = $database;
+			$this->config['database'] = $database;
 				
 			if (isset($host)) {
 				if (!is_string($host) || empty($host))
 					throw new \InvalidArgumentException("Invalid host specified");
 					
-				$this->config['db.host'] = $host;
+				$this->config['host'] = $host;
 			}
 				
 			if (isset($user)) {
 				if (!is_string($user) || empty($user))
 					throw new \InvalidArgumentException("Invalid user specified");
 					
-				$this->config['db.user'] = $user;
+				$this->config['user'] = $user;
 			}
 				
 			if (isset($password)) {
 				if (!is_string($password) || empty($password))
 					throw new \InvalidArgumentException("Invalid password specified");
 					
-				$this->config['db.password'] = $password;
+				$this->config['password'] = $password;
 			}
 				
 			if (isset($port)) {
 				if (!is_string($port) || !is_integer($port) || empty($port))
 					throw new \InvalidArgumentException("Invalid port specified");
 					
-				$this->config['db.port'] = strval($port);
+				$this->config['port'] = strval($port);
 			}
 				
 			if (isset($socket)) {
 				if (!is_string($socket) || empty($socket))
 					throw new \InvalidArgumentException("Invalid socket specified");
 					
-				$this->config['db.socket'] = $socket;
+				$this->config['socket'] = $socket;
 			}
 				
 			if (isset($charset)) {
 				if (!is_string($charset) || empty($charset))
 					throw new \InvalidArgumentException("Invalid charset specified");
 					
-				$this->config['db.charset'] = $charset;
+				$this->config['charset'] = $charset;
 			}
 				
 			//aet autocommit option
-			$this->config['db.autocommit'] = (bool) $autocommit;
+			$this->config['autocommit'] = (bool) $autocommit;
 			
 			//build regex
 			$this->regex = new MySQLRegex();
@@ -105,12 +107,12 @@ class MySQLDriver extends Driver {
 			return $this->connection;
 		
 		//get connection values
-		$database = $this->config['db.name'];
-		$host     = array_key_exists('db.host', $this->config) ? $this->config['db.host'] : ini_get("mysqli.default_host");
-		$user     = array_key_exists('db.user', $this->config) ? $this->config['db.user'] : ini_get("mysqli.default_user");
-		$password = array_key_exists('db.password', $this->config) ? $this->config['db.password'] : ini_get("mysqli.default_pw");
-		$port     = array_key_exists('db.port', $this->config) ? $this->config['db.port'] : ini_get("mysqli.default_port");
-		$socket   = array_key_exists('db.socket', $this->config) ? $this->config['db.socket'] : ini_get("mysqli.default_socket");
+		$database = $this->config['database'];
+		$host     = array_key_exists('host', $this->config) ? $this->config['host'] : ini_get("mysqli.default_host");
+		$user     = array_key_exists('user', $this->config) ? $this->config['user'] : ini_get("mysqli.default_user");
+		$password = array_key_exists('password', $this->config) ? $this->config['password'] : ini_get("mysqli.default_pw");
+		$port     = array_key_exists('port', $this->config) ? $this->config['port'] : ini_get("mysqli.default_port");
+		$socket   = array_key_exists('socket', $this->config) ? $this->config['socket'] : ini_get("mysqli.default_socket");
 		
 		//open connection
 		$mysqli = @mysqli_connect($host, $user, $password, $database, $port, $socket);
@@ -119,11 +121,11 @@ class MySQLDriver extends Driver {
 			throw new MySQLConnectionException(mysqli_connect_error() . '(' . mysqli_connect_errno() . ')');
 		
 		//set autocommit
-		$mysqli->autocommit($this->config['db.autocommit']);
+		$mysqli->autocommit($this->config['autocommit']);
 		
 		//set charset
-		if (array_key_exists('db.charset', $this->config))
-			$mysqli->set_charset($this->config['db.charset']);
+		if (array_key_exists('charset', $this->config))
+			$mysqli->set_charset($this->config['charset']);
 		
 		//store open connection
 		return $this->connection = $mysqli;
@@ -214,6 +216,7 @@ class MySQLDriver extends Driver {
 		//append prefix
 		if ($options['use_prefix'])
 			$procedure = $options['prefix'] . $procedure;
+		
 		return "CALL $procedure(" . implode(',', $tokens) . ')';
 	}
 	

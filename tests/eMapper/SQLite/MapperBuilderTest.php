@@ -27,8 +27,8 @@ class MapperBuilderTest extends \PHPUnit_Framework_TestCase {
 		$driver = SQLiteDriver::build($config);
 	
 		$this->assertInstanceOf('eMapper\Engine\SQLite\SQLiteDriver', $driver);
-		$this->assertTrue($driver->hasOption('db.filename'));
-		$this->assertEquals($filename, $driver->getOption('db.filename'));
+		$this->assertTrue($driver->hasOption('filename'));
+		$this->assertEquals($filename, $driver->getOption('filename'));
 	}
 	
 	public function testBuildFromConnection() {

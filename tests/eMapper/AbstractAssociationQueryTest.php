@@ -2,7 +2,7 @@
 namespace eMapper;
 
 use eMapper\Query\Attr;
-use eMapper\Query\Q;
+use eMapper\Query\Cond as Q;
 
 /**
  * 

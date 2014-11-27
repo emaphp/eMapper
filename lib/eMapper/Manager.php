@@ -20,9 +20,7 @@ use eMapper\Query\Aggregate\SQLAverage;
 use eMapper\Query\Aggregate\SQLMax;
 use eMapper\Query\Aggregate\SQLMin;
 use eMapper\Query\Aggregate\SQLSum;
-use eMapper\Reflection\Profile\Association\OneToMany;
-use eMapper\Reflection\Profile\Association\OneToOne;
-use eMapper\Query\Q;
+use eMapper\Query\Cond;
 
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.
@@ -201,10 +199,12 @@ class Manager {
 					foreach ($checks as $attr) {
 						$attribute = $this->entity->getProperty($attr);
 						$attrValue = $this->getPropertyValue($this->entity, $entity, $attr);
-						$pk = $this->mapper->type('int')->query("SELECT %s FROM @@%s WHERE %s = %s",
-																$this->entity->getPrimaryKeyProperty()->getColumn(),
-																$this->entity->getReferredTable(),
-																$attribute->getColumn(), $attrValue);
+						$pk = $this->mapper
+						->type('int')
+						->query("SELECT %s FROM @@%s WHERE %s = %s",
+								$this->entity->getPrimaryKeyProperty()->getColumn(),
+								$this->entity->getReferredTable(),
+								$attribute->getColumn(), $attrValue);
 						
 						if (!is_null($pk)) {
 							$ignore = $attribute->getCheckDuplicate() == 'ignore';
@@ -279,10 +279,12 @@ class Manager {
 				foreach ($checks as $attr) {
 					$attribute = $this->entity->getProperty($attr);
 					$attrValue = $this->getPropertyValue($this->entity, $entity, $attr);
-					$pk = $this->mapper->type('int')->query("SELECT %s FROM @@%s WHERE %s = %s",
-															$this->entity->getPrimaryKeyProperty()->getColumn(),
-															$this->entity->getReferredTable(),
-															$attribute->getColumn(), $attrValue);
+					$pk = $this->mapper
+					->type('int')
+					->query("SELECT %s FROM @@%s WHERE %s = %s",
+							$this->entity->getPrimaryKeyProperty()->getColumn(),
+							$this->entity->getReferredTable(),
+							$attribute->getColumn(), $attrValue);
 					
 					if (!is_null($pk)) {
 						$ignore = $attribute->getCheckDuplicate() == 'ignore';
@@ -504,6 +506,7 @@ class Manager {
 			
 			if (isset($type))
 				return $this->merge(['query.index' => $index->getName() . ':' . $type]);
+			
 			return $this->merge(['query.index' => $index->getName()]);
 		}
 		elseif ($index instanceof Column) {
@@ -518,8 +521,10 @@ class Manager {
 			
 			//obtain custom type
 			$type = $index->getType();
+			
 			if (isset($type))
 				return $this->merge(['query.index' => $property . ':' . $type]);
+			
 			return $this->merge(['query.index' => $property]);
 		}
 		
@@ -539,7 +544,8 @@ class Manager {
 			$type = $group->getType();
 			
 			if (isset($type))
-				return $this->merge(['query.group' => $group->getName() . ':' . $type]);		
+				return $this->merge(['query.group' => $group->getName() . ':' . $type]);
+			
 			return $this->merge(['query.group' => $group->getName()]);
 		}
 		elseif ($group instanceof Column) {
@@ -553,7 +559,8 @@ class Manager {
 			$type = $group->getType();
 			
 			if (isset($type))
-				return $this->merge(['query.group' => $property . ':' . $type]);		
+				return $this->merge(['query.group' => $property . ':' . $type]);
+					
 			return $this->merge(['query.group' => $property]);
 		}
 		
@@ -565,8 +572,9 @@ class Manager {
 	 * @return Manager
 	 */
 	public function order_by($order) {
-		if (is_null($order))
-			return $this->discard('query.order');	
+		if (is_null($order)) //remove option
+			return $this->discard('query.order');
+			
 		return $this->merge(['query.order' => func_get_args()]);
 	}
 	
@@ -577,10 +585,12 @@ class Manager {
 	 * @return Manager
 	 */
 	public function limit($from, $to = null) {
-		if (is_null($from))
+		if (is_null($from)) //remove options
 			return $this->discard('query.from', 'query.to');
+		
 		if (isset($to))
 			return $this->merge(['query.from' => intval($from), 'query.to' => intval($to)]);
+		
 		return $this->merge(['query.from' => intval($from)]);
 	}
 	
@@ -613,7 +623,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function where() {
-		return $this->append('query.filter', new Filter(func_get_args(), false, Q::LOGICAL_OR));
+		return $this->append('query.filter', new Filter(func_get_args(), false, Cond::LOGICAL_OR));
 	}
 	
 	/**
@@ -621,7 +631,7 @@ class Manager {
 	 * @return Manager
 	 */
 	public function where_not() {
-		return $this->append('query.filter', new Filter(func_get_args(), true, Q::LOGICAL_OR));
+		return $this->append('query.filter', new Filter(func_get_args(), true, Cond::LOGICAL_OR));
 	}
 	
 	/**

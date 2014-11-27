@@ -16,19 +16,21 @@ use eMapper\Engine\SQLite\Regex\SQLiteRegex;
  */
 class SQLiteDriver extends Driver {
 	public function __construct($database, $flags = 0, $encription_key = null) {
+		parent::__construct();
+		
 		if ($database instanceof \SQLite3)
 			$this->connection = $database;
 		else {
 			if (empty($database))
 				throw new \InvalidArgumentException("Filename is not a valid string");
 				
-			$this->config['db.filename'] = $database;
+			$this->config['filename'] = $database;
 				
 			if (empty($flags))
 				$flags = SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE;
 				
-			$this->config['db.flags'] = $flags;
-			$this->config['db.encription_key'] = $encription_key;
+			$this->config['flags'] = $flags;
+			$this->config['encription_key'] = $encription_key;
 		}
 		
 		$this->regex = new SQLiteRegex();
@@ -59,7 +61,7 @@ class SQLiteDriver extends Driver {
 			return $this->connection;
 	
 		try {
-			$this->connection = empty($this->config['db.encription_key']) ? new \SQLite3($this->config['db.filename'], $this->config['db.flags']) : new \SQLite3($this->config['db.filename'], $this->config['db.flags'], $this->config['db.encription_key']);
+			$this->connection = empty($this->config['encription_key']) ? new \SQLite3($this->config['filename'], $this->config['flags']) : new \SQLite3($this->config['filename'], $this->config['flags'], $this->config['encription_key']);
 			
 			//add regexp functions
 			$this->connection->createFunction('REGEXP', [$this, 'regexp']);
@@ -157,7 +159,7 @@ class SQLiteDriver extends Driver {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
 	}
 	
-	/**
+	/*
 	 * REGEXP METHODS
 	 */
 	

@@ -3,7 +3,7 @@ namespace eMapper;
 
 use eMapper\Query\Attr;
 use eMapper\Query\Column;
-use eMapper\Query\Q;
+use eMapper\Query\Cond as Q;
 use eMapper\Engine\Generic\Driver;
 use Acme\Entity\Product;
 

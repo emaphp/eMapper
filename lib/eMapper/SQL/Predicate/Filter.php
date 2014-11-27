@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Reflection\Profile\ClassProfile;
-use eMapper\Query\Q;
+use eMapper\Query\Cond;
 use eMapper\SQL\Field\FieldTranslator;
 
 /**
@@ -23,7 +23,7 @@ class Filter extends SQLPredicate {
 	 */
 	protected $operator;
 	
-	public function __construct($predicates, $negate = false, $operator = Q::LOGICAL_AND) {
+	public function __construct($predicates, $negate = false, $operator = Cond::LOGICAL_AND) {
 		$this->predicates = $predicates;
 		$this->negate = $negate;
 		$this->operator = $operator;

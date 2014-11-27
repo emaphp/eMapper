@@ -22,6 +22,10 @@ abstract class Driver {
 	 */
 	protected $regex;
 
+	public function __construct() {
+		$this->preserveInstance = true;
+	}
+	
 	/**
 	 * Obtains current connection
 	 * @return resource|object

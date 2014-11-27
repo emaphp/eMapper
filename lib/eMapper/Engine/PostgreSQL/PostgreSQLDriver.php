@@ -22,16 +22,18 @@ class PostgreSQLDriver extends Driver {
 	protected $last_id;
 	
 	public function __construct($database, $connect_type = null) {
+		parent::__construct();
+		
 		if (is_resource($database))
 			$this->connection = $database;
 		else {
 			if (empty($database))
 				throw new \InvalidArgumentException("Connection string is not a valid string");
 				
-			$this->config['db.connection_string'] = $database;
+			$this->config['connection_string'] = $database;
 				
 			if (!empty($connect_type))
-				$this->config['db.connect_type'] = $connect_type;
+				$this->config['connect_type'] = $connect_type;
 		}
 		
 		$this->regex = new PostgreSQLRegex();
@@ -84,10 +86,10 @@ class PostgreSQLDriver extends Driver {
 		if (is_resource($this->connection))
 			return $this->connection;
 	
-		$this->connection = empty($this->config['db.connect_type']) ? @pg_connect($this->config['db.connection_string']) : @pg_connect($this->config['db.connection_string'], $this->config['db.connect_type']);
+		$this->connection = empty($this->config['connect_type']) ? @pg_connect($this->config['connection_string']) : @pg_connect($this->config['connection_string'], $this->config['connect_type']);
 	
 		if ($this->connection === false)
-			throw new PostgreSQLConnectionException("Failed to connect to PostgreSQL database. Connection string: " . $this->config['db.connection_string']);
+			throw new PostgreSQLConnectionException("Failed to connect to PostgreSQL database. Connection string: " . $this->config['connection_string']);
 	
 		return $this->connection;
 	}
@@ -166,9 +168,11 @@ class PostgreSQLDriver extends Driver {
 		//append prefix
 		if ($options['use_prefix'])
 			$procedure = $options['prefix'] . $procedure;
+		
 		//wrap procedure name
 		if ($options['escape'])
 			$procedure = "\"$procedure\"";
+		
 		//use returned values as a table
 		if ($options['as_table'])
 			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
