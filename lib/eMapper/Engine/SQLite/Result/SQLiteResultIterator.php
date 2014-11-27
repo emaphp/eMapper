@@ -13,7 +13,7 @@ class SQLiteResultIterator extends ResultIterator {
 	 * Array result types
 	 * @var array
 	 */
-	private $resultTypes = [ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM];
+	protected $resultTypes = [ArrayType::BOTH => SQLITE3_BOTH, ArrayType::ASSOC => SQLITE3_ASSOC, ArrayType::NUM => SQLITE3_NUM];
 	
 	/**
 	 * Total rows
@@ -44,7 +44,7 @@ class SQLiteResultIterator extends ResultIterator {
 					//For some reason columType does not return an useful value
 					//Instead, always returns SQLITE3_NULL, which at the end produces bad indexation an a lot of other issues
 					//In order to avoid this, all values use 'default' as a default type
-					//This type handler just returns the value as is
+					//This type handler just returns the value without further processing
 					$type = 'default';
 			}
 			

@@ -223,8 +223,7 @@ class Mapper {
 			$cacheProvider = $this->cacheProvider;
 		
 			//build cache key
-			$cacheKeyFormatter = new CacheKeyFormatter($this->typeManager);
-			$cacheKeyFormatter->setParameterMap($parameterMap);
+			$cacheKeyFormatter = new CacheKeyFormatter($this->typeManager, $parameterMap);
 			$cache_key = $cacheKeyFormatter->format($this->config['cache.key'], $args, $this->config);
 
 			//check if key is present
@@ -254,8 +253,7 @@ class Mapper {
 			 */
 				
 			//build statement
-			$statementFormatter = $this->driver->buildStatement($this->typeManager);
-			$statementFormatter->setParameterMap($parameterMap);
+			$statementFormatter = $this->driver->buildStatement($this->typeManager, $parameterMap);
 			$stmt = $statementFormatter->format($query, $args, $this->config);
 			
 			//debug query

@@ -58,26 +58,11 @@ class CacheKeyFormatter {
 	 */
 	protected $wrappedArg;
 	
-	public function __construct(TypeManager $typeManager) {
+	public function __construct(TypeManager $typeManager, $parameterMap = null) {
 		$this->typeManager = $typeManager;
-	}
-	
-	public function setTypeManager(TypeManager $typeManager) {
-		$this->typeManager = $typeManager;
-	}
-	
-	public function getTypeManager() {
-		return $this->typeManager;
-	}
-	
-	public function setParameterMap($parameterMap) {
 		$this->parameterMap = $parameterMap;
 	}
-	
-	public function getParameterMap() {
-		return $this->parameterMap;
-	}
-	
+
 	/**
 	 * Obtains the default type handler for a given type
 	 * @param mixed $value
@@ -400,7 +385,7 @@ class CacheKeyFormatter {
 		$type = $subindex = null;
 	
 		switch ($total_matches) {
-			/**
+			/*
 			 * Property
 			 */
 			case 4: //#{PROPERTY@1[INDEX]@2?:TYPE@3}
@@ -416,7 +401,7 @@ class CacheKeyFormatter {
 				return $this->getIndex($key, $subindex, $type);
 				break;
 	
-			/**
+			/*
 			 * Interval
 			 */
 			case 9: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]:TYPE@8}

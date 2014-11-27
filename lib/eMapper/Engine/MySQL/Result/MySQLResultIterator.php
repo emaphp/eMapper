@@ -13,7 +13,7 @@ class MySQLResultIterator extends ResultIterator {
 	 * Array result types
 	 * @var array
 	 */
-	private $resultTypes = [ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM];
+	protected $resultTypes = [ArrayType::BOTH => MYSQLI_BOTH, ArrayType::ASSOC => MYSQLI_ASSOC, ArrayType::NUM => MYSQLI_NUM];
 	
 	public function getColumnTypes($resultType = ArrayType::ASSOC) {
 		//get result fields

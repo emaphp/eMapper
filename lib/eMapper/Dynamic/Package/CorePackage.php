@@ -39,13 +39,13 @@ use eMacros\Runtime\Builder\ObjectBuilder;
 use eMacros\Runtime\Builder\InstanceBuilder;
 use eMacros\Runtime\Type\IsType;
 use eMacros\Runtime\Type\CastToType;
-use eMacros\Runtime\Method\MethodInvoke;
 use eMacros\Runtime\Callback\CallFunction;
 use eMacros\Runtime\Callback\ApplyFunction;
 use eMapper\Dynamic\Runtime\PropertyGet;
 use eMapper\Dynamic\Runtime\PropertyExists;
 use eMapper\Dynamic\Runtime\ConfigurationGet;
 use eMapper\Dynamic\Runtime\ConfigurationExists;
+use eMacros\Runtime\Method\MethodInvoke;
 
 /**
  * The CorePackage class provides a replacement for the default CorePackage class
@@ -57,17 +57,16 @@ class CorePackage extends Package {
 	public function __construct() {
 		parent::__construct('Core');
 		
-		/**
+		/*
 		 * DEFAULT SYMBOLS
 		 */
 		$this['null'] = null;
 		$this['true'] = true;
 		$this['false'] = false;
 		
-		/**
+		/*
 		 * COMMON OPERATORS
 		 */
-		
 		//comparison operators
 		$this['==='] = new Identical();
 		$this['=='] = new Equal();
@@ -99,13 +98,13 @@ class CorePackage extends Package {
 		//string operators
 		$this['.'] = new Concatenation();
 		
-		/**
+		/*
 		 * CUSTOM INVOKE
 		 */
 		$this['call'] = new CallFunction();
 		$this['apply'] = new ApplyFunction();
 		
-		/**
+		/*
 		 * PROPERTY FUNCTIONS
 		 */
 		$this['#'] = new PropertyGet();
@@ -123,7 +122,7 @@ class CorePackage extends Package {
 			return new PropertyExists($matches[1]);
 		});
 		
-		/**
+		/*
 		 * CONFIGURATION FUNCTIONS
 		 */
 		$this['@'] = new ConfigurationGet();
@@ -151,7 +150,7 @@ class CorePackage extends Package {
 		 */
 		$this['<-'] = new ValueReturn();
 		
-		/**
+		/*
 		 * ARGUMENT FUNCTIONS
 		 */
 		
@@ -183,7 +182,7 @@ class CorePackage extends Package {
 		*/
 		$this['%_'] = new ArgumentList();
 		
-		/**
+		/*
 		 * TYPE FUNCTIONS
 		 */
 		
@@ -215,7 +214,7 @@ class CorePackage extends Package {
 		*/
 		$this['is-a'] = new IsA();
 		
-		/**
+		/*
 		 * BUILDER FUNCTIONS
 		 */
 		$this['array'] = new ArrayBuilder();
@@ -264,7 +263,7 @@ class CorePackage extends Package {
 			return new CastToType($matches[1]);
 		});
 
-		/**
+		/*
 		 * METHOD INVOCATION
 		 */
 		
@@ -286,10 +285,10 @@ class CorePackage extends Package {
 			return new MethodInvoke($matches[1]);
 		});
 		
-		/**
+		/*
 		 * PHP FUNCTION
 		 * 
-		 * Tries to obtain a valid PHP function from expression
+		 * Tries to obtain a valid PHP function from a expression
 		 */
 		$this->macro('/^[a-z|A-Z|_][\w]*$/', function ($matches) {
 			$function = $matches[0];

@@ -130,7 +130,7 @@ $user = $mapper->type('arr')->query("SELECT * FROM users WHERE name = %{s}", 'em
 $user = $mapper->type('obj')->query("SELECT * FROM users WHERE id = %{i}", 42);
 
 //adding '[]' at the end converts a result to a list of the desired type
-$user = $mapper->type('obj[]')->query("SELECT * FROM users WHERE department = %{s}", 'Sales');
+$users = $mapper->type('obj[]')->query("SELECT * FROM users WHERE department = %{s}", 'Sales');
 
 //close connection
 $mapper->close();
@@ -148,7 +148,7 @@ Mapping 101
 $total = $mapper->type('i')->query("SELECT COUNT(*) FROM users WHERE sex = %{s}", 'F');
 
 //mapping to a boolean ('b', 'bool', 'boolean')
-$suscribed = $mapper->type('b')->query("SELECT is_suscribed FROM users WHERE id = %{i}", 99);
+$subscribed = $mapper->type('b')->query("SELECT is_subscribed FROM users WHERE id = %{i}", 99);
 
 //mapping to a float ('f', 'float', 'real', 'double')
 $price = $mapper->type('f')->query("SELECT MAX(price) FROM products WHERE refurbished = %{b}", false);
@@ -160,7 +160,7 @@ $body = $mapper->type('s')->query("SELECT message FROM posts WHERE slug = %{s}",
 $lastLogin = $mapper->type('dt')->query("SELECT last_login FROM users WHERE id = %{i}", 1984);
 
 //finally, you can tell the exact column to fetch by providing a second argument
-$code = $mapper->type('s', 'serial')->query("SELECT * FROM products WHERE id = %{i}", 101);
+$code = $mapper->type('s', 'product_code')->query("SELECT * FROM products WHERE id = %{i}", 101);
 ```
 
 <br/>
@@ -1569,6 +1569,7 @@ $mapper->setCacheProvider($provider);
 use SimpleCache\MemcachedProvider;
 
 $provider = new MemcachedProvider('mem');
+$provider->addServer('localhost', 11211);
 $mapper->setProvider($provider);
 ```
 
@@ -1591,13 +1592,15 @@ Custom types
 <br/>
 #####Introduction
 
-Type handlers are classes that manage how a value is stored and retrieved from a column. To introduce how a type handler works we'll introduce a custom type called *RGBColor*.
+Type handlers are classes that manage how a value is stored and retrieved from a column. The following code examples introduce a custom type *RGBColor* which is later used to manage a color palette.
 
 ```php
 namespace Acme;
 
-//the RGBColor class is a three component class that
-//stores the amount of red, green and blue in a color
+/**
+ * The RGBColor class is a three component class that
+ * stores the amount of red, green and blue in a color
+ */
 class RGBColor {
     public $red;
     public $green;
@@ -1624,7 +1627,7 @@ class RGBColorTypeHandler extends TypeHandler {
     /**
      * Converts a RGBColor instance to a string expression
      */
-    public function setParameter($color) {
+    public function setParameter(RGBColor $color) {
         $red = ($color->red < 16) ? '0' . dechex($color->red) : dechex($color->red % 256);
 		$green = ($color->green < 16) ? '0' . dechex($color->green % 256) : dechex($color->green);
 		$blue = ($color->blue < 15) ? '0' . dechex($color->blue) : dechex($color->blue % 256);

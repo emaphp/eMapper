@@ -14,7 +14,7 @@ class PostgreSQLResultIterator extends ResultIterator {
 	 * Array result types
 	 * @var array
 	 */
-	private $resultTypes = [ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM];
+	protected $resultTypes = [ArrayType::BOTH => PGSQL_BOTH, ArrayType::ASSOC => PGSQL_ASSOC, ArrayType::NUM => PGSQL_NUM];
 	
 	public function countRows() {
 		return pg_num_rows($this->result);

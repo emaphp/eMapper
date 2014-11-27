@@ -6,7 +6,7 @@ use eMacros\Scope;
 use eMacros\GenericList;
 
 /**
- * The ConfigurationExists class is a macro that obtains a configuration
+ * The ConfigurationGet class is a macro that obtains a configuration
  * value from a given environment.
  * @author emaphp
  */

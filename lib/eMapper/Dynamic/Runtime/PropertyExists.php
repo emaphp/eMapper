@@ -6,6 +6,10 @@ use eMacros\Scope;
 use eMacros\GenericList;
 use eMapper\Reflection\Parameter\ParameterWrapper;
 
+/**
+ * The PropertyExists class determines if a given key/property exists in the given array/object.
+ * @author emaphp
+ */
 class PropertyExists implements Applicable {
 	/**
 	 * Property name

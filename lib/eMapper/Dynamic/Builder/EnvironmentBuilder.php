@@ -2,7 +2,6 @@
 namespace eMapper\Dynamic\Builder;
 
 use eMapper\Dynamic\Provider\EnvironmentProvider;
-use eMacros\Environment\Environment;
 
 /**
  * The EnvironmentBuilder trait provides access to the EnvironmentProvider class

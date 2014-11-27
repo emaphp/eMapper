@@ -26,8 +26,8 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	//Ex: [? (null? (#order)) ?] [?int (#limit) ?]
 	const DYNAMIC_SQL_REGEX = '/(?>\\[\?)([A-z]{1}[\w|\\\\]*)?\s+(.+?)\?\]/';
 	
-	public function __construct(Driver $driver, TypeManager $typeManager) {
-		parent::__construct($typeManager);
+	public function __construct(Driver $driver, TypeManager $typeManager, $parameterMap = null) {
+		parent::__construct($typeManager, $parameterMap);
 		$this->driver = $driver;
 	}
 	

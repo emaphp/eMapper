@@ -1,7 +1,6 @@
 <?php
 namespace eMapper\Engine\SQLite\Statement;
 
-use eMapper\Type\TypeManager;
 use eMapper\Engine\Generic\Statement\StatementFormatter;
 
 /**

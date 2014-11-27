@@ -5,7 +5,6 @@ use eMacros\Environment\Environment;
 use eMacros\Package\RegexPackage;
 use eMacros\Package\DatePackage;
 use eMapper\Dynamic\Package\CorePackage;
-use eMapper\Reflection\Parameter\ParameterWrapper;
 
 /**
  * The DynamicSQLEnvironment class is the default environment class used for dynamic SQL

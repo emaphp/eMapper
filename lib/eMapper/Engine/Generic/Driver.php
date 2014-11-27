@@ -103,8 +103,9 @@ abstract class Driver {
 	/**
 	 * Returns a statement instance for current engine
 	 * @param TypeManager $typeManager
+	 * @param string $parameterMap
 	 */
-	public abstract function buildStatement($typeManager);
+	public abstract function buildStatement($typeManager, $parameterMap = null);
 	
 	/**
 	 * Returns a result iterator for the given result

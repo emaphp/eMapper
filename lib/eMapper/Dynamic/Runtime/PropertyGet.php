@@ -5,8 +5,11 @@ use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
 use eMapper\Reflection\Parameter\ParameterWrapper;
-use eMapper\Reflection\Profiler;
 
+/**
+ * The PropertyGet class obtains a key/property value from the given array/object.
+ * @author emaphp
+ */
 class PropertyGet implements Applicable {
 	/**
 	 * Property to obtain

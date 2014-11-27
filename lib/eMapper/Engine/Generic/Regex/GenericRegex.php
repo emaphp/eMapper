@@ -2,8 +2,7 @@
 namespace eMapper\Engine\Generic\Regex;
 
 /**
- * The GenericRegex class is a base class tha encapsulates the common logic between
- * the regex generation classes.
+ * The GenericRegex class is a base class tha encapsulates the common logic for regex generation classes.
  * @author emaphp
  */
 abstract class GenericRegex {
@@ -39,6 +38,7 @@ abstract class GenericRegex {
 	
 	/**
 	 * Returns a formatted string to use with the regex operator
+	 * Note: the default behaviour is only overriden by the SQLiteRegex
 	 * @param string $expression
 	 * @return string
 	 */
