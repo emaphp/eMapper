@@ -1,13 +1,16 @@
 <?php
 namespace eMapper\SQL\Fluent;
 
-use eMapper\Query\FluentQuery;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Query\Column;
 use eMapper\SQL\Field\FluentFieldTranslator;
 use eMapper\SQL\Fluent\Clause\HavingClause;
 
-class SelectQuery extends AbstractQuery {	
+/**
+ * The FluentSelect class provides a fluent interface for building SELECT queries
+ * @author emaphp
+ */
+class FluentSelect extends AbstractFluentQuery {	
 	/**
 	 * Columns to fetch
 	 * @var array
@@ -46,7 +49,7 @@ class SelectQuery extends AbstractQuery {
 	
 	/**
 	 * Sets columns to fetch
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function select() {
 		$this->columns = func_get_args();
@@ -55,7 +58,7 @@ class SelectQuery extends AbstractQuery {
 	
 	/**
 	 * Sets order by clauses
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function orderBy() {
 		$this->orderByClause = func_get_args();
@@ -65,7 +68,7 @@ class SelectQuery extends AbstractQuery {
 	/**
 	 * Sets limit clause
 	 * @param int $limit
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function limit($limit) {
 		$this->limitClause = intval($limit);
@@ -75,7 +78,7 @@ class SelectQuery extends AbstractQuery {
 	/**
 	 * Sets offset clause
 	 * @param int $offset
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function offset($offset) {
 		$this->offsetClause = intval($offset);
@@ -84,7 +87,7 @@ class SelectQuery extends AbstractQuery {
 	
 	/**
 	 * Sets group by clauses
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function groupBy() {
 		$this->groupByClause = func_get_args();
@@ -95,6 +98,10 @@ class SelectQuery extends AbstractQuery {
 	 * HAVING
 	 */
 	
+	/**
+	 * Returns a HAVING clause as a string
+	 * @return string
+	 */
 	protected function buildHavingClause() {
 		if (isset($this->havingClause)) {
 			return $this->havingClause->build($this->translator, $this->fluent->getMapper()->getDriver());
@@ -106,7 +113,7 @@ class SelectQuery extends AbstractQuery {
 	/**
 	 * Sets the having clause
 	 * @param string|SQLPredicate $having
-	 * @return \eMapper\SQL\Fluent\SelectQuery
+	 * @return \eMapper\SQL\Fluent\FluentSelect
 	 */
 	public function having($having) {
 		$this->havingClause = new HavingClause(func_get_args());

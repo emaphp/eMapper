@@ -4,7 +4,11 @@ namespace eMapper\SQL\Fluent;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\SQL\Field\FluentFieldTranslator;
 
-class UpdateQuery extends AbstractQuery {
+/**
+ * The FluentUpdate class provides a fluent interface for building UPDATE queries
+ * @author emaphp
+ */
+class FluentUpdate extends AbstractFluentQuery {
 	/**
 	 * Values to update as a hash table
 	 * @var array
@@ -23,11 +27,23 @@ class UpdateQuery extends AbstractQuery {
 	 */
 	protected $valueList = [];
 	
+	/**
+	 * Sets a field value
+	 * @param string $fieldName
+	 * @param mixed $value
+	 * @return \eMapper\SQL\Fluent\FluentUpdate
+	 */
 	public function set($fieldName, $value) {
 		$this->value[$fieldName] = $value;
 		return $this;
 	}
 	
+	/**
+	 * Sets the value to update as an array|object
+	 * @param array|object $value
+	 * @throws \InvalidArgumentException
+	 * @return \eMapper\SQL\Fluent\FluentUpdate
+	 */
 	public function setValue($value) {
 		if ($value instanceof \ArrayObject)
 			$this->value = $value->getArrayCopy();
@@ -41,12 +57,21 @@ class UpdateQuery extends AbstractQuery {
 		return $this;
 	}
 	
+	/**
+	 * Sets the value list expression
+	 * @param string $expression
+	 * @return \eMapper\SQL\Fluent\FluentUpdate
+	 */
 	public function setExpr($expression) {
 		$this->valueList = func_get_args();
 		$this->expression = array_shift($this->valueList);
 		return $this;
 	}
 	
+	/**
+	 * Returns the set expression as a string
+	 * @return string
+	 */
 	protected function buildSetClause() {
 		if (isset($this->expression))
 			return $this->expression;

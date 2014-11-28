@@ -3,16 +3,39 @@ namespace eMapper\SQL\Fluent;
 
 use eMapper\Query\Column;
 
-class InsertQuery extends AbstractQuery {
+/**
+ * The FluentInsert class provides a fluent interface for building INSERT queries
+ * @author emaphp
+ */
+class FluentInsert extends AbstractFluentQuery {
+	/**
+	 * Value to insert
+	 * @var array
+	 */
 	protected $value;
+	
+	/**
+	 * List of values to insert
+	 * @var array
+	 */
 	protected $valueList;
+	
+	/**
+	 * Insert expression
+	 * @var string
+	 */
 	protected $expression;
+	
+	/**
+	 * List of columns
+	 * @var array
+	 */
 	protected $columnList;
 	
 	/**
 	 * Sets the values to insert as a list
 	 * @param mixed $values
-	 * @return \eMapper\SQL\Fluent\InsertQuery
+	 * @return \eMapper\SQL\Fluent\FluentInsert
 	 */
 	public function values($values) {
 		$this->valueList = func_get_args();
@@ -22,7 +45,7 @@ class InsertQuery extends AbstractQuery {
 	/**
 	 * Sets the VALUES clause along with its arguments
 	 * @param string $expression
-	 * @return \eMapper\SQL\Fluent\InsertQuery
+	 * @return \eMapper\SQL\Fluent\FluentInsert
 	 */
 	public function valuesExpr($expression) {
 		$args = func_get_args();
@@ -46,7 +69,7 @@ class InsertQuery extends AbstractQuery {
 	 * Sets the value to insert as an associative array
 	 * @param mixed $values
 	 * @throws \InvalidArgumentException
-	 * @return \eMapper\SQL\Fluent\InsertQuery
+	 * @return \eMapper\SQL\Fluent\FluentInsert
 	 */
 	public function valuesArray($values) {
 		if ($values instanceof \ArrayObject)
@@ -68,13 +91,18 @@ class InsertQuery extends AbstractQuery {
 	
 	/**
 	 * Sets the column list
-	 * @return \eMapper\SQL\Fluent\InsertQuery
+	 * @return \eMapper\SQL\Fluent\FluentInsert
 	 */
 	public function columns($columns) {
 		$this->columnList = func_get_args();
 		return $this;
 	}
 	
+	/**
+	 * Translates a insert column
+	 * @param Column|string$column
+	 * @return string
+	 */
 	protected function translateColumn($column) {
 		if ($column instanceof Column)
 			return $column->getName();
@@ -82,6 +110,10 @@ class InsertQuery extends AbstractQuery {
 		return preg_match('/^(\w+)/', $column, $matches) ? $matches[1] : $column;
 	}
 	
+	/**
+	 * Returns the column list as a string
+	 * @return string
+	 */
 	protected function buildColumnsClause() {
 		if (empty($this->columnList)) {
 			if (!empty($this->value))				
@@ -98,6 +130,11 @@ class InsertQuery extends AbstractQuery {
 		return implode(',', $columns);
 	}
 	
+	/**
+	 * Returns the property to fetch along with its type (when specified)
+	 * @param Column|string $column
+	 * @return string
+	 */
 	protected function parseColumn($column) {
 		if ($column instanceof Column) {
 			$type = $column->getType();
@@ -107,6 +144,10 @@ class InsertQuery extends AbstractQuery {
 		return $column;
 	}
 	
+	/**
+	 * Returns the value list expression
+	 * @return string
+	 */
 	protected function buildValuesClause() {
 		if (!empty($this->expression))
 			return $this->expression;
@@ -135,9 +176,7 @@ class InsertQuery extends AbstractQuery {
 		$columns = $this->buildColumnsClause();
 		$valueExpr = $this->buildValuesClause();
 		$table = $this->fromClause->getTable();
-		
 		$query = empty($columns) ? "INSERT INTO $table VALUES ($valueExpr)" : "INSERT INTO $table ($columns) VALUES ($valueExpr)";
-		
 		return [$query, empty($this->value) ? $this->valueList : [$this->value]];
 	}
 }

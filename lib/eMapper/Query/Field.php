@@ -179,7 +179,7 @@ abstract class Field {
 	 * Returns an Equal predicate for the current field
 	 * @param mixed $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Equal
+	 * @return \eMapper\SQL\Predicate\Equal
 	 */
 	public function eq($expression, $condition = true) {
 		$eq = new Equal($this, !$condition);
@@ -191,7 +191,7 @@ abstract class Field {
 	 * Return a Contains predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Contains
+	 * @return \eMapper\SQL\Predicate\Contains
 	 */
 	public function contains($expression, $condition = true) {
 		$contains = new Contains($this, true, !$condition);
@@ -203,7 +203,7 @@ abstract class Field {
 	 * Returns an case-insentive Contains predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Contains
+	 * @return \eMapper\SQL\Predicate\Contains
 	 */
 	public function icontains($expression, $condition = true) {
 		$icontains = new Contains($this, false, !$condition);
@@ -215,7 +215,7 @@ abstract class Field {
 	 * Returns an In predicate for the current field
 	 * @param array $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\In
+	 * @return \eMapper\SQL\Predicate\In
 	 */
 	public function in($expression, $condition = true) {
 		$in = new In($this, !$condition);
@@ -227,7 +227,7 @@ abstract class Field {
 	 * Returns a GreaterThan predicate for the current field
 	 * @param mixed $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\GreaterThan
+	 * @return \eMapper\SQL\Predicate\GreaterThan
 	 */
 	public function gt($expression, $condition = true) {
 		$gt = new GreaterThan($this, !$condition);
@@ -239,7 +239,7 @@ abstract class Field {
 	 * Returns a GreaterThanEqual predicate for the current field
 	 * @param mixed $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\GreaterThanEqual
+	 * @return \eMapper\SQL\Predicate\GreaterThanEqual
 	 */
 	public function gte($expression, $condition = true) {
 		$gte = new GreaterThanEqual($this, !$condition);
@@ -251,7 +251,7 @@ abstract class Field {
 	 * Returns a LessThan predicate for the current field
 	 * @param mixed $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\LessThan
+	 * @return \eMapper\SQL\Predicate\LessThan
 	 */
 	public function lt($expression, $condition = true) {
 		$lt = new LessThan($this, !$condition);
@@ -263,7 +263,7 @@ abstract class Field {
 	 * Returns a LessThanEqual predicate for the current field
 	 * @param mixed $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\LessThanEqual
+	 * @return \eMapper\SQL\Predicate\LessThanEqual
 	 */
 	public function lte($expression, $condition = true) {
 		$lte = new LessThanEqual($this, !$condition);
@@ -275,7 +275,7 @@ abstract class Field {
 	 * Returns a StartsWith predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\StartsWith
+	 * @return \eMapper\SQL\Predicate\StartsWith
 	 */
 	public function startswith($expression, $condition = true) {
 		$startswith = new StartsWith($this, true, !$condition);
@@ -287,7 +287,7 @@ abstract class Field {
 	 * Returns a case-insensitive StartsWith predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\StartsWith
+	 * @return \eMapper\SQL\Predicate\StartsWith
 	 */
 	public function istartswith($expression, $condition = true) {
 		$istartswith = new StartsWith($this, false, !$condition);
@@ -299,7 +299,7 @@ abstract class Field {
 	 * Returns a EndsWith predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\EndsWith
+	 * @return \eMapper\SQL\Predicate\EndsWith
 	 */
 	public function endswith($expression, $condition = true) {
 		$endswith = new EndsWith($this, true, !$condition);
@@ -311,7 +311,7 @@ abstract class Field {
 	 * Returns a case-insensitive EndsWith predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\EndsWith
+	 * @return \eMapper\SQL\Predicate\EndsWith
 	 */
 	public function iendswith($expression, $condition = true) {
 		$iendswith = new EndsWith($this, false, !$condition);
@@ -324,7 +324,7 @@ abstract class Field {
 	 * @param mixed $from
 	 * @param mixed $to
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Range
+	 * @return \eMapper\SQL\Predicate\Range
 	 */
 	public function range($from, $to, $condition = true) {
 		$range = new Range($this, !$condition);
@@ -337,7 +337,7 @@ abstract class Field {
 	 * Returns a Regex predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Regex
+	 * @return \eMapper\SQL\Predicate\Regex
 	 */
 	public function matches($expression, $condition = true) {
 		$matches = new Regex($this, true, !$condition);
@@ -349,7 +349,7 @@ abstract class Field {
 	 * Returns a case-insensitive Regex predicate for the current field
 	 * @param string $expression
 	 * @param boolean $condition
-	 * @return \eMapper\Query\Predicate\Regex
+	 * @return \eMapper\SQL\Predicate\Regex
 	 */
 	public function imatches($expression, $condition = true) {
 		$imatches = new Regex($this, false, !$condition);
@@ -360,7 +360,7 @@ abstract class Field {
 	/**
 	 * Returns a IsNull predicate for the current field
 	 * @param string $condition
-	 * @return \eMapper\Query\Predicate\IsNull
+	 * @return \eMapper\SQL\Predicate\IsNull
 	 */
 	public function isnull($condition = true) {
 		return new IsNull($this, !$condition);

@@ -4,6 +4,10 @@ namespace eMapper\Query;
 use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Type\ToString;
 
+/**
+ * The Func class is aimed to build aggregate function expressions
+ * @author emaphp
+ */
 abstract class Func extends Field {
 	use ToString;
 	
@@ -33,5 +37,4 @@ abstract class Func extends Field {
 		return $this->name . '(' . implode(',', $args) . ')';
 	}
 }
-
 ?>

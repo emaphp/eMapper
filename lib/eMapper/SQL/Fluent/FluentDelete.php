@@ -4,7 +4,11 @@ namespace eMapper\SQL\Fluent;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\SQL\Field\FluentFieldTranslator;
 
-class DeleteQuery extends AbstractQuery {	
+/**
+ * The FluentDelete class provides a fluent interface for building DELETE queries
+ * @author emaphp
+ */
+class FluentDelete extends AbstractFluentQuery {	
 	public function build() {
 		//FROM clause
 		$from = rtrim($this->fromClause->build());

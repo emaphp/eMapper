@@ -6,6 +6,10 @@ use eMapper\SQL\Predicate\Filter;
 use eMapper\SQL\Field\FieldTranslator;
 use eMapper\Engine\Generic\Driver;
 
+/**
+ * The ArgumentClause class is an abstraction of a sql clause initialized through SQLPredicate instances
+ * @author emaphp
+ */
 abstract class ArgumentClause {
 	/**
 	 * Conditional clause
@@ -30,8 +34,17 @@ abstract class ArgumentClause {
 			throw new \UnexpectedValueException($this->getName() . " clause must be defined as a SQLPredicate instance or a non-empty string");
 	}
 	
+	/**
+	 * Returns current clause name
+	 */
 	abstract function getName();
 	
+	/**
+	 * Builds current clause
+	 * @param FieldTranslator $translator
+	 * @param Driver $driver
+	 * @return string
+	 */
 	public function build(FieldTranslator $translator, Driver $driver) {
 		if ($this->clause instanceof SQLPredicate) {
 			$sql = $this->clause->evaluate($translator, $driver, $this->args);

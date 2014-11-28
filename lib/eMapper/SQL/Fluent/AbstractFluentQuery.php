@@ -4,11 +4,13 @@ namespace eMapper\SQL\Fluent;
 use eMapper\Query\FluentQuery;
 use eMapper\Statement\Configuration\StatementConfiguration;
 use eMapper\SQL\Fluent\Clause\WhereClause;
-use eMapper\SQL\Field\FluentFieldTranslator;
 use eMapper\SQL\Fluent\Clause\FromClause;
-use eMapper\SQL\Field\FieldTranslator;
 
-abstract class AbstractQuery {
+/**
+ * The AbstractFluentQuery class encapsulates the logic shared between fluent queries
+ * @author emaphp
+ */
+abstract class AbstractFluentQuery {
 	use StatementConfiguration;
 	
 	/**
@@ -50,7 +52,7 @@ abstract class AbstractQuery {
 	 * @param string $table
 	 * @param string|SQLPredicate $alias_or_cond
 	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\AbstractQuery
+	 * @return \eMapper\SQL\Fluent\AbstractFluentQuery
 	 */
 	public function innerJoin($table, $alias_or_cond, $cond = null) {
 		$this->fromClause->addInnerJoin($table, $alias_or_cond, $cond);
@@ -62,7 +64,7 @@ abstract class AbstractQuery {
 	 * @param string $table
 	 * @param string|SQLPredicate $alias_or_cond
 	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\AbstractQuery
+	 * @return \eMapper\SQL\Fluent\AbstractFluentQuery
 	 */
 	public function leftJoin($table, $alias_or_cond, $cond = null) {
 		$this->fromClause->addLeftJoin($table, $alias_or_cond, $cond);
@@ -74,7 +76,7 @@ abstract class AbstractQuery {
 	 * @param string $table
 	 * @param string|SQLPredicate $alias_or_cond
 	 * @param string|SQLPredicate $cond
-	 * @return \eMapper\SQL\Fluent\AbstractQuery
+	 * @return \eMapper\SQL\Fluent\AbstractFluentQuery
 	 */
 	public function fullOuterJoin($table, $alias_or_cond, $cond = null) {
 		$this->fromClause->addFullOuterJoin($table, $alias_or_cond, $cond);
@@ -103,6 +105,10 @@ abstract class AbstractQuery {
 	 * WHERE
 	 */
 	
+	/**
+	 * Returns a WHERE clause as a string
+	 * @return string
+	 */
 	protected function buildWhereClause() {
 		if (isset($this->whereClause)) {
 			return $this->whereClause->build($this->translator, $this->fluent->getMapper()->getDriver());
@@ -111,6 +117,11 @@ abstract class AbstractQuery {
 		return '';
 	}
 	
+	/**
+	 * Sets a WHERE clause for the current query
+	 * @param SQLPredicate|string $where
+	 * @return \eMapper\SQL\Fluent\AbstractFluentQuery
+	 */
 	public function where($where) {
 		$this->whereClause = new WhereClause(func_get_args());
 		return $this;
@@ -118,10 +129,14 @@ abstract class AbstractQuery {
 	
 	/**
 	 * Executes the query
+	 * @return boolean
 	 */
 	public function exec() {
 		list($query, $args) = $this->build();
-		return call_user_func_array([$this->fluent->getMapper(), 'sql'], $args);
+		array_unshift($args, $query);
+		if (empty($this->config))
+			return call_user_func_array([$this->fluent->getMapper(), 'sql'], $args);
+		return call_user_func_array([$this->fluent->getMapper()->merge($this->config), 'sql'], $args);
 	}
 }
 ?>

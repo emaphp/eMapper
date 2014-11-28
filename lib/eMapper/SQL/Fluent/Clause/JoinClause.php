@@ -1,8 +1,12 @@
 <?php
 namespace eMapper\SQL\Fluent\Clause;
 
+/**
+ * The JoinClause class is an abstration of the sql JOIN clause
+ * @author emaphp
+ */
 class JoinClause {
-	//joi types
+	//join types
 	const LEFT_JOIN       = 0;
 	const INNER_JOIN      = 1;
 	const FULL_OUTER_JOIN = 2;

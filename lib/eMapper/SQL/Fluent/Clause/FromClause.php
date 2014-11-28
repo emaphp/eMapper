@@ -5,6 +5,10 @@ use eMapper\Engine\Generic\Driver;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\SQL\Field\FluentFieldTranslator;
 
+/**
+ * The FromClause class is an abstraction of the sql FROM clause
+ * @author emaphp
+ */
 class FromClause {
 	/**
 	 * Connection driver
@@ -140,6 +144,10 @@ class FromClause {
 		return $expr;
 	}
 	
+	/**
+	 * Returns a FROM clause as a string
+	 * @return string
+	 */
 	public function build() {
 		$from = '';
 		
