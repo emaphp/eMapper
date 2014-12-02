@@ -2,7 +2,6 @@
 namespace eMapper\Reflection\Parameter;
 
 use eMapper\Reflection\Profiler;
-use eMapper\Reflection\Profile\ClassProfile;
 
 /**
  * The ObjectParameterWrapper class provides an interface for accessing properties.

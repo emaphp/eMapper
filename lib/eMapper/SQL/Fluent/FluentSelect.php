@@ -5,6 +5,7 @@ use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Query\Column;
 use eMapper\SQL\Field\FluentFieldTranslator;
 use eMapper\SQL\Fluent\Clause\HavingClause;
+use eMapper\Query\Func;
 
 /**
  * The FluentSelect class provides a fluent interface for building SELECT queries
@@ -104,7 +105,7 @@ class FluentSelect extends AbstractFluentQuery {
 	 */
 	protected function buildHavingClause() {
 		if (isset($this->havingClause)) {
-			return $this->havingClause->build($this->translator, $this->fluent->getMapper()->getDriver());
+			return 'HAVING ' . $this->havingClause->build($this->translator, $this->fluent->getMapper()->getDriver());
 		}
 		
 		return '';
@@ -126,7 +127,7 @@ class FluentSelect extends AbstractFluentQuery {
 	 * @return string
 	 */
 	protected function translateColumn($column) {
-		if ($column instanceof Column) {
+		if ($column instanceof Column || $column instanceof Func) {
 			return $this->translator->translate($column, $this->fromClause->getAlias());
 		}
 		elseif (is_string($column) && !empty($column))
@@ -221,10 +222,10 @@ class FluentSelect extends AbstractFluentQuery {
 		$clauses = '';
 		
 		//group by
-		if (!empty($this->groupBy)) {
+		if (!empty($this->groupByClause)) {
 			$group_by = [];
 			
-			foreach($this->groupBy as $group)
+			foreach($this->groupByClause as $group)
 				$group_by[] = $this->translateColumn($group);
 			
 			$clauses .= 'GROUP BY ' . implode(',', $group_by) . ' ';

@@ -3,6 +3,7 @@ namespace eMapper\Fluent;
 
 use eMapper\MapperTest;
 use eMapper\Query\Column;
+use eMapper\Query\Func as F;
 
 abstract class AbstractFluentSelectTest extends MapperTest {
 	public function testColumns() {
@@ -213,6 +214,34 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertCount(1, $args);
 		$key = key($args[0]);
 		$this->assertEquals(1, $args[0][$key]);
+	}
+	
+	public function testHaving() {
+		$query = $this->mapper->newQuery();
+		list($sql, $args) = $query->from('Employees', 'emp')
+		->innerJoin('Orders', 'ord', 'ord.employee_id = emp.id')
+		->select('emp.lastname', 'COUNT(ord.id)')
+		->groupBy('emp.lastname')
+		->having('COUNT(ord.id) > %{i}', 10)
+		->build();
+		
+		$this->assertEquals('SELECT emp.lastname,COUNT(ord.id) FROM Employees emp INNER JOIN Orders ord ON ord.employee_id = emp.id GROUP BY emp.lastname HAVING COUNT(ord.id) > %{i}', $sql);
+		$this->assertCount(1, $args);
+		$this->assertEquals(10, $args[0]);
+		
+		$query = $this->mapper->newQuery();
+		list($sql, $args) = $query->from('Employees', 'emp')
+		->innerJoin('Orders', 'ord', Column::ord__employee_id()->eq(Column::emp__id()))
+		->select(Column::emp__lastname(), F::COUNT(Column::ord__id()))
+		->groupBy(Column::emp__lastname())
+		->having(F::COUNT(Column::ord__id())->gt(10))
+		->build();
+		
+		$this->assertRegExp('/SELECT emp\.lastname,COUNT\(ord\.id\) FROM Employees emp INNER JOIN Orders ord ON ord\.employee_id = emp\.id GROUP BY emp\.lastname HAVING COUNT\(ord\.id\) > #\{arg\d+\}/', $sql);
+		$this->assertCount(1, $args);
+		$this->assertInternalType('array', $args[0]);
+		$key = key($args[0]);
+		$this->assertEquals(10, $args[0][$key]);
 	}
 }
 ?>

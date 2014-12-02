@@ -94,7 +94,7 @@ class ManyToOne extends Association {
 		if ($value instanceof AssociationManager)
 			return null;
 		
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		return $manager->save($value, $depth);
 	}
 	

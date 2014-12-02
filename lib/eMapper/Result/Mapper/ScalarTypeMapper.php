@@ -21,7 +21,8 @@ class ScalarTypeMapper {
 	}
 
 	public function mapResult(ResultIterator $result, $column = null) {
-		if ($result->countRows() == 0) return null;
+		if ($result->countRows() == 0)
+			return null;
 		
 		if (empty($column))
 			$column = 0;

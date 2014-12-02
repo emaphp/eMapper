@@ -17,7 +17,7 @@ abstract class Cond {
 	/**
 	 * Builds an OR filter
 	 * Ex: Cond::where(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
-	 * @return \eMapper\Query\Predicate\Filter
+	 * @return \eMapper\SQL\Predicate\Filter
 	 */
 	public static function where() {
 		return new Filter(func_get_args(), false, self::LOGICAL_OR);
@@ -26,7 +26,7 @@ abstract class Cond {
 	/**
 	 * Builds a negated OR filter
 	 * Ex: Cond::where_not(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
-	 * @return \eMapper\Query\Predicate\Filter
+	 * @return \eMapper\SQL\Predicate\Filter
 	 */
 	public static function where_not() {
 		return new Filter(func_get_args(), true, self::LOGICAL_OR);
@@ -34,7 +34,7 @@ abstract class Cond {
 	
 	/**
 	 * Builds a AND filter
-	 * @return \eMapper\Query\Predicate\Filter
+	 * @return \eMapper\SQL\Predicate\Filter
 	 */
 	public static function filter() {
 		return new Filter(func_get_args(), false, self::LOGICAL_AND);
@@ -42,7 +42,7 @@ abstract class Cond {
 	
 	/**
 	 * Builds a negated AND filter
-	 * @return \eMapper\Query\Predicate\Filter
+	 * @return \eMapper\SQL\Predicate\Filter
 	 */
 	public static function exclude() {
 		return new Filter(func_get_args(), true, self::LOGICAL_AND);

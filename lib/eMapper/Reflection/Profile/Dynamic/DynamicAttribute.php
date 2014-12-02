@@ -17,9 +17,6 @@ use eMapper\Mapper;
 abstract class DynamicAttribute extends PropertyProfile {
 	use EnvironmentBuilder;
 	
-	//Ex: name, userId:string
-	const PARAMETER_PROPERTY_REGEX = '/([A-z|_]{1}[\w|\\\\]*)(:[A-z]{1}[\w|\\\\]*)?/';
-	
 	/**
 	 * Attribute arguments
 	 * @var array
@@ -46,7 +43,6 @@ abstract class DynamicAttribute extends PropertyProfile {
 	
 	public function __construct($name, AnnotationBag $annotations, \ReflectionProperty $reflectionProperty) {
 		parent::__construct($name, $annotations, $reflectionProperty);
-
 		$this->parseMetadata($annotations);
 		$this->parseArguments($annotations);
 		$this->parseConfig($annotations);
@@ -66,17 +62,10 @@ abstract class DynamicAttribute extends PropertyProfile {
 			if ($param->hasArgument()) {
 				$arg = $param->getArgument();
 				
-				if (strtolower($arg) == 'self') {
+				if (strtolower($arg) == 'self')
 					$this->useDefaultArgument = true;
-					continue;
-				}
-				
-				if (preg_match(self::PARAMETER_PROPERTY_REGEX, $arg, $matches)) {
-					if (array_key_exists(2, $matches))
-						$this->args[] = Attr::__callstatic($matches[1], [substr($matches[2], 1)]);
-					else
-						$this->args[] = Attr::__callstatic($matches[1]);
-				}
+				else
+					$this->args[] = Attr::__callstatic($arg);
 			}
 			else
 				$this->args[] = $param->getValue();
@@ -198,5 +187,4 @@ abstract class DynamicAttribute extends PropertyProfile {
 	 */
 	public abstract function evaluate($row, Mapper $mapper);
 }
-
 ?>

@@ -2,7 +2,6 @@
 namespace eMapper\Reflection\Parameter;
 
 use eMapper\Reflection\Profiler;
-use eMapper\Reflection\Profile\ClassProfile;
 
 /**
  * The ParameterWrapper class defines a wrapper object that encapsulates an array/object and

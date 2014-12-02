@@ -5,7 +5,7 @@ use Omocha\AnnotationBag;
 use eMapper\Mapper;
 
 /**
- * The QueryCallback class implements the logic for evaluating queries againts
+ * The QueryCallback class implements the logic for evaluating queries against
  * a list of arguments.
  * @author emaphp
  */
@@ -23,7 +23,8 @@ class QueryCallback extends DynamicAttribute {
 	
 	public function evaluate($row, Mapper $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
+		if ($this->checkCondition($row, $mapper->getConfig()) === false)
+			return null;
 
 		//build argument list
 		$args = $this->evaluateArgs($row);

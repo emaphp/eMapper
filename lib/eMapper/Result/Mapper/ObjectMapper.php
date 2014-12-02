@@ -4,7 +4,6 @@ namespace eMapper\Result\Mapper;
 use eMapper\Type\TypeManager;
 use eMapper\Engine\Generic\Result\ResultIterator;
 use eMapper\Reflection\Profiler;
-use eMapper\Reflection\Profile\ClassProfile;
 
 /**
  * The ObjectMapper class maps database results to object type values.
@@ -51,7 +50,8 @@ class ObjectMapper extends ComplexMapper {
 	 */
 	public function mapResult(ResultIterator $result) {
 		//check numer of rows returned
-		if ($result->countRows() == 0) return null;
+		if ($result->countRows() == 0)
+			return null;
 	
 		//get result column types
 		$this->columnTypes = $result->getColumnTypes();
@@ -76,7 +76,8 @@ class ObjectMapper extends ComplexMapper {
 	 */
 	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null) {
 		//check numer of rows returned
-		if ($result->countRows() == 0) return [];
+		if ($result->countRows() == 0)
+			return [];
 	
 		//get result column types
 		$this->columnTypes = $result->getColumnTypes();

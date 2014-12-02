@@ -2,7 +2,6 @@
 namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
-use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Query\Cond;
 use eMapper\SQL\Field\FieldTranslator;
 

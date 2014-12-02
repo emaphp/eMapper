@@ -90,8 +90,8 @@ class OneToOne extends Association {
 					throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->parent));
 				
 				$parameter = $property->getReflectionProperty()->getValue($entity);
-				
-				if (is_null($parameter)) return false;
+				if (is_null($parameter))
+					return false;
 				
 				//build predicate
 				$field = Attr::__callstatic($entityProfile->getPrimaryKey());
@@ -105,10 +105,11 @@ class OneToOne extends Association {
 	}
 	
 	public function save($mapper, $parent, $value, $depth) {
-		if ($value instanceof AssociationManager) return null;
+		if ($value instanceof AssociationManager)
+			return null;
 				
 		//build manager
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		$attr = $this->attribute->getArgument();
 		
 		if (empty($attr)) {
@@ -132,7 +133,7 @@ class OneToOne extends Association {
 	}
 	
 	public function delete($mapper, $foreignKey) {
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		$attr = $this->attribute->getValue();
 		
 		//determine if the attribute is nullable

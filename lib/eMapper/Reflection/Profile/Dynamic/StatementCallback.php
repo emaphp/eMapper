@@ -109,33 +109,24 @@ class StatementCallback extends DynamicAttribute {
 			
 			$this->setStatement((new EqualStatementBuilder($entity))->build($driver, $matches), $entity, $as_table);
 		}
-		elseif (preg_match('/^(\w+?)(Not)?(I)?Contains$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?(I)?Contains$/', $this->statementId, $matches))
 			$this->setStatement((new ContainStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?In$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?In$/', $this->statementId, $matches))
 			$this->setStatement((new InStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?GreaterThan(Equal)?$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?GreaterThan(Equal)?$/', $this->statementId, $matches))
 			$this->setStatement((new GreaterThanStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?LessThan(Equal)?$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?LessThan(Equal)?$/', $this->statementId, $matches))
 			$this->setStatement((new LessThanStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?(I)?StartsWith$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?(I)?StartsWith$/', $this->statementId, $matches))
 			$this->setStatement((new StartsWithStatementBuilder($driver))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?(I)?EndsWith$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?(I)?EndsWith$/', $this->statementId, $matches))
 			$this->setStatement((new EndsWithStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)Is(Not)?Null$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)Is(Not)?Null$/', $this->statementId, $matches))
 			$this->setStatement((new IsNullStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?(I)?Matches$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?(I)?Matches$/', $this->statementId, $matches))
 			$this->setStatement((new RegexStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
-		elseif (preg_match('/^(\w+?)(Not)?Between$/', $this->statementId, $matches)) {
+		elseif (preg_match('/^(\w+?)(Not)?Between$/', $this->statementId, $matches))
 			$this->setStatement((new RangeStatementBuilder($entity))->build($driver, $matches), $entity);
-		}
 		else
 			throw new \UnexpectedValueException("Statement '{$this->statementId}' does not match any supported expression");
 	}

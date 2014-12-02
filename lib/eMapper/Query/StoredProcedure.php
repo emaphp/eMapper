@@ -5,7 +5,7 @@ use eMapper\Mapper;
 use eMapper\Statement\Configuration\StatementConfiguration;
 
 /**
- * The StoredProcedure class abstracts a database stored procedure and provides a fluent configuration interface. 
+ * The StoredProcedure class is an abstraction of a database stored procedure which provides a fluent configuration interface. 
  * @author emaphp
  */
 class StoredProcedure {

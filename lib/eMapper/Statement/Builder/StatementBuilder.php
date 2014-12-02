@@ -39,8 +39,7 @@ abstract class StatementBuilder {
 	 * @param string $property
 	 */
 	protected function getColumnName($property) {
-		$attr = Attr::__callstatic($property);
-		return $attr->getColumnName($this->entity);
+		return Attr::__callstatic($property)->getColumnName($this->entity);
 	}
 	
 	/**

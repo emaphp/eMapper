@@ -36,7 +36,6 @@ class OneToMany extends Association {
 			
 			//obtain related column
 			$property = $entityProfile->getProperty($name);
-			
 			if ($property === false)
 				throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $name, $this->profile));
 			
@@ -81,9 +80,9 @@ class OneToMany extends Association {
 	}
 	
 	public function save($mapper, $parent, $value, $depth) {
-		if ($value instanceof AssociationManager) return null;
-		if (!is_array($value)) return null;
-
+		if ($value instanceof AssociationManager || !is_array($value))
+			return null;
+		
 		//get related profiles
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		$entityProfile = Profiler::getClassProfile($this->profile);
@@ -101,7 +100,7 @@ class OneToMany extends Association {
 		$pkProperty = $entityProfile->getPrimaryKeyProperty();
 		
 		//create manager instance
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		$ids = [];
 		
 		foreach ($value as &$entity) {			
@@ -121,7 +120,7 @@ class OneToMany extends Association {
 			$mapper->sql($query);
 		}
 		else {
-			$manager = $mapper->buildManager($this->profile);
+			$manager = $mapper->newManager($this->profile);
 			
 			if (!empty($value)) {
 				$unrelated = $manager
@@ -143,7 +142,7 @@ class OneToMany extends Association {
 	}
 	
 	public function delete($mapper, $foreignKey) {
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		$attr = $this->attribute->getValue();
 		
 		//determine if the attribute is nullable

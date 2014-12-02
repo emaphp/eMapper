@@ -3,11 +3,9 @@ namespace eMapper\Reflection\Profile\Association;
 
 use eMapper\Reflection\Profile\PropertyProfile;
 use eMapper\Reflection\PropertyAccessor;
-use eMapper\Reflection\Profile\ClassProfile;
 use eMapper\Manager;
 use eMapper\AssociationManager;
 use eMapper\Query\Attr;
-use Omocha\Annotation;
 use Omocha\AnnotationBag;
 use Omocha\Filter;
 
@@ -74,13 +72,12 @@ abstract class Association extends PropertyProfile {
 			throw new \RuntimeException(sprintf("Association %s in class %s must define a valid entity class", $name, $reflectionProperty->getDeclaringClass()->getName()));
 		
 		try {
-			$reflectionClass = new \ReflectionClass($entity);
+			new \ReflectionClass($entity);
 		}
 		catch (\ReflectionException $re) {
 			//try using
 			$currentNamespace = $reflectionProperty->getDeclaringClass()->getNamespaceName();
 			$entity = $currentNamespace . '\\' . $entity;
-			$reflectionClass = new \ReflectionClass($entity);
 		}
 		
 		$this->name = $name;
@@ -108,7 +105,6 @@ abstract class Association extends PropertyProfile {
 		
 		//parse options
 		$this->index = $annotations->has('Index') ? $annotations->get('Index')->getValue() : null;
-		
 		$order = $annotations->find('OrderBy', Filter::HAS_ARGUMENT);
 		
 		foreach ($order as $option)
@@ -148,7 +144,8 @@ abstract class Association extends PropertyProfile {
 	public function evaluate($entity, $mapper) {
 		//build join condition
 		$condition = $this->buildCondition($entity);
-		if ($condition === false) return null;
+		if ($condition === false)
+			return null;
 
 		//build association manager
 		$manager = new AssociationManager($mapper, $this, $condition);

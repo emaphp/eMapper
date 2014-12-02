@@ -41,7 +41,8 @@ class ArrayMapper extends ComplexMapper {
 	 */
 	public function mapResult(ResultIterator $result, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
-		if ($result->countRows() == 0) return null;
+		if ($result->countRows() == 0)
+			return null;
 
 		//get result column types
 		$this->columnTypes = $result->getColumnTypes($resultType);
@@ -66,7 +67,8 @@ class ArrayMapper extends ComplexMapper {
 	 */
 	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null, $resultType = ArrayType::BOTH) {
 		//check numer of rows returned
-		if ($result->countRows() == 0) return [];
+		if ($result->countRows() == 0)
+			return [];
 	
 		//get result column types
 		$this->columnTypes = $result->getColumnTypes($resultType);

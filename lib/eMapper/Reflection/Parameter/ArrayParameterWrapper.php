@@ -1,8 +1,6 @@
 <?php
 namespace eMapper\Reflection\Parameter;
 
-use eMapper\Reflection\Profiler;
-
 /**
  * The ArrayParameterWrapper class provides an interface for accessing array keys.
  * @author emaphp

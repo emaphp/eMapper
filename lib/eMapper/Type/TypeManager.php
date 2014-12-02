@@ -111,12 +111,4 @@ class TypeManager {
 		
 		return $this->typeHandlers[$type_or_alias];
 	}
-	
-	/**
-	 * Returns entire type/alias list
-	 * @return array
-	 */
-	public function getTypesList() {
-		return array_merge(array_keys($this->typeHandlers), array_keys($this->aliases));
-	}
 }

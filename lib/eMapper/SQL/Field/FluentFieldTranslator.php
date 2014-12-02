@@ -3,6 +3,7 @@ namespace eMapper\SQL\Field;
 
 use eMapper\Query\Field;
 use eMapper\Query\Column;
+use eMapper\Query\Func;
 
 class FluentFieldTranslator implements FieldTranslator {
 	/**
@@ -29,6 +30,15 @@ class FluentFieldTranslator implements FieldTranslator {
 			
 			return $references . '.' . $column->getName();
 		}
+		elseif ($column instanceof Func) {
+			$args = $column->getArguments();
+			$list = [];
+			
+			foreach ($args as $arg)
+				$list[] = $this->translate($arg, $alias);
+			
+			return $column->getName() . '(' . implode(',', $list) . ')';
+		} 
 		elseif (is_string($column) && !empty($column))
 			return $column;
 		else

@@ -101,18 +101,15 @@ class ManyToMany extends Association {
 	}
 	
 	public function save($mapper, $parent, $value, $depth) {
-		if ($value instanceof AssociationManager)
+		if ($value instanceof AssociationManager || !is_array($value))
 			return null;
 	
-		if (!is_array($value))
-			return null;
-
 		//get related profiles
 		$entityProfile = Profiler::getClassProfile($this->profile);
 		$parentProfile = Profiler::getClassProfile($this->parent);
 		
 		//build entity manager
-		$manager = $mapper->buildManager($this->profile);
+		$manager = $mapper->newManager($this->profile);
 		
 		//get foreign key value
 		$foreignKey = $this->getPropertyValue($parentProfile, $parent, $parentProfile->getPrimaryKey());

@@ -8,7 +8,7 @@ use eMapper\Type\ToString;
  * The Func class is aimed to build aggregate function expressions
  * @author emaphp
  */
-abstract class Func extends Field {
+class Func extends Field {
 	use ToString;
 	
 	/**
@@ -17,9 +17,13 @@ abstract class Func extends Field {
 	 */
 	protected $arguments;
 	
-	public function __callstatic($method, $args = null) {
-		$this->name = $method;
-		$this->arguments = is_null($args) ? [] : $args;
+	public function __construct($name, $args) {
+		$this->name = $name;
+		$this->arguments = $args;
+	}
+	
+	public static function __callstatic($method, $args = null) {
+		return new static($method, is_null($args) ? [] : $args);
 	}
 	
 	public function getColumnName(ClassProfile $profile) {
@@ -35,6 +39,10 @@ abstract class Func extends Field {
 		}
 		
 		return $this->name . '(' . implode(',', $args) . ')';
+	}
+	
+	public function getArguments() {
+		return $this->arguments;
 	}
 }
 ?>

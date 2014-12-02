@@ -8,6 +8,10 @@ use eMapper\Query\Attr;
 use eMapper\Query\StoredProcedure;
 use eMapper\Mapper;
 
+/**
+ * The StoredProcedureCallback class invokes a procedure with the arguments specified in a given property
+ * @author emaphp
+ */
 class StoredProcedureCallback extends DynamicAttribute {
 	/**
 	 * Stored procedure instance

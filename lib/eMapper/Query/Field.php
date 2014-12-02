@@ -64,6 +64,7 @@ abstract class Field {
 	/**
 	 * Obtains the referenced column of this field
 	 * @param ClassProfile $profile
+	 * @return string
 	 */
 	public abstract function getColumnName(ClassProfile $profile);
 	
@@ -114,7 +115,7 @@ abstract class Field {
 	 * Obtains field associations as a list
 	 * @param ClassProfile $profile
 	 * @throws \RuntimeException
-	 * @return mixed
+	 * @return array
 	 */
 	public function getAssociations(ClassProfile $profile) {
 		//check if field depends on an association (Ex: assoc__attr)

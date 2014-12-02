@@ -100,7 +100,8 @@ class ClassProfile {
 		foreach ($propertyList as $reflectionProperty) {
 			//get property annotations
 			$annotations = Omocha::getAnnotations($reflectionProperty);
-			
+						
+			//determine if property is cacheable
 			$isCacheable = $annotations->has('Cacheable');
 			
 			//get property name for indexation
@@ -171,6 +172,7 @@ class ClassProfile {
 			}
 		}
 		
+		//build propery -> column and column -> property hashes
 		foreach ($this->properties as $propertyProfile) {
 			if (!$propertyProfile->isReadOnly())
 				$this->propertyNames[$propertyProfile->getName()] = $propertyProfile->getColumn();
@@ -275,7 +277,8 @@ class ClassProfile {
 	 * @return string|NULL
 	 */
 	public function getPrimaryKey($as_column = false) {
-		if ($as_column) return $this->propertyNames[$this->primaryKey];
+		if ($as_column)
+			return $this->propertyNames[$this->primaryKey];
 		return $this->primaryKey;
 	}
 	

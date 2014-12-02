@@ -12,13 +12,10 @@ use eMapper\Mapper;
 class MacroExpression extends DynamicAttribute {
 	/**
 	 * Attribute program
-	 * @var Progra
+	 * @var DynamicSQLProgram 
 	 */
 	protected $program;
 	
-	/* (non-PHPdoc)
-	 * @see \eMapper\Result\Relation\DynamicAttribute::parseAttribute()
-	 */
 	protected function parseMetadata(AnnotationBag $annotations) {
 		//obtain program source
 		$this->program = new DynamicSQLProgram($annotations->get('Eval')->getValue());
@@ -26,7 +23,8 @@ class MacroExpression extends DynamicAttribute {
 	
 	public function evaluate($row, Mapper $mapper) {
 		//evaluate condition
-		if ($this->checkCondition($row, $mapper->getConfig()) === false) return null;
+		if ($this->checkCondition($row, $mapper->getConfig()) === false)
+			return null;
 		$args = $this->evaluateArgs($row);
 		return $this->program->executeWith($this->buildEnvironment($mapper->getConfig()), $args);
 	}

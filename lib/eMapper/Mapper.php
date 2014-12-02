@@ -722,27 +722,11 @@ class Mapper {
 	}
 	
 	/**
-	 * Sets database driver
-	 * @param Driver $driver
-	 */
-	public function setDriver(Driver $driver) {
-		$this->driver = $driver;
-	}
-	
-	/**
 	 * Obtains database driver
 	 * @return \eMapper\Engine\Generic\Driver
 	 */
 	public function getDriver() {
 		return $this->driver;
-	}
-	
-	/**
-	 * Sets type manager
-	 * @param TypeManager $typeManager
-	 */
-	public function setTypeManager(TypeManager $typeManager) {
-		$this->typeManager = $typeManager;
 	}
 	
 	/**
@@ -783,7 +767,7 @@ class Mapper {
 	/**
 	 * Returns a new StoredProcedure instance
 	 * @param string $name
-	 * @return \eMapper\Procedure\StoredProcedure
+	 * @return \eMapper\Query\StoredProcedure
 	 */
 	public function newProcedureCall($name) {
 		return new StoredProcedure($this, $name);
