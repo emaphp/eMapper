@@ -34,13 +34,16 @@ class FluentFieldTranslator implements FieldTranslator {
 			$args = $column->getArguments();
 			$list = [];
 			
-			foreach ($args as $arg)
-				$list[] = $this->translate($arg, $alias);
+			foreach ($args as $arg) {
+				if ($arg instanceof Field)
+					$list[] = $this->translate($arg, $alias);
+				else
+					$list[] = $arg;
+			}
 			
-			return $column->getName() . '(' . implode(',', $list) . ')';
-		} 
-		elseif (is_string($column) && !empty($column))
-			return $column;
+			$funcAlias = $column->getColumnAlias();
+			return !empty($funcAlias) ? $column->getName() . '(' . implode(',', $list) . ') AS ' . $funcAlias : $column->getName() . '(' . implode(',', $list) . ')';
+		}
 		else
 			throw new \InvalidArgumentException("Columns must be specified either by a Column instance or a non-empty string");
 	}

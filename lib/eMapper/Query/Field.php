@@ -40,6 +40,12 @@ abstract class Field {
 	 */
 	protected $path;
 	
+	/**
+	 * Column alias
+	 * @var string
+	 */
+	protected $columnAlias;
+	
 	public function __construct($name, $type = null) {
 		if (strstr($name, '__')) {
 			//path stores the associated field path
@@ -365,6 +371,19 @@ abstract class Field {
 	 */
 	public function isnull($condition = true) {
 		return new IsNull($this, !$condition);
+	}
+	
+	public function getColumnAlias() {
+		return $this->columnAlias;
+	}
+	
+	/**
+	 * Sets the field alias
+	 * @param string $alias
+	 */
+	public function alias($alias) {
+		$this->columnAlias = $alias;
+		return $this;
 	}
 }
 ?>

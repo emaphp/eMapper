@@ -145,7 +145,7 @@ class FluentSelect extends AbstractFluentQuery {
 	protected function translateSelectColumn($column) {
 		if ($column instanceof Column) {
 			$path = $column->getPath();
-			$name = $column->getType();
+			$name = $column->getColumnAlias();
 			$alias = $this->fromClause->getAlias();
 			$tableList = $this->fromClause->getTableList();
 		
@@ -320,9 +320,8 @@ class FluentSelect extends AbstractFluentQuery {
 		list($query, $args) = $this->build();
 
 		//generate a mapper instance
-		if (is_null($mapping_type)) {
+		if (is_null($mapping_type))
 			$mapper = empty($this->config) ? $this->fluent->getMapper() : $this->fluent->getMapper()->merge($this->config);
-		}
 		else {
 			$config = empty($this->config) ? ['map.type' => $mapping_type] : array_merge($this->config, ['map.type' => $mapping_type]);
 			$mapper = $this->fluent->getMapper()->merge($config);

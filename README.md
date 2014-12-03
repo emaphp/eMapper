@@ -188,6 +188,18 @@ $movie = $mapper->type('array', ArrayType::ASSOC)->query("SELECT * FROM movies W
 $book = $mapper->type('obj')->query("SELECT * FROM books WHERE isbn = %{s}", "9789507315428");
 
 //using a custom class
+namespace Acme\Library;
+
+class Book {
+    public $id;
+    public $title;
+    public $author;
+    public $ISBN;
+    public $genre;
+    
+    //...
+}
+
 $book = $mapper->type('obj:Acme\Library\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "9788437604183");
 ```
 
@@ -293,10 +305,14 @@ Queries
 
 ```php
 //arguments the easy way (type identifier between braces)
-$products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE price < %{f} AND category = %{s}", 699.99, 'Laptops');
+$products = $mapper
+->type('obj[]')
+->query("SELECT * FROM products WHERE price < %{f} AND category = %{s}", 699.99, 'Laptops');
 
 //argument by position (and optional type)
-$products = $mapper->type('obj[]')->query("SELECT * FROM products WHERE category = %{1} AND price < %{0:f}", 699.99, 'Laptops');
+$products = $mapper
+->type('obj[]')
+->query("SELECT * FROM products WHERE category = %{1} AND price < %{0:f}", 699.99, 'Laptops');
 ```
 
 <br/>
@@ -404,7 +420,7 @@ $users = $query->from('users', 'u')
 //using the Column class along with the double dash syntax
 $users = $query->from('users', 'u')
 ->innerJoin('profiles', 'p', Column::u__id()->eq(Column::p__user_id()))
-->select(Column::u__id(), Column::u__name('username'), Column::p__name())
+->select(Column::u__id(), Column::u__name()->alias('username'), Column::p__name())
 ->fetch();
 
 /**
@@ -428,6 +444,47 @@ $employees = $query->from('Employees', 'emp')
 ->groupBy(Column::emp__lastname())
 ->having(F::COUNT(Column::ord__id())->gt(10))
 ->fetch();
+
+/**
+ * FUNCTIONS
+ */
+ 
+$query = $this->mapper->newQuery();
+
+//SELECT COUNT('*') FROM Products
+$total = $query->from('Products')
+->select(F::COUNT('*'))
+->fetch('i');
+
+//SELECT UCASE(CustomerName) AS Customer,City FROM Customers
+$customers = $query->from('Customers')
+->select(F::UCASE(Column::CustomerName())->alias('Customer'), Column::City())
+->fetch('obj[]');
+
+//SELECT MID(City,1,4) AS ShortCity FROM Customers
+$cities = $query->from('Customers')
+->select(F::MID(Column::City(), 1, 4)->alias('ShortCity'))
+->fetch('str[]');
+
+//SELECT * FROM Customers WHERE LEN(FirstName) < 10
+$customers = $query->from('Customers')
+->where(F::LEN(Column::FirstName())->lt(10))
+->fetch('obj[]');
+
+//SELECT ProductName,ROUND(Price,2) AS RoundedPrice FROM Products
+$products = $query->from('Products')
+->select(Column::ProductName(), F::ROUND(Column::Price(), 2)->alias('RoundedPrice'))
+->fetch('obj[]');
+
+//SELECT ProductName,Price,NOW() AS PerDate FROM Products
+$products = $query->from('Products')
+->select(Column::ProductName(), Column::Price(), F::NOW()->alias('PerDate'))
+->fetch('obj[]');
+
+//SELECT ProductName,Price,FORMAT(NOW(),"YYYY-MM-DD") AS PerDate FROM Products
+$products = $query->from('Products')
+->select(Column::ProductName(), Column::Price(), F::FORMAT(F::NOW(), '"YYYY-MM-DD"')->alias('PerDate'))
+->fetch('obj[]');
 ```
 
 <br/>

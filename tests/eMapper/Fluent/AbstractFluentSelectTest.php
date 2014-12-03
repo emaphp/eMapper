@@ -35,7 +35,7 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertEquals("SELECT u.id,u.email FROM users u", $sql);
 		
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users', 'u')->select(Column::u__id('user_id'), Column::u__email())->build();
+		list($sql, $_) = $query->from('users', 'u')->select(Column::u__id()->alias('user_id'), Column::u__email())->build();
 		$this->assertEquals("SELECT u.id AS user_id,u.email FROM users u", $sql);
 	}
 	
@@ -158,9 +158,9 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$query = $this->mapper->newQuery();
 		list($sql, $_) = $query->from('users', 'u')
 		->innerJoin('profiles', 'u.pid = profiles.id')
-		->select(Column::u__name(), Column::profiles__email(), Column::id())
+		->select(Column::u__name()->alias('username'), Column::profiles__email(), Column::id())
 		->build();
-		$this->assertEquals("SELECT u.name,profiles.email,u.id FROM users u INNER JOIN profiles ON u.pid = profiles.id", $sql);
+		$this->assertEquals("SELECT u.name AS username,profiles.email,u.id FROM users u INNER JOIN profiles ON u.pid = profiles.id", $sql);
 	
 		$query = $this->mapper->newQuery();
 		list($sql, $_) = $query->from('users', 'u')
@@ -242,6 +242,65 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertInternalType('array', $args[0]);
 		$key = key($args[0]);
 		$this->assertEquals(10, $args[0][$key]);
+	}
+	
+	public function testFunction() {
+		//COUNT
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('users')
+		->select(F::COUNT('*'))
+		->build();
+		$this->assertEquals('SELECT COUNT(*) FROM users', $sql);
+		
+		//UCASE
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('Customers')
+		->select(F::UCASE(Column::CustomerName())->alias('Customer'), Column::City())
+		->build();
+		$this->assertEquals('SELECT UCASE(CustomerName) AS Customer,City FROM Customers', $sql);
+		
+		//MID
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('Customers')
+		->select(F::MID(Column::City(), 1, 4)->alias('ShortCity'))
+		->build();
+		$this->assertEquals('SELECT MID(City,1,4) AS ShortCity FROM Customers', $sql);
+		
+		//LEN
+		$query = $this->mapper->newQuery();
+		list($sql, $args) = $query->from('users')
+		->where(F::LEN(Column::email())->lt(20))
+		->build();
+		
+		$this->assertRegExp('/SELECT \* FROM users WHERE LEN\(email\) < #\{arg\d+\}/', $sql);
+		$this->assertCount(1, $args);
+		$this->assertInternalType('array', $args[0]);
+		$key = key($args[0]);
+		$this->assertEquals(20, $args[0][$key]);
+		
+		//ROUND
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('Products')
+		->select('ProductName', F::ROUND(Column::Price(), 2)->alias('RoundedPrice'))
+		->build();
+		
+		$this->assertEquals('SELECT ProductName,ROUND(Price,2) AS RoundedPrice FROM Products', $sql);
+		
+		//NOW
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('Products')
+		->select('ProductName', Column::Price(), F::NOW()->alias('PerDate'))
+		->build();
+		
+		$this->assertEquals('SELECT ProductName,Price,NOW() AS PerDate FROM Products', $sql);
+		
+		//FORMAT
+		$query = $this->mapper->newQuery();
+		list($sql, $_) = $query->from('Products')
+		->select('ProductName', Column::Price(), F::FORMAT(F::NOW(), '"YYYY-MM-DD"')->alias('PerDate'))
+		->build();
+		
+		$this->assertEquals('SELECT ProductName,Price,FORMAT(NOW(),"YYYY-MM-DD") AS PerDate FROM Products', $sql);
 	}
 }
 ?>
