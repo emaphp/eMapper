@@ -18,6 +18,10 @@ class ObjectArgumentWrapper extends ArgumentWrapper {
 		$this->value = $value;
 		$this->profile = Profiler::getClassProfile(get_class($value));
 	}
+	
+	public function getClassProfile() {
+		return $this->profile;
+	}
 
 	public function offsetExists($offset) {
 		return $this->profile->hasProperty($offset);
