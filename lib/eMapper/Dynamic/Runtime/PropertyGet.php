@@ -4,7 +4,7 @@ namespace eMapper\Dynamic\Runtime;
 use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
-use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Reflection\Argument\ArgumentWrapper;
 
 /**
  * The PropertyGet class obtains a key/property value from the given array/object.
@@ -31,7 +31,7 @@ class PropertyGet implements Applicable {
 			
 			$property = $arguments[0]->evaluate($scope);
 			
-			if (count($arguments) == 1) { // (#? 'propertyName')
+			if (count($arguments) == 1) { // (# 'propertyName')
 				if (!array_key_exists(0, $scope->arguments))
 					throw new \BadFunctionCallException("PropertyGet: Expected value of type array/object as second parameter but none found.");
 				
@@ -68,7 +68,7 @@ class PropertyGet implements Applicable {
 		if (!is_array($value) && !is_object($value))
 			throw new \InvalidArgumentException(sprintf("PropertyGet: Expected value of type array/object but %s found instead", gettype($value)));
 		
-		$value = ParameterWrapper::wrapValue($value);
+		$value = ArgumentWrapper::wrap($value);
 		
 		if (!$value->offsetExists($property))
 			throw new \InvalidArgumentException(sprintf("PropertyGet: Property '%s' not found.", strval($property)));
@@ -76,4 +76,3 @@ class PropertyGet implements Applicable {
 		return $value->offsetGet($property);
 	}
 }
-?>

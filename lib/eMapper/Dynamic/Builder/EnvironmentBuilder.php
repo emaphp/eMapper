@@ -12,7 +12,7 @@ trait EnvironmentBuilder {
 	/**
 	 * Returns an execution environment
 	 * @param array $config
-	 * @return Environment
+	 * @return \eMapper\Dynamic\Environment\DynamicSQLEnvironment
 	 */
 	protected function buildEnvironment($config) {
 		$environmentId = $config['environment.id'];
@@ -26,4 +26,3 @@ trait EnvironmentBuilder {
 		return $env;
 	}
 }
-?>

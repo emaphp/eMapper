@@ -4,14 +4,14 @@ namespace eMapper\Dynamic\Runtime;
 use eMacros\Applicable;
 use eMacros\Scope;
 use eMacros\GenericList;
-use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Reflection\Argument\ArgumentWrapper;
 
 /**
- * The PropertyExists class determines if a given key/property exists in the given array/object.
+ * The PropertyExists class verifies if a key/property exists on a given value.
  * @author emaphp
  */
 class PropertyExists implements Applicable {
-	/**
+/**
 	 * Property name
 	 * @var string
 	 */
@@ -65,7 +65,6 @@ class PropertyExists implements Applicable {
 		if (!is_array($value) && !is_object($value))
 			throw new \InvalidArgumentException(sprintf("PropertyExists: Expected value of type array/object but %s found instead", gettype($value)));
 		
-		return ParameterWrapper::wrapValue($value)->offsetExists($property);
+		return ArgumentWrapper::wrap($value)->offsetExists($property);
 	}
 }
-?>

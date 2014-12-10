@@ -16,7 +16,7 @@ class DynamicSQLEnvironment extends Environment {
 
 	/**
 	 * Wrapper argument
-	 * @var ParameterWrapper
+	 * @var \eMapper\Reflection\Argument\ArgumentWrapper
 	 */
 	public $wrappedArgument;
 	
@@ -26,4 +26,3 @@ class DynamicSQLEnvironment extends Environment {
 		$this->import(new CorePackage());
 	}
 }
-?>

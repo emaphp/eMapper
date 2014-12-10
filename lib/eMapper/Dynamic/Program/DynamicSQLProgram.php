@@ -1,30 +1,27 @@
 <?php
 namespace eMapper\Dynamic\Program;
 
-use eMapper\Dynamic\Environment\DynamicSQLEnvironment;
 use eMacros\Program\Program;
-use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Dynamic\Environment\DynamicSQLEnvironment;
+use eMapper\Reflection\Argument\ArgumentWrapper;
 
 /**
- * The DynamicSQLProgram class executes Dynamic SQL expressions found in queries and
- * entity macros.
+ * The DynamicSQLProgram class executes Dynamic SQL expressions found in queries and entity macros.
  * @author emaphp
  */
-class DynamicSQLProgram extends Program {	
-	public function executeWith(DynamicSQLEnvironment $env, array $args, $parameterMap = null) {
-		//set wrapped argument in environment
-		if (array_key_exists(0, $args) && (is_array($args[0]) || is_object($args[0])))
-			$env->wrappedArgument = ParameterWrapper::wrapValue($args[0], $parameterMap);
-		else
-			$env->wrappedArgument = null;
+class DynamicSQLProgram extends Program {
+	public function execute(DynamicSQLEnvironment $env) {
+		$env->arguments = array_slice(func_get_args(), 1);
 		
-		$env->arguments = $args;
+		//wrap first argument
+		if (array_key_exists(0, $env->arguments) && (is_array($env->arguments[0]) || is_object($env->arguments[0])))
+			$env->wrappedArgument = ArgumentWrapper::wrap($args[0]);
+			
 		$value = null;
 		
 		foreach ($this->expressions as $expr)
-			$value = $expr->evaluate($env); //store program result
+			$value = $expr->evaluate($env);
 		
 		return $value;
 	}
 }
-?>

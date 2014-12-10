@@ -48,9 +48,8 @@ use eMapper\Dynamic\Runtime\ConfigurationExists;
 use eMacros\Runtime\Method\MethodInvoke;
 
 /**
- * The CorePackage class provides a replacement for the default CorePackage class
- * available in eMacros. This reduces the number of function/macros available but
- * adds the possibility to call PHP functions from dynamic SQL expressions and entity macros.
+ * The CorePackage class provides a replacement for the default CorePackage class available in eMacros.
+ * Using this package reduces the number of function/macros available but adds the possibility to call PHP functions from within dynamic SQL expressions and entity macros.
  * @author emaphp
  */
 class CorePackage extends Package {
@@ -301,4 +300,3 @@ class CorePackage extends Package {
 		});
 	}
 }
-?>

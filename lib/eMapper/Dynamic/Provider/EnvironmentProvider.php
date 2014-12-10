@@ -62,4 +62,3 @@ abstract class EnvironmentProvider {
 		return true;
 	}
 }
-?>
