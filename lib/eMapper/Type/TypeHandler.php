@@ -3,7 +3,7 @@ namespace eMapper\Type;
 
 /**
  * The TypeHandler class defines the methods that need to be implemented
- * in a type handler instance.
+ * in a type handler class.
  * @author emaphp
  */
 abstract class TypeHandler {
@@ -28,4 +28,3 @@ abstract class TypeHandler {
 	 */
 	public abstract function getValue($value);
 }
-?>

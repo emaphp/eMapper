@@ -41,4 +41,3 @@ class DatetimeTypeHandler extends TypeHandler {
 		return $parameter->format('Y-m-d H:i:s');
 	}
 }
-?>

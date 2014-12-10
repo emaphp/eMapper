@@ -25,4 +25,3 @@ class BlobTypeHandler extends TypeHandler {
 		return "x'" . bin2hex($parameter) . "'";
 	}
 }
-?>

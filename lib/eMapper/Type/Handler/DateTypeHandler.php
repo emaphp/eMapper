@@ -11,4 +11,3 @@ class DateTypeHandler extends DatetimeTypeHandler {
 		return $parameter->format('Y-m-d');
 	}
 }
-?>

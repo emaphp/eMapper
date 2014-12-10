@@ -26,4 +26,3 @@ class BooleanTypeHandler extends TypeHandler {
 		return ($parameter) ? 'TRUE' : 'FALSE';
 	}
 }
-?>

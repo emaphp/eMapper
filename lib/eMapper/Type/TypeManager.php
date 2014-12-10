@@ -30,25 +30,38 @@ class TypeManager {
 	protected $aliases;
 	
 	public function __construct() {
-		$this->typeHandlers = ['string'   => new StringTypeHandler(),
-							   'boolean'  => new BooleanTypeHandler(),
-							   'integer'  => new IntegerTypeHandler(),
-							   'float'    => new FloatTypeHandler(),
-							   'blob'     => new BlobTypeHandler(),
-							   'DateTime' => new DatetimeTypeHandler(),
-							   'date'     => new DateTypeHandler(),
-							   'sstring'  => new SafeStringTypeHandler(),
-							   'json'     => new JSONTypeHandler(),
-							   'null'     => new NullTypeHandler()];
+		$this->typeHandlers = [
+			'string'   => new StringTypeHandler(),
+			'boolean'  => new BooleanTypeHandler(),
+			'integer'  => new IntegerTypeHandler(),
+			'float'    => new FloatTypeHandler(),
+			'blob'     => new BlobTypeHandler(),
+			'DateTime' => new DatetimeTypeHandler(),
+			'date'     => new DateTypeHandler(),
+			'sstring'  => new SafeStringTypeHandler(),
+			'json'     => new JSONTypeHandler(),
+			'null'     => new NullTypeHandler()
+		];
 		
-		$this->aliases = ['ss' => 'sstring', 'sstr' => 'sstring',
-						  's' => 'string', 'str' => 'string',
-						  'b' => 'boolean', 'bool' => 'boolean',
-						  'i' => 'integer', 'int' => 'integer',
-						  'double' => 'float', 'real' => 'float', 'f' => 'float',
-						  'x' => 'blob', 'bin' => 'blob',
-						  'dt' => 'DateTime', 'timestamp' => 'DateTime', 'datetime' => 'DateTime',
-						  'd' => 'date'];
+		$this->aliases = [
+			'ss'        => 'sstring',
+			'sstr'      => 'sstring',
+			's'         => 'string',
+			'str'       => 'string',
+			'b'         => 'boolean',
+			'bool'      => 'boolean',
+			'i'         => 'integer',
+			'int'       => 'integer',
+			'double'    => 'float',
+			'real'      => 'float',
+			'f'         => 'float',
+			'x'         => 'blob',
+			'bin'       => 'blob',
+			'dt'        => 'DateTime',
+			'timestamp' => 'DateTime',
+			'datetime'  => 'DateTime',
+			'd'         => 'date'
+		];
 	}
 	
 	/**
@@ -98,7 +111,7 @@ class TypeManager {
 	/**
 	 * Obtains the type handler assigned to a type
 	 * @param string $type_or_alias
-	 * @return boolean|TypeHandler
+	 * @return boolean | TypeHandler
 	 */
 	public function getTypeHandler($type_or_alias) {		
 		//verify if its an alias

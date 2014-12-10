@@ -24,4 +24,3 @@ class FloatTypeHandler extends TypeHandler {
 		return $parameter;
 	}
 }
-?>

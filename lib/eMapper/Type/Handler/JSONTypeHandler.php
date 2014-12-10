@@ -12,4 +12,3 @@ class JSONTypeHandler extends TypeHandler {
 		return json_encode($parameter);
 	}
 }
-?>

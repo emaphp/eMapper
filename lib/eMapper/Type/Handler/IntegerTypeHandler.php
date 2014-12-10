@@ -24,4 +24,3 @@ class IntegerTypeHandler extends TypeHandler {
 		return $parameter;
 	}
 }
-?>

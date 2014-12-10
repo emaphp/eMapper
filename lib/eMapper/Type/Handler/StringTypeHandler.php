@@ -24,4 +24,3 @@ class StringTypeHandler extends TypeHandler {
 		return $parameter;
 	}
 }
-?>

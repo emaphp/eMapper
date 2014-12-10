@@ -15,4 +15,3 @@ class NullTypeHandler extends TypeHandler {
 		return null;
 	}
 }
-?>
