@@ -2,9 +2,10 @@
 namespace eMapper\Cache\Key;
 
 use eMapper\Type\ToString;
-use eMapper\Reflection\Parameter\ParameterWrapper;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
+use eMapper\Reflection\Argument\ArgumentWrapper;
+use eMapper\Reflection\Argument\ObjectArgumentWrapper;
 
 /**
  * The CacheKeyFormatter class generates the cache id string used to store a value in cache.
@@ -24,16 +25,10 @@ class CacheKeyFormatter {
 	
 	/**
 	 * Type manager
-	 * @var TypeManager
+	 * @var \eMapper\Type\TypeManager
 	 */
 	protected $typeManager;
-	
-	/**
-	 * Parameter map
-	 * @var object
-	 */
-	protected $parameterMap;
-	
+		
 	/**
 	 * Key arguments
 	 * @var array
@@ -54,27 +49,27 @@ class CacheKeyFormatter {
 	
 	/**
 	 * Wrapped argument
-	 * @var ParameterWrapper
+	 * @var \eMapper\Reflection\Argument\ArgumentWrapper
 	 */
 	protected $wrappedArg;
 	
-	public function __construct(TypeManager $typeManager, $parameterMap = null) {
+	public function __construct(TypeManager $typeManager) {
 		$this->typeManager = $typeManager;
-		$this->parameterMap = $parameterMap;
 	}
 
 	/**
 	 * Obtains the default type handler for a given type
 	 * @param mixed $value
 	 * @throws \RuntimeException
-	 * @return NULL|TypeHandler
+	 * @return NULL | TypeHandler
 	 */
 	protected function getDefaultTypeHandler($value) {
 		//get value type
 		$type = gettype($value);
 	
 		switch ($type) {
-			case 'null': return null;
+			case 'null':
+				return null;
 			case 'array':
 				//check empty array
 				if (count($value) == 0)
@@ -128,7 +123,8 @@ class CacheKeyFormatter {
 		foreach ($value as $val) {
 			$val = $typeHandler->castParameter($val);
 	
-			if (is_null($val)) $new_elem = 'NULL';
+			if (is_null($val))
+				$new_elem = 'NULL';
 			else {
 				$new_elem = $typeHandler->setParameter($val);
 				if (is_null($new_elem))
@@ -149,10 +145,12 @@ class CacheKeyFormatter {
 	 * @param mixed $value
 	 * @param string $type
 	 * @return string
+	 * @throws \RuntimeException
 	 */
 	protected function castParameter($value, $type = null) {
 		//check null value
-		if (is_null($value)) return 'NULL';
+		if (is_null($value))
+			return 'NULL';
 		elseif (is_null($type)) {
 			//obtain default type handler
 			$typeHandler = $this->getDefaultTypeHandler($value);
@@ -195,7 +193,6 @@ class CacheKeyFormatter {
 	 * @param string $index
 	 * @param string $type
 	 * @throws \InvalidArgumentException
-	 * @throws \UnexpectedValueException
 	 * @throws \OutOfBoundsException
 	 * @return string
 	 */
@@ -221,7 +218,7 @@ class CacheKeyFormatter {
 			elseif (is_numeric($index) && array_key_exists(intval($index), $value))
 				return $this->castParameter($value[intval($index)], $type);
 	
-			throw new \UnexpectedValueException("Index '$index' does not exists in property '$property'");
+			throw new \InvalidArgumentException("Index '$index' does not exists in property '$property'");
 		}
 		//try to convert value to string
 		elseif (($value = $this->toString($value)) !== false) {
@@ -241,7 +238,6 @@ class CacheKeyFormatter {
 	 * @param string $subindex
 	 * @param string $type
 	 * @throws \InvalidArgumentException
-	 * @throws \UnexpectedValueException
 	 * @throws \OutOfBoundsException
 	 * @return string
 	 */
@@ -256,11 +252,10 @@ class CacheKeyFormatter {
 	
 		//check whether this value is the first argument
 		if (is_array($value) || is_object($value)) {
-			$value = ParameterWrapper::wrapValue($value);
-				
+			$value = ArgumentWrapper::wrap($value);
 			//check if the requested property exists
 			if (!$value->offsetExists($subindex))
-				throw new \UnexpectedValueException("Property '$subindex' not found on given parameter");
+				throw new \InvalidArgumentException("Property '$subindex' not found on given parameter");
 				
 			if (is_null($type))
 				$type = $value->getPropertyType($subindex);
@@ -394,9 +389,14 @@ class CacheKeyFormatter {
 				$subindex = empty($matches[2]) ? null : substr($matches[2], 1, -1);
 			case 2: //#{PROPERTY@1}
 				$key = $matches[1];
-	
-				if (is_null($type))
-					$type = $this->wrappedArg->getPropertyType($key);
+
+				//obtain type from annotation (when possible)
+				if (is_null($type) && $this->wrappedArg instanceof ObjectArgumentWrapper) {
+					if ($this->wrappedArg->getClassProfile()->isEntity()) {
+						$property = $this->wrappedArg->getClassProfile()->getProperty($key);
+						$type = $property->getType();
+					}
+				}
 	
 				return $this->getIndex($key, $subindex, $type);
 				break;
@@ -409,8 +409,13 @@ class CacheKeyFormatter {
 			case 8: //#{PROPERTY@4[LEFT_INDEX@6..RIGHT_INDEX@7]}
 				$key = $matches[4];
 					
-				if (is_null($type))
-					$type = $this->wrappedArg->getPropertyType($key);
+				//obtain type from annotation (when possible)
+				if (is_null($type) && $this->wrappedArg instanceof ObjectArgumentWrapper) {
+					if ($this->wrappedArg->getClassProfile()->isEntity()) {
+						$property = $this->wrappedArg->getClassProfile()->getProperty($key);
+						$type = $property->getType();
+					}
+				}
 					
 				return $this->getRange($key, $matches[6], $matches[7], $type);
 				break;
@@ -440,7 +445,7 @@ class CacheKeyFormatter {
 		}
 	
 		switch ($total_matches) {
-			/**
+			/*
 			 * Simple index
 			 */
 			case 5: //%{NUMBER@2[INDEX]@3?:TYPE@4}
@@ -458,7 +463,7 @@ class CacheKeyFormatter {
 				
 				return $this->getSubIndex($this->args[$index], $subindex, $type);
 	
-			/**
+			/*
 			 * Interval
 			 */
 			case 10: //%{NUMBER@5[LEFT@7?..RIGHT@8?]:TYPE@9}
@@ -478,7 +483,7 @@ class CacheKeyFormatter {
 	 * @param string $expr
 	 * @param array $args
 	 * @param array $config
-	 * @throws \UnexpectedValueException
+	 * @throws \RuntimeException
 	 * @throws \InvalidArgumentException
 	 * @throws \OutOfBoundsException
 	 * @return string
@@ -502,7 +507,7 @@ class CacheKeyFormatter {
 	
 		//wrap argument (if any)
 		if (array_key_exists(0, $args) && (is_object($args[0]) || is_array($args[0])))
-			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
+			$this->wrappedArg = ArgumentWrapper::wrap($args[0]);
 	
 		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
@@ -524,4 +529,3 @@ class CacheKeyFormatter {
 		return $expr;
 	}
 }
-?>

@@ -1,6 +1,8 @@
 <?php
 namespace eMapper\Cache\Value;
 
+use eMapper\Type\TypeManager;
+
 /**
  * The CacheValue class is a value wrapper and its purpose is to define the structure of any value
  * that is stored in cache along with the data used for mapping.
@@ -87,7 +89,7 @@ class CacheValue {
 	
 	/**
 	 * Obtains wrapped value
-	 * @return \eMapper\Cache\Value\mixed
+	 * @return mixed
 	 */
 	public function getValue() {
 		return $this->value;
@@ -95,10 +97,10 @@ class CacheValue {
 	
 	/**
 	 * Generates a mapping callback for the stored data
-	 * @param TypeManager $typeManager
+	 * @param \eMapper\Type\TypeManager $typeManager
 	 * @return array
 	 */
-	public function buildMappingCallback($typeManager) {
+	public function buildMappingCallback(TypeManager $typeManager) {
 		$rc = new \ReflectionClass($this->class);
 		
 		if ($rc->isSubclassOf('eMapper\Result\Mapper\ComplexMapper')) {
@@ -111,4 +113,3 @@ class CacheValue {
 		return [$mapper, $this->method];
 	}
 }
-?>
