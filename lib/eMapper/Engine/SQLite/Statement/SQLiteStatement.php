@@ -12,4 +12,3 @@ class SQLiteStatement extends StatementFormatter {
 		return $this->driver->getConnection()->escapeString($string);
 	}
 }
-?>

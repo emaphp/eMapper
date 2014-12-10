@@ -98,4 +98,3 @@ class MySQLResultIterator extends ResultIterator {
 		$this->result->free();
 	}
 }
-?>

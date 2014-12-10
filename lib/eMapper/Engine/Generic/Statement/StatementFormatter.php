@@ -3,9 +3,9 @@ namespace eMapper\Engine\Generic\Statement;
 
 use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Dynamic\Builder\EnvironmentBuilder;
-use eMapper\Reflection\Profiler;
 use eMapper\Dynamic\Program\DynamicSQLProgram;
-use eMapper\Reflection\Parameter\ParameterWrapper;
+use eMapper\Reflection\Profiler;
+use eMapper\Reflection\Argument\ArgumentWrapper;
 use eMapper\Type\TypeHandler;
 use eMapper\Type\TypeManager;
 use eMapper\Engine\Generic\Driver;
@@ -19,15 +19,15 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	
 	/**
 	 * Connection driver
-	 * @var Driver
+	 * @var \eMapper\Engine\Generic\Driver
 	 */
 	protected $driver;
 	
 	//Ex: [? (null? (#order)) ?] [?int (#limit) ?]
 	const DYNAMIC_SQL_REGEX = '/(?>\\[\?)([A-z]{1}[\w|\\\\]*)?\s+(.+?)\?\]/';
 	
-	public function __construct(Driver $driver, TypeManager $typeManager, $parameterMap = null) {
-		parent::__construct($typeManager, $parameterMap);
+	public function __construct(Driver $driver, TypeManager $typeManager) {
+		parent::__construct($typeManager);
 		$this->driver = $driver;
 	}
 	
@@ -115,7 +115,7 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	protected function replaceDynamicExpression($matches) {
 		//run program
 		$program = new DynamicSQLProgram($matches[2]);
-		$value = $program->executeWith($this->buildEnvironment($this->config), $this->args, $this->parameterMap);
+		$value = $program->executeWith($this->buildEnvironment($this->config), $this->args);
 	
 		//cast return type to the specified type (if any)
 		if (!empty($matches[1]))
@@ -148,7 +148,7 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	
 		//wrap argument (if any)
 		if (array_key_exists(0, $args) && (is_object($args[0]) || is_array($args[0])))
-			$this->wrappedArg = ParameterWrapper::wrapValue($args[0], $this->parameterMap);
+			$this->wrappedArg = ArgumentWrapper::wrap($args[0]);
 	
 		//replace properties expressions
 		if (preg_match(self::PROPERTY_PARAM_REGEX, $expr)) {
@@ -178,4 +178,3 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 	 */
 	public abstract function escapeString($string);
 }
-?>

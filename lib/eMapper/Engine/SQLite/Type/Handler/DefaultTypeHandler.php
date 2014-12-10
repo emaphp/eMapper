@@ -16,4 +16,3 @@ class DefaultTypeHandler extends TypeHandler {
 		return $parameter;
 	}
 }
-?>

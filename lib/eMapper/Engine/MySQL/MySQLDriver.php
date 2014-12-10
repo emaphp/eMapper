@@ -9,6 +9,7 @@ use eMapper\Engine\MySQL\Exception\MySQLException;
 use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
 use eMapper\Engine\MySQL\Regex\MySQLRegex;
+use eMapper\Type\TypeManager;
 
 /**
  * The MySQLDriver class provides access to MySQL database engines.
@@ -204,18 +205,18 @@ class MySQLDriver extends Driver {
 		return new MySQLTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap = null) {
-		return new MySQLStatement($this, $typeManager, $parameterMap);
+	public function buildStatement(TypeManager $typeManager) {
+		return new MySQLStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {
 		return new MySQLResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $options) {
+	public function buildCall($procedure, $tokens, $config) {
 		//append prefix
-		if ($options['use_prefix'])
-			$procedure = $options['prefix'] . $procedure;
+		if ($config['proc.usePrefox'])
+			$procedure = $config['proc.prefix'] . $procedure;
 		
 		return "CALL $procedure(" . implode(',', $tokens) . ')';
 	}
@@ -232,4 +233,3 @@ class MySQLDriver extends Driver {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
 	}
 }
-?>

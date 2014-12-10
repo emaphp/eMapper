@@ -7,4 +7,3 @@ namespace eMapper\Engine\PostgreSQL\Exception;
  */
 class PostgreSQLException extends \Exception {
 }
-?>

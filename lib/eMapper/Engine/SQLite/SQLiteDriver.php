@@ -61,8 +61,7 @@ class SQLiteDriver extends Driver {
 			return $this->connection;
 	
 		try {
-			$this->connection = empty($this->config['encription_key']) ? new \SQLite3($this->config['filename'], $this->config['flags']) : new \SQLite3($this->config['filename'], $this->config['flags'], $this->config['encription_key']);
-			
+			$this->connection = empty($this->config['encription_key']) ? new \SQLite3($this->config['filename'], $this->config['flags']) : new \SQLite3($this->config['filename'], $this->config['flags'], $this->config['encription_key']);	
 			//add regexp functions
 			$this->connection->createFunction('REGEXP', [$this, 'regexp']);
 			$this->connection->createFunction('IREGEXP', [$this, 'iregexp']);
@@ -135,8 +134,8 @@ class SQLiteDriver extends Driver {
 		return new SQLiteTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap = null) {
-		return new SQLiteStatement($this, $typeManager, $parameterMap);
+	public function buildStatement($typeManager) {
+		return new SQLiteStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {
@@ -177,4 +176,3 @@ class SQLiteDriver extends Driver {
 		return false;
 	}
 }
-?>

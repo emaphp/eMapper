@@ -72,4 +72,3 @@ class SQLiteResultIterator extends ResultIterator {
 		$this->result->finalize();
 	}
 }
-?>

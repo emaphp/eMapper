@@ -9,4 +9,3 @@ use eMapper\Type\TypeManager;
  */
 class MySQLTypeManager extends TypeManager {
 }
-?>

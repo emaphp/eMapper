@@ -16,23 +16,23 @@ abstract class GenericRegex {
 	
 	/**
 	 * Indicates if the regular expression is case sensitive
-	 * @var boolean
+	 * @var bool
 	 */
-	protected $case_sensitive;
+	protected $caseSensitive;
 	
 	/**
 	 * Indicates if the predicate must be negate
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $negate;
 	
 	/**
 	 * Sets the current regex options
-	 * @param boolea $case_sensitive
-	 * @param boolean $negate
+	 * @param bool $caseSensitive
+	 * @param bool $negate
 	 */
-	public function setOptions($case_sensitive, $negate) {
-		$this->case_sensitive = $case_sensitive;
+	public function setOptions($caseSensitive, $negate) {
+		$this->caseSensitive = $caseSensitive;
 		$this->negate = $negate;
 	}
 	
@@ -42,7 +42,7 @@ abstract class GenericRegex {
 	 * @param string $expression
 	 * @return string
 	 */
-	public function filter($expression) {
+	public function formatString($expression) {
 		return $expression;
 	}
 	
@@ -51,13 +51,12 @@ abstract class GenericRegex {
 	 * @param int $type Regex type
 	 * @return string
 	 */
-	public abstract function dynamicExpression($type);
+	public abstract function getDynamicExpression($type);
 	
 	/**
 	 * Returns a string containing the comparison expression for the given regex type
 	 * @param int $type
 	 * @return string
 	 */
-	public abstract function comparisonExpression($type);
+	public abstract function getComparisonExpression($type);
 }
-?>

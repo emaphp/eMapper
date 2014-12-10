@@ -8,7 +8,7 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class SQLiteRegex extends GenericRegex {
-	public function dynamicExpression($type) {
+	public function getDynamicExpression($type) {
 		switch ($type) {
 			case self::CONTAINS:
 			{
@@ -32,7 +32,7 @@ class SQLiteRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT REGEXP' : 'REGEXP';
 				
-				if ($this->case_sensitive)
+				if ($this->caseSensitive)
 					return "%s $op [?s (%%0) ?]";
 				
 				return "%s $op [?s (. '(?i)' (%%0)) ?]";
@@ -40,14 +40,14 @@ class SQLiteRegex extends GenericRegex {
 		}
 	}
 	
-	public function filter($expression) {
-		if ($this->case_sensitive)
+	public function formatString($expression) {
+		if ($this->caseSensitive)
 			return $expression;
 		
 		return '(?i)' . $expression;
 	}
 	
-	public function comparisonExpression($type) {
+	public function getComparisonExpression($type) {
 		switch ($type) {
 			case self::CONTAINS:
 			case self::STARTS_WITH:
@@ -65,4 +65,3 @@ class SQLiteRegex extends GenericRegex {
 		}
 	}
 }
-?>

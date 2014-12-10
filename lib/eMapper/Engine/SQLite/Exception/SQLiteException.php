@@ -7,4 +7,3 @@ namespace eMapper\Engine\SQLite\Exception;
  */
 class SQLiteException extends \Exception {
 }
-?>

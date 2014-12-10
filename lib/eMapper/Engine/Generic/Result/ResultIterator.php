@@ -66,7 +66,7 @@ abstract class ResultIterator implements \Iterator {
 	 */
 	public abstract function free();
 	
-	/**
+	/*
 	 * ITERATOR METHODS
 	 */
 	
@@ -93,4 +93,3 @@ abstract class ResultIterator implements \Iterator {
 		$this->counter = 0;
 	}
 }
-?>

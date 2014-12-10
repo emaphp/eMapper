@@ -107,4 +107,3 @@ class PostgreSQLResultIterator extends ResultIterator {
 		pg_free_result($this->result);
 	}
 }
-?>

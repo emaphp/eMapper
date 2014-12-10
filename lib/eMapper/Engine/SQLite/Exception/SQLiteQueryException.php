@@ -21,4 +21,3 @@ class SQLiteQueryException extends SQLiteException {
 		return $this->query;
 	}
 }
-?>

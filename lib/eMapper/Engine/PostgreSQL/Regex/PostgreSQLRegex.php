@@ -8,13 +8,13 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class PostgreSQLRegex extends GenericRegex {
-	public function dynamicExpression($type) {
+	public function getDynamicExpression($type) {
 		switch ($type) {
 			case self::CONTAINS:
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 					
-				if ($this->case_sensitive)
+				if ($this->caseSensitive)
 					return "%s $op [?s (. '%%' (call 'addcslashes' (%%0) '%%_') '%%') ?]";
 					
 				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_') '%%') ?])";
@@ -24,7 +24,7 @@ class PostgreSQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 						
-				if ($this->case_sensitive)
+				if ($this->caseSensitive)
 					return "%s $op [?s (. (call 'addcslashes' (%%0) '%%_') '%%') ?]";
 				
 				return "LOWER(%s) $op LOWER([?s (. (call 'addcslashes' (%%0) '%%_') '%%') ?])";
@@ -34,7 +34,7 @@ class PostgreSQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 		
-				if ($this->case_sensitive)
+				if ($this->caseSensitive)
 					return "%s $op [?s (. '%%' (call 'addcslashes' (%%0) '%%_')) ?]";
 				
 				return "LOWER(%s) $op LOWER([?s (. '%%' (call 'addcslashes' (%%0) '%%_')) ?])";
@@ -42,7 +42,7 @@ class PostgreSQLRegex extends GenericRegex {
 							
 			case self::REGEX:
 			{					
-				if ($this->case_sensitive) {
+				if ($this->caseSensitive) {
 					$op = $this->negate ? '!~' : '~';
 					return "%s $op [?s (%%0) ?]";
 				}
@@ -53,7 +53,7 @@ class PostgreSQLRegex extends GenericRegex {
 		}
 	}
 		
-	public function comparisonExpression($type) {
+	public function getComparisonExpression($type) {
 		switch ($type) {
 			case self::CONTAINS:
 			case self::STARTS_WITH:
@@ -61,7 +61,7 @@ class PostgreSQLRegex extends GenericRegex {
 			{
 				$op = $this->negate ? 'NOT LIKE' : 'LIKE';
 					
-				if ($this->case_sensitive)
+				if ($this->caseSensitive)
 					return "%s $op %s";
 					
 				return "LOWER(%s) $op LOWER(%s)";
@@ -69,7 +69,7 @@ class PostgreSQLRegex extends GenericRegex {
 					
 			case self::REGEX:
 			{
-				if ($this->case_sensitive) {
+				if ($this->caseSensitive) {
 					$op = $this->negate ? '!~' : '~';
 					return "%s $op %s";
 				}
@@ -80,4 +80,3 @@ class PostgreSQLRegex extends GenericRegex {
 		}
 	}
 }
-?>

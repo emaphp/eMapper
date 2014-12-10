@@ -13,4 +13,3 @@ class PostgreSQLStatement extends StatementFormatter {
 		return pg_escape_string($this->driver->getConnection(), $string);
 	}
 }
-?>

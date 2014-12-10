@@ -9,6 +9,7 @@ use eMapper\Engine\PostgreSQL\Exception\PostgreSQLException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
 use eMapper\Engine\PostgreSQL\Regex\PostgreSQLRegex;
+use eMapper\Type\TypeManager;
 
 /**
  * The PostgreSQLDriver class provides access to a PostgreSQL database engine.
@@ -156,25 +157,25 @@ class PostgreSQLDriver extends Driver {
 		return new PostgreSQLTypeManager();
 	}
 	
-	public function buildStatement($typeManager, $parameterMap = null) {
-		return new PostgreSQLStatement($this, $typeManager, $parameterMap);
+	public function buildStatement(TypeManager $typeManager) {
+		return new PostgreSQLStatement($this, $typeManager);
 	}
 	
 	public function buildResultIterator($result) {
 		return new PostgreSQLResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $options) {
+	public function buildCall($procedure, $tokens, $config) {
 		//append prefix
-		if ($options['use_prefix'])
-			$procedure = $options['prefix'] . $procedure;
+		if ($config['proc.usePrefix'])
+			$procedure = $config['proc.prefix'] . $procedure;
 		
 		//wrap procedure name
-		if ($options['escape'])
+		if ($config['proc.escapeName'])
 			$procedure = "\"$procedure\"";
 		
-		//use returned values as a table
-		if ($options['as_table'])
+		//procedure returns a set
+		if ($config['proc.returnSet'])
 			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
 		
 		return "SELECT $procedure(" . implode(',', $tokens) . ')';
@@ -192,4 +193,3 @@ class PostgreSQLDriver extends Driver {
 		throw new PostgreSQLQueryException(pg_last_error($this->connection), $query);
 	}
 }
-?>

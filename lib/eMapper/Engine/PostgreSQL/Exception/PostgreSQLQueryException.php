@@ -22,4 +22,3 @@ class PostgreSQLQueryException extends PostgreSQLException {
 		return $this->query;
 	}
 }
-?>

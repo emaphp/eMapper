@@ -12,4 +12,3 @@ class BooleanTypeHandler extends TypeHandler {
 		return ($parameter) ? 1 : 0;
 	}
 }
-?>

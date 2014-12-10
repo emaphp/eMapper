@@ -2,6 +2,7 @@
 namespace eMapper\Engine\Generic;
 
 use eMapper\Engine\Generic\Regex\GenericRegex;
+use eMapper\Type\TypeManager;
 
 /**
  * The Driver class constains all methods used to manage a database connection.
@@ -12,13 +13,13 @@ abstract class Driver {
 	
 	/**
 	 * Database connection
-	 * @var resource|object
+	 * @var resource | object
 	 */
 	protected $connection;
 	
 	/**
 	 * Regex builder
-	 * @var GenericRegex
+	 * @var \eMapper\Engine\Generic\Regex\GenericRegex
 	 */
 	protected $regex;
 
@@ -44,7 +45,7 @@ abstract class Driver {
 	
 	/**
 	 * Builds a driver from a configuration array
-	 * @param unknown $config
+	 * @param array $config
 	 */
 	public static abstract function build($config);
 	
@@ -77,6 +78,7 @@ abstract class Driver {
 	
 	/**
 	 * Obtains last generated id
+	 * @return int
 	 */
 	public abstract function getLastId();
 	
@@ -97,15 +99,15 @@ abstract class Driver {
 	
 	/**
 	 * Returns a TypeManager instance for current engine
+	 * @return \eMapper\Type\TypeManager
 	 */
 	public abstract function buildTypeManager();
 	
 	/**
 	 * Returns a statement instance for current engine
-	 * @param TypeManager $typeManager
-	 * @param string $parameterMap
+	 * @param \eMapper\Type\TypeManager $typeManager
 	 */
-	public abstract function buildStatement($typeManager, $parameterMap = null);
+	public abstract function buildStatement(TypeManager $typeManager);
 	
 	/**
 	 * Returns a result iterator for the given result
@@ -117,9 +119,9 @@ abstract class Driver {
 	 * Builds a procedure call
 	 * @param string $procedure
 	 * @param array $tokens
-	 * @param array $options
+	 * @param array $config
 	 */
-	public abstract function buildCall($procedure, $tokens, $options);
+	public abstract function buildCall($procedure, $tokens, $config);
 	
 	/**
 	 * Throws a generic exception
@@ -134,4 +136,3 @@ abstract class Driver {
 	 */
 	public abstract function throwQueryException($query);
 }
-?>

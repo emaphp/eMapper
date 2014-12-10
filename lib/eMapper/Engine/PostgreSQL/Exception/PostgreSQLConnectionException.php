@@ -8,4 +8,3 @@ namespace eMapper\Engine\PostgreSQL\Exception;
  */
 class PostgreSQLConnectionException extends PostgreSQLException {
 }
-?>
