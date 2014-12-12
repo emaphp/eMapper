@@ -16,7 +16,6 @@ class EqualStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$eq = new Equal(Attr::__callstatic($property), $negate);
-		return $this->buildQuery(sprintf($eq->render($driver), $this->getColumnName($property), $this->getExpression($property)));
+		return $this->buildQuery(sprintf($eq->generate($driver), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
-?>

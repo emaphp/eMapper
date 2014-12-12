@@ -15,7 +15,6 @@ class RangeStatementBuilder extends StatementBuilder {
 		$negate = array_key_exists(2, $matches) && !empty($matches[2]);
 		
 		$range = new Range(Attr::__callstatic($property), $negate);
-		return $this->buildQuery(sprintf($range->render($driver),$this->getColumnName($property), $this->getExpression($property), $this->getExpression($property, 1)));
+		return $this->buildQuery(sprintf($range->generate($driver),$this->getColumnName($property), $this->getExpression($property), $this->getExpression($property, 1)));
 	}
 }
-?>

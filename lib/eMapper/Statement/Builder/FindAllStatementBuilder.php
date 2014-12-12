@@ -9,7 +9,6 @@ use eMapper\Engine\Generic\Driver;
  */
 class FindAllStatementBuilder extends StatementBuilder {
 	public function build(Driver $driver, $matches = null) {
-		return sprintf("SELECT * FROM %s", $this->getTableName());
+		return sprintf("SELECT %s FROM %s", $this->getColumnList(), $this->getTableName());
 	}
 }
-?>

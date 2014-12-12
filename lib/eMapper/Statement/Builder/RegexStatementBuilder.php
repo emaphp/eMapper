@@ -16,7 +16,6 @@ class RegexStatementBuilder extends StatementBuilder {
 		$case_sensitive = !array_key_exists(3, $matches) || empty($matches[3]);
 		
 		$regex = new Regex(Attr::__callstatic($property), $case_sensitive, $negate);
-		return $this->buildQuery(sprintf($regex->render($driver), $this->getColumnName($property)));
+		return $this->buildQuery(sprintf($regex->generate($driver), $this->getColumnName($property)));
 	}
 }
-?>

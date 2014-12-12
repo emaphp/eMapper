@@ -2,7 +2,7 @@
 namespace eMapper\Statement;
 
 /**
- * The Statement class represents a named query.
+ * The Statement class wraps a SQL query along with the corresponding configuration values.
  * @author emaphp
  */
 class Statement {
@@ -40,4 +40,3 @@ class Statement {
 		return $this->options;
 	}
 }
-?>

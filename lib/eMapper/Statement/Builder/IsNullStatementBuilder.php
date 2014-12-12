@@ -15,7 +15,6 @@ class IsNullStatementBuilder extends StatementBuilder {
 		$negate = array_key_exists(2, $matches) && !empty($matches[2]);
 		
 		$isnull = new IsNull(Attr::__callstatic($property), $negate);
-		return $this->buildQuery(sprintf($isnull->render($driver), $this->getColumnName($property)));
+		return $this->buildQuery(sprintf($isnull->generate($driver), $this->getColumnName($property)));
 	}
 }
-?>

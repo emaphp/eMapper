@@ -17,7 +17,6 @@ class StartsWithStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$startswith = new StartsWith(Attr::__callstatic($property), $case_sensitive, $negate);
-		return $this->buildQuery(sprintf($startswith->render($driver), $this->getColumnName($property)));
+		return $this->buildQuery(sprintf($startswith->generate($driver), $this->getColumnName($property)));
 	}
 }
-?>

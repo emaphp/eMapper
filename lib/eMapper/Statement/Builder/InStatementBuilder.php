@@ -15,7 +15,6 @@ class InStatementBuilder extends StatementBuilder {
 		$negate = array_key_exists(2, $matches) && !empty($matches[2]);
 		
 		$in = new In(Attr::__callstatic($property), $negate);
-		return $this->buildQuery(sprintf($in->render($driver), $this->getColumnName($property), $this->getExpression($property)));
+		return $this->buildQuery(sprintf($in->generate($driver), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
-?>

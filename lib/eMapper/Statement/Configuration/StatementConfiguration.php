@@ -11,7 +11,7 @@ trait StatementConfiguration {
 	/**
 	 * Sets result mapping options
 	 * @param string $mapping_type
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function type($mapping_type) {
 		$args = func_get_args();
@@ -28,7 +28,7 @@ trait StatementConfiguration {
 	 * Sets the result map class to apply to obtained result
 	 * @param mixed $result_map
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function resultMap($result_map) {
 		if (!is_string($result_map)) {
@@ -45,7 +45,7 @@ trait StatementConfiguration {
 	 * Sets the paramter map class to apply to given parameter
 	 * @param mixed $parameter_map
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function parameterMap($parameter_map) {
 		if (!is_string($parameter_map)) {
@@ -62,7 +62,7 @@ trait StatementConfiguration {
 	 * Sets the callback to invoke for each obtained row
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function each($callable) {
 		if (!is_callable($callable))
@@ -75,7 +75,7 @@ trait StatementConfiguration {
 	 * Sets the filter callback to apply on each obtained row
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function filterCallback($callable) {
 		if (!is_callable($callable))
@@ -88,7 +88,7 @@ trait StatementConfiguration {
 	 * Sets a callback to handle empty results
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function emptyCallback($callable) {
 		if (!is_callable($callable))
@@ -101,7 +101,7 @@ trait StatementConfiguration {
 	 * Sets a callback which is called with the generated query
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function debug($callable) {
 		if (!is_callable($callable))
@@ -115,7 +115,7 @@ trait StatementConfiguration {
 	 * @param string $cache_key
 	 * @param integer $cache_ttl
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function cache($cache_key, $cache_ttl = 0) {
 		if (!is_string($cache_key) || empty($cache_key))
@@ -131,7 +131,7 @@ trait StatementConfiguration {
 	 * Sets relation depth limit
 	 * @param integer $depth
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function depth($depth) {
 		if (!is_integer($depth) || $depth < 0)
@@ -144,6 +144,7 @@ trait StatementConfiguration {
 	 * Sets index callback
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function indexCallback($callable) {
 		if (!is_callable($callable))
@@ -156,7 +157,7 @@ trait StatementConfiguration {
 	 * Sets group callback
 	 * @param callback $callable
 	 * @throws \InvalidArgumentException
-	 * @return StatementConfiguration
+	 * @return \eMapper\Statement\Configuration\StatementConfiguration
 	 */
 	public function groupCallback($callable) {
 		if (!is_callable($callable))

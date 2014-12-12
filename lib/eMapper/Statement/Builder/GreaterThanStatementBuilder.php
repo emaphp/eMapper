@@ -21,7 +21,6 @@ class GreaterThanStatementBuilder extends StatementBuilder {
 		else
 			$gt = new GreaterThan(Attr::__callstatic($property), $negate);
 		
-		return $this->buildQuery(sprintf($gt->render($driver), $this->getColumnName($property), $this->getExpression($property)));
+		return $this->buildQuery(sprintf($gt->generate($driver), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
-?>

@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Statement\Builder;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Attr;
 
@@ -12,7 +12,7 @@ use eMapper\Query\Attr;
 abstract class StatementBuilder {
 	/**
 	 * Entity profile
-	 * @var ClassProfile
+	 * @var \eMapper\Reflection\ClassProfile
 	 */
 	protected $entity;
 
@@ -22,6 +22,7 @@ abstract class StatementBuilder {
 	
 	/**
 	 * Builds a Statement instance
+	 * @param \eMapper\Engine\Generic\Driver $driver
 	 * @param array $matches
 	 */
 	public abstract function build(Driver $driver, $matches = null);
@@ -31,7 +32,15 @@ abstract class StatementBuilder {
 	 * @return string
 	 */
 	protected function getTableName() {
-		return '@@' . $this->entity->getReferredTable();
+		return '@@' . $this->entity->getEntityTable();
+	}
+	
+	/**
+	 * Obtains the column list as a string
+	 * @return string
+	 */
+	protected function getColumnList() {
+		return implode(',', $this->entity->getColumnList());
 	}
 	
 	/**
@@ -59,7 +68,6 @@ abstract class StatementBuilder {
 	 * @return string
 	 */
 	protected function buildQuery($condition) {
-		return sprintf("SELECT * FROM %s WHERE %s", $this->getTableName(), $condition);
+		return sprintf("SELECT %s FROM %s WHERE %s", $this->getColumnList() , $this->getTableName(), $condition);
 	}
 }
-?>

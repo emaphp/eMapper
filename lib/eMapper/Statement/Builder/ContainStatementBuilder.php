@@ -17,7 +17,6 @@ class ContainStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$contains = new Contains(Attr::__callstatic($property), $case_sensitive, $negate);
-		return $this->buildQuery(sprintf($contains->render($driver), $this->getColumnName($property)));
+		return $this->buildQuery(sprintf($contains->generate($driver), $this->getColumnName($property)));
 	}
 }
-?>

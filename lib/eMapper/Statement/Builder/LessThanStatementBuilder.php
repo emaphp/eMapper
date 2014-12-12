@@ -21,7 +21,6 @@ class LessThanStatementBuilder extends StatementBuilder {
 		else
 			$lt = new LessThan(Attr::__callstatic($property), $negate);
 		
-		return $this->buildQuery(sprintf($lt->render($driver), $this->getColumnName($property), $this->getExpression($property)));
+		return $this->buildQuery(sprintf($lt->generate($driver), $this->getColumnName($property), $this->getExpression($property)));
 	}
 }
-?>

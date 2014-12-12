@@ -17,7 +17,6 @@ class EndsWithStatementBuilder extends StatementBuilder {
 		
 		//build condition
 		$endswith = new EndsWith(Attr::__callstatic($property), $case_sensitive, $negate);
-		return $this->buildQuery(sprintf($endswith->render($driver), $this->getColumnName($property)));
+		return $this->buildQuery(sprintf($endswith->generate($driver), $this->getColumnName($property)));
 	}
 }
-?>
