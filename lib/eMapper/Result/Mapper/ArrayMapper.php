@@ -36,7 +36,7 @@ class ArrayMapper extends ComplexMapper {
 	
 	/**
 	 * Returns a mapped array from a mysqli_result object
-	 * @param ResultIterator $result
+	 * @param \eMapper\Engine\Generic\Result\ResultIterator $result
 	 * @param int $resultType
 	 */
 	public function mapResult(ResultIterator $result, $resultType = ArrayType::BOTH) {
@@ -57,7 +57,7 @@ class ArrayMapper extends ComplexMapper {
 	
 	/**
 	 * Returns a list of mapped arrays from a mysqli_result object
-	 * @param ResultIterator $result
+	 * @param \eMapper\Engine\Generic\Result\ResultIterator $result
 	 * @param string $index
 	 * @param string $indexType
 	 * @param string $group
@@ -231,13 +231,13 @@ class ArrayMapper extends ComplexMapper {
 		return $list;
 	}
 	
-	public function evaluateFirstOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute)
+	public function evaluateAttributes(&$row, $mapper) {
+		foreach ($this->resultMap->getAttributes() as $name => $attribute)
 			$row[$name] = $attribute->evaluate($row, $mapper);
 	}
 	
-	public function evaluateSecondOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute)
+	public function evaluateDynamicAttributes(&$row, $mapper) {
+		foreach ($this->resultMap->getDynamicAttributes() as $name => $attribute)
 			$row[$name] = $attribute->evaluate($row, $mapper);
 	}
 	
@@ -246,4 +246,3 @@ class ArrayMapper extends ComplexMapper {
 			$row[$name] = $association->evaluate($row, $mapper);
 	}
 }
-?>

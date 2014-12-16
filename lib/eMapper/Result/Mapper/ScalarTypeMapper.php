@@ -12,7 +12,7 @@ use eMapper\Result\ArrayType;
 class ScalarTypeMapper {
 	/**
 	 * Default type handler
-	 * @var TypeHandler
+	 * @var \eMapper\Type\TypeHandler
 	 */
 	protected $typeHandler;
 	
@@ -52,4 +52,3 @@ class ScalarTypeMapper {
 		return $list;
 	}
 }
-?>

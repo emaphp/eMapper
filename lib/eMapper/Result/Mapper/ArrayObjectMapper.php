@@ -26,4 +26,3 @@ class ArrayObjectMapper extends ArrayMapper {
 		return $result;
 	}
 }
-?>

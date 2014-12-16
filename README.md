@@ -106,7 +106,7 @@ $mapper = new Mapper($driver);
 <br/>
 >Step 3: Fetching data
 
-eMapper is not ORM-oriented but type-oriented. Everything revolves around queries and *mapping expressions*. The following examples try to give you an idea of how the data mapping engine works.
+eMapper is a type-oriented framework. Everything revolves around queries and *mapping expressions*. The following examples try to give you an idea of how the data mapping engine works.
 
 ```php
 //by default, results are mapped to an array of arrays
@@ -320,8 +320,16 @@ $products = $mapper
 
 ```php
 //array as parameter
-$parameter = ['password' => sha1('qwerty'), 'modified_at' => new \DateTime];
-$mapper->query("UPDATE users SET password = #{password}, modified_at = #{modified_at:dt} WHERE name = %{1:string}", $parameter, 'emaphp');
+$parameter = [
+    'password'    => sha1('qwerty'),
+    'modified_at' => new \DateTime
+];
+
+$mapper->query(
+    "UPDATE users SET password = #{password}, modified_at = #{modified_at:dt} WHERE name = %{1:string}",
+    $parameter,
+    'emaphp'
+);
 
 //syntax works with objects as well
 use Acme\CMS\Comment;
@@ -403,7 +411,7 @@ $users = $query->from('users')->orderBy('name', 'id ASC')->fetch();
 
 //same but with Column class
 $users = $mapper->from('users')
-->orderBy(Column::name(), Column::id('ASC'))
+->orderBy(Column::name(), Column::id()->type('ASC'))
 ->fetch();
 
 /**
@@ -536,7 +544,11 @@ $query->update('users')
 ->exec();
 
 //using setValue
-$value = ['language' => 'sp', 'last_login' => new \Datetime()];
+$value = [
+    'language'   => 'sp',
+    'last_login' => new \Datetime()
+];
+
 $query->update('users')
 ->setValue($value)
 ->where('name = %{s}', 'emaphp')
@@ -692,10 +704,8 @@ $list = $products
 ->find();
 
 //OR condition (category = 'E-Books' OR price < 799.99)
-use emapper\Query\Cond as Q;
-
 $list = $products
-->filter(Q::where(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99)))
+->orfilter(Attr::category()->eq('E-Books'), Attr::price()->lt(799.99))
 ->find();
 
 //exclude (category <> 'Fitness')

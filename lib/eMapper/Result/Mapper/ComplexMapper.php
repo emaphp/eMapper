@@ -11,37 +11,37 @@ use eMapper\Reflection\Profiler;
 abstract class ComplexMapper {
 	/**
 	 * Type manager
-	 * @var TypeManager
+	 * @var \eMapper\Type\TypeManager
 	 */
 	protected $typeManager;
 	
 	/**
 	 * Result map
-	 * @var ClassProfile
+	 * @var \eMapper\Reflection\ClassProfile
 	 */
 	protected $resultMap;
 		
 	/**
 	 * Result map properties (PROPERTY => PROFILE)
-	 * @var array
+	 * @var array[string]:string
 	 */
 	protected $properties;
 	
 	/**
 	 * An array containing all column types handlers (COLUMN => HANDLER)
-	 * @var array
+	 * @var array[string]:string
 	 */
 	protected $columnTypes;
 	
 	/**
 	 * An array containing all available columns in a result (PROPERTY => COLUMN)
-	 * @var array
+	 * @var array[string]:string
 	 */
 	protected $availableColumns = [];
 
 	/**
 	 * Result map type handler list (PROPERTY => HANDLER)
-	 * @var array
+	 * @var array[string]:\eMapper\Type\TypeHandler
 	 */
 	protected $typeHandlers = [];
 	
@@ -63,7 +63,7 @@ abstract class ComplexMapper {
 	/**
 	 * Obtains a column default type handler
 	 * @param mixed $column
-	 * @return TypeHandler | FALSE
+	 * @return \eMapper\Type\TypeHandler | FALSE
 	 */
 	protected function getColumnHandler($column) {
 		return $this->typeManager->getTypeHandler($this->columnTypes[$column]);
@@ -181,7 +181,8 @@ abstract class ComplexMapper {
 		foreach ($this->properties as $name => $propertyProfile) {
 			$column = $propertyProfile->getColumn();
 			
-			if (!array_key_exists($column, $this->columnTypes)) continue;
+			if (!array_key_exists($column, $this->columnTypes))
+				continue;
 			
 			$this->availableColumns[$name] = $column;
 			$type = $propertyProfile->getType();
@@ -218,23 +219,23 @@ abstract class ComplexMapper {
 	}
 	
 	/**
-	 * Evaluates first order attributes for a given row
+	 * Evaluates cacheable attributes for a given row
 	 * @param mixed $row
-	 * @param Mapper $mapper
+	 * @param \eMapper\Mapper $mapper
 	 */
-	public abstract function evaluateFirstOrderAttributes(&$row, $mapper);
+	public abstract function evaluateAttributes(&$row, $mapper);
 	
 	/**
-	 * Evaluates second order attributes for a given row
+	 * Evaluates dynamic attributes for a given row
 	 * @param mixed $row
-	 * @param Mapper $mapper
+	 * @param \eMapper\Mapper $mapper
 	 */
-	public abstract function evaluateSecondOrderAttributes(&$row, $mapper);
+	public abstract function evaluateDynamicAttributes(&$row, $mapper);
 	
 	/**
 	 * Evaluates class associations
 	 * @param mixed $row
-	 * @param Mapper $mapper
+	 * @param \eMapper\Mapper $mapper
 	 */
 	public abstract function evaluateAssociations(&$row, $mapper);
 }

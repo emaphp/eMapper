@@ -18,7 +18,7 @@ class ObjectMapper extends ComplexMapper {
 	
 	/**
 	 * ObjectMapper constructor
-	 * @param TypeManager $typeManager
+	 * @param \eMapper\Type\TypeManager $typeManager
 	 * @param string $defaultClass
 	 */
 	public function __construct(TypeManager $typeManager, $defaultClass) {
@@ -44,9 +44,9 @@ class ObjectMapper extends ComplexMapper {
 	}
 	
 	/**
-	 * Returns a mapped object from a mysqli_result object
-	 * @param ResultIterator $result
-	 * @return NULL|object
+	 * Returns a mapped object from a result iterator
+	 * @param \eMapper\Engine\Generic\Result\ResultIterator $result
+	 * @return object | NULL
 	 */
 	public function mapResult(ResultIterator $result) {
 		//check numer of rows returned
@@ -65,14 +65,14 @@ class ObjectMapper extends ComplexMapper {
 	}
 	
 	/**
-	 * Returns a list of objects from a mysqli_result object
-	 * @param ResultIterator $result
+	 * Returns a list of objects from a result iterator
+	 * @param \eMapper\Engine\Generic\Result\ResultIterator $result
 	 * @param string $index
 	 * @param string $indexType
 	 * @param string $group
 	 * @param string $groupType
-	 * @throws MySQLMapperException
-	 * @return NULL|array
+	 * @throws \UnexpectedValueException
+	 * @return array | NULL
 	 */
 	public function mapList(ResultIterator $result, $index = null, $indexType = null, $group = null, $groupType = null) {
 		//check numer of rows returned
@@ -253,25 +253,18 @@ class ObjectMapper extends ComplexMapper {
 		return $list;
 	}
 	
-	public function evaluateFirstOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getFirstOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $attribute->getReflectionProperty();
-			$reflectionProperty->setValue($row, $attribute->evaluate($row, $mapper));
-		}
+	public function evaluateAttributes(&$row, $mapper) {
+		foreach ($this->resultMap->getAttributes() as $name => $attribute)
+			$attribute->getReflectionProperty()->setValue($row, $attribute->evaluate($row, $mapper));
 	}
 	
-	public function evaluateSecondOrderAttributes(&$row, $mapper) {
-		foreach ($this->resultMap->getSecondOrderAttributes() as $name => $attribute) {
-			$reflectionProperty = $attribute->getReflectionProperty();
-			$reflectionProperty->setValue($row, $attribute->evaluate($row, $mapper));
-		}
+	public function evaluateDynamicAttributes(&$row, $mapper) {
+		foreach ($this->resultMap->getDynamicAttributes() as $name => $attribute)
+			$attribute->getReflectionProperty()->setValue($row, $attribute->evaluate($row, $mapper));
 	}
 	
 	public function evaluateAssociations(&$row, $mapper) {
-		foreach ($this->resultMap->getAssociations() as $name => $association) {
-			$reflectionProperty = $association->getReflectionProperty();
-			$reflectionProperty->setValue($row, $association->evaluate($row, $mapper));
-		}
+		foreach ($this->resultMap->getAssociations() as $name => $association)
+			$association->getReflectionProperty()->setValue($row, $association->evaluate($row, $mapper));
 	}
 }
-?>

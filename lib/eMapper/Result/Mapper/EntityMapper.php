@@ -9,4 +9,3 @@ class EntityMapper extends ObjectMapper {
 		$this->defaultClass = $defaultClass;
 	}
 }
-?>

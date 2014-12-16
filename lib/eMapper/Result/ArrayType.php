@@ -13,4 +13,3 @@ abstract class ArrayType {
 	const NUM   = MYSQLI_NUM;
 	const BOTH  = MYSQLI_BOTH;
 }
-?>
