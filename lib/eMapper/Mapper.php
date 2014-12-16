@@ -15,7 +15,6 @@ use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
-use eMapper\Cache\Value\CacheValue;
 use eMapper\Query\StoredProcedure;
 use eMapper\Query\FluentQuery;
 use eMapper\Reflection\ClassProfile;
@@ -95,6 +94,9 @@ class Mapper {
 	
 		//default relation depth limit
 		$this->config['depth.limit'] = 1;
+		
+		//cache metakey
+		$this->config['cache.metakey'] = '__cache__';
 	}
 	
 	/*
@@ -179,6 +181,51 @@ class Mapper {
 	}
 	
 	/**
+	 * Injects cache metadata on the given value
+	 * @param array | object $value
+	 * @param string $class
+	 * @param string $method
+	 * @param array $groups
+	 * @param string $resultMap
+	 */
+	protected function injectCacheMetadata(&$value, $class, $method, $groups, $resultMap) {
+		$metadata = new \stdClass();
+		$metadata->class = $class;
+		$metadata->method = $method;
+		$metadata->groups = $groups;
+		$metadata->resultMap = $resultMap;
+		
+		$metakey = $this->config['cache.metakey'];
+		if (is_array($value) || $value instanceof \ArrayObject)
+			$value[$metakey] = $metadata;
+		else
+			$value->$metakey = $metadata;
+	}
+	
+	/**
+	 * Extracts cache metadata from the given value
+	 * @param array | object $value
+	 * @return NULL | \stdClass
+	 */
+	protected function extractCacheMetadata($value) {
+		$metakey = $this->config['cache.metakey'];
+		if (is_array($value) || $value instanceof \ArrayObject) {
+			if (!array_key_exists($metakey, $value))
+				return null;
+			
+			return $value[$metakey];
+		}
+		elseif (is_object($value)) {
+			if (!property_exists($value, $metakey))
+				return null;
+			
+			return $value->$metakey;
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Executes a query
 	 * @param string $query
 	 * @return mixed
@@ -220,21 +267,25 @@ class Mapper {
 			if ($this->cacheProvider->exists($cache_key)) {
 				$cached_value = $this->cacheProvider->fetch($cache_key);
 				
-				//ignore values that are not a CacheValue instance
-				if ($cached_value instanceof CacheValue) {
-					//build mapping callback
-					$mapping_callback = $cached_value->buildMappingCallback($this->typeManager);
-					$mapper = $mapping_callback[0];
+				if (is_array($cached_value) || is_object($cached_value)) {
+					//get cache metadata
+					$cache_metadata = $this->extractCacheMetadata($cached_value);
 					
-					if ($mapper instanceof ComplexMapper) {
-						$resultMap = $mapper->getResultMap();
-							
-						if (!is_null($resultMap))
-							$resultMap = get_class($resultMap);
-					}
+					//no metadata, assume is a scalar value
+					if (is_null($cache_metadata)) 
+						return $cached_value;
+					
+					//create mapper instance
+					$rc = new \ReflectionClass($cache_metadata->class);
+					$mapper = $rc->newInstance($this->driver->buildTypeManager(), $cache_metadata->resultMap);
+					$mapper->setGroupKeys($cache_metadata->groups);
+					
+					//build mapping callback
+					$mapping_callback = [$mapper, $cache_metadata->method];
+					
+					//set resultmap
+					$resultMap = $cache_metadata->resultMap;
 				}
-				else
-					$cached_value = null;
 			}
 		}
 		
@@ -493,22 +544,14 @@ class Mapper {
 			//check if obtained value can be stored
 			if (isset($this->cacheProvider) && $cacheable) {
 				//build value wrapper
-				if ($mapper instanceof ComplexMapper) {
-					$groupKeys = $mapper->getGroupKeys();
-					$argument = ($mapper instanceof EntityMapper || $mapper instanceof ObjectMapper) ? $defaultClass : $resultMap;
-				}
-				else {
-					$groupKeys = null;
-					$argument = get_class($typeHandler);
-				}
-
-				$value = new CacheValue($mapped_result, get_class($mapper), $argument, $groupKeys, $mapping_callback[1]);
+				if ($mapper instanceof ComplexMapper)
+					$this->injectCacheMetadata($mapped_result, get_class($mapper), $mapping_callback[1], $mapper->getGroupKeys(), $resultMap);
 				
 				//store value
 				if (array_key_exists('cache.ttl', $this->config))
-					$this->cacheProvider->store($cache_key, $value, intval($this->config['cache.ttl']));
+					$this->cacheProvider->store($cache_key, $mapped_result, intval($this->config['cache.ttl']));
 				else
-					$this->cacheProvider->store($cache_key, $value);
+					$this->cacheProvider->store($cache_key, $mapped_result);
 			}
 		}
 		else
