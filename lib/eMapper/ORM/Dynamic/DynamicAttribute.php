@@ -47,6 +47,12 @@ abstract class DynamicAttribute extends ClassProperty {
 	 */
 	protected $condition;
 	
+	/**
+	 * Determines if this attribute is cacheable
+	 * @var boolean
+	 */
+	protected $cacheable = false;
+	
 	public function __construct($propertyName, \ReflectionProperty $reflectionProperty, AnnotationBag $propertyAnnotations) {
 		parent::__construct($propertyName, $reflectionProperty, $propertyAnnotations);
 		
@@ -124,6 +130,12 @@ abstract class DynamicAttribute extends ClassProperty {
 		foreach ($options as $option)
 			$this->config[$option->getArgument()] = $option->getValue();
 		
+		//cacheable
+		if ($propertyAnnotations->has('Cacheable')) {
+			//check type before assuming is cacheable
+			$this->cacheable = !empty($this->type) && !preg_match('/^[arr|array|obj|object]:/', $this->type);
+		}
+		
 		//get evaluation condition
 		if ($propertyAnnotations->has('If')) {
 			$this->program = new DynamicSQLProgram($propertyAnnotations->get('If')->getValue());
@@ -178,5 +190,13 @@ abstract class DynamicAttribute extends ClassProperty {
 		if (isset($this->condition))
 			return call_user_func($this->condition, $row, $config);
 		return true;
+	}
+	
+	/**
+	 * Finds whether this attribute is cacheable
+	 * @return boolean
+	 */
+	public function isCacheable() {
+		return $this->cacheable;
 	}
 }
