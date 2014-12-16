@@ -16,19 +16,19 @@ abstract class Cond {
 	
 	/**
 	 * Builds an OR filter
-	 * Ex: Cond::where(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
+	 * Ex: Cond::orfilter(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
 	 * @return \eMapper\SQL\Predicate\Filter
 	 */
-	public static function where() {
+	public static function orfilter() {
 		return new Filter(func_get_args(), false, self::LOGICAL_OR);
 	}
 	
 	/**
 	 * Builds a negated OR filter
-	 * Ex: Cond::where_not(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
+	 * Ex: Cond::orexclude(Attr::category()->eq('E-books'), Attr::category()->eq('Smartphones'))
 	 * @return \eMapper\SQL\Predicate\Filter
 	 */
-	public static function where_not() {
+	public static function orexclude() {
 		return new Filter(func_get_args(), true, self::LOGICAL_OR);
 	}
 	
@@ -48,4 +48,3 @@ abstract class Cond {
 		return new Filter(func_get_args(), true, self::LOGICAL_AND);
 	}
 }
-?>
