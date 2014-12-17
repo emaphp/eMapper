@@ -332,7 +332,7 @@ class Manager {
 		
 		//run query
 		list($sql, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityProfile)]))->query($sql, $args);
+		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityProfile)]))->execute($sql, $args);
 	}
 	
 	/**
@@ -460,7 +460,7 @@ class Manager {
 				->columns(array_keys($this->insertColumns))
 				->valuesArray($this->entityToArray($entity))
 				->exec();
-				$pk = $this->mapper->lastId();
+				$pk = $this->mapper->getLastId();
 				
 				//update primary key property
 				$this->setPropertyValue($this->entityProfile, $entity, $this->entityProfile->getPrimaryKey(), $pk);
@@ -543,7 +543,7 @@ class Manager {
 			->columns($this->getInsertColumns(true))
 			->valuesArray($this->entityToArray($entity))
 			->exec();
-			$pk = $this->mapper->lastId();
+			$pk = $this->mapper->getLastId();
 			
 			//update primary key property
 			$this->setPropertyValue($this->entityProfile, $entity, $this->entityProfile->getPrimaryKey(), $pk);
@@ -687,7 +687,7 @@ class Manager {
 		if (is_string($arg))
 			$arg = new Attr($arg);
 		elseif (!$arg instanceof Attr)
-		throw new \InvalidArgumentException("Function '%s' expects an argument of type string or \eMapper\Query\Attr", $function->getName());
+			throw new \InvalidArgumentException("Function '%s' expects an argument of type string or \eMapper\Query\Attr", $function->getName());
 	
 		//build query
 		$query = $this->mapper->newQuery($this->entityProfile)
