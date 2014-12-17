@@ -40,7 +40,7 @@ abstract class StatementBuilder {
 	 * @return string
 	 */
 	protected function getColumnList() {
-		return implode(',', $this->entity->getColumnList());
+		return implode(',', $this->entity->getSelectColumns());
 	}
 	
 	/**
