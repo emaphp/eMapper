@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Query\Field;
 use eMapper\Engine\Generic\Driver;
-use eMapper\SQL\Field\FieldTranslator;
+use eMapper\Query\Schema\Schema;
 
 /**
  * The Range class defines a predicate for values between the specified range.
@@ -42,30 +42,24 @@ class Range extends SQLPredicate {
 		return $this->to;
 	}
 
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $this->alias, $joins);
+	public function evaluate(Driver $driver, Schema &$schema) {
+		$column = $schema->translate($this->field, $this->alias);
 		
-		//add from argument
-		$from_index = $this->getArgumentIndex($arg_index);
-		$args[$from_index] = $this->from;
-		$from_expression = $this->buildArgumentExpression($translator, $from_index, $arg_index);
+		//from argument
+		$from_index = $this->getArgumentIndex(0);
+		$schema->addArgument($from_index, $this->from);
+		$from_expression = $this->buildArgumentExpression($this->field, $from_index);
 		
-		//add to argument
-		$to_index = $this->getArgumentIndex($arg_index);
-		$args[$to_index] = $this->to;
-		$to_expression = $this->buildArgumentExpression($translator, $to_index, $arg_index);
+		//to argument
+		$to_index = $this->getArgumentIndex(0);
+		$schema->addArgument($to_index, $this->to);
+		$to_expression = $this->buildArgumentExpression($this->field, $to_index);
 		
-		if ($this->negate)
-			return sprintf("%s NOT BETWEEN %s AND %s", $column, $from_expression, $to_expression);
-		
-		return sprintf("%s BETWEEN %s AND %s", $column, $from_expression, $to_expression);
+		$format = $this->negate ? '%s NOT BETWEEN %s AND %s' : '%s BETWEEN %s AND %s';  
+		return sprintf($format, $column, $from_expression, $to_expression);
 	}
 	
-	public function render(Driver $driver) {
-		if ($this->negate)
-			return "%s NOT BETWEEN %s AND %s";
-		
-		return "%s BETWEEN %s AND %s";
+	public function generate(Driver $driver) {
+		return $this->negate ? '%s NOT BETWEEN %s AND %s' : '%s BETWEEN %s AND %s';
 	}
 }
-?>

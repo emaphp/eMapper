@@ -9,10 +9,10 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class EndsWith extends StringComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->dynamicExpression(GenericRegex::ENDS_WITH);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getDynamicExpression(GenericRegex::ENDS_WITH);
 	}
 	
 	protected function formatExpression(Driver $driver, $expression) {
@@ -21,8 +21,7 @@ class EndsWith extends StringComparisonPredicate {
 	
 	protected function buildComparisonExpression(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->comparisonExpression(GenericRegex::ENDS_WITH);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getComparisonExpression(GenericRegex::ENDS_WITH);
 	}
 }
-?>

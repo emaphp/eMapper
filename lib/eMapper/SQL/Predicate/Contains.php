@@ -9,10 +9,10 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class Contains extends StringComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->dynamicExpression(GenericRegex::CONTAINS);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getDynamicExpression(GenericRegex::CONTAINS);
 	}
 	
 	protected function formatExpression(Driver $driver, $expression) {
@@ -21,8 +21,7 @@ class Contains extends StringComparisonPredicate {
 	
 	protected function buildComparisonExpression(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->comparisonExpression(GenericRegex::CONTAINS);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getComparisonExpression(GenericRegex::CONTAINS);
 	}
 }
-?>

@@ -1,12 +1,11 @@
 <?php
 namespace eMapper\SQL\Predicate;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 use eMapper\Query\Attr;
-use eMapper\SQL\Field\FieldTranslator;
-use eMapper\SQL\Field\ORMFieldTranslator;
+use eMapper\Query\Schema\Schema;
 
 /**
  * A SQLPredicate class encapsulates the generic behaviour defined for query conditional clauses.
@@ -15,7 +14,7 @@ use eMapper\SQL\Field\ORMFieldTranslator;
 abstract class SQLPredicate {
 	/**
 	 * Predicate field
-	 * @var Field
+	 * @var \eMapper\Query\Field
 	 */
 	protected $field;
 	
@@ -40,6 +39,10 @@ abstract class SQLPredicate {
 		$this->alias = $alias;
 	}
 	
+	public function getAlias() {
+		return $this->alias;
+	}
+	
 	public function getField() {
 		return $this->field;
 	}
@@ -50,85 +53,53 @@ abstract class SQLPredicate {
 	
 	/**
 	 * Obtains an index for the current argument
-	 * @param integer $arg_index
-	 * @return number|string
+	 * @return string
 	 */
-	protected static function getArgumentIndex($arg_index) {
+	protected static function getArgumentIndex() {
 		static $counter = 0;
-		
-		if ($arg_index != 0)
-			return $counter++;
-	
-		return 'arg' . $counter++;
+		return '$' . $counter++;
 	}
 	
 	/**
-	 * Obtains the current field type
-	 * @param ClassProfile $profile
-	 * @return string|NULL
+	 * Obtains a field associated type
+	 * @param Field $field
+	 * @return string | NULL
 	 */
-	protected function getFieldType(ClassProfile $profile) {
-		if ($this->field->hasType())
-			return $this->field->getType();
-		
-		if ($this->field instanceof Attr) {
-			$property = $profile->getProperty($this->field->getName());
-			
-			if ($property === false)
-				return null;
-			
-			return $property->getType();
+	protected function getFieldType(Field $field) {
+		if ($field->hasType())
+			return $field->getType();
+	
+		if ($field instanceof Attr) {
+			$profile = $field->getTargetEntity();
+			return $profile->getProperty($field->getName())->getType();
 		}
-		
+	
 		return null;
 	}
 	
 	/**
-	 * Builds an argument expression for the current query
-	 * @param FieldTranslator $translator
-	 * @param mixed $index Argument relative index
-	 * @param mixed $arg_index Argument global index
+	 * Returns an expression for a given argument index
+	 * @param Field $field
+	 * @param string $index
 	 * @return string
 	 */
-	protected function buildArgumentExpression(FieldTranslator $translator, $index, $arg_index) {
-		$profile = $translator instanceof ORMFieldTranslator ? $translator->getProfile() : null;
-		
-		if ($arg_index != 0) {
-			//check type
-			$type = is_null($profile) ? null : $this->getFieldType($profile);
-				
-			//build expression
-			if (isset($type))
-				return '%{' . $arg_index . "[$index]" . ":$type}";
-				
-			return '%{' . $arg_index . "[$index]" . '}';
-		}
-	
-		//check type
-		$type = is_null($profile) ? null : $this->getFieldType($profile);
-	
-		//build expression
+	public function buildArgumentExpression(Field $field, $index) {
+		$type = $this->getFieldType($field);
 		if (isset($type))
 			return '#{' . "$index:$type" . '}';
-	
 		return '#{' . $index . '}';
 	}
 	
 	/**
 	 * Evaluates a SQLPredicate getting any additional arguments
-	 * @param FieldTranslator $translator
-	 * @param Driver $driver
-	 * @param array $args
-	 * @param array $joins
-	 * @param int $arg_index
-	 * @return string
+	 * @param \eMapper\Engine\Generic\Driver $driver
+	 * @param \eMapper\Query\Schema\Schema $schema
 	 */
-	public abstract function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0);
+	public abstract function evaluate(Driver $driver, Schema &$schema);
 	
 	/**
 	 * Renders a SQLPredicate to the corresponding Dynamic SQL expression
-	 * @param Driver $driver
+	 * @param \eMapper\Engine\Generic\Driver $driver
 	 */
-	public abstract function render(Driver $driver);
+	public abstract function generate(Driver $driver);
 }
-?>

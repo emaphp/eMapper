@@ -11,8 +11,8 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
 class StartsWith extends StringComparisonPredicate {
 	public function render(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->dynamicExpression(GenericRegex::STARTS_WITH);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getDynamicExpression(GenericRegex::STARTS_WITH);
 	}
 	
 	protected function formatExpression(Driver $driver, $expression) {
@@ -21,8 +21,7 @@ class StartsWith extends StringComparisonPredicate {
 	
 	protected function buildComparisonExpression(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->comparisonExpression(GenericRegex::STARTS_WITH);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getComparisonExpression(GenericRegex::STARTS_WITH);
 	}
 }
-?>

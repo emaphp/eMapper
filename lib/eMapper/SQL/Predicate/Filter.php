@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Cond;
-use eMapper\SQL\Field\FieldTranslator;
+use eMapper\Query\Schema\Schema;
 
 /**
  * The Filter class is a container for various types of predicates.
@@ -12,12 +12,12 @@ use eMapper\SQL\Field\FieldTranslator;
 class Filter extends SQLPredicate {
 	/**
 	 * Predicate list
-	 * @var array
+	 * @var array:\eMapper\SQL\Predicate\SQLPredicate
 	 */
 	protected $predicates;
 	
 	/**
-	 * Operator
+	 * Logical operator
 	 * @var string
 	 */
 	protected $operator;
@@ -36,57 +36,42 @@ class Filter extends SQLPredicate {
 		return $this->operator;
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
+	public function evaluate(Driver $driver, Schema &$schema) {
 		if (empty($this->predicates))
 			return '';
-
+		
 		if (count($this->predicates) == 1) {
 			if (!empty($this->alias))
 				$this->predicates[0]->setAlias($this->alias);
-			$condition = $this->predicates[0]->evaluate($translator, $driver, $args, $joins, $arg_index);
-			
-			if ($this->negate)
-				return 'NOT ' . $condition;
-			return $condition;
+			$condition = $this->predicates[0]->evaluate($driver, $schema);
+			return ($this->negate) ? 'NOT ' . $condition : $condition;
 		}
 		
 		$predicates = [];
-		
 		foreach ($this->predicates as $predicate) {
 			if (!empty($this->alias))
 				$predicate->setAlias($this->alias);
-			$predicates[] = $predicate->evaluate($translator, $driver, $args, $joins, $arg_index);
+			$predicates[] = $predicate->evaluate($driver, $schema);
 		}
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
-		
-		if ($this->negate)
-			return 'NOT ' . $condition;
-		return $condition;
+		return ($this->negate) ? 'NOT ' . $condition : $condition;
 	}
-	
-	public function render(Driver $driver) {
+		
+	public function generate(Driver $driver) {
 		if (empty($this->predicates))
 			return '';
 		
 		if (count($this->predicates) == 1) {
 			$condition = $this->predicates[0]->render($driver);
-			
-			if ($this->negate)
-				return 'NOT (' . $condition . ')';
-			return $condition;
+			return $this->negate ? 'NOT (' . $condition . ')' : $condition;
 		}
 		
 		$predicates = [];
-		
 		foreach ($this->predicates as $predicate)
-			$predicates[] = $predicate->render($driver);
+			$predicates[] = $predicate->generate($driver);
 		
 		$condition = '( ' . implode(" {$this->operator} ", $predicates) . ' )';
-		
-		if ($this->negate)
-			return 'NOT ' . $condition ;
-		return $condition;
+		return $this->negate ? 'NOT ' . $condition : $condition;
 	}
 }
-?>

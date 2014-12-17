@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\SQL\Predicate;
 
-use eMapper\Engine\Generic\Driver;
+use eMapper\Query\Field;
 
 /**
  * The StringComparisonPredicate class adds the case-sensitive attribute for string values comparison.
@@ -12,15 +12,14 @@ abstract class StringComparisonPredicate extends ComparisonPredicate {
 	 * Indicates if the comparison is case sensitive
 	 * @var boolean
 	 */
-	protected $case_sensitive;
+	protected $caseSensitive;
 	
-	public function __construct($field, $case_sensitive, $negate) {
+	public function __construct(Field $field, $caseSensitive, $negate) {
 		parent::__construct($field, $negate);
-		$this->case_sensitive = $case_sensitive;
+		$this->caseSensitive = $caseSensitive;
 	}
 	
 	public function getCaseSensitive() {
-		return $this->case_sensitive;
+		return $this->caseSensitive;
 	}
 }
-?>

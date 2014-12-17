@@ -8,15 +8,12 @@ use eMapper\Engine\Generic\Driver;
  * @author emaphp
  */
 class LessThan extends ComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$op = $this->negate ? '>=' : '<';
 		return "%s $op %s";
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
-		 if ($this->negate)
-		 	return '%s >= %s';
-		 return '%s < %s';
+		return $this->negate ? '%s >= %s' : '%s < %s';
 	}
 }
-?>

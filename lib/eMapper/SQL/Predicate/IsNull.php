@@ -3,25 +3,19 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
-use eMapper\SQL\Field\FieldTranslator;
+use eMapper\Query\Schema\Schema;
 
 /**
  * The IsNull class defines a predicate for NULL comparison values.
  * @author emaphp
  */
 class IsNull extends SQLPredicate {
-	public function render(Driver $driver) {
-		if ($this->negate)
-			return '%s IS NOT NULL';
-		return '%s IS NULL';
+	public function generate(Driver $driver) {
+		return $this->negate ? '%s IS NOT NULL' : '%s IS NULL';
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $this->alias, $joins);
-		
-		if ($this->negate)
-			return "$column IS NOT NULL";
-		return "$column IS NULL";
+	public function evaluate(Driver $driver, Schema &$schema) {
+		$column = $schema->translate($this->field, $this->alias);
+		return $this->negate ? "$column IS NOT NULL" : "$column IS NULL";
 	}
 }
-?>

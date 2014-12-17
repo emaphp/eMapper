@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
-use eMapper\SQL\Field\FieldTranslator;
+use eMapper\Query\Schema\Schema;
 
 /**
  * The ComparisonPredicate class adds an expression property which is used for comparison.
@@ -24,33 +24,29 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		return $this->expression;
 	}
 	
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$op = $this->negate ? "NOT" : "";
 		$eq_op = $this->negate ? '<>' : '=';
 		return "%s [? (if (null? (%%0)) 'IS $op NULL' '$eq_op %s') ?]";
 	}
 	
-	public function evaluate(FieldTranslator $translator, Driver $driver, array &$args, &$joins = null, $arg_index = 0) {
-		$column = $translator->translate($this->field, $this->alias, $joins);
-
+	public function evaluate(Driver $driver, Schema &$schema) {
+		$column = $schema->translate($this->field, $this->alias);
+		
 		if ($this->expression instanceof Field)
-			$expression = $translator->translate($this->expression, $this->alias, $joins);
+			$expression = $schema->translate($this->expression, $this->alias);
 		else {
-			//store expression in argument list
-			$index = $this->getArgumentIndex($arg_index);
-			$args[$index] = $this->formatExpression($driver, $this->expression);
-			
-			//build expression
-			$expression = $this->buildArgumentExpression($translator, $index, $arg_index);
+			$index = $this->getArgumentIndex(0);
+			$schema->addArgument($index, $this->formatExpression($driver, $this->expression));
+			$expression = $this->buildArgumentExpression($this->field, $index);
 		}
-	
-		//build predicate expression
+		
 		return sprintf($this->buildComparisonExpression($driver), $column, $expression);
 	}
 	
 	/**
 	 * Formats a expression for the current comparison predicate
-	 * @param Driver $driver
+	 * @param \eMapper\Engine\Generic\Driver $driver
 	 * @param mixed $expression
 	 * @return mixed
 	 */
@@ -60,8 +56,7 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	
 	/**
 	 * Obtains a string expression containing the comparison predicate
-	 * @param Driver $driver
+	 * @param \eMapper\Engine\Generic\Driver $driver
 	 */
 	protected abstract function buildComparisonExpression(Driver $driver);
 }
-?>

@@ -8,15 +8,12 @@ use eMapper\Engine\Generic\Driver;
  * @author emaphp
  */
 class In extends ComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$op = $this->negate ? 'NOT' : '';
 		return "%s $op IN (%s)";	
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
-		if ($this->negate)
-			return "%s NOT IN (%s)";
-		return "%s IN (%s)";
+		return $this->negate ? "%s NOT IN (%s)" : "%s IN (%s)"; 
 	}
 }
-?>

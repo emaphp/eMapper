@@ -9,22 +9,21 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class Regex extends StringComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->dynamicExpression(GenericRegex::REGEX);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getDynamicExpression(GenericRegex::REGEX);
 	}
 	
 	protected function formatExpression(Driver $driver, $expression) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->filter($expression);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->formatString($expression);
 	}
 	
 	protected function buildComparisonExpression(Driver $driver) {
 		$regex = $driver->getRegex();
-		$regex->setOptions($this->case_sensitive, $this->negate);
-		return $regex->comparisonExpression(GenericRegex::REGEX);
+		$regex->setOptions($this->caseSensitive, $this->negate);
+		return $regex->getComparisonExpression(GenericRegex::REGEX);
 	}
 }
-?>
