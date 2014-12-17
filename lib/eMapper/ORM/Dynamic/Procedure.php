@@ -14,7 +14,7 @@ use eMapper\Mapper;
 class Procedure extends DynamicAttribute {
 	/**
 	 * Invoked procedure
-	 * @var \eMapper\Query\StoredProcedure
+	 * @var \eMapper\Procedure\StoredProcedure
 	 */
 	protected $procedure;
 	

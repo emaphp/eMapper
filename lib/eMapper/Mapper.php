@@ -15,7 +15,7 @@ use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
-use eMapper\Query\StoredProcedure;
+use eMapper\Procedure\StoredProcedure;
 use eMapper\Query\FluentQuery;
 use eMapper\Reflection\ClassProfile;
 use SimpleCache\CacheProvider;
@@ -812,7 +812,7 @@ class Mapper {
 	/**
 	 * Returns a new StoredProcedure instance
 	 * @param string $name
-	 * @return \eMapper\Query\StoredProcedure
+	 * @return \eMapper\Procedure\StoredProcedure
 	 */
 	public function newProcedureCall($name) {
 		return new StoredProcedure($this, $name);
