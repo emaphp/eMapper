@@ -4,7 +4,7 @@ namespace eMapper\ORM\Association;
 use eMapper\Reflection\ClassProperty;
 use eMapper\Reflection\PropertyAccessor;
 use eMapper\ORM\AssociationManager;
-use eMapper\SQL\Fluent\FluentSelect;
+use eMapper\Fluent\Query\AbstractQuery;
 use eMapper\Query\Attr;
 use eMapper\Mapper;
 use Omocha\AnnotationBag;
@@ -102,11 +102,11 @@ abstract class Association extends ClassProperty {
 	
 	/**
 	 * Appends the required joins to a fluent query instance
-	 * @param \eMapper\SQL\Fluent\FluentSelect $query
+	 * @param \eMapper\Fluent\Query\AbstractQuery $query
 	 * @param string $mainAlias
 	 * @param string $contextAlias
 	 */
-	abstract function appendJoin(FluentSelect &$query, $mainAlias, $contextAlias);
+	abstract function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias);
 	
 	/**
 	 * Fetchs associated data

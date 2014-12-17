@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\ORM\Association;
 
-use eMapper\SQL\Fluent\FluentSelect;
+use eMapper\Fluent\Query\AbstractQuery;
 use eMapper\ORM\AssociationManager;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Attr;
@@ -37,7 +37,7 @@ class OneToMany extends Association {
 		return Column::__callstatic($column)->eq($parameter);
 	}
 	
-	public function appendJoin(FluentSelect $query, $mainAlias, $contextAlias) {
+	public function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
 		//obtain attribute name
 		if (!isset($this->attribute))
 			throw new \RuntimeException(sprintf("One-to-many association '%s' in class '%s' must define an attribute through the @Attr annotation", $this->name, $this->parentClass));

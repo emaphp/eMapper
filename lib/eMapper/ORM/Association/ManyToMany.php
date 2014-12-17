@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\ORM\Association;
 
-use eMapper\SQL\Fluent\FluentSelect;
+use eMapper\Fluent\Query\AbstractQuery;
 use eMapper\ORM\AssociationManager;
 use eMapper\ORM\Manager;
 use eMapper\Query\Column;
@@ -63,7 +63,7 @@ class ManyToMany extends Association {
 		return Column::__callstatic($joinTableAlias . '__' . $this->parentColumn)->eq($parameter);
 	}
 	
-	public function appendJoin(FluentSelect &$query, $mainAlias, $contextAlias) {
+	public function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parentClass);
 		$entityProfile = Profiler::getClassProfile($this->entityClass);
 		
