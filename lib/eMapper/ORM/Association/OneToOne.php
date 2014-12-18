@@ -55,7 +55,59 @@ class OneToOne extends Association {
 		return $predicate;
 	}
 	
-	public function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
+	public function appendJoin(AbstractQuery &$query, $sourceAlias, $targetAlias, $left_join = false) {
+		//get attribute name
+		if (!isset($this->attribute))
+			throw new \RuntimeException(sprintf("One-to-one association '%s' in class '%s' must define an attribute name through the @Attr annotation", $this->name, $this->parentClass));
+		
+		//get related class profiles
+		$parentProfile = Profiler::getClassProfile($this->parentClass);
+		$entityProfile = Profiler::getClassProfile($this->entityClass);
+		
+		$attr = $this->attribute->getArgument();
+		
+		if (empty($attr)) { //@Attr userId
+			$attr = $this->attribute->getValue();
+			
+			if (empty($attr) || !is_string($attr))
+				throw new \RuntimeException(sprintf("One-to-one association '%s' in class '%s' must define a valid attribute name", $this->name, $this->parentClass));
+				
+			if (!$entityProfile->hasProperty($attr))
+				throw new \RuntimeException(sprintf("Attribute '%s' not found in class '%s'", $attr, $this->entityClass));
+			
+			//build join condition
+			$cond = sprintf(
+				'%s.%s = %s.%s',
+				$sourceAlias, $parentProfile->getPrimaryKey(true),
+				$targetAlias, $entityProfile->getProperty($attr)->getColumn()
+			);
+			
+			//add join
+			if ($left_join)
+				$query->leftJoin($entityProfile->getEntityTable(), $targetAlias, $cond);
+			else
+				$query->innerJoin($entityProfile->getEntityTable(), $targetAlias, $cond);
+		}
+		else { //@Attr(userId)
+			if (!$parentProfile->hasProperty($attr))
+				throw new \RuntimeException(sprintf("Attribute '%s' not found in class %s", $attr, $this->parentClass));
+			
+			//build join condition
+			$cond = sprintf(
+				'%s.%s = %s.%s',
+				$sourceAlias, $parentProfile->getProperty($attr)->getColumn(),
+				$targetAlias, $entityProfile->getPrimaryKey(true)
+			);
+			
+			//add join
+			if ($left_join)
+				$query->leftJoin($entityProfile->getEntityTable(), $targetAlias, $cond);
+			else
+				$query->innerJoin($entityProfile->getEntityTable(), $targetAlias, $cond);
+		}
+	}
+	
+	public function appendContextJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
 		//get attribute name
 		if (!isset($this->attribute))
 			throw new \RuntimeException(sprintf("One-to-one association '%s' in class '%s' must define an attribute name through the @Attr annotation", $this->name, $this->parentClass));

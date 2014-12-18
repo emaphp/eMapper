@@ -13,7 +13,7 @@ use eMapper\Reflection\Profiler;
 class AssociationManager extends Manager {
 	/**
 	 * Association context
-	 * @var \eMapper\Reflection\Association\Association
+	 * @var \eMapper\ORM\Association\Association
 	 */
 	protected $association;
 	
@@ -61,7 +61,7 @@ class AssociationManager extends Manager {
 		$query->from($this->entityProfile->getEntityTable(), self::DEFAULT_ALIAS);
 		
 		//append call to required join
-		$this->association->appendJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
+		$this->association->appendContextJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
 		
 		//set condition		
 		$args = func_get_args();
@@ -87,7 +87,7 @@ class AssociationManager extends Manager {
 		$query->from($this->entityProfile->getEntityTable(), self::DEFAULT_ALIAS);
 	
 		//append call to required join
-		$this->association->appendJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
+		$this->association->appendContextJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
 	
 		//set condition		
 		$args = func_get_args();

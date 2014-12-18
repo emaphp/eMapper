@@ -63,7 +63,33 @@ class ManyToMany extends Association {
 		return Column::__callstatic($joinTableAlias . '__' . $this->parentColumn)->eq($parameter);
 	}
 	
-	public function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
+	public function appendJoin(AbstractQuery &$query, $sourceAlias, $targetAlias, $left_join = false) {
+		$parentProfile = Profiler::getClassProfile($this->parentClass);
+		$entityProfile = Profiler::getClassProfile($this->entityClass);
+		
+		//join table alias
+		$joinTableAlias = $sourceAlias . $targetAlias;
+		
+		//first join -> join table
+		$cond = sprintf(
+			'%s.%s = %s.%s',
+			$mainAlias, $parentProfile->getPrimaryKey(true),
+			$joinTableAlias, $this->parentColumn
+		);
+		
+		$query->innerJoin($this->joinTable, $joinTableAlias, $cond);
+		
+		//second join -> context
+		$cond = sprintf(
+			'%s.%s = %s.%s',
+			$targetAlias, $entityProfile->getPrimaryKey(true),
+			$joinTableAlias, $this->entityColumn
+		);
+		
+		$query->innerJoin($entityProfile->getEntityTable(), $targetAlias, $cond);
+	}
+	
+	public function appendContextJoin(AbstractQuery &$query, $mainAlias, $contextAlias) {
 		$parentProfile = Profiler::getClassProfile($this->parentClass);
 		$entityProfile = Profiler::getClassProfile($this->entityClass);
 		

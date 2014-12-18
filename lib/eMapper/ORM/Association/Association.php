@@ -103,10 +103,19 @@ abstract class Association extends ClassProperty {
 	/**
 	 * Appends the required joins to a fluent query instance
 	 * @param \eMapper\Fluent\Query\AbstractQuery $query
+	 * @param string $sourceAlias
+	 * @param string $targetAlias
+	 * @param boolean $left_join
+	 */
+	abstract function appendJoin(AbstractQuery &$query, $sourceAlias, $targetAlias, $left_join = false);
+	
+	/**
+	 * Appends the required joins to a fluent query instance to resolve an association
+	 * @param \eMapper\Fluent\Query\AbstractQuery $query
 	 * @param string $mainAlias
 	 * @param string $contextAlias
 	 */
-	abstract function appendJoin(AbstractQuery &$query, $mainAlias, $contextAlias);
+	abstract function appendContextJoin(AbstractQuery &$query, $mainAlias, $contextAlias);
 	
 	/**
 	 * Fetchs associated data
