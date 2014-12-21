@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\Profile\PropertyProfile;
+use eMapper\Reflection\Association\Association;
 
 /**
  * The PropertyAccessor trait allows access to all attributes in an entity.
@@ -10,13 +10,13 @@ use eMapper\Reflection\Profile\PropertyProfile;
 trait PropertyAccessor {
 	/**
 	 * Sets a property/key value
-	 * @param ClassProfile $profile
+	 * @param \eMapper\Reflection\ClassProfile $profile
 	 * @param mixed $instance
 	 * @param string $property
 	 * @param mixed $value
 	 * @throws \RuntimeException
 	 */
-	protected function setPropertyValue($profile, &$instance, $property, $value) {
+	protected function setPropertyValue(ClassProfile $profile, &$instance, $property, $value) {
 		$attr = $profile->getProperty($property);
 		
 		if ($profile->getReflectionClass()->isInstance($instance)) {
@@ -42,12 +42,12 @@ trait PropertyAccessor {
 	
 	/**
 	 * Gets a property/key value
-	 * @param ClassProfile $profile
+	 * @param \eMapper\Reflection\ClassProfile $profile
 	 * @param mixed $instance
 	 * @param string $property
 	 * @throws \RuntimeException
 	 */
-	protected function getPropertyValue($profile, $instance, $property) {
+	protected function getPropertyValue(ClassProfile $profile, $instance, $property) {
 		$attr = $profile->getProperty($property);
 		
 		if ($profile->getReflectionClass()->isInstance($instance))
@@ -71,12 +71,12 @@ trait PropertyAccessor {
 	
 	/**
 	 * Obtains a class association value
-	 * @param ClassProfile $profile
+	 * @param \eMapper\Reflection\ClassProfile $profile
 	 * @param mixed $instance
-	 * @param Association $association
+	 * @param \eMapper\Reflection\Association\Association $association
 	 * @throws \RuntimeException
 	 */
-	protected function getAssociationValue($profile, $instance, $association) {
+	protected function getAssociationValue(ClassProfile $profile, $instance, Association $association) {
 		if ($profile->getReflectionClass()->isInstance($instance))
 			return $association->getReflectionProperty()->getValue($instance);
 
@@ -96,4 +96,3 @@ trait PropertyAccessor {
 			throw new \RuntimeException(sprintf("Property %s was not found on instance of class %s", $name, get_class($instance)));
 	}
 }
-?>

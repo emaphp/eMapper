@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 
 /**
  * The Profiler class is a multiton object that stores class profiles.
@@ -10,14 +10,14 @@ use eMapper\Reflection\Profile\ClassProfile;
 abstract class Profiler {
 	/**
 	 * Class profiles
-	 * @var array
+	 * @var array:\eMapper\Reflection\ClassProfile
 	 */
-	public static $profiles = [];
+	protected static $profiles = [];
 	
 	/**
 	 * Obtains a ClassProfile instance for the given classname
 	 * @param string $classname
-	 * @return ClassProfile
+	 * @return \eMapper\Reflection\ClassProfile
 	 */
 	public static function getClassProfile($classname) {
 		if (!array_key_exists($classname, self::$profiles))
@@ -26,4 +26,3 @@ abstract class Profiler {
 		return self::$profiles[$classname];
 	}
 }
-?>

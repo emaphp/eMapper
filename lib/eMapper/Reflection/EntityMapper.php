@@ -1,17 +1,16 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 
 /**
- * The EntityMapper trait provides additional methods use to build mapping expressions
- * given a class profile.
+ * The EntityMapper trait provides additional methods use to build mapping expressions given a class profile.
  * @author emaphp
  */
 trait EntityMapper {
 	/**
 	 * Obtains a simple mapping expression for the given profile
-	 * @param ClassProfile $entity
+	 * @param \eMapper\Reflection\ClassProfile $entity
 	 * @return string
 	 */
 	protected function buildExpression(ClassProfile $entity) {
@@ -20,7 +19,7 @@ trait EntityMapper {
 	
 	/**
 	 * Obtains a list mapping expression for the give profile
-	 * @param ClassProfile $entity
+	 * @param \eMapper\Reflection\ClassProfile $entity
 	 * @param string $index
 	 * @param string $group
 	 * @return string
@@ -39,4 +38,3 @@ trait EntityMapper {
 		return $expr;
 	}
 }
-?>
