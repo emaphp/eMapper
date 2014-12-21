@@ -16,7 +16,7 @@ use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Procedure\StoredProcedure;
-use eMapper\Query\FluentQuery;
+use eMapper\Fluent\FluentQuery;
 use eMapper\Reflection\ClassProfile;
 use SimpleCache\CacheProvider;
 
@@ -84,10 +84,10 @@ class Mapper {
 		$this->config['db.prefix'] = '';
 	
 		//dynamic sql environment id
-		$this->config['environment.id'] = 'default';
+		$this->config['env.id'] = 'default';
 	
 		//dynamic sql environment class
-		$this->config['environment.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
+		$this->config['env.class'] = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment';
 	
 		//default relation depth
 		$this->config['depth.current'] = 0;
@@ -97,6 +97,30 @@ class Mapper {
 		
 		//cache metakey
 		$this->config['cache.metakey'] = '__cache__';
+	}
+	
+	/**
+	 * Obtains database driver
+	 * @return \eMapper\Engine\Generic\Driver
+	 */
+	public function getDriver() {
+		return $this->driver;
+	}
+	
+	/**
+	 * Obtains type manager
+	 * @return \eMapper\Type\TypeManager
+	 */
+	public function getTypeManager() {
+		return $this->typeManager;
+	}
+	
+	/**
+	 * Returns current database connection
+	 * @return object | resorce
+	 */
+	public function getConnection() {
+		return $this->driver->getConnection();
 	}
 	
 	/*
@@ -125,6 +149,10 @@ class Mapper {
 		return $obj;
 	}
 	
+	/*
+	 * CONFIGURATION
+	 */
+	
 	/**
 	 * Stores database prefix
 	 * @param string $prefix
@@ -135,6 +163,20 @@ class Mapper {
 			throw new \InvalidArgumentException("Database prefix must be specified as a string");
 		$this->setOption('db.prefix', $prefix);
 	}
+	
+	/**
+	 * Configures dynamic sql environment
+	 * @param string $id
+	 * @param string $class
+	 */
+	public function setEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
+		$this->setOption('env.id', $id);
+		$this->setOption('env.class', $class);
+	}
+	
+	/*
+	 * TYPES
+	 */
 	
 	/**
 	 * Adds a new type handler
@@ -154,30 +196,25 @@ class Mapper {
 				$this->typeManager->addAlias($type, $alias);
 		}
 	}
+		
+	/*
+	 * CACHE
+	 */
 	
 	/**
-	 * Configures dynamic sql environment
-	 * @param string $id
-	 * @param string $class
+	 * Assigns a cache provider to current instance
+	 * @param \SimpleCache\CacheProvider $provider
 	 */
-	public function configureEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
-		$this->setOption('environment.id', $id);
-		$this->setOption('environment.class', $class);
+	public function setCacheProvider(CacheProvider $provider) {
+		$this->cacheProvider = $provider;
 	}
 	
 	/**
-	 * Returns current database connection
-	 * @return object | resorce
+	 * Obtains assigned cache provider
+	 * @return \SimpleCache\CacheProvider
 	 */
-	public function getConnection() {
-		return $this->driver->getConnection();
-	}
-	
-	/**
-	 * Initializes a database connection
-	 */
-	public function connect() {
-		return $this->driver->connect();
+	public function getCacheProvider() {
+		return $this->cacheProvider;
 	}
 	
 	/**
@@ -254,49 +291,48 @@ class Mapper {
 		 * CACHE CONTROL
 		 */
 		
-		$cached_value = $resultMap = null;
+		$cachedValue = $resultMap = null;
 		$cacheable = false; //if mapped value is cacheable
 		
 		//check if there is a value stored in cache with the given key
 		if (array_key_exists('cache.key', $this->config) && isset($this->cacheProvider)) {
 			//build cache key
-			$cacheKeyFormatter = new CacheKeyFormatter($this->typeManager);
-			$cache_key = $cacheKeyFormatter->format($this->config['cache.key'], $args, $this->config);
+			$cacheKey = (new CacheKeyFormatter($this->typeManager))->format($this->config['cache.key'], $args, $this->config);
 
 			//check if key is present
-			if ($this->cacheProvider->exists($cache_key)) {
-				$cached_value = $this->cacheProvider->fetch($cache_key);
+			if ($this->cacheProvider->exists($cacheKey)) {
+				$cachedValue = $this->cacheProvider->fetch($cacheKey);
 				
-				if (is_array($cached_value) || is_object($cached_value)) {
+				if (is_array($cachedValue) || is_object($cachedValue)) {
 					//get cache metadata
-					$cache_metadata = $this->extractCacheMetadata($cached_value);
+					$cacheMeta = $this->extractCacheMetadata($cachedValue);
 					
-					//no metadata, assume is a scalar value
-					if (is_null($cache_metadata)) 
-						return $cached_value;
+					//no metadata, we didn't stored it
+					if (is_null($cacheMeta)) 
+						return $cachedValue;
 					
 					//create mapper instance
-					$rc = new \ReflectionClass($cache_metadata->class);
-					$mapper = $rc->newInstance($this->driver->buildTypeManager(), $cache_metadata->resultMap);
-					$mapper->setGroupKeys($cache_metadata->groups);
+					$mapper = (new \ReflectionClass($cacheMeta->class))->newInstance($this->driver->buildTypeManager(), $cacheMeta->resultMap);
+					$mapper->setGroupKeys($cacheMeta->groups);
 					
-					//build mapping callback
-					$mapping_callback = [$mapper, $cache_metadata->method];
+					//build mapping callback (method tells if this is a list or a single row)
+					$mappingCallback = [$mapper, $cacheMeta->method];
 					
-					//set resultmap
-					$resultMap = $cache_metadata->resultMap;
+					//set resultmap (allows further processing)
+					$resultMap = $cacheMeta->resultMap;
 				}
+				else
+					return $cachedValue;
 			}
 		}
 		
-		if (is_null($cached_value)) {
+		if (is_null($cachedValue)) {
 			/*
 			 * GENERATE QUERY
 			 */
 				
 			//build statement
-			$statementFormatter = $this->driver->buildStatement($this->typeManager);
-			$stmt = $statementFormatter->format($query, $args, $this->config);
+			$stmt = $this->driver->buildStatement($this->typeManager)->format($query, $args, $this->config);
 			
 			//debug query
 			if (array_key_exists('callback.debug', $this->config)) 
@@ -305,18 +341,18 @@ class Mapper {
 			/*
 			 * PARSE MAPPING EXPRESSION
 			 */
-
+	
 			//build mapping callback
 			if (array_key_exists('map.type', $this->config)) {
 				//get mapping type
-				$mapping_type = $this->config['map.type'];
+				$mappingType = $this->config['map.type'];
 				
 				//object mapping type: object, object:class, object[column], object[column:type], etc
-				if (preg_match(self::OBJECT_TYPE_REGEX, $mapping_type, $matches)) {
+				if (preg_match(self::OBJECT_TYPE_REGEX, $mappingType, $matches)) {
 					//get class, if any
-					if (empty($matches[1])) {
+					if (empty($matches[1])) { //no class defined, use default
 						$defaultClass = 'stdClass';
-						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
+						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null; //obtain result map
 						$mapper = new StdClassMapper($this->typeManager, $resultMap);
 					}
 					else {
@@ -324,11 +360,12 @@ class Mapper {
 						$defaultClass = strtolower($matches[1]);
 						$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 						
+						//get mapping class
 						if ($defaultClass == 'stdclass')
 							$mapper = new StdClassMapper($this->typeManager, $resultMap);
 						elseif ($defaultClass == 'arrayobject')
 							$mapper = new ArrayObjectMapper($this->typeManager, $resultMap);
-						elseif (Profiler::getClassProfile($matches[1])->isEntity()) {
+						elseif (Profiler::getClassProfile($matches[1])->isEntity()) { //check if defined class is an entity
 							$mapper = new EntityMapper($this->typeManager, $matches[1]);
 							$resultMap = $matches[1];
 						}
@@ -339,39 +376,39 @@ class Mapper {
 					}
 					
 					//generate a new object mapper object
-					$group = $group_type = $index = $index_type = null;
+					$group = $groupType = $index = $indexType = null;
 					
 					if (count($matches) > 2) {
-						$mapping_callback = [$mapper, 'mapList'];
+						$mappingCallback = [$mapper, 'mapList'];
 					
 						//obtain group
 						if (array_key_exists('callback.group', $this->config)) {
 							$group = $this->config['callback.group'];
-							$group_type = 'callable';
+							$groupType = 'callable';
 						}
 						elseif (isset($matches[2]) && ($matches[2] == '0' || !empty($matches[2]))) {
 							$group = $matches[2];
-							$group_type = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
+							$groupType = (isset($matches[3]) && !empty($matches[3])) ? $matches[3] : null;
 						}
 					
 						//obtain index
 						if (array_key_exists('callback.index', $this->config)) {
 							$index = $this->config['callback.index'];
-							$index_type = 'callable';
+							$indexType = 'callable';
 						}
 						elseif (isset($matches[5]) && ($matches[5] == '0' || !empty($matches[5]))) {
 							$index = $matches[5];
-							$index_type = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
+							$indexType = (isset($matches[6]) && !empty($matches[6])) ? $matches[6] : null;
 						}
 					
 						//add index and group to mapper parameters
-						$mapping_params = [$index, $index_type, $group, $group_type];
+						$mappingParams = [$index, $indexType, $group, $groupType];
 					}
 					else
-						$mapping_callback = [$mapper, 'mapResult']; //set default method
+						$mappingCallback = [$mapper, 'mapResult']; //set default method
 				}
 				//array mapping type: array, array[], array[column], array[column:type]
-				elseif (preg_match(self::ARRAY_TYPE_REGEX, $mapping_type, $matches)) {
+				elseif (preg_match(self::ARRAY_TYPE_REGEX, $mappingType, $matches)) {
 					//obtain result map
 					$resultMap = array_key_exists('map.result', $this->config) ? $this->config['map.result'] : null;
 						
@@ -379,37 +416,37 @@ class Mapper {
 					$mapper = new ArrayMapper($this->typeManager, $resultMap);
 					
 					if (count($matches) > 1) {
-						$mapping_callback = [$mapper, 'mapList'];
-						$group = $group_type = $index = $index_type = null;
+						$mappingCallback = [$mapper, 'mapList'];
+						$group = $groupType = $index = $indexType = null;
 					
 						//obtain group and group type
 						if (array_key_exists('callback.group', $this->config)) {
 							$group = $this->config['callback.group'];
-							$group_type = 'callable';
+							$groupType = 'callable';
 						}
 						elseif (isset($matches[1]) && ($matches[1] == '0' || !empty($matches[1]))) {
 							$group = $matches[1];
-							$group_type = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
+							$groupType = (isset($matches[2]) && !empty($matches[2])) ? $matches[2] : null;
 						}
 					
 						//obtain index and index type
 						if (array_key_exists('callback.index', $this->config)) {
 							$index = $this->config['callback.index'];
-							$index_type = 'callable';
+							$indexType = 'callable';
 						}
 						elseif (isset($matches[4]) && ($matches[4] == '0' || !empty($matches[4]))) {
 							$index = $matches[4];
-							$index_type = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
+							$indexType = (isset($matches[5]) && !empty($matches[5])) ? $matches[5] : null;
 						}
 							
 						//add index and group to mapper parameters
-						$mapping_params = [$index, $index_type, $group, $group_type];
+						$mappingParams = [$index, $indexType, $group, $groupType];
 					}
 					else
-						$mapping_callback = [$mapper, 'mapResult'];
+						$mappingCallback = [$mapper, 'mapResult'];
 				}
 				//simple mapping type: integer, string, float, etc
-				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mapping_type, $matches)) {					
+				elseif (preg_match(self::SIMPLE_TYPE_REGEX, $mappingType, $matches)) {					
 					//get type handler
 					$typeHandler = $this->typeManager->getTypeHandler($matches[1]);
 					
@@ -420,10 +457,10 @@ class Mapper {
 					$mapper = new ScalarTypeMapper($typeHandler);
 						
 					//set mapping callback
-					$mapping_callback = [$mapper, empty($matches[2]) ? 'mapResult' : 'mapList'];
+					$mappingCallback = [$mapper, empty($matches[2]) ? 'mapResult' : 'mapList'];
 				}
 				else
-					throw new \InvalidArgumentException("Unrecognized mapping expression '$mapping_type'");
+					throw new \InvalidArgumentException("Unrecognized mapping expression '$mappingType'");
 			}
 			else {
 				//obtain result map
@@ -433,25 +470,25 @@ class Mapper {
 				$mapper = new ArrayMapper($this->typeManager, $resultMap);
 					
 				//use default mapping type
-				$mapping_callback = [$mapper, 'mapList'];
+				$mappingCallback = [$mapper, 'mapList'];
 				
 				//check for group callback
 				if (array_key_exists('callback.group', $this->config)) {
 					$group = $this->config['callback.group'];
-					$group_type = 'callable';
+					$groupType = 'callable';
 				}
 				else
-					$group = $group_type = null;
+					$group = $groupType = null;
 				
 				//check for index callback
 				if (array_key_exists('callback.index', $this->config)) {
 					$index = $this->config['callback.index'];
-					$index_type = 'callable';
+					$indexType = 'callable';
 				}
 				else
-					$index = $index_type = null;
+					$index = $indexType = null;
 				
-				$mapping_params = [$index, $index_type, $group, $group_type];
+				$mappingParams = [$index, $indexType, $group, $groupType];
 			}
 			
 			/*
@@ -492,24 +529,24 @@ class Mapper {
 				
 			//add defined mapping parameters
 			if (array_key_exists('map.params', $this->config)) {
-				if (!empty($mapping_params))
-					$mapping_params = array_merge($mapping_params, $this->config['map.params']);
+				if (!empty($mappingParams))
+					$mappingParams = array_merge($mappingParams, $this->config['map.params']);
 				else
-					$mapping_params = $this->config['map.params'];
+					$mappingParams = $this->config['map.params'];
 			}
 				
 			//build mapping callback parameters
-			if (isset($mapping_params))
-				array_unshift($mapping_params, $ri);
+			if (isset($mappingParams))
+				array_unshift($mappingParams, $ri);
 			else
-				$mapping_params = [$ri];
+				$mappingParams = [$ri];
 			
 			/*
 			 * MAP RESULT
 			 */
 				
 			//call mapping callback
-			$mapped_result = call_user_func_array($mapping_callback, $mapping_params);
+			$mappedResult = call_user_func_array($mappingCallback, $mappingParams);
 				
 			//free result
 			$this->driver->freeResult($result);
@@ -521,20 +558,20 @@ class Mapper {
 			if (isset($resultMap)) {
 				$copy = $this->__copy(); //clone current instance
 				
-				if ($mapping_callback[1] == 'mapList') { //list of rows
+				if ($mappingCallback[1] == 'mapList') { //list of rows
 					if ($mapper->hasGroupKeys()) { //grouped
 						foreach ($mapper->getGroupKeys() as $group) {
-							foreach (array_keys($mapped_result[$group]) as $k)
-								$mapper->evaluateAttributes($mapped_result[$group][$k], $copy);
+							foreach (array_keys($mappedResult[$group]) as $k)
+								$mapper->evaluateAttributes($mappedResult[$group][$k], $copy);
 						}
 					}
 					else { //list
-						foreach (array_keys($mapped_result) as $k)
-							$mapper->evaluateAttributes($mapped_result[$k], $copy);
+						foreach (array_keys($mappedResult) as $k)
+							$mapper->evaluateAttributes($mappedResult[$k], $copy);
 					}
 				}
 				else //single row
-					$mapper->evaluateAttributes($mapped_result, $copy);
+					$mapper->evaluateAttributes($mappedResult, $copy);
 			}
 			
 			/*
@@ -545,44 +582,42 @@ class Mapper {
 			if (isset($this->cacheProvider) && $cacheable) {
 				//build value wrapper
 				if ($mapper instanceof ComplexMapper)
-					$this->injectCacheMetadata($mapped_result, get_class($mapper), $mapping_callback[1], $mapper->getGroupKeys(), $resultMap);
+					$this->injectCacheMetadata($mappedResult, get_class($mapper), $mappingCallback[1], $mapper->getGroupKeys(), $resultMap);
 				
 				//store value
 				if (array_key_exists('cache.ttl', $this->config))
-					$this->cacheProvider->store($cache_key, $mapped_result, intval($this->config['cache.ttl']));
+					$this->cacheProvider->store($cacheKey, $mappedResult, intval($this->config['cache.ttl']));
 				else
-					$this->cacheProvider->store($cache_key, $mapped_result);
+					$this->cacheProvider->store($cacheKey, $mappedResult);
 			}
 		}
-		else
-			$mapped_result = $cached_value->getValue();
 		
 		/*
 		 * DYNAMIC ATTRIBUTES
 		 */
 		
-		if (isset($resultMap) && $this->config['depth.limit'] > $this->config['depth.current']) {
+		if (!empty($resultMap) && $this->config['depth.limit'] > $this->config['depth.current']) {
 			$icopy = $this->__icopy();			
 			
-			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+			if ($mapping_callback[1] == 'mapList' && !empty($mappedResult)) {
 				if ($mapper->hasGroupKeys()) {
 					foreach ($mapper->getGroupKeys() as $group) {
-						foreach (array_keys($mapped_result[$group]) as $k) {
-							$mapper->evaluateDynamicAttributes($mapped_result[$group][$k], $icopy);
-							$mapper->evaluateAssociations($mapped_result[$group][$k], $icopy);
+						foreach (array_keys($mappedResult[$group]) as $k) {
+							$mapper->evaluateDynamicAttributes($mappedResult[$group][$k], $icopy);
+							$mapper->evaluateAssociations($mappedResult[$group][$k], $icopy);
 						}
 					}
 				}
 				else {
-					foreach (array_keys($mapped_result) as $k) {
-						$mapper->evaluateDynamicAttributes($mapped_result[$k], $icopy);
-						$mapper->evaluateAssociations($mapped_result[$k], $icopy);
+					foreach (array_keys($mappedResult) as $k) {
+						$mapper->evaluateDynamicAttributes($mappedResult[$k], $icopy);
+						$mapper->evaluateAssociations($mappedResult[$k], $icopy);
 					}
 				}
 			}
-			elseif ($mapping_callback[1] != 'mapList' && !is_null($mapped_result)) {
-				$mapper->evaluateDynamicAttributes($mapped_result, $icopy);
-				$mapper->evaluateAssociations($mapped_result, $icopy);
+			elseif ($mapping_callback[1] != 'mapList' && !is_null($mappedResult)) {
+				$mapper->evaluateDynamicAttributes($mappedResult, $icopy);
+				$mapper->evaluateAssociations($mappedResult, $icopy);
 			}
 		}
 		
@@ -591,47 +626,47 @@ class Mapper {
 		 */
 		
 		if (array_key_exists('callback.each', $this->config)) {
-			$each_callback = $this->config['callback.each'];
+			$eachCallback = $this->config['callback.each'];
 			$copy = isset($copy) ? $copy : $this->__copy();
 		
 			if ($each_callback instanceof \Closure) {
 				//check if mapped result is a list
-				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+				if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 					if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
 						foreach ($mapper->getGroupKeys() as $group) {
-							foreach (array_keys($mapped_result[$group]) as $k)
-								$each_callback->__invoke($mapped_result[$group][$k], $copy);
+							foreach (array_keys($mappedResult[$group]) as $k)
+								$eachCallback->__invoke($mappedResult[$group][$k], $copy);
 						}
 					}
 					else {
-						foreach (array_keys($mapped_result) as $k)
-							$each_callback->__invoke($mapped_result[$k], $copy);
+						foreach (array_keys($mappedResult) as $k)
+							$eachCallback->__invoke($mappedResult[$k], $copy);
 					}
 				}
-				elseif (!is_null($mapped_result))
-					$each_callback->__invoke($mapped_result, $copy);
+				elseif (!is_null($mappedResult))
+					$eachCallback->__invoke($mappedResult, $copy);
 			}
 			else {
 				//this closure avoids getting "expected to be a reference"-style messages
-				$c = function (&$mapped_result) use ($each_callback) {
-					call_user_func($each_callback, $mapped_result, $copy);
+				$c = function (&$mappedResult) use ($eachCallback) {
+					call_user_func($eachCallback, $mappedResult, $copy);
 				};
 		
 				//call traverse callback
-				if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+				if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 					if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
 						foreach ($mapper->getGroupKeys() as $group) {
-							foreach (array_keys($mapped_result[$group]) as $k)
-								$c->__invoke($mapped_result[$group][$k]);
+							foreach (array_keys($mappedResult[$group]) as $k)
+								$c->__invoke($mappedResult[$group][$k]);
 						}
 					}
 					else {
-						foreach (array_keys($mapped_result) as $k)
-							$c->__invoke($mapped_result[$k]);
+						foreach (array_keys($mappedResult) as $k)
+							$c->__invoke($mappedResult[$k]);
 					}
 				}
-				elseif (!is_null($mapped_result))
-					$c->__invoke($mapped_result);
+				elseif (!is_null($mappedResult))
+					$c->__invoke($mappedResult);
 			}
 		}
 		
@@ -641,24 +676,24 @@ class Mapper {
 		
 		//apply filter
 		if (array_key_exists('callback.filter', $this->config)) {
-			$filter_callback = $this->config['callback.filter'];
+			$filterCallback = $this->config['callback.filter'];
 		
 			//check if mapped result is a list
-			if ($mapping_callback[1] == 'mapList' && !empty($mapped_result)) {
+			if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 				if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
 					foreach ($mapper->getGroupKeys() as $group)
-						$mapped_result[$key] = array_filter($mapped_result[$group], $filter_callback);
+						$mappedResult[$key] = array_filter($mappedResult[$group], $filterCallback);
 				}
 				else
-					$mapped_result = array_filter($mapped_result, $filter_callback);
+					$mappedResult = array_filter($mappedResult, $filterCallback);
 			}
-			elseif (!is_null($mapped_result)) {
-				if (!call_user_func($filter_callback, $mapped_result))
-					$mapped_result = null;
+			elseif (!is_null($mappedResult)) {
+				if (!call_user_func($filterCallback, $mappedResult))
+					$mappedResult = null;
 			}
 		}
 		
-		return $mapped_result;
+		return $mappedResult;
 	}
 		
 	/**
@@ -702,13 +737,6 @@ class Mapper {
 	}
 	
 	/**
-	 * Closes a database connection
-	 */
-	public function close() {
-		return $this->driver->close();
-	}
-	
-	/**
 	 * Returns las generated error
 	 * @return string
 	 */
@@ -725,8 +753,22 @@ class Mapper {
 	}
 	
 	/*
-	 * TRANSACTION METHODS
+	 * CONNECTION METHODS
 	 */
+	
+	/**
+	 * Initializes a database connection
+	 */
+	public function connect() {
+		return $this->driver->connect();
+	}
+	
+	/**
+	 * Closes a database connection
+	 */
+	public function close() {
+		return $this->driver->close();
+	}
 	
 	/**
 	 * Begins a transaction
@@ -766,38 +808,6 @@ class Mapper {
 	}
 	
 	/**
-	 * Obtains database driver
-	 * @return \eMapper\Engine\Generic\Driver
-	 */
-	public function getDriver() {
-		return $this->driver;
-	}
-	
-	/**
-	 * Obtains type manager
-	 * @return \eMapper\Type\TypeManager
-	 */
-	public function getTypeManager() {
-		return $this->typeManager;
-	}
-	
-	/**
-	 * Assigns a cache provider to current instance
-	 * @param \SimpleCache\CacheProvider $provider
-	 */
-	public function setCacheProvider(CacheProvider $provider) {
-		$this->cacheProvider = $provider;
-	}
-	
-	/**
-	 * Obtains assigned cache provider
-	 * @return \SimpleCache\CacheProvider
-	 */
-	public function getCacheProvider() {
-		return $this->cacheProvider;
-	}
-	
-	/**
 	 * Obtains current transaction status
 	 * @return int
 	 */
@@ -821,7 +831,7 @@ class Mapper {
 	/**
 	 * Returns a new FluentQuery instance
 	 * @param \eMapper\Reflection\ClassProfile $profile
-	 * @return \eMapper\Query\FluentQuery
+	 * @return \eMapper\Fluent\FluentQuery
 	 */
 	public function newQuery(ClassProfile $profile = null) {
 		return new FluentQuery($this, $profile);
