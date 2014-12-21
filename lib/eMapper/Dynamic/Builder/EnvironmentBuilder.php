@@ -15,10 +15,10 @@ trait EnvironmentBuilder {
 	 * @return \eMapper\Dynamic\Environment\DynamicSQLEnvironment
 	 */
 	protected function buildEnvironment($config) {
-		$environmentId = $config['environment.id'];
+		$environmentId = $config['env.id'];
 		
 		if (!EnvironmentProvider::hasEnvironment($environmentId))
-			EnvironmentProvider::buildEnvironment($environmentId, $config['environment.class']);
+			EnvironmentProvider::buildEnvironment($environmentId, $config['env.class']);
 		
 		//setup environment
 		$env = EnvironmentProvider::getEnvironment($environmentId);
