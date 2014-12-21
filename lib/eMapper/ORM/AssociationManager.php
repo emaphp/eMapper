@@ -5,6 +5,7 @@ use eMapper\Mapper;
 use eMapper\ORM\Association\Association;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
+use eMapper\Query\Schema;
 
 /**
  * The AssociationManager class is aimed to fetch a result from an existing association between 2 entity classes.
@@ -58,10 +59,10 @@ class AssociationManager extends Manager {
 		
 		//build fluent query
 		$query = $this->mapper->newQuery($this->entityProfile);
-		$query->from($this->entityProfile->getEntityTable(), self::DEFAULT_ALIAS);
+		$query->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
 		
 		//append call to required join
-		$this->association->appendContextJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
+		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
 		
 		//set condition		
 		$args = func_get_args();
@@ -84,10 +85,10 @@ class AssociationManager extends Manager {
 	
 		//build fluent query
 		$query = $this->mapper->newQuery($this->entityProfile);
-		$query->from($this->entityProfile->getEntityTable(), self::DEFAULT_ALIAS);
+		$query->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
 	
 		//append call to required join
-		$this->association->appendContextJoin($query, self::DEFAULT_ALIAS, self::CONTEXT_ALIAS);
+		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
 	
 		//set condition		
 		$args = func_get_args();

@@ -11,6 +11,7 @@ use eMapper\Query\Attr;
 use eMapper\Query\Cond;
 use eMapper\Query\Column;
 use eMapper\Query\Func;
+use eMapper\Query\Schema;
 use eMapper\SQL\Aggregate\SQLFunction;
 use eMapper\SQL\Aggregate\SQLCount;
 use eMapper\SQL\Aggregate\SQLAverage;
@@ -27,20 +28,7 @@ class Manager {
 	use StatementConfiguration;
 	use EntityMapper;
 	use PropertyAccessor;
-	
-	/**
-	 * Default table alias
-	 * @var string
-	 */
-	const DEFAULT_ALIAS = '_t';
-	
-	
-	/**
-	 * Default context alias (association resolver)
-	 * @var string
-	 */
-	const CONTEXT_ALIAS = '_c';
-	
+		
 	/**
 	 * Mapper instance
 	 * @var \eMapper\Mapper
@@ -346,7 +334,7 @@ class Manager {
 		
 		//build fluent query
 		$query = $this->mapper->newQuery($this->entityProfile)
-		->from($table, self::DEFAULT_ALIAS)
+		->from($table, Schema::DEFAULT_ALIAS)
 		->select($this->getSelectColumns());
 		
 		//set query condition
@@ -384,7 +372,7 @@ class Manager {
 		
 		//build fluent query
 		$query = $this->mapper->newQuery($this->entityProfile)
-		->from($table, self::DEFAULT_ALIAS)
+		->from($table, Schema::DEFAULT_ALIAS)
 		->select($this->getSelectColumns());
 		
 		//set query condition
@@ -691,7 +679,7 @@ class Manager {
 	
 		//build query
 		$query = $this->mapper->newQuery($this->entityProfile)
-		->from($this->entityProfile->getEntityTable(), self::DEFAULT_ALIAS)
+		->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS)
 		->select(new Func($function->getName(), [$arg]));
 	
 		//set query condition
