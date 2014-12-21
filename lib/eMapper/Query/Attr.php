@@ -1,19 +1,13 @@
 <?php
 namespace eMapper\Query;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 
 /**
  * The Attr class represents an entity attribute.
  * @author emaphp
  */
 class Attr extends Field {
-	/**
-	 * Attribute path
-	 * @var array
-	 */
-	protected $path;
-		
 	/**
 	 * Returns a new Attr instance
 	 * @param string $method
@@ -23,27 +17,13 @@ class Attr extends Field {
 	public static function __callstatic($method, $args = null) {
 		if (!empty($args))
 			return new Attr($method, $args[0]);
-		
 		return new Attr($method);
 	}
 	
-	public function getColumnName(ClassProfile $profile) {
-		if (is_null($this->path)) {
-			$propertyNames = $profile->getPropertyNames();
-			
-			if (!array_key_exists($this->name, $propertyNames))
-				throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $profile->getReflectionClass()->getName()));
-			
-			return $propertyNames[$this->name];
-		}
+	public function getColumnName(ClassProfile $profile) {		
+		if (!$profile->hasProperty($this->name))
+			throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $profile->getReflectionClass()->getName()));
 		
-		$current = $this->getReferredProfile($profile);
-		$propertyNames = $current->getPropertyNames();
-			
-		if (!array_key_exists($this->name, $propertyNames))
-			throw new \RuntimeException(sprintf("Attribute {$this->name} not found in class %s", $current->getReflectionClass()->getName()));
-			
-		return $propertyNames[$this->name];
+		return $profile->getProperty($this->name)->getColumn();
 	}
 }
-?>

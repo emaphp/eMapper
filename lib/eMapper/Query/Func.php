@@ -17,7 +17,6 @@ class Func extends Field {
 	 */
 	protected $arguments;
 	
-	
 	public function __construct($name, $args) {
 		$this->name = $name;
 		$this->arguments = $args;
@@ -41,9 +40,12 @@ class Func extends Field {
 		
 		return !empty($this->columnAlias) ? $this->name . '(' . implode(',', $args) . ') AS ' . $this->columnAlias : $this->name . '(' . implode(',', $args) . ')';
 	}
-	
+
+	/**
+	 * Obtains function arguments
+	 * @return array
+	 */
 	public function getArguments() {
 		return $this->arguments;
 	}
 }
-?>

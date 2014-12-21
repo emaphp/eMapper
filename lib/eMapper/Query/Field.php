@@ -2,7 +2,7 @@
 namespace eMapper\Query;
 
 use eMapper\Reflection\Profiler;
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 use eMapper\SQL\Predicate\Equal;
 use eMapper\SQL\Predicate\Contains;
 use eMapper\SQL\Predicate\In;
@@ -23,7 +23,7 @@ use eMapper\SQL\Builder\AssociationJoin;
  */
 abstract class Field {
 	/**
-	 * Column/Attribute name
+	 * Field name
 	 * @var string
 	 */
 	protected $name;
@@ -32,11 +32,11 @@ abstract class Field {
 	 * Field associated type
 	 * @var string
 	 */
-	protected $type;
+	protected $columnType;
 	
 	/**
 	 * Field path
-	 * @var array
+	 * @var array:string
 	 */
 	protected $path;
 	
@@ -49,15 +49,15 @@ abstract class Field {
 	public function __construct($name, $type = null) {
 		if (strstr($name, '__')) {
 			//path stores the associated field path
-			//assoc1__name => ['assoc1', 'name']
-			//assoc1__assoc2__name => ['assoc1', 'assoc2', 'name']
+			//assoc1__name => ['assoc1'], 'name'
+			//assoc1__assoc2__name => ['assoc1', 'assoc2'], 'name'
 			$this->path = explode('__', $name);
 			$this->name = array_pop($this->path);
 		}
 		else
 			$this->name = $name;
 		 
-		$this->type = $type;
+		$this->columnType = $type;
 	}
 	
 	/**
@@ -69,7 +69,7 @@ abstract class Field {
 	
 	/**
 	 * Obtains the referenced column of this field
-	 * @param ClassProfile $profile
+	 * @param \eMapper\Reflection\ClassProfile $profile
 	 * @return string
 	 */
 	public abstract function getColumnName(ClassProfile $profile);
@@ -87,7 +87,7 @@ abstract class Field {
 	 * @return boolean
 	 */
 	public function hasType() {
-		return isset($this->type);
+		return isset($this->columnType);
 	}
 	
 	/**
@@ -95,7 +95,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function getType() {
-		return $this->type;
+		return $this->columnType;
 	}
 	
 	/**
@@ -108,74 +108,40 @@ abstract class Field {
 	
 	/**
 	 * Obtains field full path
-	 * @return NULL|string
+	 * @return NULL | string
 	 */
-	public function getFullPath() {
+	public function getStringPath() {
 		if (is_null($this->path))
 			return null;
-	
 		return implode('_', $this->path);
 	}
-	
-	/**
-	 * Obtains field associations as a list
-	 * @param ClassProfile $profile
-	 * @throws \RuntimeException
-	 * @return array
-	 */
-	public function getAssociations(ClassProfile $profile) {
-		//check if field depends on an association (Ex: assoc__attr)
-		if (is_null($this->path))
-			return [null, null]; //no association found
-	
-		$associations = [];
-		$current = $profile;
-		$parentName = null;
-	
-		for ($i = 0; $i < count($this->path); $i++) {
-			//build association key
-			//the generated array will include the association paths
-			//Ex: profile__name => ['profile']
-			//Ex: user__profile => ['user', 'user__profile']
-			$name = implode('_', array_slice($this->path, 0, $i + 1));
 		
-			//get referred property
-			$property = $this->path[$i];
-			$association = $current->getAssociation($property);
-	
-			if ($association === false)
-				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
-			
-			//store association obtained from the current entity
-			$associations[$name] = new AssociationJoin($name, $association, $parentName);
-			
-			//now move to the next entity
-			$current = Profiler::getClassProfile($association->getProfile());
-			$parentName = $name;
-		}
-	
-		return [$associations, $current];
+	/**
+	 * Obtains column alias
+	 * @return string
+	 */
+	public function getColumnAlias() {
+		return $this->columnAlias;
 	}
 	
 	/**
-	 * Obtains the last referred profile of the current field
-	 * @param ClassProfile $profile
-	 * @throws \RuntimeException
-	 * @return ClassProfile
+	 * Sets the field alias
+	 * @param string $alias
+	 * @return \eMapper\Query\Field
 	 */
-	protected function getReferredProfile(ClassProfile $profile) {
-		$current = $profile;
-		
-		foreach ($this->path as $property) {
-			$association = $current->getAssociation($property);
-				
-			if ($association === false)
-				throw new \RuntimeException(sprintf("Association '%s' not found in class %s", $property, $current->getReflectionClass()->getName()));
-				
-			$current = $association->getProfile();
-		}
-		
-		return $current;
+	public function alias($alias) {
+		$this->columnAlias = $alias;
+		return $this;
+	}
+	
+	/**
+	 * Sets field type
+	 * @param string $type
+	 * @return \eMapper\Query\Field
+	 */
+	public function type($type) {
+		$this->columnType = $type;
+		return $this;
 	}
 	
 	/*
@@ -372,18 +338,4 @@ abstract class Field {
 	public function isnull($condition = true) {
 		return new IsNull($this, !$condition);
 	}
-	
-	public function getColumnAlias() {
-		return $this->columnAlias;
-	}
-	
-	/**
-	 * Sets the field alias
-	 * @param string $alias
-	 */
-	public function alias($alias) {
-		$this->columnAlias = $alias;
-		return $this;
-	}
 }
-?>
