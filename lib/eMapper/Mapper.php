@@ -602,7 +602,7 @@ class Mapper {
 		if (!empty($resultMap) && $this->config['depth.limit'] > $this->config['depth.current']) {
 			$icopy = $this->__icopy();			
 			
-			if ($mapping_callback[1] == 'mapList' && !empty($mappedResult)) {
+			if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 				if ($mapper->hasGroupKeys()) {
 					foreach ($mapper->getGroupKeys() as $group) {
 						foreach (array_keys($mappedResult[$group]) as $k) {
@@ -618,7 +618,7 @@ class Mapper {
 					}
 				}
 			}
-			elseif ($mapping_callback[1] != 'mapList' && !is_null($mappedResult)) {
+			elseif ($mappingCallback[1] != 'mapList' && !is_null($mappedResult)) {
 				$mapper->evaluateDynamicAttributes($mappedResult, $icopy);
 				$mapper->evaluateAssociations($mappedResult, $icopy);
 			}
@@ -632,7 +632,7 @@ class Mapper {
 			$eachCallback = $this->config['callback.each'];
 			$copy = isset($copy) ? $copy : $this->__copy();
 		
-			if ($each_callback instanceof \Closure) {
+			if ($eachCallback instanceof \Closure) {
 				//check if mapped result is a list
 				if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 					if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
@@ -685,7 +685,7 @@ class Mapper {
 			if ($mappingCallback[1] == 'mapList' && !empty($mappedResult)) {
 				if ($mapper instanceof ComplexMapper && $mapper->hasGroupKeys()) {
 					foreach ($mapper->getGroupKeys() as $group)
-						$mappedResult[$key] = array_filter($mappedResult[$group], $filterCallback);
+						$mappedResult[$group] = array_filter($mappedResult[$group], $filterCallback);
 				}
 				else
 					$mappedResult = array_filter($mappedResult, $filterCallback);
