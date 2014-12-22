@@ -2,6 +2,7 @@
 namespace eMapper\Reflection;
 
 use Omocha\Omocha;
+use Omocha\AnnotationBag;
 use eMapper\ORM\Dynamic\Query;
 use eMapper\ORM\Dynamic\Statement;
 use eMapper\ORM\Dynamic\Procedure;
@@ -218,7 +219,7 @@ class ClassProfile {
 				if ($this->isEntity()) {
 					if ($property->isPrimaryKey())
 						$this->primaryKey = $propertyName;
-					elseif ($property->checkForDuplicates())
+					elseif ($property->checksForDuplicates())
 						$this->duplicateChecks[] = $propertyName;
 						
 					$this->propertyMap[$propertyName] = $property->getColumn();

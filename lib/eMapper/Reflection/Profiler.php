@@ -1,8 +1,6 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\ClassProfile;
-
 /**
  * The Profiler class is a multiton object that stores class profiles.
  * @author emaphp

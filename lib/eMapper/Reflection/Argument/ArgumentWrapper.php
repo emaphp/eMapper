@@ -19,9 +19,11 @@ abstract class ArgumentWrapper implements \ArrayAccess {
 	public static function wrap($value) {
 		if (is_array($value) || $value instanceof \ArrayObject)
 			return new ArrayArgumentWrapper($value);
+		if ($value instanceof \stdClass)
+			return new ArrayArgumentWrapper((array)$value);
 		if (is_object($value))
 			return new ObjectArgumentWrapper($value);
 		
-		throw new InvalidArgumentException("ArgumentWrapper::wrap expected an array or object argument");
+		throw new \InvalidArgumentException("ArgumentWrapper::wrap expected an array or object argument");
 	}
 }

@@ -12,14 +12,14 @@ use Omocha\Omocha;
  */
 class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	public function testTypeHandlerAnnotations() {
-		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->getClassAnnotations();
+		$profile = Profiler::getClassProfile('Acme\\Type\\DummyTypeHandler')->getAnnotations();
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Omocha\AnnotationBag", $profile);
 		$this->assertTrue($profile->has('Safe'));
 	}
 	
 	public function testResultMapProfile() {		
-		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getClassAnnotations();
+		$profile = Profiler::getClassProfile('Acme\\Result\\UserResultMap')->getAnnotations();
 		$this->assertNotNull($profile);
 		$this->assertInstanceOf("Omocha\AnnotationBag", $profile);
 		
@@ -44,7 +44,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testEntityAnnotations() {
-		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->getClassAnnotations();
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Product')->getAnnotations();
 		$this->assertTrue($profile->has('Entity'));
 		
 		$properties = Profiler::getClassProfile('Acme\\Entity\\Product')->getProperties();
@@ -63,7 +63,7 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSubclass() {
-		$profile = Profiler::getClassProfile('Acme\\Entity\\Car')->getClassAnnotations();
+		$profile = Profiler::getClassProfile('Acme\\Entity\\Car')->getAnnotations();
 		$this->assertFalse($profile->has('moves'));
 		$this->assertTrue($profile->has('color'));
 		$this->assertEquals('red', $profile->get('color')->getValue());
@@ -81,8 +81,8 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testRelationAnnotations() {
-		$firstOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getFirstOrderAttributes();
-		$secondOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getSecondOrderAttributes();
+		$firstOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getAttributes();
+		$secondOrderAttributes = Profiler::getClassProfile('Acme\Reflection\User')->getDynamicAttributes();
 		
 		//full name
 		$fullName = Omocha::getAnnotations($firstOrderAttributes['fullName']->getReflectionProperty());
@@ -135,4 +135,3 @@ class ResultMapTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('string[]', $favorites->get('Type')->getValue());
 	}
 }
-?>

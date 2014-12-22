@@ -1,8 +1,6 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\ClassProfile;
-
 /**
  * The EntityMapper trait provides additional methods use to build mapping expressions given a class profile.
  * @author emaphp
