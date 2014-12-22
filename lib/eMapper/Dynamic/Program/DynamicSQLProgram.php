@@ -4,13 +4,14 @@ namespace eMapper\Dynamic\Program;
 use eMacros\Program\Program;
 use eMapper\Dynamic\Environment\DynamicSQLEnvironment;
 use eMapper\Reflection\Argument\ArgumentWrapper;
+use eMacros\Environment\Environment;
 
 /**
  * The DynamicSQLProgram class executes Dynamic SQL expressions found in queries and entity macros.
  * @author emaphp
  */
 class DynamicSQLProgram extends Program {
-	public function execute(DynamicSQLEnvironment $env) {
+	public function execute(Environment $env) {
 		$env->arguments = array_slice(func_get_args(), 1);
 		
 		//wrap first argument

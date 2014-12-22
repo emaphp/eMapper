@@ -125,7 +125,7 @@ abstract class DynamicAttribute extends ClassProperty {
 		}
 		
 		//custom options
-		$options = $propertyAnnotations->filter('Option', Filter::HAS_ARGUMENT);
+		$options = $propertyAnnotations->find('Option', Filter::HAS_ARGUMENT);
 		
 		foreach ($options as $option)
 			$this->config[$option->getArgument()] = $option->getValue();

@@ -31,6 +31,10 @@ class ManyToMany extends Association {
 	 */
 	protected $entityColumn;
 	
+	public function __construct($propertyName, $reflectionProperty, $propertyAnnotations) {
+		parent::__construct('ManyToMany', $propertyName, $reflectionProperty, $propertyAnnotations);
+	}
+	
 	protected function parseConfig(AnnotationBag $propertyAnnotations) {
 		parent::parseConfig($propertyAnnotations);
 		

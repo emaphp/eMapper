@@ -13,6 +13,10 @@ use eMapper\Mapper;
  * @author emaphp
  */
 class OneToOne extends Association {
+	public function __construct($propertyName, $reflectionProperty, $propertyAnnotations) {
+		parent::__construct('OneToOne', $propertyName, $reflectionProperty, $propertyAnnotations);
+	}
+	
 	public function getJoinPredicate($entity) {
 		//get attribute name
 		if (!isset($this->attribute))

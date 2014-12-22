@@ -13,6 +13,10 @@ use eMapper\Mapper;
  * @author emaphp
  */
 class OneToMany extends Association {
+	public function __construct($propertyName, $reflectionProperty, $propertyAnnotations) {
+		parent::__construct('OneToMany', $propertyName, $reflectionProperty, $propertyAnnotations);
+	}
+	
 	public function getJoinPredicate($entity) {
 		//obtain attribute name
 		if (!isset($this->attribute))
@@ -37,7 +41,7 @@ class OneToMany extends Association {
 		return Column::__callstatic($column)->eq($parameter);
 	}
 	
-	public function appendJoin(AbstractQuery $query, $sourceAlias, $targetAlias, $left_join) {
+	public function appendJoin(AbstractQuery &$query, $sourceAlias, $targetAlias, $left_join = false) {
 		//obtain attribute name
 		if (!isset($this->attribute))
 			throw new \RuntimeException(sprintf("One-to-many association '%s' in class '%s' must define an attribute through the @Attr annotation", $this->name, $this->parentClass));

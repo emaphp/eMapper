@@ -9,6 +9,7 @@ use eMapper\Engine\SQLite\Exception\SQLiteQueryException;
 use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
 use eMapper\Engine\SQLite\Regex\SQLiteRegex;
+use eMapper\Type\TypeManager;
 
 /**
  * The SQLDriver class provides connection to SQLite database engines.
@@ -134,7 +135,7 @@ class SQLiteDriver extends Driver {
 		return new SQLiteTypeManager();
 	}
 	
-	public function buildStatement($typeManager) {
+	public function buildStatement(TypeManager $typeManager) {
 		return new SQLiteStatement($this, $typeManager);
 	}
 	

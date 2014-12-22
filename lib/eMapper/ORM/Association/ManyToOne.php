@@ -2,7 +2,7 @@
 namespace eMapper\ORM\Association;
 
 use eMapper\Fluent\Query\AbstractQuery;
-use eMapper\AssociationManager;
+use eMapper\ORM\AssociationManager;
 use eMapper\Mapper;
 use eMapper\Query\Column;
 use eMapper\Reflection\Profiler;
@@ -12,6 +12,10 @@ use eMapper\Reflection\Profiler;
  * @author emaphp
  */
 class ManyToOne extends Association {
+	public function __construct($propertyName, $reflectionProperty, $propertyAnnotations) {
+		parent::__construct('ManyToOne', $propertyName, $reflectionProperty, $propertyAnnotations);
+	}
+	
 	public function getJoinPredicate($entity) {
 		//get attribute name
 		if (empty($this->attribute))
