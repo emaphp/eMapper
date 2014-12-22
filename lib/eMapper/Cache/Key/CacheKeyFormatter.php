@@ -58,7 +58,7 @@ class CacheKeyFormatter {
 	}
 
 	/**
-	 * Obtains the default type handler for a given type
+	 * Obtains the default type handler for a given value
 	 * @param mixed $value
 	 * @throws \RuntimeException
 	 * @return NULL | TypeHandler
@@ -141,7 +141,7 @@ class CacheKeyFormatter {
 	}
 	
 	/**
-	 * Casts a value to a type
+	 * Casts a value to a given type
 	 * @param mixed $value
 	 * @param string $type
 	 * @return string

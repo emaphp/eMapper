@@ -17,6 +17,7 @@ use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Procedure\StoredProcedure;
 use eMapper\Fluent\FluentQuery;
+use eMapper\ORM\Manager;
 use eMapper\Reflection\ClassProfile;
 use SimpleCache\CacheProvider;
 
@@ -170,8 +171,8 @@ class Mapper {
 	 * @param string $class
 	 */
 	public function setEnvironment($id, $class = 'eMapper\Dynamic\Environment\DynamicSQLEnvironment') {
-		$this->setOption('env.id', $id);
-		$this->setOption('env.class', $class);
+		$this->config['env.id'] = $id;
+		$this->config['env.class'] = $class;
 	}
 	
 	/*
@@ -229,7 +230,7 @@ class Mapper {
 		$metadata = new \stdClass();
 		$metadata->class = $class;
 		$metadata->method = $method;
-		$metadata->groups = $groups;
+		$metadata->groups = empty($groups) ? null : $groups;
 		$metadata->resultMap = $resultMap;
 		
 		$metakey = $this->config['cache.metakey'];
@@ -313,7 +314,9 @@ class Mapper {
 					
 					//create mapper instance
 					$mapper = (new \ReflectionClass($cacheMeta->class))->newInstance($this->driver->buildTypeManager(), $cacheMeta->resultMap);
-					$mapper->setGroupKeys($cacheMeta->groups);
+					
+					if (!empty($cacheMeta->groups))
+						$mapper->setGroupKeys($cacheMeta->groups);
 					
 					//build mapping callback (method tells if this is a list or a single row)
 					$mappingCallback = [$mapper, $cacheMeta->method];
@@ -841,7 +844,7 @@ class Mapper {
 	 * Returns a new Manager instance
 	 * @param string $classname
 	 * @throws \InvalidArgumentException
-	 * @return \eMapper\Manager
+	 * @return \eMapper\ORM\Manager
 	 */
 	public function newManager($classname) {
 		$profile = Profiler::getClassProfile($classname);

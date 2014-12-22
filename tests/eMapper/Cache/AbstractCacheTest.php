@@ -15,10 +15,7 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_integer', 60)->type('integer')->query("SELECT 1 + 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_integer'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_integer');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$this->assertEquals(2, $value->getValue());
-		
-		$this->provider->delete($this->getPrefix() . 'set_integer');
+		$this->assertEquals(2, $value);
 	}
 	
 	public function testSetFloat() {
@@ -27,10 +24,7 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_float', 60)->type('float')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_float'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_float');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$this->assertEquals(150.65, $value->getValue());
-		
-		$this->provider->delete($this->getPrefix() . 'set_float');
+		$this->assertEquals(150.65, $value);
 	}
 	
 	public function testSetString() {
@@ -39,10 +33,7 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_string', 60)->type('string')->query("SELECT user_name FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_string'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_string');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$this->assertEquals("jdoe", $value->getValue());
-		
-		$this->provider->delete($this->getPrefix() . 'set_string');
+		$this->assertEquals("jdoe", $value);
 	}
 	
 	public function testSetArray() {
@@ -51,8 +42,6 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_array', 60)->type('array')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_array'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_array');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$value = $value->getValue();
 	
 		$this->assertInternalType('array', $value);
 	
@@ -74,7 +63,13 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertArrayHasKey('avatar', $value);
 		$this->assertEquals($this->getBlob(), $value['avatar']);
 		
-		$this->provider->delete($this->getPrefix() . 'set_array');
+		//cache metakey
+		$this->assertArrayHasKey('__cache__', $value);
+		$meta = $value['__cache__'];
+		$this->assertEquals($meta->class, 'eMapper\Result\Mapper\ArrayMapper');
+		$this->assertEquals($meta->method, 'mapResult');
+		$this->assertNull($meta->groups);
+		$this->assertNull($meta->resultMap);
 	}
 	
 	public function testSetArrayList() {
@@ -83,8 +78,6 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_arraylist', 60)->type('array[user_id]')->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_arraylist'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_arraylist');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$value = $value->getValue();
 		
 		$this->assertInternalType('array', $value);
 	
@@ -113,7 +106,13 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertArrayHasKey('user_id', $value[5]);
 		$this->assertEquals(5, $value[5]['user_id']);
 		
-		$this->provider->delete($this->getPrefix() . 'set_arraylist');
+		//cache metakey
+		$this->assertArrayHasKey('__cache__', $value);
+		$meta = $value['__cache__'];
+		$this->assertEquals($meta->class, 'eMapper\Result\Mapper\ArrayMapper');
+		$this->assertEquals($meta->method, 'mapList');
+		$this->assertNull($meta->groups);
+		$this->assertNull($meta->resultMap);
 	}
 	
 	public function testSetObject() {
@@ -122,9 +121,7 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->mapper->cache($this->getPrefix() . 'set_object', 60)->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_object'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_object');
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$value = $value->getValue();
-	
+
 		$this->assertInstanceOf('stdClass', $value);
 	
 		$this->assertObjectHasAttribute('user_id', $value);
@@ -145,7 +142,13 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertObjectHasAttribute('avatar', $value);
 		$this->assertEquals($this->getBlob(), $value->avatar);
 		
-		$this->provider->delete($this->getPrefix() . 'set_object');
+		//cache metakey
+		$this->assertObjectHasAttribute('__cache__', $value);
+		$meta = $value->__cache__;
+		$this->assertEquals($meta->class, 'eMapper\Result\Mapper\StdClassMapper');
+		$this->assertEquals($meta->method, 'mapResult');
+		$this->assertNull($meta->groups);
+		$this->assertNull($meta->resultMap);
 	}
 	
 	public function testSetObjectList() {
@@ -156,9 +159,6 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertTrue($this->provider->exists($this->getPrefix() .'set_objectlist'));
 		$value = $this->provider->fetch($this->getPrefix() .'set_objectlist');
 		
-		$this->assertInstanceOf('eMapper\Cache\Value\CacheValue', $value);
-		$value = $value->getValue();
-	
 		$this->assertInternalType('array', $value);
 	
 		$this->assertArrayHasKey(1, $value);
@@ -186,7 +186,13 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertObjectHasAttribute('user_id', $value[5]);
 		$this->assertEquals(5, $value[5]->user_id);
 		
-		$this->provider->delete($this->getPrefix() .'set_objectlist');
+		//cache metakey
+		$this->assertArrayHasKey('__cache__', $value);
+		$meta = $value['__cache__'];
+		$this->assertEquals($meta->class, 'eMapper\Result\Mapper\StdClassMapper');
+		$this->assertEquals($meta->method, 'mapList');
+		$this->assertNull($meta->groups);
+		$this->assertNull($meta->resultMap);
 	}
 }
 ?>
