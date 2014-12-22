@@ -18,6 +18,7 @@ class Macro extends DynamicAttribute {
 	
 	protected function parseMetadata(AnnotationBag $propertyAnnotations) {
 		$this->program = new DynamicSQLProgram($propertyAnnotations->get('Eval')->getValue());
+		$this->cacheable = true;
 	}
 	
 	public function evaluate($row, Mapper $mapper) {

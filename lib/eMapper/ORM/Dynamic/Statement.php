@@ -4,7 +4,7 @@ namespace eMapper\ORM\Dynamic;
 use eMapper\Reflection\EntityMapper;
 use eMapper\Reflection\Profiler;
 use eMapper\Reflection\ClassProfile;
-use eMapper\Statement\Statement;
+use eMapper\Statement\Statement as SQLStatement;
 use eMapper\Statement\Builder\StatementBuilder;
 use eMapper\Statement\Builder\FindAllStatementBuilder;
 use eMapper\Statement\Builder\FindByPkStatementBuilder;
@@ -49,7 +49,7 @@ class Statement extends DynamicAttribute {
 	protected $statement;
 	
 	protected function parseMetadata(AnnotationBag $propertyAnnotations) {
-		$statementId = $attribute->get('Statement')->getValue();
+		$statementId = $propertyAnnotations->get('Statement')->getValue();
 		
 		if (preg_match('/^(\w+)\.(\w+)$/', $statementId, $matches)) {
 			$this->statementId = $matches[2];
@@ -82,7 +82,7 @@ class Statement extends DynamicAttribute {
 	 */
 	protected function saveStatement($query, ClassProfile $entity, $asList = true) {
 		$config = array_merge(['map.type' => $asList ? $this->buildListExpression($entity) : $this->buildExpression($entity)], $this->config);		
-		$this->statement = new Statement($query, $config);
+		$this->statement = new SQLStatement($query, $config);
 	}
 	
 	/**
