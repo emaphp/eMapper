@@ -5,7 +5,7 @@ use eMapper\StatementTest;
 use Acme\Entity\Product;
 
 abstract class AbstractDynamicSQLStatementTest extends StatementTest {
-	public static $env_config = ['environment.id' => 'default', 'environment.class' => 'eMapper\Dynamic\Environment\DynamicSQLEnvironment'];
+	public static $env_config = ['env.id' => 'default', 'env.class' => 'eMapper\Dynamic\Environment\DynamicSQLEnvironment'];
 	
 	public function testSimpleValue() {
 		$result = $this->statement->format('[? null ?]', [], self::$env_config);

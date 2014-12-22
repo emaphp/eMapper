@@ -57,19 +57,19 @@ class ClassProfile {
 	 * Class attributes
 	 * @var array:\eMapper\ORM\Dynamic\DynamicAttribute
 	 */
-	protected $attributes;
+	protected $attributes = [];
 	
 	/**
 	 * Class dynamic attributes
 	 * @var array:\eMapper\ORM\Dynamic\DynamicAttribute
 	 */
-	protected $dynamicAttributes;
+	protected $dynamicAttributes = [];
 	
 	/**
 	 * Class associations
 	 * @var array:\eMapper\ORM\Association\Association
 	 */
-	protected $associations;
+	protected $associations = [];
 	
 	/**
 	 * Properties that reference another entity
@@ -193,10 +193,8 @@ class ClassProfile {
 		if ($this->isEntity()) {
 			//property mapping
 			$this->propertyMap = [];
-			//dynamic attributes
-			$this->attributes = $this->dynamicAttributes = [];
 			//associations
-			$this->associations = $this->foreignkeys = $this->references = [];
+			$this->foreignkeys = $this->references = [];
 			//read-only properties
 			$this->readOnlyProperties = [];
 			//duplicate checks

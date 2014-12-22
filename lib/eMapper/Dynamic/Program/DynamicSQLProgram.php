@@ -16,7 +16,7 @@ class DynamicSQLProgram extends Program {
 		
 		//wrap first argument
 		if (array_key_exists(0, $env->arguments) && (is_array($env->arguments[0]) || is_object($env->arguments[0])))
-			$env->wrappedArgument = ArgumentWrapper::wrap($args[0]);
+			$env->wrappedArgument = ArgumentWrapper::wrap($env->arguments[0]);
 			
 		$value = null;
 		
