@@ -1,14 +1,14 @@
 <?php
-namespace eMapper\SQL\Fluent;
+namespace eMapper\Fluent\Query;
 
 use eMapper\SQL\Predicate\SQLPredicate;
-use eMapper\SQL\Field\FluentFieldTranslator;
+use eMapper\Query\Schema;
 
 /**
  * The FluentUpdate class provides a fluent interface for building UPDATE queries
  * @author emaphp
  */
-class FluentUpdate extends AbstractFluentQuery {
+class FluentUpdate extends AbstractQuery {
 	/**
 	 * Values to update as a hash table
 	 * @var array
@@ -85,46 +85,40 @@ class FluentUpdate extends AbstractFluentQuery {
 	}
 	
 	public function build() {
-		//FROM clause
-		$from = rtrim($this->fromClause->build());
-		$fromArgs = $this->fromClause->getArguments();
-		
-		//create field translator from joined tables
-		$this->translator = new FluentFieldTranslator($this->fromClause->getTableList());
+		//create query schema
+		$schema = new Schema($this->getFluent()->getEntityProfile());
 		
 		//WHERE clause
-		$where = rtrim($this->buildWhereClause());
-	
+		$where = null;
+		if (isset($this->whereClause))
+			$where = $this->whereClause->build($schema);
+		
+		//update schema
+		$this->updateSchema($schema);
+		
+		//FROM clause
+		$from = rtrim($this->fromClause->build($this, $schema));
+		
 		//SET clause
 		$set = $this->buildSetClause();
-
-		//build query structure
+		
+		//build query
 		$query = empty($where) ? "UPDATE $from SET $set" : "UPDATE $from SET $set WHERE $where";
 		
 		//generate query arguments
-		$args = [];
-		$counter = 0;
-		$complexArg = !empty($fromArgs) ? $fromArgs : [];
-
-		//append arguments from SET clause
-		if (isset($this->expression)) {
-			foreach ($this->valueList as $arg)
-				$args[$counter++] = $arg;
-		}
-		else
-			$complexArg = array_merge($complexArg, $this->value);
+		$args = $complexArg = [];
 		
-		//append arguments in WHERE clause
-		if (isset($this->whereClause)) {
-			$whereArgs = $this->whereClause->getArguments();
+		if (isset($this->expression))
+			$args = $this->valueList;
+		else
+			$complexArg = $this->value;
+		
+		//obtain arguments in WHERE clause
+		if (isset($this->whereClause) && $this->whereClause->hasArguments())
+			$args = array_merge($args, $this->whereClause->getArguments());
 			
-			if ($this->whereClause->getClause() instanceof SQLPredicate)
-				$complexArg = array_merge($whereArgs, $complexArg);
-			elseif (!empty($whereArgs)) {
-				foreach ($whereArgs as $arg)
-					$args[$counter++] = $arg;
-			}
-		}
+		//get generated arguments
+		$complexArg = array_merge($complexArg, $schema->getArguments());
 		
 		//append complexArg to argument list if necessary
 		if (!empty($complexArg))
@@ -133,4 +127,3 @@ class FluentUpdate extends AbstractFluentQuery {
 		return [$query, $args];
 	}
 }
-?>

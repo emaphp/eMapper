@@ -1,8 +1,8 @@
 <?php
-namespace eMapper\SQL\Fluent\Clause;
+namespace eMapper\Fluent\Query\Clause;
 
 /**
- * The WhereClause class is an abstraction of the sql WHERE clause
+ * The WhereClause class is an abstraction of the sql WHERE clause.
  * @author emaphp
  */
 class WhereClause extends ArgumentClause {
@@ -10,4 +10,3 @@ class WhereClause extends ArgumentClause {
 		return 'WHERE';
 	}
 }
-?>

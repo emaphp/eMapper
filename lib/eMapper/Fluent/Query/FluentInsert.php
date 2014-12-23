@@ -1,13 +1,13 @@
 <?php
-namespace eMapper\SQL\Fluent;
+namespace eMapper\Fluent\Query;
 
 use eMapper\Query\Column;
 
 /**
- * The FluentInsert class provides a fluent interface for building INSERT queries
+ * The FluentInsert class provides a fluent interface for building INSERT queries.
  * @author emaphp
  */
-class FluentInsert extends AbstractFluentQuery {
+class FluentInsert extends AbstractQuery {
 	/**
 	 * Value to insert
 	 * @var array
@@ -19,6 +19,12 @@ class FluentInsert extends AbstractFluentQuery {
 	 * @var array
 	 */
 	protected $valueList;
+		
+	/**
+	 * List of columns
+	 * @var array
+	 */
+	protected $columnList;
 	
 	/**
 	 * Insert expression
@@ -27,15 +33,9 @@ class FluentInsert extends AbstractFluentQuery {
 	protected $expression;
 	
 	/**
-	 * List of columns
-	 * @var array
-	 */
-	protected $columnList;
-	
-	/**
 	 * Sets the values to insert as a list
 	 * @param mixed $values
-	 * @return \eMapper\SQL\Fluent\FluentInsert
+	 * @return \eMapper\Fluent\Query\FluentInsert
 	 */
 	public function values($values) {
 		$this->valueList = func_get_args();
@@ -45,7 +45,7 @@ class FluentInsert extends AbstractFluentQuery {
 	/**
 	 * Sets the VALUES clause along with its arguments
 	 * @param string $expression
-	 * @return \eMapper\SQL\Fluent\FluentInsert
+	 * @return \eMapper\Fluent\Query\FluentInsert
 	 */
 	public function valuesExpr($expression) {
 		$args = func_get_args();
@@ -69,7 +69,7 @@ class FluentInsert extends AbstractFluentQuery {
 	 * Sets the value to insert as an associative array
 	 * @param mixed $values
 	 * @throws \InvalidArgumentException
-	 * @return \eMapper\SQL\Fluent\FluentInsert
+	 * @return \eMapper\Fluent\Query\FluentInsert
 	 */
 	public function valuesArray($values) {
 		if ($values instanceof \ArrayObject)
@@ -91,16 +91,19 @@ class FluentInsert extends AbstractFluentQuery {
 	
 	/**
 	 * Sets the column list
-	 * @return \eMapper\SQL\Fluent\FluentInsert
+	 * @return \eMapper\Fluent\Query\FluentInsert
 	 */
 	public function columns($columns) {
-		$this->columnList = func_get_args();
+		if (is_array($columns))
+			$this->columnList = $columns;
+		else
+			$this->columnList = func_get_args();
 		return $this;
 	}
 	
 	/**
 	 * Translates a insert column
-	 * @param Column|string$column
+	 * @param Column | string $column
 	 * @return string
 	 */
 	protected function translateColumn($column) {
@@ -132,7 +135,7 @@ class FluentInsert extends AbstractFluentQuery {
 	
 	/**
 	 * Returns the property to fetch along with its type (when specified)
-	 * @param Column|string $column
+	 * @param Column | string $column
 	 * @return string
 	 */
 	protected function parseColumn($column) {
@@ -175,9 +178,7 @@ class FluentInsert extends AbstractFluentQuery {
 	public function build() {
 		$columns = $this->buildColumnsClause();
 		$valueExpr = $this->buildValuesClause();
-		$table = $this->fromClause->getTable();
-		$query = empty($columns) ? "INSERT INTO $table VALUES ($valueExpr)" : "INSERT INTO $table ($columns) VALUES ($valueExpr)";
+		$query = empty($columns) ? "INSERT INTO {$this->table} VALUES ($valueExpr)" : "INSERT INTO {$this->table} ($columns) VALUES ($valueExpr)";
 		return [$query, empty($this->value) ? $this->valueList : [$this->value]];
 	}
 }
-?>

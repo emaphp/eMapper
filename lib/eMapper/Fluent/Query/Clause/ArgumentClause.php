@@ -1,10 +1,10 @@
 <?php
-namespace eMapper\SQL\Fluent\Clause;
+namespace eMapper\Fluent\Query\Clause;
 
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\SQL\Predicate\Filter;
-use eMapper\SQL\Field\FieldTranslator;
 use eMapper\Engine\Generic\Driver;
+use eMapper\Query\Schema;
 
 /**
  * The ArgumentClause class is an abstraction of a sql clause initialized through SQLPredicate instances
@@ -13,9 +13,15 @@ use eMapper\Engine\Generic\Driver;
 abstract class ArgumentClause {
 	/**
 	 * Conditional clause
-	 * @var mixed
+	 * @var \eMapper\SQL\Predicate\SQLPredicate | string
 	 */
 	protected $clause;
+	
+	/**
+	 * Connection driver
+	 * @var \eMapper\Engine\Generic\Driver
+	 */
+	protected $driver;
 	
 	/**
 	 * Additional arguments
@@ -23,7 +29,9 @@ abstract class ArgumentClause {
 	 */
 	protected $args = [];
 	
-	public function __construct($args) {
+	public function __construct(Driver $driver, $args) {
+		$this->driver = $driver;
+		
 		if ($args[0] instanceof SQLPredicate)
 			$this->clause = count($args) > 1 ? new Filter($args) : $args[0];
 		elseif (is_string($args[0]) && !empty($args[0])) {
@@ -41,21 +49,22 @@ abstract class ArgumentClause {
 	
 	/**
 	 * Builds current clause
-	 * @param FieldTranslator $translator
-	 * @param Driver $driver
+	 * @param \eMapper\Query\Schema $schema
 	 * @return string
 	 */
-	public function build(FieldTranslator $translator, Driver $driver) {
-		if ($this->clause instanceof SQLPredicate) {
-			$sql = $this->clause->evaluate($translator, $driver, $this->args);
-			return $sql;
-		}
+	public function build(Schema &$schema) {
+		if ($this->clause instanceof SQLPredicate)
+			return $this->clause->evaluate($this->driver, $schema);
 	
 		return $this->clause;
 	}
 	
 	public function getClause() {
 		return $this->clause;
+	}
+	
+	public function hasArguments() {
+		return !empty($this->args);
 	}
 	
 	public function getArguments() {

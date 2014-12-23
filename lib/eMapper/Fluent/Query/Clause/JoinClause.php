@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\SQL\Fluent\Clause;
+namespace eMapper\Fluent\Query\Clause;
 
 /**
  * The JoinClause class is an abstration of the sql JOIN clause
@@ -31,7 +31,7 @@ class JoinClause {
 	
 	/**
 	 * Join condition
-	 * @var string|SQLPredicate
+	 * @var SQLPredicate | string
 	 */
 	protected $condition;
 	
@@ -65,14 +65,11 @@ class JoinClause {
 	public function getJoinType() {
 		switch ($this->type) {
 			case self::LEFT_JOIN:
-				return 'LEFT JOIN';
-				
+				return 'LEFT JOIN';				
 			case self::INNER_JOIN:
 				return 'INNER JOIN';
-				
 			case self::FULL_OUTER_JOIN:
 				return 'FULL OUTER JOIN';
 		}
 	}
 }
-?>

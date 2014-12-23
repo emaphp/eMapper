@@ -26,7 +26,7 @@ abstract class AbstractFluentDeleteTest extends MapperTest {
 		
 		$query = $this->mapper->newQuery();
 		list($sql, $args) = $query->deleteFrom('users')->where(Column::id()->eq(1))->build();
-		$this->assertRegExp('/DELETE FROM users WHERE id = #\{arg\w+}/', $sql);
+		$this->assertRegExp('/DELETE FROM users WHERE id = #\{\$\d+}/', $sql);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
 		$key = key($args[0]);
@@ -41,7 +41,7 @@ abstract class AbstractFluentDeleteTest extends MapperTest {
 		
 		$query = $this->mapper->newQuery();
 		list($sql, $args) = $query->deleteFrom('users')->where(Column::id()->eq(1), Column::name()->isnull())->build();
-		$this->assertRegExp('/DELETE FROM users WHERE \( id = #\{arg\w+} AND name IS NULL \)/', $sql);
+		$this->assertRegExp('/DELETE FROM users WHERE \( id = #\{\$\d+} AND name IS NULL \)/', $sql);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
 		$key = key($args[0]);

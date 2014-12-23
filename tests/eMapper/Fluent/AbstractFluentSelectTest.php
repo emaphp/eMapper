@@ -39,14 +39,6 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertEquals("SELECT u.id AS user_id,u.email FROM users u", $sql);
 	}
 	
-	/**
-	 * @expectedException UnexpectedValueException
-	 */
-	public function testColumnsError() {
-		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users', 'u')->select(Column::test__error())->build();
-	}
-	
 	public function testOrderBy() {
 		$query = $this->mapper->newQuery();
 		list($sql, $_) = $query->from('users')->orderBy('id')->build();
@@ -90,29 +82,22 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertEquals("SELECT * FROM users u ORDER BY id ASC", $sql);
 	
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users')->orderBy(Column::id('ASC'))->build();
+		list($sql, $_) = $query->from('users')->orderBy(Column::id()->type('ASC'))->build();
 		$this->assertEquals("SELECT * FROM users ORDER BY id ASC", $sql);
 	
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users', 'u')->orderBy(Column::id('DESC'))->build();
+		list($sql, $_) = $query->from('users', 'u')->orderBy(Column::id()->type('DESC'))->build();
 		$this->assertEquals("SELECT * FROM users u ORDER BY u.id DESC", $sql);
 	
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users')->orderBy(Column::users__id('ASC'))->build();
+		list($sql, $_) = $query->from('users')->orderBy(Column::users__id()->type('ASC'))->build();
 		$this->assertEquals("SELECT * FROM users ORDER BY users.id ASC", $sql);
 	
 		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users', 'u')->orderBy(Column::u__id('DESC'))->build();
+		list($sql, $_) = $query->from('users', 'u')->orderBy(Column::u__id()->type('DESC'))->build();
 		$this->assertEquals("SELECT * FROM users u ORDER BY u.id DESC", $sql);
 	}
 	
-	/**
-	 * @expectedException UnexpectedValueException
-	 */
-	public function testOrderByError() {
-		$query = $this->mapper->newQuery();
-		list($sql, $_) = $query->from('users', 'u')->orderBy(Column::test__error('DESC'))->build();
-	}
 	
 	public function testLimitOffset() {
 		$query = $this->mapper->newQuery();
@@ -174,7 +159,7 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		list($sql, $args) = $query->from('users')
 		->innerJoin('profiles', Column::users__name()->eq('test'))
 		->build();
-		$this->assertRegExp("/^SELECT \* FROM users INNER JOIN profiles ON users\.name = #\{arg\d+\}$/", $sql);
+		$this->assertRegExp("/^SELECT \* FROM users INNER JOIN profiles ON users\.name = #\{\\$\d+\}$/", $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -209,7 +194,7 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		
 		$query = $this->mapper->newQuery();
 		list($sql, $args) = $query->from('users')->where(Column::id()->eq(1))->build();
-		$this->assertRegExp("/^SELECT \* FROM users WHERE id = #\{arg\d+\}$/", $sql);
+		$this->assertRegExp("/^SELECT \* FROM users WHERE id = #\{\\$\d+\}$/", $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$key = key($args[0]);
@@ -237,7 +222,7 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		->having(F::COUNT(Column::ord__id())->gt(10))
 		->build();
 		
-		$this->assertRegExp('/SELECT emp\.lastname,COUNT\(ord\.id\) FROM Employees emp INNER JOIN Orders ord ON ord\.employee_id = emp\.id GROUP BY emp\.lastname HAVING COUNT\(ord\.id\) > #\{arg\d+\}/', $sql);
+		$this->assertRegExp('/SELECT emp\.lastname,COUNT\(ord\.id\) FROM Employees emp INNER JOIN Orders ord ON ord\.employee_id = emp\.id GROUP BY emp\.lastname HAVING COUNT\(ord\.id\) > #\{\\$\d+\}/', $sql);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
 		$key = key($args[0]);
@@ -272,7 +257,7 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		->where(F::LEN(Column::email())->lt(20))
 		->build();
 		
-		$this->assertRegExp('/SELECT \* FROM users WHERE LEN\(email\) < #\{arg\d+\}/', $sql);
+		$this->assertRegExp('/SELECT \* FROM users WHERE LEN\(email\) < #\{\\$\d+\}/', $sql);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
 		$key = key($args[0]);

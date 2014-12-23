@@ -1,5 +1,5 @@
 <?php
-namespace eMapper\SQL\Fluent\Clause;
+namespace eMapper\Fluent\Query\Clause;
 
 /**
  * The HavingClause class is an abstraction of the sql HAVING clause
@@ -10,4 +10,3 @@ class HavingClause extends ArgumentClause {
 		return 'HAVING';
 	}
 }
-?>
