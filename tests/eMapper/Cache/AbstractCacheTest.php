@@ -10,34 +10,41 @@ abstract class AbstractCacheTest extends MapperTest {
 	protected abstract function getPrefix();
 	
 	public function testSetInteger() {
-		$this->provider->delete($this->getPrefix() . 'set_integer');
+		if ($this->provider->exists($this->getPrefix() . 'set_integer'))
+			$this->provider->delete($this->getPrefix() . 'set_integer');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_integer', 60)->type('integer')->query("SELECT 1 + 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_integer'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_integer');
 		$this->assertEquals(2, $value);
+		$this->provider->delete($this->getPrefix() . 'set_integer');
 	}
 	
 	public function testSetFloat() {
-		$this->provider->delete($this->getPrefix() . 'set_float');
+		if ($this->provider->exists($this->getPrefix() . 'set_float'))
+			$this->provider->delete($this->getPrefix() . 'set_float');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_float', 60)->type('float')->query("SELECT price FROM products WHERE product_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_float'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_float');
 		$this->assertEquals(150.65, $value);
+		$this->provider->delete($this->getPrefix() . 'set_float');
 	}
 	
 	public function testSetString() {
-		$this->provider->delete($this->getPrefix() . 'set_string');
+		if ($this->provider->exists($this->getPrefix() . 'set_string'))
+			$this->provider->delete($this->getPrefix() . 'set_string');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_string', 60)->type('string')->query("SELECT user_name FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_string'));
 		$value = $this->provider->fetch($this->getPrefix() . 'set_string');
 		$this->assertEquals("jdoe", $value);
+		$this->provider->delete($this->getPrefix() . 'set_string');
 	}
 	
 	public function testSetArray() {
-		$this->provider->delete($this->getPrefix() . 'set_array');
+		if ($this->provider->exists($this->getPrefix() . 'set_array'))
+			$this->provider->delete($this->getPrefix() . 'set_array');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_array', 60)->type('array')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_array'));
@@ -70,10 +77,12 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertEquals($meta->method, 'mapResult');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		$this->provider->delete($this->getPrefix() . 'set_array');
 	}
 	
 	public function testSetArrayList() {
-		$this->provider->delete($this->getPrefix() . 'set_arraylist');
+		if ($this->provider->exists($this->getPrefix() . 'set_arraylist'))
+			$this->provider->delete($this->getPrefix() . 'set_arraylist');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_arraylist', 60)->type('array[user_id]')->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_arraylist'));
@@ -113,10 +122,12 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertEquals($meta->method, 'mapList');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		$this->provider->delete($this->getPrefix() . 'set_arraylist');
 	}
 	
 	public function testSetObject() {
-		$this->provider->delete($this->getPrefix() . 'set_object');
+		if ($this->provider->exists($this->getPrefix() . 'set_object'))
+			$this->provider->delete($this->getPrefix() . 'set_object');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_object', 60)->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_object'));
@@ -149,10 +160,12 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertEquals($meta->method, 'mapResult');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		$this->provider->delete($this->getPrefix() . 'set_object');
 	}
 	
 	public function testSetObjectList() {
-		$this->provider->delete($this->getPrefix() .'set_objectlist');
+		if ($this->provider->exists($this->getPrefix() .'set_objectlist'))
+			$this->provider->delete($this->getPrefix() .'set_objectlist');
 	
 		$this->mapper->cache($this->getPrefix() .'set_objectlist', 60)->type('object[user_id]')->query("SELECT user_id, user_name FROM users ORDER BY user_id ASC");
 		
@@ -193,6 +206,8 @@ abstract class AbstractCacheTest extends MapperTest {
 		$this->assertEquals($meta->method, 'mapList');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		
+		$this->provider->delete($this->getPrefix() .'set_objectlist');
 	}
 }
 ?>

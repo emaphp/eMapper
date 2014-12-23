@@ -8,7 +8,8 @@ abstract class SQLiteCacheTest extends AbstractCacheTest {
 	use SQLiteConfig;
 	
 	public function testSetArray() {
-		$this->provider->delete($this->getPrefix() . 'set_array');
+		if ($this->provider->exists($this->getPrefix() . 'set_array'))
+			$this->provider->delete($this->getPrefix() . 'set_array');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_array', 60)->type('array')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_array'));
@@ -41,10 +42,13 @@ abstract class SQLiteCacheTest extends AbstractCacheTest {
 		$this->assertEquals($meta->method, 'mapResult');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		
+		$this->provider->delete($this->getPrefix() . 'set_array');
 	}
 	
 	public function testSetArrayList() {
-		$this->provider->delete($this->getPrefix() . 'set_arraylist');
+		if ($this->provider->exists($this->getPrefix() . 'set_arraylist'))
+			$this->provider->delete($this->getPrefix() . 'set_arraylist');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_arraylist', 60)->type('array[user_id:int]')->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_arraylist'));
@@ -84,10 +88,13 @@ abstract class SQLiteCacheTest extends AbstractCacheTest {
 		$this->assertEquals($meta->method, 'mapList');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		
+		$this->provider->delete($this->getPrefix() . 'set_arraylist');
 	}
 	
 	public function testSetObject() {
-		$this->provider->delete($this->getPrefix() . 'set_object');
+		if ($this->provider->exists($this->getPrefix() . 'set_object'))
+			$this->provider->delete($this->getPrefix() . 'set_object');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_object', 60)->type('object')->query("SELECT * FROM users WHERE user_id = 1");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_object'));
@@ -120,10 +127,13 @@ abstract class SQLiteCacheTest extends AbstractCacheTest {
 		$this->assertEquals($meta->method, 'mapResult');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		
+		$this->provider->delete($this->getPrefix() . 'set_object');
 	}
 	
 	public function testSetObjectList() {
-		$this->provider->delete($this->getPrefix() . 'set_objectlist');
+		if ($this->provider->exists($this->getPrefix() . 'set_objectlist'))
+			$this->provider->delete($this->getPrefix() . 'set_objectlist');
 	
 		$this->mapper->cache($this->getPrefix() . 'set_objectlist', 60)->type('object[user_id:int]')->query("SELECT * FROM users ORDER BY user_id ASC");
 		$this->assertTrue($this->provider->exists($this->getPrefix() . 'set_objectlist'));
@@ -163,6 +173,8 @@ abstract class SQLiteCacheTest extends AbstractCacheTest {
 		$this->assertEquals($meta->method, 'mapList');
 		$this->assertNull($meta->groups);
 		$this->assertNull($meta->resultMap);
+		
+		$this->provider->delete($this->getPrefix() . 'set_objectlist');
 	}
 }
 ?>
