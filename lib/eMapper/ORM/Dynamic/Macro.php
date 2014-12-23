@@ -14,10 +14,10 @@ class Macro extends DynamicAttribute {
 	 * Program to execute
 	 * @var \eMapper\Dynamic\Program\DynamicSQLProgram 
 	 */
-	protected $program;
+	protected $macro;
 	
 	protected function parseMetadata(AnnotationBag $propertyAnnotations) {
-		$this->program = new DynamicSQLProgram($propertyAnnotations->get('Eval')->getValue());
+		$this->macro = new DynamicSQLProgram($propertyAnnotations->get('Eval')->getValue());
 		$this->cacheable = true;
 	}
 	
@@ -26,6 +26,6 @@ class Macro extends DynamicAttribute {
 			return null;
 			
 		$args = $this->evaluateArguments($row);
-		return $this->program->executeWith($this->buildEnvironment($mapper->getConfig()), $args);
+		return $this->macro->executeWith($this->buildEnvironment($mapper->getConfig()), $args);
 	}
 }
