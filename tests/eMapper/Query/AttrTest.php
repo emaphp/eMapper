@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Query;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 
 /**
  * 

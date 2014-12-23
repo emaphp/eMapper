@@ -49,7 +49,6 @@ class Procedure extends DynamicAttribute {
 	protected function evaluateArguments($row) {
 		$args = [];
 		$argument = ArgumentWrapper::wrap($row);
-		$profile = Profiler::getClassProfile($this->className);
 		
 		foreach ($this->args as $arg) {
 			if ($arg instanceof Attr) {
@@ -75,7 +74,7 @@ class Procedure extends DynamicAttribute {
 		$this->procedure->merge($this->config);
 	}
 	
-	protected function evaluate($row, Mapper $mapper) {
+	public function evaluate($row, Mapper $mapper) {
 		if ($this->evaluateCondition($row, $mapper->getConfig()) === false)
 			return null;
 		

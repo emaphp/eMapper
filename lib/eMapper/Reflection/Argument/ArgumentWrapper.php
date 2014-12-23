@@ -24,6 +24,6 @@ abstract class ArgumentWrapper implements \ArrayAccess {
 		if (is_object($value))
 			return new ObjectArgumentWrapper($value);
 		
-		throw new \InvalidArgumentException("ArgumentWrapper::wrap expected an array or object argument");
+		throw new \InvalidArgumentException(sprintf("ArgumentWrapper::wrap expected an array or object argument but %s was received", gettype($value)));
 	}
 }

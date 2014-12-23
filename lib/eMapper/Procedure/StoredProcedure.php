@@ -90,7 +90,6 @@ class StoredProcedure {
 	 */
 	public function callWith($args) {
 		$this->build($args);
-		array_unshift($args, $this->expression);
 		return $this->mapper->merge($this->config)->execute($this->expression, $args);
 	}
 	
