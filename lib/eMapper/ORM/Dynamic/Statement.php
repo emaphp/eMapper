@@ -81,7 +81,9 @@ class Statement extends DynamicAttribute {
 	 * @param string $asList
 	 */
 	protected function saveStatement($query, ClassProfile $entity, $asList = true) {
-		$config = array_merge(['map.type' => $asList ? $this->buildListExpression($entity) : $this->buildExpression($entity)], $this->config);		
+		//fetched columns depend on the entity used
+		//setting a result map avoids getting imcomplete results
+		$config = array_merge(['map.result' => $this->entity, 'map.type' => $asList ? $this->buildListExpression($entity) : $this->buildExpression($entity)], $this->config);
 		$this->statement = new SQLStatement($query, $config);
 	}
 	
@@ -144,6 +146,6 @@ class Statement extends DynamicAttribute {
 			return null;
 		
 		$this->buildStatement($mapper->getDriver());
-		return $this->mapper->merge($this->statement->getOptions())->execute($this->statement->getQuery(), $this->evaluateArguments($row));
+		return $mapper->merge($this->statement->getOptions())->execute($this->statement->getQuery(), $this->evaluateArguments($row));
 	}
 }

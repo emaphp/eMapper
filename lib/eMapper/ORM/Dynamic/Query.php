@@ -23,6 +23,6 @@ class Query extends DynamicAttribute {
 		if ($this->evaluateCondition($row, $mapper->getConfig()) === false)
 			return null;
 		
-		return $this->mapper->merge($this->config)->execute($this->query, $this->evaluateArguments($row));
+		return $mapper->merge($this->config)->execute($this->query, $this->evaluateArguments($row));
 	}
 }
