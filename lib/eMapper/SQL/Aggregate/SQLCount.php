@@ -2,6 +2,7 @@
 namespace eMapper\SQL\Aggregate;
 
 use eMapper\Query\Column;
+use eMapper\Query\Func;
 
 /**
  * The SQLCount class represents the COUNT SQL aggregate function.
@@ -19,7 +20,7 @@ class SQLCount extends SQLFunction {
 		return 'int';
 	}
 	
-	public function getArgument() {
-		return new Column('*');
+	public function getFunctionInstance() {
+		return new Func($this->getName(), ['*']);
 	}
 }

@@ -20,7 +20,11 @@ abstract class AbstractManagerTest extends MapperTest {
 	}
 	
 	public function testFindByPk() {
-		$product = $this->productsManager->findByPK(1);
+		$product = $this->productsManager
+		->debug(function($q) {
+			//echo "$q\n";
+		})
+		->findByPK(1);
 		$this->assertInstanceOf('Acme\Entity\Product', $product);
 		$this->assertEquals(1, $product->id);
 		$this->assertEquals('IND00054', $product->code);
@@ -111,14 +115,14 @@ abstract class AbstractManagerTest extends MapperTest {
 	 * Tests setting an OR condition using the Q class
 	 */
 	public function testOrCondition() {
-		$products = $this->productsManager->find(Q::where(Attr::id()->eq(5), Attr::id()->eq(3)));
+		$products = $this->productsManager->find(Q::orfilter(Attr::id()->eq(5), Attr::id()->eq(3)));
 		$this->assertCount(2, $products);
 	}
 	
 	public function testQueryDebug() {
 		$product = $this->productsManager
 		->debug(function ($query) {
-			$this->assertEquals('SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id = 1', $query);
+			$this->assertEquals('SELECT product_id,product_code,price,category,color FROM products WHERE product_id = 1', $query);
 		})
 		->findByPK(1);
 	}
@@ -144,14 +148,15 @@ abstract class AbstractManagerTest extends MapperTest {
 	
 	public function testOrFilter() {
 		$products = $this->productsManager
-		->where(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
+		->orfilter(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
 		->find();
 		$this->assertCount(3, $products);
 	}
 	
 	public function testNegatedOrFilter() {
 		$products = $this->productsManager
-		->where_not(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
+		->orfilter(Attr::category()->eq('Smartphones'), Attr::price()->gt(310))
+		->negate()
 		->find();
 		$this->assertCount(5, $products);
 	}
@@ -447,10 +452,11 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('integer', $totalProducts);
 		$this->assertEquals(8, $totalProducts);
 		
-		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->count();
+		$total = $this->productsManager
+		->filter(Attr::category()->eq('Clothes'))->count();
 		$this->assertEquals(3, $total);
 		
-		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->count('float');
+		$total = $this->productsManager->filter(Attr::category()->eq('Clothes'))->type('f')->count();
 		$this->assertInternalType('float', $total);
 		$this->assertEquals(3, $total);
 	}
@@ -460,7 +466,7 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('float', $avg);
 		$this->assertEquals(252.0, floor($avg));
 		
-		$avg = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->avg(Column::price(), 'int');
+		$avg = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->type('i')->avg(Column::price());
 		$this->assertInternalType('integer', $avg);
 		$this->assertEquals(312, $avg);
 	}
@@ -470,7 +476,7 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('float', $max);
 		$this->assertEquals(550, floor($max));
 		
-		$max = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->max(Column::price(), 'int');
+		$max = $this->productsManager->filter(Attr::category()->eq('Clothes', false))->type('i')->max(Column::price());
 		$this->assertInternalType('integer', $max);
 		$this->assertEquals(550, $max);
 	}
@@ -480,7 +486,7 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('float', $min);
 		$this->assertEquals(70, floor($min));
 		
-		$min = $this->productsManager->filter(Attr::category()->eq('Clothes'))->min(Column::rating(), 'int');
+		$min = $this->productsManager->filter(Attr::category()->eq('Clothes'))->type('i')->min(Column::rating());
 		$this->assertInternalType('integer', $min);
 		$this->assertEquals(3, $min);
 	}
@@ -490,7 +496,7 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('float', $sum);
 		$this->assertEquals(2019.0, floor($sum));
 		
-		$sum = $this->productsManager->filter(Attr::category()->eq('Clothes'))->sum(Column::price(), 'integer');
+		$sum = $this->productsManager->filter(Attr::category()->eq('Clothes'))->type('i')->sum(Column::price());
 		$this->assertInternalType('integer', $sum);
 		$this->assertEquals(457, floor($sum));
 	}

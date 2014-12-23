@@ -20,6 +20,7 @@ use eMapper\SQL\Aggregate\SQLMin;
 use eMapper\SQL\Aggregate\SQLMax;
 use eMapper\Mapper;
 
+
 /**
  * The Manager class provides a common interface for obtaining data related to an entity.
  * @author emaphp
@@ -59,7 +60,7 @@ class Manager {
 	 */
 	protected static $options = [
 		'query.filter', 'query.index', 'query.group', 'query.distinct',
-		'query.attrs', 'query.limit', 'query.offset', 'query.orderBy'
+		'query.attrs', 'query.limit', 'query.offset', 'query.orderBy', 'query.negate'
 	];
 	
 	public function __construct(Mapper $mapper, ClassProfile $profile) {
@@ -89,7 +90,7 @@ class Manager {
 	 */
 	protected function getListMappingExpression() {
 		$group = $this->hasOption('query.group') ? $this->getOption('query.group') : null;
-		$index = $tihs->hasOption('query.index') ? $this->getOption('query.index') : null;
+		$index = $this->hasOption('query.index') ? $this->getOption('query.index') : null;
 		return $this->buildListExpression($this->entityProfile, $index, $group);
 	}
 	
@@ -144,9 +145,12 @@ class Manager {
 	 */
 	protected function getFilter() {
 		$filter = $this->getOption('query.filter');
+		$negate = false;
+		if ($this->hasOption('query.negate'))
+			$negate = (bool) $this->getOption('query.negate');
 		if (is_array($filter))
-			return new Filter($filter);
-		return $filter;
+			return new Filter($filter, $negate);
+		return new Filter([$filter], $negate);
 	}
 	
 	/**
@@ -196,13 +200,25 @@ class Manager {
 		if (is_null($index))
 			return $this->discard('query.index');
 	
+		if ($index instanceof Column) {
+			//get referred attribute
+			$map = $this->entityProfile->getPropertyMap();
+			if (!in_array($index->getName(), $map))
+				throw new \InvalidArgumentException(sprintf("Column '%s' is unknown for class '%s'", $index->getName(), $this->entityProfile->getReflectionClass()->getName()));
+			$name = array_flip($map)[$index->getName()];
+		}
+		elseif ($index instanceof Attr)
+			$name = $index->getName();
+		elseif (is_string($index))
+			$name = $index;
+		else
+			throw new \InvalidArgumentException("Index must be specified through an Attr instance or a valid property name");
+			
 		//get custom type (if any)
-		$type = $index->getType();
-			
+		$type = $index->getType();	
 		if (isset($type))
-			return $this->merge(['query.index' => $index->getName() . ':' . $type]);
-			
-		return $this->merge(['query.index' => $index->getName()]);
+			return $this->merge(['query.index' => $name. ':' . $type]);
+		return $this->merge(['query.index' => $name]);
 	}
 	
 	/**
@@ -214,12 +230,24 @@ class Manager {
 		if (is_null($group))
 			return $this->discard('query.group');
 	
+		if ($group instanceof Column) {
+			//get referred attribute
+			$map = $this->entityProfile->getPropertyMap();
+			if (!in_array($group->getName(), $map))
+				throw new \InvalidArgumentException(sprintf("Column '%s' is unknown for class '%s'", $group->getName(), $this->entityProfile->getReflectionClass()->getName()));
+			$name = array_flip($map)[$group->getName()];
+		}
+		elseif ($group instanceof Attr)
+			$name = $group->getName();
+		elseif (is_string($group))
+			$name = $group;
+		else
+			throw new \InvalidArgumentException("Group must be specified through an Attr instance or a valid property name");
+		
 		//get custom type (if any)
 		$type = $group->getType();
-			
 		if (isset($type))
 			return $this->merge(['query.group' => $group->getName() . ':' . $type]);
-			
 		return $this->merge(['query.group' => $group->getName()]);
 	}
 	
@@ -298,6 +326,15 @@ class Manager {
 	 */
 	public function distinct($distinct = true) {
 		return $this->merge(['query.distinct' => $distinct]);
+	}
+	
+	/**
+	 * Negates current filter
+	 * @param boolean $negate
+	 * @return \eMapper\ORM\Manager
+	 */
+	public function negate($negate = true) {
+		return $this->merge(['query.negate' => (bool)$negate]);
 	}
 	
 	/*
@@ -387,7 +424,7 @@ class Manager {
 			$query->orderBy($this->getOrderBy());
 		
 		list($sql, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression()]))->execute($sql, $args);
+		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityProfile)]))->execute($sql, $args);
 	}
 	
 	/**
@@ -669,25 +706,17 @@ class Manager {
 		//connect to database
 		$this->mapper->connect();
 	
-		//get argument
-		$arg = $function->getArgument();
-	
-		if (is_string($arg))
-			$arg = new Attr($arg);
-		elseif (!$arg instanceof Attr)
-			throw new \InvalidArgumentException("Function '%s' expects an argument of type string or \eMapper\Query\Attr", $function->getName());
-	
 		//build query
 		$query = $this->mapper->newQuery($this->entityProfile)
 		->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS)
-		->select(new Func($function->getName(), [$arg]));
+		->select($function->getFunctionInstance());
 	
 		//set query condition
 		if ($this->hasOption('query.filter'))
 			$query->where($this->getFilter());
 	
-		list($query, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $function->getDefaultType()]))->execute($query, $args);
+		list($sql, $args) = $query->build();
+		return $this->mapper->merge($this->clean(['map.type' => $function->getDefaultType()]))->execute($sql, $args);
 	}
 	
 	/**
