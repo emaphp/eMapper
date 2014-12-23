@@ -215,7 +215,7 @@ class MySQLDriver extends Driver {
 	
 	public function buildCall($procedure, $tokens, $config) {
 		//append prefix
-		if ($config['proc.usePrefox'])
+		if ($config['proc.usePrefix'])
 			$procedure = $config['proc.prefix'] . $procedure;
 		
 		return "CALL $procedure(" . implode(',', $tokens) . ')';
