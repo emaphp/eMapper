@@ -96,7 +96,7 @@ class Schema {
 				$expression = empty($alias) ? $field->getColumnName($this->profile) : $alias . '.' . $field->getColumnName($this->profile);
 				
 				if ($field->getType() == null)
-					$field->type($profile->getProperty($field->getName())->getType());
+					$field->type($this->profile->getProperty($field->getName())->getType());
 				
 				return isset($callback) ? $callback->__invoke($expression, $field) : $expression;
 			}
