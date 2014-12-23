@@ -16,8 +16,8 @@ class Attr extends Field {
 	 */
 	public static function __callstatic($method, $args = null) {
 		if (!empty($args))
-			return new Attr($method, $args[0]);
-		return new Attr($method);
+			return new static($method, $args[0]);
+		return new static($method);
 	}
 	
 	public function getColumnName(ClassProfile $profile) {		

@@ -4,6 +4,10 @@ namespace eMapper\Query;
 use eMapper\ORM\Association\Association;
 use eMapper\Reflection\ClassProfile;
 
+/**
+ * The Join class abstracts a join clause required by an ORM operation.
+ * @author emaphp
+ */
 class Join {
 	/**
 	 * Association instance

@@ -35,16 +35,16 @@ abstract class Field {
 	protected $columnType;
 	
 	/**
-	 * Field path
-	 * @var array:string
-	 */
-	protected $path;
-	
-	/**
 	 * Column alias
 	 * @var string
 	 */
 	protected $columnAlias;
+	
+	/**
+	 * Field path
+	 * @var array:string
+	 */
+	protected $path;
 	
 	public function __construct($name, $type = null) {
 		if (strstr($name, '__')) {

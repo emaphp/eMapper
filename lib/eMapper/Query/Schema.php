@@ -4,6 +4,10 @@ namespace eMapper\Query;
 use eMapper\Reflection\ClassProfile;
 use eMapper\Reflection\Profiler;
 
+/**
+ * The Schema class manages arguments in a dynamic sql query.
+ * @author emaphp
+ */
 class Schema {
 	/**
 	 * Default table alias
@@ -36,7 +40,7 @@ class Schema {
 	 */
 	protected $arguments = [];
 	
-	public function __construct(ClassProfile $profile) {
+	public function __construct(ClassProfile $profile = null) {
 		$this->profile = $profile;
 	}
 	
@@ -77,10 +81,11 @@ class Schema {
 	 * Translates a Field instance to the corresponding column
 	 * @param \eMapper\Query\Field $field
 	 * @param string $alias
+	 * @param \Closure $callback
 	 * @throws \RuntimeException
 	 * @return string
 	 */
-	public function translate(Field $field, $alias) {
+	public function translate(Field $field, $alias, \Closure $callback = null) {
 		if ($field instanceof Attr) { //entity attribute
 			if (empty($this->profile))
 				throw new \RuntimeException("No entity profile has been set. Attr instance could not be resolved");
@@ -93,7 +98,7 @@ class Schema {
 				if ($field->getType() == null)
 					$field->type($profile->getProperty($field->getName())->getType());
 				
-				return $expression;
+				return isset($callback) ? $callback->__invoke($expression, $field) : $expression;
 			}
 
 			//get attribute alias + referred profile
@@ -104,21 +109,19 @@ class Schema {
 			if ($field->getType() == null)
 				$field->type($profile->getProperty($field->getName())->getType());
 			
-			return $expression;
+			return isset($callback) ? $callback->__invoke($expression, $field) : $expression;
 		}
 		elseif ($field instanceof Column) { //column
 			$path = $field->getPath();
 			$columnAlias = $field->getColumnAlias();
 			
 			if (empty($path)) { // no alias
-				if (empty($alias))
-					return empty($columnAlias) ? $field->getName() : $field->getName() . ' AS ' . $columnAlias;
-				
-				return empty($columnAlias) ? $alias . '.' . $field->getName() : $alias . '.' . $field->getName() . ' AS ' . $columnAlias;
+				$expression = empty($alias) ? $field->getName() : $alias . '.' . $field->getName();
+				return isset($callback) ? $callback->__invoke($expression, $field) : $expression;
 			}
 			
-			$references = $field->getPath()[0]; //table name/alias
-			return empty($columnAlias) ? $references . '.' . $field->getName() : $references . '.' . $field->getName() . ' AS ' . $columnAlias;
+			$expression = $field->getPath()[0] . '.' . $field->getName();
+			return isset($callback) ? $callback->__invoke($expression, $field) : $expression;
 		}
 		elseif ($field instanceof Func) { //function
 			$args = $field->getArguments();

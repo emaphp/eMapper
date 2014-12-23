@@ -1,11 +1,11 @@
 <?php
 namespace eMapper\Query;
 
-use eMapper\Reflection\Profile\ClassProfile;
+use eMapper\Reflection\ClassProfile;
 use eMapper\Type\ToString;
 
 /**
- * The Func class is aimed to build aggregate function expressions
+ * The Func class is aimed to build aggregate function expressions.
  * @author emaphp
  */
 class Func extends Field {

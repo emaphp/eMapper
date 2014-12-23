@@ -133,7 +133,12 @@ class FluentSelect extends AbstractQuery {
 			$columns = [];
 			foreach ($this->columns as $column) {
 				if ($column instanceof Field)
-					$columns[] = $schema->translate($column, $this->alias);
+					$columns[] = $schema->translate($column, $this->alias, function ($column, $field) {
+						$alias = $field->getColumnAlias();
+						if (empty($alias))
+							return $column;
+						return $column . ' AS ' . $alias;
+					});
 				elseif (is_string($column))
 					$columns[] = $column;
 			}
