@@ -15,6 +15,12 @@ use eMapper\Query\Schema;
  */
 class FluentSelect extends AbstractQuery {
 	/**
+	 * Determines if only distinct rows are fetched
+	 * @var boolean
+	 */
+	protected $selectDistinct = false;
+	
+	/**
 	 * Columns to fetch
 	 * @var array
 	 */
@@ -67,6 +73,16 @@ class FluentSelect extends AbstractQuery {
 		}
 		
 		$this->columns = func_get_args();
+		return $this;
+	}
+	
+	/**
+	 * Select distinct rows
+	 * @param boolean $distinct
+	 * @return \eMapper\Fluent\Query\FluentSelect
+	 */
+	public function distinct($distinct = true) {
+		$this->selectDistinct = $distinct;
 		return $this;
 	}
 	
@@ -147,10 +163,14 @@ class FluentSelect extends AbstractQuery {
 		else
 			$select = '*';
 		
+		//distinct
+		if ($this->selectDistinct)
+			$select = 'DISTINCT ' . $select;
+		
 		//WHERE clause
 		$where = '';
 		if (isset($this->whereClause))
-			$where = $this->whereClause->build($schema);
+			$where = $this->whereClause->build($schema, $this->alias);
 		
 		//additional clauses
 		$clauses = '';
@@ -169,7 +189,7 @@ class FluentSelect extends AbstractQuery {
 			$clauses .= " GROUP BY " . implode(',', $groups);
 			
 			if (isset($this->havingClause))
-				$clauses .= " HAVING " . $this->havingClause->build($schema);
+				$clauses .= " HAVING " . $this->havingClause->build($schema, $this->alias);
 		}
 		
 		//ORDER BY
