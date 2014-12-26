@@ -19,7 +19,7 @@ class CacheKeyFormatter {
 	//Ex: %{type}, %{#nargument}, %{#nargument:type}, %{#nargument[subindex]:type}
 	const INLINE_PARAM_REGEX = '@%{([A-z]{1}[\w|\\\\]*)}|%{(\d+)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|%{(\d+)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
 	//Ex: #{property}, #{property:type}
-	const PROPERTY_PARAM_REGEX = '@#{([A-z|_|\$]{1}[\w|\\\\]*)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?}|#{([A-z|_|\$]{1}[\w|\\\\]*)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?}@';
+	const PROPERTY_PARAM_REGEX = '@#\{(\$?\w+)(\[\w+\])?(:[A-z]{1}[\w|\\\\]*)?\}|#\{(\w+)(\[(-?\d+|)\.\.(-?\d+|)\])?(:[A-z]{1}[\w|\\\\]*)?\}@';
 	//Ex: @@users
 	const SHORT_PREFIX = '@@';
 	
