@@ -119,14 +119,6 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertCount(2, $products);
 	}
 	
-	public function testQueryDebug() {
-		$product = $this->productsManager
-		->debug(function ($query) {
-			$this->assertEquals('SELECT product_id,product_code,price,category,color FROM products WHERE product_id = 1', $query);
-		})
-		->findByPK(1);
-	}
-	
 	/*
 	 * FILTERS
 	 */
@@ -500,5 +492,327 @@ abstract class AbstractManagerTest extends MapperTest {
 		$this->assertInternalType('integer', $sum);
 		$this->assertEquals(457, floor($sum));
 	}
+	
+	/*
+	 * SQL TESTS
+	 */
+	public function testSQLFindByPk() {
+		$product = $this->productsManager
+		->debug(function ($query) {
+			$this->assertEquals('SELECT product_id,product_code,price,category,color FROM products WHERE product_id = 1', $query);
+		})
+		->findByPK(1);
+	}
+	
+	public function testSQLAll() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find();
+	}
+	
+	public function testSQLAttrs() {
+		$query = "SELECT _t.product_code,_t.category FROM products _t";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->attrs(Attr::code(), Attr::category())
+		->find();
+	}
+	
+	public function testSQLOrder() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t ORDER BY _t.product_code,_t.category DESC";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->orderBy(Attr::code(), Attr::category()->type('DESC'))
+		->find();
+	}
+	
+	public function testSQLLimit() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t LIMIT 10";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->limit(10)
+		->find();
+	}
+	
+	public function testSQLOffset() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t LIMIT 10 OFFSET 5";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->limit(10)
+		->offset(5)
+		->find();
+	}
+	
+	public function testSQLDistinct() {
+		$query = "SELECT DISTINCT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->distinct()
+		->find();
+	}
+	
+	public function testSQLEq() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code = 'XXX001'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->eq('XXX001'));
+	}
+	
+	public function testSQLNotEq() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code <> 'XXX001'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->eq('XXX001', false));
+	}
+	
+	public function testSQLContains() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code LIKE '%GFX%'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->contains('GFX'));
+	}
+	
+	public function testSQLNotContains() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code NOT LIKE '%GFX%'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->contains('GFX', false));
+	}
+	
+	public function testSQLiContains() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) LIKE LOWER('%GFX%')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->icontains('GFX'));
+	}
+	
+	public function testSQLNotiContains() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) NOT LIKE LOWER('%GFX%')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->icontains('GFX', false));
+	}
+	
+	public function testSQLIn() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id IN (3,4)";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->in([3, 4]));
+	}
+	
+	public function testSQLNotIn() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id NOT IN (3,4)";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->in([3, 4], false));
+	}
+	
+	public function testSQLGreaterThan() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id > 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->gt(3));
+	}
+	
+	public function testSQLNotGreaterThan() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id <= 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->gt(3, false));
+	}
+	
+	public function testSQLGreaterThanEqual() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id >= 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->gte(3));
+	}
+	
+	public function testSQLNotGreaterThanEqual() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id < 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->gte(3, false));
+	}
+	
+	public function testSQLLessThan() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id < 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->lt(3));
+	}
+	
+	public function testSQLNotLessThan() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id >= 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->lt(3, false));
+	}
+	
+	public function testSQLLessThanEqual() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id <= 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->lte(3));
+	}
+	
+	public function testSQLNotLessThanEqual() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id > 3";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->lte(3, false));
+	}
+	
+	public function testSQLStartsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code LIKE 'IND%'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->startswith('IND'));
+	}
+	
+	public function testSQLNotStartsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code NOT LIKE 'IND%'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->startswith('IND', false));
+	}
+	
+	public function testSQLiStartsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) LIKE LOWER('IND%')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->istartswith('IND'));
+	}
+	
+	public function testSQLNotiStartsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) NOT LIKE LOWER('IND%')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->istartswith('IND', false));
+	}
+	
+	public function testSQLEndsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code LIKE '%232'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->endswith('232'));
+	}
+	
+	public function testSQLNotEndsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_code NOT LIKE '%232'";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->endswith('232', false));
+	}
+	
+	public function testSQLiEndsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) LIKE LOWER('%232')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->iendswith('232'));
+	}
+	
+	public function testSQLNotiEndsWith() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE LOWER(_t.product_code) NOT LIKE LOWER('%232')";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::code()->iendswith('232', false));
+	}
+	
+	public function testSQLRange() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id BETWEEN 2 AND 4";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->range(2, 4));
+	}
+	
+	public function testSQLNotRange() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.product_id NOT BETWEEN 2 AND 4";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::id()->range(2, 4, false));
+	}
+	
+	public function testSQLIsNull() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.color IS NULL";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::color()->isnull());
+	}
+	
+	public function testSQLIsNotNull() {
+		$query = "SELECT _t.product_id,_t.product_code,_t.price,_t.category,_t.color FROM products _t WHERE _t.color IS NOT NULL";
+		$this->productsManager
+		->debug(function($q) use ($query) {
+			$this->assertEquals($query, $q);
+		})
+		->find(Attr::color()->isnull(false));
+	}
 }
-?>

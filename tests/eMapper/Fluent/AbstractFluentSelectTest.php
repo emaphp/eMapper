@@ -4,8 +4,16 @@ namespace eMapper\Fluent;
 use eMapper\MapperTest;
 use eMapper\Query\Column;
 use eMapper\Query\Func as F;
+use eMapper\Reflection\Profiler;
 
 abstract class AbstractFluentSelectTest extends MapperTest {
+	protected $profile;
+	
+	public function setUp() {
+		parent::setUp();
+		$this->profile = Profiler::getClassProfile('Acme\Entity\Product');
+	}
+	
 	public function testColumns() {
 		$query = $this->mapper->newQuery();
 		list($sql, $_) = $query->from('users')->select('id', 'email')->build();
@@ -288,4 +296,3 @@ abstract class AbstractFluentSelectTest extends MapperTest {
 		$this->assertEquals('SELECT ProductName,Price,FORMAT(NOW(),"YYYY-MM-DD") AS PerDate FROM Products', $sql);
 	}
 }
-?>
