@@ -50,11 +50,15 @@ abstract class ArgumentClause {
 	/**
 	 * Builds current clause
 	 * @param \eMapper\Query\Schema $schema
+	 * @param string alias
 	 * @return string
 	 */
-	public function build(Schema &$schema) {
-		if ($this->clause instanceof SQLPredicate)
+	public function build(Schema &$schema, $alias = null) {
+		if ($this->clause instanceof SQLPredicate) {
+			if (!is_null($alias))
+				$this->clause->setAlias($alias);
 			return $this->clause->evaluate($this->driver, $schema);
+		}
 	
 		return $this->clause;
 	}
