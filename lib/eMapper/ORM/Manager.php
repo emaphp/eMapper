@@ -329,6 +329,18 @@ class Manager {
 	}
 	
 	/**
+	 * Sets the attributes to fetch
+	 * @param array $attrs
+	 * @return \eMapper\ORM\Manager
+	 */
+	public function attrs($attrs) {
+		if (is_array($attrs) && !empty($attrs))
+			return $this->merge(['query.attrs' => $attrs]);
+		else
+			return $this->merge(['query.attrs' => func_get_args()]);
+	}
+	
+	/**
 	 * Negates current filter
 	 * @param boolean $negate
 	 * @return \eMapper\ORM\Manager
@@ -382,7 +394,7 @@ class Manager {
 			$query->where(new Filter($args));
 		
 		//order by
-		if ($this->hasOption('query.order'))
+		if ($this->hasOption('query.orderBy'))
 			$query->orderBy($this->getOrderBy());
 		
 		//limit + offset
@@ -392,7 +404,9 @@ class Manager {
 		if ($this->hasOption('query.offset'))
 			$query->offset($this->getOption('query.offset'));
 		
-		//TODO: distinct
+		//distinct
+		if ($this->hasOption('query.distinct') && $this->getOption('query.distinct'))
+			$query->distinct();
 		
 		list($sql, $args) = $query->build();
 		return $this->mapper->merge($this->clean(['map.type' => $this->getListMappingExpression()]))->execute($sql, $args);
@@ -420,7 +434,7 @@ class Manager {
 			$query->where(new Filter($args));
 		
 		//order by
-		if ($this->hasOption('query.order'))
+		if ($this->hasOption('query.orderBy'))
 			$query->orderBy($this->getOrderBy());
 		
 		list($sql, $args) = $query->build();
