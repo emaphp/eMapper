@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
-use eMapper\Query\Schema\Schema;
+use eMapper\Query\Schema;
 
 /**
  * The ComparisonPredicate class adds an expression property which is used for comparison.

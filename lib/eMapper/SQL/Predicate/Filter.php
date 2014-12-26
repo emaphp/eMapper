@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Cond;
-use eMapper\Query\Schema\Schema;
+use eMapper\Query\Schema;
 
 /**
  * The Filter class is a container for various types of predicates.
@@ -22,7 +22,7 @@ class Filter extends SQLPredicate {
 	 */
 	protected $operator;
 	
-	public function __construct($predicates, $negate = false, $operator = Cond::LOGICAL_AND) {
+	public function __construct(array $predicates, $negate = false, $operator = Cond::LOGICAL_AND) {
 		$this->predicates = $predicates;
 		$this->negate = $negate;
 		$this->operator = $operator;

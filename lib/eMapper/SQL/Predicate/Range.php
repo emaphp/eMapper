@@ -3,7 +3,7 @@ namespace eMapper\SQL\Predicate;
 
 use eMapper\Query\Field;
 use eMapper\Engine\Generic\Driver;
-use eMapper\Query\Schema\Schema;
+use eMapper\Query\Schema;
 
 /**
  * The Range class defines a predicate for values between the specified range.

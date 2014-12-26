@@ -5,7 +5,7 @@ use eMapper\Reflection\ClassProfile;
 use eMapper\Engine\Generic\Driver;
 use eMapper\Query\Field;
 use eMapper\Query\Attr;
-use eMapper\Query\Schema\Schema;
+use eMapper\Query\Schema;
 
 /**
  * A SQLPredicate class encapsulates the generic behaviour defined for query conditional clauses.
@@ -59,32 +59,15 @@ abstract class SQLPredicate {
 		static $counter = 0;
 		return '$' . $counter++;
 	}
-	
-	/**
-	 * Obtains a field associated type
-	 * @param Field $field
-	 * @return string | NULL
-	 */
-	protected function getFieldType(Field $field) {
-		if ($field->hasType())
-			return $field->getType();
-	
-		if ($field instanceof Attr) {
-			$profile = $field->getTargetEntity();
-			return $profile->getProperty($field->getName())->getType();
-		}
-	
-		return null;
-	}
-	
+		
 	/**
 	 * Returns an expression for a given argument index
-	 * @param Field $field
+	 * @param \eMapper\Query\Field $field
 	 * @param string $index
 	 * @return string
 	 */
 	public function buildArgumentExpression(Field $field, $index) {
-		$type = $this->getFieldType($field);
+		$type = $field->getType();
 		if (isset($type))
 			return '#{' . "$index:$type" . '}';
 		return '#{' . $index . '}';
@@ -93,7 +76,7 @@ abstract class SQLPredicate {
 	/**
 	 * Evaluates a SQLPredicate getting any additional arguments
 	 * @param \eMapper\Engine\Generic\Driver $driver
-	 * @param \eMapper\Query\Schema\Schema $schema
+	 * @param \eMapper\Query\Schema $schema
 	 */
 	public abstract function evaluate(Driver $driver, Schema &$schema);
 	
