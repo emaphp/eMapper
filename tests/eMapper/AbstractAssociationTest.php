@@ -27,7 +27,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $manager->findByPk(1);
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$profile = $user->getProfile();
-		$this->assertInstanceOf('eMapper\AssociationManager', $profile);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $profile);
 		$profile = $profile->get();
 		$this->assertInstanceOf('Acme\Association\Profile', $profile);
 		$this->assertEquals(1, $profile->getId());
@@ -41,7 +41,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$this->assertEquals(5, $product->getId());
 		$user = $sale->getUser();
-		$this->assertInstanceOf('eMapper\AssociationManager', $user);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $user);
 		$user = $user->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(1, $user->getId());
@@ -52,7 +52,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$this->assertEquals(2, $product->getId());
 		$user = $sale->getUser();
-		$this->assertInstanceOf('eMapper\AssociationManager', $user);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $user);
 		$user = $user->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(5, $user->getId());
@@ -62,7 +62,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$product = $manager->findByPk(5);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->find();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(1, $sales);
@@ -73,7 +73,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$manager = $this->mapper->newManager('Acme\Association\Product');
 		$product = $manager->findByPk(1);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->find();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(0, $sales);
@@ -83,7 +83,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$manager = $this->mapper->newManager('Acme\Association\User');
 		$user = $manager->findByPk(1);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->find();
 		$this->assertInternalType('array', $favorites);
 		$this->assertCount(2, $favorites);
@@ -125,7 +125,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$sale = $sales[1];
 		$this->assertInstanceOf('Acme\Association\Product', $sale->getProduct());
 		$this->assertEquals(5, $sale->getProduct()->getId());
-		$this->assertInstanceOf('eMapper\AssociationManager', $sale->getUser());
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sale->getUser());
 		$user = $sale->getUser()->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(1, $user->getId());
@@ -133,7 +133,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$sale = $sales[2];
 		$this->assertInstanceOf('Acme\Association\Product', $sale->getProduct());
 		$this->assertEquals(2, $sale->getProduct()->getId());
-		$this->assertInstanceOf('eMapper\AssociationManager', $sale->getUser());
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sale->getUser());
 		$user = $sale->getUser()->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(5, $user->getId());
@@ -141,7 +141,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$sale = $sales[3];
 		$this->assertInstanceOf('Acme\Association\Product', $sale->getProduct());
 		$this->assertEquals(4, $sale->getProduct()->getId());
-		$this->assertInstanceOf('eMapper\AssociationManager', $sale->getUser());
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sale->getUser());
 		$user = $sale->getUser()->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(2, $user->getId());
@@ -149,7 +149,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$sale = $sales[4];
 		$this->assertInstanceOf('Acme\Association\Product', $sale->getProduct());
 		$this->assertEquals(3, $sale->getProduct()->getId());
-		$this->assertInstanceOf('eMapper\AssociationManager', $sale->getUser());
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sale->getUser());
 		$user = $sale->getUser()->get();
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$this->assertEquals(3, $user->getId());
@@ -164,7 +164,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[1];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertEmpty($sales);
@@ -172,7 +172,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[2];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(1, $sales);
@@ -182,7 +182,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[3];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(1, $sales);
@@ -192,7 +192,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[4];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(1, $sales);
@@ -202,7 +202,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[5];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertCount(1, $sales);
@@ -212,7 +212,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[6];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertEmpty($sales);
@@ -220,7 +220,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[7];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertEmpty($sales);
@@ -228,7 +228,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$product = $products[8];
 		$this->assertInstanceOf('Acme\Association\Product', $product);
 		$sales = $product->getSales();
-		$this->assertInstanceOf('eMapper\AssociationManager', $sales);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $sales);
 		$sales = $sales->fetch();
 		$this->assertInternalType('array', $sales);
 		$this->assertEmpty($sales);
@@ -243,7 +243,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $users[1];
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->fetch();
 		$this->assertInternalType('array', $favorites);
 		$this->assertCount(2, $favorites);
@@ -253,7 +253,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $users[2];
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->fetch();
 		$this->assertInternalType('array', $favorites);
 		$this->assertEmpty($favorites);
@@ -261,7 +261,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $users[3];
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->fetch();
 		$this->assertInternalType('array', $favorites);
 		$this->assertCount(2, $favorites);
@@ -271,7 +271,7 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $users[4];
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->fetch();
 		$this->assertInternalType('array', $favorites);
 		$this->assertCount(1, $favorites);
@@ -280,34 +280,21 @@ abstract class AbstractAssociationTest extends MapperTest {
 		$user = $users[5];
 		$this->assertInstanceOf('Acme\Association\User', $user);
 		$favorites = $user->getFavorites();
-		$this->assertInstanceOf('eMapper\AssociationManager', $favorites);
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $favorites);
 		$favorites = $favorites->fetch();
 		$this->assertInternalType('array', $favorites);
 		$this->assertEmpty($favorites);
 	}
 	
 	public function testDebugAssociation() {
-		$manager = $this->mapper->newManager('Acme\Association\User');
-		$user = $manager
-		->debug(function ($query) {
-			static $index = 0;
-			static $values = [
-				'SELECT _t.user_id,_t.user_name,_t.avatar FROM users _t WHERE _t.user_id = 1',
-				'SELECT _t.profile_id,_t.name,_t.surname,_t.gender,_t.user_id FROM profiles _t WHERE _t.user_id = 1',
-			];
-			
-			$this->assertEquals($values[$index++], $query);
-		})
-		->findByPk(1);
-		
 		$manager = $this->mapper->newManager('Acme\Association\Category');
 		$category = $manager
 		->debug(function ($query) {
 			static $index = 0;
 			static $values = [
 				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.name = \'Tango\'',
-				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.category_id = 2',
-				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t WHERE _t.parent_id = 8',
+				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t INNER JOIN categories _c ON _t.category_id = _c.parent_id WHERE _t.category_id = 2',
+				'SELECT _t.category_id,_t.parent_id,_t.name FROM categories _t INNER JOIN categories _c ON _t.parent_id = _c.category_id WHERE _t.parent_id = 8',
 			];
 			
 			$this->assertEquals($values[$index++], $query);
@@ -315,4 +302,3 @@ abstract class AbstractAssociationTest extends MapperTest {
 		->get(Attr::name()->eq('Tango'));
 	}
 }
-?>

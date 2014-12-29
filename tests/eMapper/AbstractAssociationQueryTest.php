@@ -7,7 +7,6 @@ use eMapper\Query\Cond as Q;
 /**
  * 
  * @author emaphp
- * @group new
  */
 abstract class AbstractAssociationQueryTest extends MapperTest {	
 	public function testOneToOne() {
@@ -24,7 +23,7 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$user = $manager->get(Attr::profile__name()->eq('Ishmael'));
 		$this->assertEquals(5, $user->getId());
 		$this->assertEquals('ishmael', $user->getName());
-		$this->assertInstanceOf('eMapper\AssociationManager', $user->getProfile());
+		$this->assertInstanceOf('eMapper\ORM\AssociationManager', $user->getProfile());
 		$profile = $user->getProfile()->fetch();
 		$this->assertInstanceOf('Acme\Association\Profile', $profile);
 		$this->assertEquals(5, $profile->getId());
@@ -56,8 +55,10 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 	public function testManyToMany() {
 		$manager = $this->mapper->newManager('Acme\Association\User');
 		$users = $manager->index(Attr::id())
-		->find(Q::where(Attr::favorites__code()->startswith('IND'),
-						Attr::favorites__code()->startswith('SOF')));
+		->find(Q::orfilter(
+			Attr::favorites__code()->startswith('IND'),
+			Attr::favorites__code()->startswith('SOF'))
+		);
 		$this->assertInternalType('array', $users);
 		$this->assertCount(2, $users);
 		$this->assertArrayHasKey(3, $users);
@@ -81,8 +82,9 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$categories = $manager
 		->index(Attr::id())
 		->depth(0)
-		->filter(Q::where(Attr::parent__parent__name()->eq('Technology'),
-						  Attr::parent__name()->eq('Music')))
+		->filter(Q::orfilter(
+			Attr::parent__parent__name()->eq('Technology'),
+			Attr::parent__name()->eq('Music')))
 		->find();
 		$this->assertCount(8, $categories);
 		$this->assertArrayHasKey(6, $categories);
@@ -97,9 +99,10 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$categories = $manager
 		->index(Attr::id())
 		->depth(0)
-		->filter(Q::where(Attr::parent__parent__name()->eq('Technology'),
-						  Attr::parent__name()->eq('Music'),
-						  Attr::id()->eq(3)))
+		->filter(Q::orfilter(
+			Attr::parent__parent__name()->eq('Technology'),
+			Attr::parent__name()->eq('Music'),
+			Attr::id()->eq(3)))
 		->find();
 		$this->assertCount(9, $categories);
 		$this->assertArrayHasKey(3, $categories);
@@ -122,8 +125,9 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$categories = $manager
 		->index(Attr::id())
 		->depth(0)
-		->filter(Q::where(Attr::subcategories__subcategories__name()->eq('House'),
-						  Attr::subcategories__name()->eq('Operating Systems')))
+		->filter(Q::orfilter(
+			Attr::subcategories__subcategories__name()->eq('House'),
+			Attr::subcategories__name()->eq('Operating Systems')))
 		->find();
 		$this->assertCount(2, $categories);
 		$this->assertArrayHasKey(2, $categories);
@@ -132,9 +136,10 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$categories = $manager
 		->index(Attr::id())
 		->depth(0)
-		->filter(Q::where(Attr::subcategories__subcategories__name()->eq('House'),
-						  Attr::subcategories__name()->eq('Operating Systems'),
-						  Attr::id()->eq(3)))
+		->filter(Q::orfilter(
+			Attr::subcategories__subcategories__name()->eq('House'),
+			Attr::subcategories__name()->eq('Operating Systems'),
+			Attr::id()->eq(3)))
 		->find();
 		
 		$this->assertCount(3, $categories);
@@ -143,4 +148,3 @@ abstract class AbstractAssociationQueryTest extends MapperTest {
 		$this->assertArrayHasKey(5, $categories);
 	}
 }
-?>

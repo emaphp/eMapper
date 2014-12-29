@@ -19,7 +19,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\Sale', $assoc->getEntityClass());
 		$this->assertEquals('productId', $assoc->getAttribute()->getValue());
 		$this->assertTrue($assoc->isLazy());
-		//$this->assertEquals('INNER JOIN @@sales _c ON _t.product_id = _c.product_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 	}
 	
 	public function testOneToOne() {
@@ -33,7 +32,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\Profile', $assoc->getParentClass());
 		$this->assertEquals('userId', $assoc->getAttribute()->getArgument());
 		$this->assertFalse($assoc->isLazy());
-		//$this->assertEquals('INNER JOIN @@users _c ON _c.user_id = _t.profile_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 		
 		$profile = Profiler::getClassProfile('Acme\Association\User');
 		$assoc = $profile->getAssociations();
@@ -45,7 +43,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\User', $assoc->getParentClass());
 		$this->assertEquals('userId', $assoc->getAttribute()->getValue());
 		$this->assertTrue($assoc->isLazy());
-		//$this->assertEquals('INNER JOIN @@profiles _c ON _t.user_id = _c.user_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 	}
 	
 	public function testManyToOne() {
@@ -61,7 +58,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\Sale', $assoc->getParentClass());
 		$this->assertEquals('productId', $assoc->getAttribute()->getArgument());
 		$this->assertFalse($assoc->isLazy());
-		//$this->assertEquals('INNER JOIN @@products _c ON _t.product_id = _c.product_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 		
 		$assoc = $profile->getAssociation('user');
 		$this->assertInstanceOf('eMapper\ORM\Association\ManyToOne', $assoc);
@@ -69,7 +65,6 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('Acme\Association\Sale', $assoc->getParentClass());
 		$this->assertEquals('userId', $assoc->getAttribute()->getArgument());
 		$this->assertTrue($assoc->isLazy());
-		//$this->assertEquals('INNER JOIN @@users _c ON _t.user_id = _c.user_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 	}
 	
 	public function testManyToMany() {
@@ -86,7 +81,5 @@ class AssociationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('usr_id,prd_id', $join->getArgument());
 		$this->assertEquals('favorites', $join->getValue());
 		$this->assertTrue($assoc->isLazy());
-		
-		//$this->assertEquals('INNER JOIN @@favorites _c_t ON _c_t.usr_id = _t.user_id INNER JOIN @@products _c ON _c_t.prd_id = _c.product_id', $assoc->buildJoin('_c', '_t', AssociationJoin::INNER));
 	}
 }
