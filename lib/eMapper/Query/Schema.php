@@ -140,7 +140,7 @@ class Schema {
 	
 	protected function getJoinAlias() {
 		static $counter = 0;
-		return self::DEFAULT_ALIAS . $counter;
+		return self::DEFAULT_ALIAS . $counter++;
 	}
 	
 	protected function getAttrAlias(Attr $attr) {
@@ -150,6 +150,7 @@ class Schema {
 			return [$this->joins[$stringPath]->getAlias(), $this->joins[$stringPath]->getProfile()];
 		
 		//
+		$path = $attr->getPath();
 		$current = $this->profile;
 		$parent = null;
 		
