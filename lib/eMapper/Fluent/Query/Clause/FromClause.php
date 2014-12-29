@@ -44,9 +44,9 @@ class FromClause {
 
 		//build join expression
 		if ($join->getAlias())
-			$expr .= $join->getTable() . ' ' . $join->getAlias() . ' ON ' . $condition . ' ';
+			$expr .= '@@' . $join->getTable() . ' ' . $join->getAlias() . ' ON ' . $condition . ' ';
 		else
-			$expr .= $join->getTable() .  ' ON ' . $condition . ' ';
+			$expr .= '@@' . $join->getTable() .  ' ON ' . $condition . ' ';
 	
 		return $expr;
 	}
@@ -65,9 +65,9 @@ class FromClause {
 		$alias = $query->getAlias();
 		
 		if (isset($alias))
-			$from .= $table . ' ' . $alias . ' ';
+			$from .= '@@' . $table . ' ' . $alias . ' ';
 		else
-			$from .= $table . ' ';
+			$from .= '@@' . $table . ' ';
 		
 		//add joins
 		$joins = $query->getJoins();

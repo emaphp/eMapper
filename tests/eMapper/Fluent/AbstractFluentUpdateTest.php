@@ -9,7 +9,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		$query = $this->mapper->newQuery();
 		list($sql, $args) = $query->update('users')
 		->set('name', 'emaphp')->build();
-		$this->assertEquals('UPDATE users SET name=#{name}', $sql);
+		$this->assertEquals('UPDATE @@users SET name=#{name}', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -21,7 +21,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->set('name', 'emaphp')
 		->set('role', 'developer')
 		->build();
-		$this->assertEquals('UPDATE users u SET name=#{name},role=#{role}', $sql);
+		$this->assertEquals('UPDATE @@users u SET name=#{name},role=#{role}', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -35,7 +35,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->setExpr('name = %{s}, role = %{s}', 'emaphp', 'developer')
 		->build();
 		
-		$this->assertEquals('UPDATE users SET name = %{s}, role = %{s}', $sql);
+		$this->assertEquals('UPDATE @@users SET name = %{s}, role = %{s}', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(2, $args);
 		$this->assertEquals('emaphp', $args[0]);
@@ -45,7 +45,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		list($sql, $args) = $query->update('users')
 		->setValue(['name' => 'emaphp', 'role' => 'developer'])
 		->build();
-		$this->assertEquals('UPDATE users SET name=#{name},role=#{role}', $sql);
+		$this->assertEquals('UPDATE @@users SET name=#{name},role=#{role}', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -60,7 +60,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->set('role', 'developer')
 		->where('id = 1')
 		->build();
-		$this->assertEquals('UPDATE users u SET name=#{name},role=#{role} WHERE id = 1', $sql);
+		$this->assertEquals('UPDATE @@users u SET name=#{name},role=#{role} WHERE id = 1', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -76,7 +76,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->where(Column::id()->eq(1))
 		->build();
 		
-		$this->assertRegExp('/UPDATE users u SET name=#\{name\},role=#\{role\} WHERE id = #\{\$\d+\}/', $sql);
+		$this->assertRegExp('/UPDATE @@users u SET name=#\{name\},role=#\{role\} WHERE id = #\{\$\d+\}/', $sql);
 		preg_match('@\{\$(\w+)\}@', $sql, $matches);
 		$key = '$' . $matches[1];
 		$this->assertCount(1, $args);
@@ -94,7 +94,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->set('role', 'developer')
 		->where('id = %{i} OR role = %{s}', 1, 'manager')
 		->build();
-		$this->assertEquals('UPDATE users u SET name=#{name},role=#{role} WHERE id = %{i} OR role = %{s}', $sql);
+		$this->assertEquals('UPDATE @@users u SET name=#{name},role=#{role} WHERE id = %{i} OR role = %{s}', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(3, $args);
 		$this->assertInternalType('array', $args[0]);
@@ -112,7 +112,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->where(Column::id()->eq(1))
 		->build();
 		
-		$this->assertRegExp('/UPDATE users SET name = %\{s\}, role = %\{s\} WHERE id = #\{\$\d+\}/', $sql);
+		$this->assertRegExp('/UPDATE @@users SET name = %\{s\}, role = %\{s\} WHERE id = #\{\$\d+\}/', $sql);
 		preg_match('@\{\$(\w+)\}@', $sql, $matches);
 		$key = '$' . $matches[1];
 		
@@ -131,7 +131,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->where('id = %{i}', 1)
 		->build();
 		
-		$this->assertEquals('UPDATE users SET name = %{s}, role = %{s} WHERE id = %{i}', $sql);
+		$this->assertEquals('UPDATE @@users SET name = %{s}, role = %{s} WHERE id = %{i}', $sql);
 		$this->assertCount(3, $args);
 		$this->assertEquals('emaphp', $args[0]);
 		$this->assertEquals('developer', $args[1]);
@@ -143,7 +143,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->setValue(['name' => 'emaphp', 'role' => 'developer'])
 		->where(Column::id()->eq(1))
 		->build();
-		$this->assertRegExp('/UPDATE users SET name=#\{name\},role=#\{role\} WHERE id = #\{\$\w+\}/', $sql);
+		$this->assertRegExp('/UPDATE @@users SET name=#\{name\},role=#\{role\} WHERE id = #\{\$\w+\}/', $sql);
 		$this->assertInternalType('array', $args);
 		$this->assertCount(1, $args);
 		preg_match('@\{\$(\w+)\}@', $sql, $matches);
@@ -162,7 +162,7 @@ abstract class AbstractFluentUpdateTest extends MapperTest {
 		->setValue(['name' => 'emaphp', 'role' => 'developer'])
 		->where('id = %{i}', 1)
 		->build();
-		$this->assertEquals('UPDATE users SET name=#{name},role=#{role} WHERE id = %{i}', $sql);
+		$this->assertEquals('UPDATE @@users SET name=#{name},role=#{role} WHERE id = %{i}', $sql);
 		$this->assertCount(2, $args);
 		$this->assertInternalType('array', $args[0]);
 		$this->assertArrayHasKey('name', $args[0]);
