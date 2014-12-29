@@ -30,5 +30,3 @@ class InsertionTest extends \PHPUnit_Framework_TestCase {
 		$this->mapper->close();
 	}
 }
-
-?>

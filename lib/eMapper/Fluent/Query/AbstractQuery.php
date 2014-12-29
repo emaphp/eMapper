@@ -155,10 +155,9 @@ abstract class AbstractQuery {
 	
 	public function exec() {
 		list($query, $args) = $this->build();
-		array_unshift($args, $query);
 		if (empty($this->config))
-			return call_user_func_array([$this->fluent->getMapper(), 'sql'], $args);
-		return call_user_func_array([$this->fluent->getMapper()->merge($this->config), 'sql'], $args);
+			return call_user_func_array([$this->fluent->getMapper(), 'sql'], $query, $args);
+		return call_user_func([$this->fluent->getMapper()->merge($this->config), 'sql'], $query, $args);
 	}
 	
 	/*

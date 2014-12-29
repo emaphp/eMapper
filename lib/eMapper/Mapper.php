@@ -268,7 +268,7 @@ class Mapper {
 	 * @param string $query
 	 * @return mixed
 	 */
-	public function query($query) {
+	public function execute($query, $args) {
 		/*
 		 * INITIALIZE
 		 */
@@ -279,14 +279,6 @@ class Mapper {
 
 		//open connection
 		$this->driver->connect();
-		
-		/*
-		 * OBTAIN PARAMETERS
-		 */
-		
-		//get query and parameters
-		$args = func_get_args();
-		$query = array_shift($args);
 		
 		/*
 		 * CACHE CONTROL
@@ -704,17 +696,13 @@ class Mapper {
 	 * @param string $query
 	 * @return mixed
 	 */
-	public function sql($query) {
+	public function sql($query, $args = []) {
 		if (!is_string($query) || empty($query))
 			throw new \InvalidArgumentException("Query is not a valid string");
 	
 		//open connection
 		$this->driver->connect();
-	
-		//get query and parameters
-		$args = func_get_args();
-		$query = array_shift($args);
-	
+			
 		//build statement
 		$stmt = $this->driver->buildStatement($this->typeManager);
 	
@@ -731,12 +719,12 @@ class Mapper {
 	/**
 	 * Executes a query with the given arguments
 	 * @param string $query
-	 * @param array $args
 	 * @return mixed
 	 */
-	public function execute($query, $args) {
-		array_unshift($args, $query);
-		return call_user_func_array([$this, 'query'], $args);
+	public function query($query) {
+		$args = func_get_args();
+		$query = array_shift($args);
+		return $this->execute($query, $args);
 	}
 	
 	/**
