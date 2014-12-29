@@ -110,25 +110,25 @@ abstract class AbstractQuery {
 	
 	public function innerJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
-			$this->joins[$table] = new JoinClause(JoinClause::INNER_JOIN, $table, null, $alias_or_cond);
+			$this->joins[] = new JoinClause(JoinClause::INNER_JOIN, $table, null, $alias_or_cond);
 		else
-			$this->joins[$table] = new JoinClause(JoinClause::INNER_JOIN, $table, $alias_or_cond, $cond);
+			$this->joins[] = new JoinClause(JoinClause::INNER_JOIN, $table, $alias_or_cond, $cond);
 		return $this;
 	}
 	
 	public function leftJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
-			$this->joins[$table] = new JoinClause(JoinClause::LEFT_JOIN, $table, null, $alias_or_cond);
+			$this->joins[] = new JoinClause(JoinClause::LEFT_JOIN, $table, null, $alias_or_cond);
 		else
-			$this->joins[$table] = new JoinClause(JoinClause::LEFT_JOIN, $table, $alias_or_cond, $cond);
+			$this->joins[] = new JoinClause(JoinClause::LEFT_JOIN, $table, $alias_or_cond, $cond);
 		return $this;
 	}
 	
 	public function fullOuterJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
-			$this->joins[$table] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, null, $alias_or_cond);
+			$this->joins[] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, null, $alias_or_cond);
 		else
-			$this->joins[$table] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, $alias_or_cond, $cond);
+			$this->joins[] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, $alias_or_cond, $cond);
 		return $this;
 	}
 	
@@ -141,10 +141,10 @@ abstract class AbstractQuery {
 			$assoc = $join->getAssociation();
 			$parent = $join->getParent();
 			if (is_null($parent))
-				$assoc->appendJoin($query, $this->alias, $join->getAlias(), true);
+				$assoc->appendJoin($this, $this->alias, $join->getAlias(), true);
 			else {
 				$alias = $schema->getJoin($parent)->getAlias();
-				$assoc->appendJoin($query, $alias, $join->getAlias(), true);
+				$assoc->appendJoin($this, $alias, $join->getAlias(), true);
 			}
 		}
 	}
