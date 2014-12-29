@@ -2,8 +2,9 @@
 namespace eMapper\ORM\Association;
 
 use eMapper\Fluent\Query\AbstractQuery;
+use eMapper\Reflection\Profiler;
 use eMapper\ORM\AssociationManager;
-use eMapper\ORM\Manager;
+use eMapper\Query\Schema;
 use eMapper\Query\Column;
 use eMapper\Mapper;
 use Omocha\AnnotationBag;
@@ -61,7 +62,7 @@ class ManyToMany extends Association {
 		$parameter = $this->getPropertyValue($parentProfile, $entity, $parentProfile->getPrimaryKey());
 		
 		//set appropiate prefix
-		$joinTableAlias = Manager::DEFAULT_ALIAS . Manager::CONTEXT_ALIAS;
+		$joinTableAlias = Schema::DEFAULT_ALIAS . Schema::CONTEXT_ALIAS;
 		
 		//build predicate
 		return Column::__callstatic($joinTableAlias . '__' . $this->parentColumn)->eq($parameter);
@@ -77,7 +78,7 @@ class ManyToMany extends Association {
 		//first join -> join table
 		$cond = sprintf(
 			'%s.%s = %s.%s',
-			$mainAlias, $parentProfile->getPrimaryKey(true),
+			$sourceAlias, $parentProfile->getPrimaryKey(true),
 			$joinTableAlias, $this->parentColumn
 		);
 		

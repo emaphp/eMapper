@@ -50,7 +50,7 @@ class OneToOne extends Association {
 				throw new \RuntimeException(sprintf("Attribute '%s' not found in class '%s'", $attr, $this->parentClass));
 			
 			//get foreign key value
-			$parameter = $this->getPropertyValue($parentProfile, $entity, $name);
+			$parameter = $this->getPropertyValue($parentProfile, $entity, $attr);
 			
 			//build predicate
 			$predicate = Column::__callstatic($entityProfile->getPrimaryKey(true))->eq($parameter);
@@ -127,13 +127,13 @@ class OneToOne extends Association {
 			if (empty($attr) || !is_string($attr))
 				throw new \RuntimeException(sprintf("One-to-one association '%s' in class '%s' must define a valid attribute name", $this->name, $this->parentClass));
 			
-			if (!$parentProfile->hasProperty($attr))
+			if (!$entityProfile->hasProperty($attr))
 				throw new \RuntimeException(sprintf("Attribute '%s' not found in class '%s'", $attr, $this->parentClass));
 			
 			//build join condition
 			$cond = sprintf(
 				'%s.%s = %s.%s',
-				$mainAlias, $entityProfile->getProperty($name)->getColumn(),
+				$mainAlias, $entityProfile->getProperty($attr)->getColumn(),
 				$contextAlias, $parentProfile->getPrimaryKey(true)
 			);
 			
