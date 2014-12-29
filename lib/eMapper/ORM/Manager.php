@@ -579,7 +579,7 @@ class Manager {
 			//build insert query
 			$query = $this->mapper->newQuery();
 			$query->insertInto($this->entityProfile->getEntityTable())
-			->columns($this->getInsertColumns(true))
+			->columns(array_keys($this->insertColumns))
 			->valuesArray($this->entityToArray($entity))
 			->exec();
 			$pk = $this->mapper->getLastId();

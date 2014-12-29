@@ -19,7 +19,7 @@ trait PropertyAccessor {
 	protected function setPropertyValue(ClassProfile $profile, &$instance, $property, $value) {
 		$attr = $profile->getProperty($property);
 		
-		if ($profile->getReflectionClass()->isInstance($instance)) {
+		if (is_object($instance) && $profile->getReflectionClass()->isInstance($instance)) {
 			$attr->getReflectionProperty()->setValue($instance, $value);
 			return;
 		}
@@ -50,7 +50,7 @@ trait PropertyAccessor {
 	protected function getPropertyValue(ClassProfile $profile, $instance, $property) {
 		$attr = $profile->getProperty($property);
 		
-		if ($profile->getReflectionClass()->isInstance($instance))
+		if (is_object($instance) && $profile->getReflectionClass()->isInstance($instance))
 			return $attr->getReflectionProperty()->getValue($instance);
 	
 		$name = $attr->getName();
