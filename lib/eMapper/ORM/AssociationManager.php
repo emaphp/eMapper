@@ -6,6 +6,7 @@ use eMapper\ORM\Association\Association;
 use eMapper\SQL\Predicate\SQLPredicate;
 use eMapper\Reflection\Profiler;
 use eMapper\Query\Schema;
+use eMapper\Query\Column;
 
 /**
  * The AssociationManager class is aimed to fetch a result from an existing association between 2 entity classes.
@@ -29,6 +30,11 @@ class AssociationManager extends Manager {
 		$this->association = $association;
 		$this->predicate = $predicate;
 		$this->entityProfile = Profiler::getClassProfile($association->getEntityClass());
+		
+		//additional attributes lists
+		foreach ($this->entityProfile->getSelectAttributes() as $attr)
+			$this->selectColumns[] = new Column($this->entityProfile->getProperty($attr)->getColumn());
+		
 		$this->preserveInstance = true;
 		
 		//store additional options
@@ -58,8 +64,10 @@ class AssociationManager extends Manager {
 		$this->mapper->connect();
 		
 		//build fluent query
-		$query = $this->mapper->newQuery($this->entityProfile);
-		$query->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
+		$query = $this->mapper->newQuery($this->entityProfile)->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
+		
+		//columns
+		$query->select($this->selectColumns);
 		
 		//append call to required join
 		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
@@ -70,6 +78,8 @@ class AssociationManager extends Manager {
 			$query->where($this->getFilter(), $this->predicate);
 		elseif (isset($condition))
 			$query->where(new Filter($args), $this->predicate);
+		else
+			$query->where($this->predicate);
 		
 		//order by
 		if ($this->hasOption('query.order'))
@@ -84,9 +94,11 @@ class AssociationManager extends Manager {
 		$this->mapper->connect();
 	
 		//build fluent query
-		$query = $this->mapper->newQuery($this->entityProfile);
-		$query->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
+		$query = $this->mapper->newQuery($this->entityProfile)->from($this->entityProfile->getEntityTable(), Schema::DEFAULT_ALIAS);
 	
+		//columns
+		$query->select($this->selectColumns);
+		
 		//append call to required join
 		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
 	
@@ -96,6 +108,8 @@ class AssociationManager extends Manager {
 			$query->where($this->getFilter(), $this->predicate);
 		elseif (isset($condition))
 			$query->where(new Filter($args), $this->predicate);
+		else
+			$query->where($this->predicate);
 	
 		//order by
 		if ($this->hasOption('query.order'))
@@ -103,6 +117,6 @@ class AssociationManager extends Manager {
 		
 		//build query
 		list($sql, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityClass)]))->execute($sql, $args);
+		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityProfile)]))->execute($sql, $args);
 	}
 }
