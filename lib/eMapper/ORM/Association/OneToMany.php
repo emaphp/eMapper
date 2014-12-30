@@ -156,8 +156,7 @@ class OneToMany extends Association {
 		//delete not related
 		if (!empty($value)) {
 			$unrelated = $manager
-			->filter(Attr::__callstatic($attr)->eq($foreignKey), Attr::__callstatic($entityProfile->getPrimaryKey())->in($ids, false))
-			->find();
+			->find(Attr::__callstatic($attr)->eq($foreignKey), Attr::__callstatic($entityProfile->getPrimaryKey())->in($ids, false));
 			
 			foreach ($unrelated as $entity)
 				$manager->delete($entity);

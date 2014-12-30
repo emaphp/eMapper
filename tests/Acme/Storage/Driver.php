@@ -26,6 +26,7 @@ class Driver {
 	/**
 	 * @OneToMany Car
 	 * @Attr driverId
+	 * @Cascade
 	 */
 	public $cars;
 }

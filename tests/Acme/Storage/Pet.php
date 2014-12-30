@@ -29,7 +29,7 @@ class Pet {
 	public $type;
 	
 	/**
-	 * @MamyToOne Client
+	 * @ManyToOne Client
 	 * @Attr(clientId)
 	 */
 	public $owner;

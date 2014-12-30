@@ -36,7 +36,7 @@ abstract class ComparisonPredicate extends SQLPredicate {
 		if ($this->expression instanceof Field)
 			$expression = $schema->translate($this->expression, $this->alias);
 		else {
-			$index = $this->getArgumentIndex(0);
+			$index = self::getArgumentIndex();
 			$schema->addArgument($index, $this->formatExpression($driver, $this->expression));
 			$expression = $this->buildArgumentExpression($this->field, $index);
 		}

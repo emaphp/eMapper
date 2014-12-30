@@ -631,7 +631,7 @@ class Manager {
 		
 		//get primary key
 		$pk = $this->getPropertyValue($this->entityProfile, $entity, $this->entityProfile->getPrimaryKey());
-		
+
 		foreach ($this->entityProfile->getReferences() as $assoc)
 			$this->entityProfile->getAssociation($assoc)->delete($this->mapper, $pk);
 		
