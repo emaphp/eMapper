@@ -1,7 +1,7 @@
 <?php
 namespace eMapper\Reflection;
 
-use eMapper\Reflection\Association\Association;
+use eMapper\ORM\Association\Association;
 
 /**
  * The PropertyAccessor trait allows access to all attributes in an entity.
@@ -77,7 +77,7 @@ trait PropertyAccessor {
 	 * @throws \RuntimeException
 	 */
 	protected function getAssociationValue(ClassProfile $profile, $instance, Association $association) {
-		if ($profile->getReflectionClass()->isInstance($instance))
+		if (is_object($instance) && $profile->getReflectionClass()->isInstance($instance))
 			return $association->getReflectionProperty()->getValue($instance);
 
 		$name = $association->getName();

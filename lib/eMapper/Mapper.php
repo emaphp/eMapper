@@ -706,8 +706,18 @@ class Mapper {
 		//build statement
 		$stmt = $this->driver->buildStatement($this->typeManager);
 	
+		//build query
+		$query = $stmt->format($query, $args, $this->config);
+		
+		//invoke debug callback
+		if ($this->hasOption('callback.debug')) {
+			$callback = $this->getOption('callback.debug');
+			if ($callback instanceof \Closure)
+				$callback->__invoke($query);
+		}
+		
 		//run query
-		$result = $this->driver->query($stmt->format($query, $args, $this->config));
+		$result = $this->driver->query($query);
 	
 		//check query execution
 		if ($result === false)
@@ -765,6 +775,8 @@ class Mapper {
 	 * Begins a transaction
 	 */
 	public function beginTransaction() {
+		$this->connect();
+		
 		if ($this->txStatus == self::TX_NOT_STARTED) {
 			$this->txStatus = self::TX_STARTED;
 			$this->txCounter = 1;

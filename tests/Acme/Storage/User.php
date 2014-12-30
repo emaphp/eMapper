@@ -14,16 +14,15 @@ class User {
 	
 	/**
 	 * @Type string
-	 * @Column user_name
 	 * @Unique
+	 * @OnDuplicate update
 	 */
 	public $name;
 	
 	/**
 	 * @Type string
-	 * @Column birth_date
 	 */
-	public $birthDate;
+	public $email;
 	
 	/**
 	 * @Type timestamp
@@ -32,8 +31,8 @@ class User {
 	public $lastLogin;
 	
 	/**
-	 * @Type string
-	 * @Column newsletter_time
+	 * @OneToOne Profile
+	 * @Attr userId
 	 */
-	public $notify;
+	public $profile;
 }

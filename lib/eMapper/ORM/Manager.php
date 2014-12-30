@@ -562,7 +562,7 @@ class Manager {
 					->select(new Column($this->entityProfile->getPrimaryKey(true)))
 					->where(Column::__callstatic($attribute->getColumn())->eq($value))
 					->fetch('i');
-			
+					
 					if (!is_null($pk)) {
 						$ignore = $attribute->getCheckDuplicate() == 'ignore';
 						break;
