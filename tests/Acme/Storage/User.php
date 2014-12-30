@@ -33,6 +33,7 @@ class User {
 	/**
 	 * @OneToOne Profile
 	 * @Attr userId
+	 * @Cascade
 	 */
 	public $profile;
 }

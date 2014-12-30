@@ -175,11 +175,12 @@ class OneToOne extends Association {
 			$attr = $this->attribute->getValue();
 			if (empty($attr) || !is_string($attr))
 				throw new \RuntimeException(sprintf("One-to-one association '%s' in class '%s' must define a valid attribute name", $this->name, $this->parentClass));
-			if (!$entityProfile->hasProperty($attr))
-				throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $attr, $this->entityClass));
 			
 			$parentProfile = Profiler::getClassProfile($this->parentClass);
 			$entityProfile = Profiler::getClassProfile($this->entityClass);
+			
+			if (!$entityProfile->hasProperty($attr))
+				throw new \RuntimeException(sprintf("Attribute %s not found in class %s", $attr, $this->entityClass));
 			
 			//sett foreign key value
 			$foreignKey = $this->getPropertyValue($parentProfile, $parent, $parentProfile->getPrimaryKey());
