@@ -178,7 +178,7 @@ class FluentInsert extends AbstractQuery {
 	public function build() {
 		$columns = $this->buildColumnsClause();
 		$valueExpr = $this->buildValuesClause();
-		$query = empty($columns) ? "INSERT INTO {$this->table} VALUES ($valueExpr)" : "INSERT INTO {$this->table} ($columns) VALUES ($valueExpr)";
+		$query = empty($columns) ? "INSERT INTO @@{$this->table} VALUES ($valueExpr)" : "INSERT INTO @@{$this->table} ($columns) VALUES ($valueExpr)";
 		return [$query, empty($this->value) ? $this->valueList : [$this->value]];
 	}
 }

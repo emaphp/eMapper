@@ -1,9 +1,17 @@
 2015-01-01 - Version 4.0
 
- Added: StoredProcedure class.
- Added: FluentQuery class.
- Deprecated: Calling stored procedures through method overloading.
- Deprecated: Mapper::execute.
+  Deprecated: Named Queries
+  Added: Fluent Queries
+  Deprecated: Calling stored procedures through method overloading.
+  Added: StoredProcedure class.
+  Added: Methods newManager, newQuery and newProcedure in Mapper class.
+  Modified: @StatementId renamed to @Statement. It only accepts expressions containing an entity class and a statement id.
+  Modified: @Scalar renamed to @Cacheable.
+  Modified: @Parameter renamed to @Param.
+  Deprecated: @JoinWith and @ForeignKey annotations.
+  Added: @Join annotation.
+  Modified: @OrderBy syntax.
+  Modified: Library is now distributed under the terms of the MIT license.
 
 2014-10-25 - Version 3.3
 

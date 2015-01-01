@@ -12,20 +12,20 @@ eMapper
 Changelog
 ------------------
 <br/>
-2015-01-XX - Version 4.0
+2015-01-01 - Version 4.0
 
   * Deprecated: Named Queries
   * Added: Fluent Queries
   * Deprecated: Calling stored procedures through method overloading.
   * Added: StoredProcedure class.
-  * Modified: @StatementId renamed to @Statement. Now only accepts expressions containing an entity class and a statement id.
+  * Added: Methods newManager, newQuery and newProcedure in Mapper class.
+  * Modified: @StatementId renamed to @Statement. It only accepts expressions containing an entity class and a statement id.
   * Modified: @Scalar renamed to @Cacheable.
   * Modified: @Parameter renamed to @Param.
-  * Modified: Mapper::buildManager renamed to newManager.
-  * Added: Methods newQuery and newProcedure in Mapper class.
   * Deprecated: @JoinWith and @ForeignKey annotations.
   * Added: @Join annotation.
   * Modified: @OrderBy syntax.
+  * Modified: Library is now distributed under the terms of the MIT license.
 
 <br/>
 Dependencies
@@ -374,9 +374,7 @@ use eMapper\Query\Column;
 $user = $query->from('users')->where(Column::id()->eq(1))->fetch('obj');
 
 //using arguments
-$user = $query->from('users')
-->where('id = %{i}', 1)
-->fetch('obj');
+$user = $query->from('users')->where('id = %{i}', 1)->fetch('obj');
 
 /**
  * COLUMNS
@@ -385,9 +383,7 @@ $user = $query->from('users')
 $query = $mapper->newQuery();
 
 //define columns to fetch
-$users = $query->from('users')
-->select('id', 'name', 'email')
-->fetch('obj[]');
+$users = $query->from('users')->select('id', 'name', 'email')->fetch('obj[]');
 
 //using Column class
 $users = $query->from('users')
@@ -573,7 +569,114 @@ $query->deleteFrom('staff')
 ->where('role <> %{s}', 'developer')
 ->exec();
 ```
+<br/>
+#####Filter methods
 
+Use these methods along with the *Column* class to build conditional expressions. Adding *false* as a last argument produces a negated condition.
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Method</th>
+        <th>Arguments</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>Equals</td>
+        <td>eq</eq>
+        <td>1</td>
+        <td>Column::name()->eq('emaphp')</td>
+    </tr>
+    <tr>
+        <td>Contains (case sensitive)</td>
+        <td>contains</td>
+        <td>1</td>
+        <td>Column::description()->contains('PHP')</td>
+    </tr>
+    <tr>
+        <td>Contains (case insensitive)</td>
+        <td>icontains</td>
+        <td>1</td>
+        <td>Column::description()->icontains('PHP')</td>
+    </tr>
+    <tr>
+        <td>In</td>
+        <td>in</td>
+        <td>1</td>
+        <td>Column::id()->in([1, 2, 3])</td>
+    </tr>
+    <tr>
+        <td>GreaterThan</td>
+        <td>gt</td>
+        <td>1</td>
+        <td>Column::price()->gt(100)</td>
+    </tr>
+    <tr>
+        <td>GreaterThanEqual</td>
+        <td>gte</td>
+        <td>1</td>
+        <td>Column::price()->gte(100)</td>
+    </tr>
+    <tr>
+        <td>LessThan</td>
+        <td>lt</td>
+        <td>1</td>
+        <td>Column::price()->lt(100)</td>
+    </tr>
+    <tr>
+        <td>LessThanEqual</td>
+        <td>lte</td>
+        <td>1</td>
+        <td>Column::price()->lte(100)</td>
+    </tr>
+    <tr>
+        <td>StartsWith (case sensitive)</td>
+        <td>startswith</td>
+        <td>1</td>
+        <td>Column::name()->startswith('ema')</td>
+    </tr>
+    <tr>
+        <td>StartsWith (case insensitive)</td>
+        <td>istartswith</td>
+        <td>1</td>
+        <td>Column::name()->istartswith('ema')</td>
+    </tr>
+    <tr>
+        <td>EndsWith (case sensitive)</td>
+        <td>endsswith</td>
+        <td>1</td>
+        <td>Column::name()->endswith('php')</td>
+    </tr>
+    <tr>
+        <td>EndsWith (case insensitive)</td>
+        <td>iendswith</td>
+        <td>1</td>
+        <td>Column::name()->iendswith('php')</td>
+    </tr>
+    <tr>
+        <td>Matches (case sensitive)</td>
+        <td>matches</td>
+        <td>1</td>
+        <td>Column::title()->matches('^The')</td>
+    </tr>
+    <tr>
+        <td>Matches (case insensitive)</td>
+        <td>imatches</td>
+        <td>1</td>
+        <td>Column::title()->imatches('^The')</td>
+    </tr>
+    <tr>
+        <td>IsNull</td>
+        <td>isnull</td>
+        <td><em>None</em></td>
+        <td>Column::last_login()->isnull()</td>
+    </tr>
+    <tr>
+        <td>Range</td>
+        <td>range</td>
+        <td>2</td>
+        <td>Column::hits()->range(5,10)</td>
+    </tr>
+</table>
 
 <br/>
 Stored procedures
@@ -681,7 +784,7 @@ class Product {
     }
 }
 ```
-Managers are created through the *newManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually.
+Managers are created through the *newManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually. Notice that conditional expressions are now created using the *Attr* class instead of *Column*.
 
 ```php
 //create a products manager
@@ -767,114 +870,6 @@ $max = $products
 ```
 
 <br/>
-#####Filter methods
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Method</th>
-        <th>Arguments</th>
-        <th>Example</th>
-    </tr>
-    <tr>
-        <td>Equals</td>
-        <td>eq</eq>
-        <td>1</td>
-        <td>Attr::name()->eq('emaphp')</td>
-    </tr>
-    <tr>
-        <td>Contains (case sensitive)</td>
-        <td>contains</td>
-        <td>1</td>
-        <td>Attr::description()->contains('PHP')</td>
-    </tr>
-    <tr>
-        <td>Contains (case insensitive)</td>
-        <td>icontains</td>
-        <td>1</td>
-        <td>Attr::description()->icontains('PHP')</td>
-    </tr>
-    <tr>
-        <td>In</td>
-        <td>in</td>
-        <td>1</td>
-        <td>Attr::id()->in([1, 2, 3])</td>
-    </tr>
-    <tr>
-        <td>GreaterThan</td>
-        <td>gt</td>
-        <td>1</td>
-        <td>Attr::price()->gt(100)</td>
-    </tr>
-    <tr>
-        <td>GreaterThanEqual</td>
-        <td>gte</td>
-        <td>1</td>
-        <td>Attr::price()->gte(100)</td>
-    </tr>
-    <tr>
-        <td>LessThan</td>
-        <td>lt</td>
-        <td>1</td>
-        <td>Attr::price()->lt(100)</td>
-    </tr>
-    <tr>
-        <td>LessThanEqual</td>
-        <td>lte</td>
-        <td>1</td>
-        <td>Attr::price()->lte(100)</td>
-    </tr>
-    <tr>
-        <td>StartsWith (case sensitive)</td>
-        <td>startswith</td>
-        <td>1</td>
-        <td>Attr::username()->startswith('ema')</td>
-    </tr>
-    <tr>
-        <td>StartsWith (case insensitive)</td>
-        <td>istartswith</td>
-        <td>1</td>
-        <td>Attr::username()->istartswith('ema')</td>
-    </tr>
-    <tr>
-        <td>EndsWith (case sensitive)</td>
-        <td>endsswith</td>
-        <td>1</td>
-        <td>Attr::username()->endswith('php')</td>
-    </tr>
-    <tr>
-        <td>EndsWith (case insensitive)</td>
-        <td>iendswith</td>
-        <td>1</td>
-        <td>Attr::username()->iendswith('php')</td>
-    </tr>
-    <tr>
-        <td>Matches (case sensitive)</td>
-        <td>matches</td>
-        <td>1</td>
-        <td>Attr::title()->matches('^The')</td>
-    </tr>
-    <tr>
-        <td>Matches (case insensitive)</td>
-        <td>imatches</td>
-        <td>1</td>
-        <td>Attr::title()->imatches('^The')</td>
-    </tr>
-    <tr>
-        <td>IsNull</td>
-        <td>isnull</td>
-        <td><em>None</em></td>
-        <td>Attr::lastLogin()->isnull()</td>
-    </tr>
-    <tr>
-        <td>Range</td>
-        <td>range</td>
-        <td>2</td>
-        <td>Attr::hits()->range(5,10)</td>
-    </tr>
-</table>
-
-<br/>
 #####Storing objects
 
 ```php
@@ -892,7 +887,7 @@ $product->setPrice(149.90);
 //save object
 $products->save($product);
 
-//if the entity already has an id 'save' produces an UPDATE query
+//if the entity already has an id, 'save' produces an UPDATE query
 $product = $products->get(Attr::code()->eq('ACM001'));
 $product->setPrice(129.90);
 $products->save($product);
@@ -1014,7 +1009,7 @@ $profile = $manager->findByPk(100); // returns a Profile instance
 $user = $profile->getUser(); // returns the associated User instance
 ```
 
-Lazy associations returns an instance of *emapper\AssociationManager*. This means that invoking the *getProfile* method will return a manager instance. In order to get the referred value we append a call to the *fetch* method.
+Lazy associations returns an instance of *eMapper\ORM\AssociationManager*. This means that invoking the *getProfile* method will return a manager instance. In order to get the referred value we append a call to the *fetch* method.
 
 ```php
 //obtain the user with ID = 100
@@ -1026,7 +1021,7 @@ $profile = $user->getProfile()->fetch(); // fetch() returns the desired result
 Associations also provide a mechanism for querying for related attributes. Suppose we want to obtain a profile by its user name. We can do this by using a special syntax that specifies the association property and the comparison attribute separated by a doble underscore.
 
 ```php
-use emapper\Query\Attr;
+use eMapper\Query\Attr;
 
 //build manager
 $manager = $mapper->newManager('Acme\Profile');
@@ -1138,8 +1133,7 @@ use emapper\Query\Attr;
 $manager = $mapper->newManager('Acme\Pet');
 
 //get all pets of Joe Doe
-$pets = $manager->find(Attr::owner__name()->eq('Joe'),
-                       Attr::owner__surname()->eq('Doe'));
+$pets = $manager->find(Attr::owner__name()->eq('Joe'));
 ```
 
 
@@ -1255,7 +1249,7 @@ $manager = $mapper->newManager('Acme\Category');
 //get all subcategories of 'Technology'
 $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
 ```
-You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column could also take null values. It is important to add this annotation when having Many-To-One associations related to that attribute as it determines if an entity must be deleted if a foreing key is not properly set. In short, this allows the existence of entities without a parent category.
+You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column can also accept null values. It is important to add this annotation when having *Many-To-One* associations related to that attribute as it determines if an entity must be deleted if a foreing key is not properly set. This small detail allows the existence of entities without a parent category.
 
 
 <br/>
@@ -1361,7 +1355,7 @@ When the association depth is set to 0 no related data is obtained. That means t
 ```php
 $profile->getUser();
 ```
-will return a NULL value. The *save* method also expects a depth parameter (default to 1) that we can manipulate to define if related data must be updated along with the entity. To simplify, if the related data is not updated we can use the *depth* method to optimize the amount of data to obtain. Then, we can store the modified entity and add a second argument to avoid storing any associated data. Finally, our example will look like the following.
+will return a NULL value. The *save* method also expects a depth parameter (default to 1) that we can manipulate to define if related data must be updated along with the entity. This means that if the related data is not updated we can use the *depth* method to optimize the amount of data to obtain. Then, we can store the modified entity and add a second argument to avoid storing any associated data. The example above clarifies this process.
 
 ```php
 $manager = $mapper->newManager('Acme\Profile');
@@ -1376,7 +1370,7 @@ Dynamic SQL
 
 <br/>
 #####Introduction
-Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [emacros](https://github.com/emaphp/eMacros ""), a language based on [lisphp](https://github.com/lisphp/lisphp ""). Dynamic expressions are included between the delimiters *[?* and *?]*. The next example shows a query that sets the condition dynamically according to the argument type.
+Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on [lisphp](https://github.com/lisphp/lisphp ""). Dynamic expressions are included between the delimiters *[?* and *?]*. The next example shows a query that sets the condition dynamically according to the argument type.
 ```sql
 SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
 ```
@@ -1394,7 +1388,7 @@ $user = $mapper->type('obj')->query($query, 'emaphp');
 <br/>
 #####eMacros 101
 
-Just to give you a basic approach of how S-expressions work here's a list of small examples. Refer to emacros documentation for more.
+Just to give you a basic approach of how S-expressions work here's a list of small examples. Refer to *eMacros* documentation for more.
 ```lisp
 ; simple math
 (+ 4 10) ; 14
@@ -1788,7 +1782,7 @@ class Person {
 <br/>
 #####Conditional attributes
 
-The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must be expressed also as macros.
+The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must also be expressed as macros.
 
 ```php
 /**
@@ -2032,4 +2026,4 @@ class Car {
 License
 --------------
 <br/>
-This code is licensed under the BSD 2-Clause license.
+This code is licensed under the MIT license.

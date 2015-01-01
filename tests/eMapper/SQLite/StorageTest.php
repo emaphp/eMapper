@@ -10,6 +10,8 @@ use Acme\Storage\Client;
 use Acme\Storage\Pet;
 use Acme\Storage\Driver;
 use Acme\Storage\Car;
+use Acme\Storage\Task;
+use Acme\Storage\Employee;
 
 /**
  * 
@@ -411,6 +413,147 @@ class StorageTest extends MapperTest {
 		$car = $carsManager->get();
 		$this->assertNull($car->driverId);
 		
+		$mapper->close();
+	}
+	
+	public function testManyToMany() {
+		$this->truncateTable('employees');
+		$this->truncateTable('tasks');
+		$this->truncateTable('emp_tasks');
+		
+		$mapper = $this->getMapper();
+		$employeesManager = $mapper->newManager('Acme\Storage\Employee');
+		$tasksManager = $mapper->newManager('Acme\Storage\Task');
+		
+		$task1 = new Task();
+		$task1->name = 'Task 1';
+		$task1->started = true;
+		$task1->startingDate = new \Datetime;
+		
+		$task2 = new Task();
+		$task2->name = 'Task 2';
+		$task2->started = false;
+		$task2->startingDate = new \Datetime;
+		
+		$task3 = new Task();
+		$task3->name = 'Task 3';
+		$task3->started = true;
+		$task3->startingDate = new \Datetime;
+		
+		$emp1 = new Employee();
+		$emp1->firstname = 'Joe';
+		$emp1->lastname = 'Doe';
+		$emp1->department = 'Sales';
+		$emp1->tasks = [$task1, $task2];
+		
+		$emp2 = new Employee();
+		$emp2->firstname = 'Jane';
+		$emp2->lastname = 'Doe';
+		$emp2->department = 'IT';
+		$emp2->tasks = [$task1, $task3];
+		
+		$employeesManager->save($emp1);
+		$employeesManager->save($emp2);
+		
+		$totalTasks = $tasksManager->count();
+		$this->assertEquals(3, $totalTasks);
+		
+		$related = $mapper->type('i')->query("SELECT COUNT(*) FROM emp_tasks");
+		$this->assertEquals(4, $related);
+		
+		$mapper->close();
+	}
+	
+	public function testManyToManyDeleteTask() {
+		$this->truncateTable('employees');
+		$this->truncateTable('tasks');
+		$this->truncateTable('emp_tasks');
+	
+		$mapper = $this->getMapper();
+		$employeesManager = $mapper->newManager('Acme\Storage\Employee');
+		$tasksManager = $mapper->newManager('Acme\Storage\Task');
+	
+		$task1 = new Task();
+		$task1->name = 'Task 1';
+		$task1->started = true;
+		$task1->startingDate = new \Datetime;
+	
+		$task2 = new Task();
+		$task2->name = 'Task 2';
+		$task2->started = false;
+		$task2->startingDate = new \Datetime;
+	
+		$task3 = new Task();
+		$task3->name = 'Task 3';
+		$task3->started = true;
+		$task3->startingDate = new \Datetime;
+	
+		$emp1 = new Employee();
+		$emp1->firstname = 'Joe';
+		$emp1->lastname = 'Doe';
+		$emp1->department = 'Sales';
+		$emp1->tasks = [$task1, $task2];
+	
+		$emp2 = new Employee();
+		$emp2->firstname = 'Jane';
+		$emp2->lastname = 'Doe';
+		$emp2->department = 'IT';
+		$emp2->tasks = [$task1, $task3];
+	
+		$employeesManager->save($emp1);
+		$employeesManager->save($emp2);
+	
+		$tasksManager->delete($task2);
+		$related = $mapper->type('i')->query("SELECT COUNT(*) FROM emp_tasks");
+		$this->assertEquals(3, $related);
+	
+		$mapper->close();
+	}
+	
+	public function testManyToManyDeleteEmployee() {
+		$this->truncateTable('employees');
+		$this->truncateTable('tasks');
+		$this->truncateTable('emp_tasks');
+	
+		$mapper = $this->getMapper();
+		$employeesManager = $mapper->newManager('Acme\Storage\Employee');
+		$tasksManager = $mapper->newManager('Acme\Storage\Task');
+	
+		$task1 = new Task();
+		$task1->name = 'Task 1';
+		$task1->started = true;
+		$task1->startingDate = new \Datetime;
+	
+		$task2 = new Task();
+		$task2->name = 'Task 2';
+		$task2->started = false;
+		$task2->startingDate = new \Datetime;
+	
+		$task3 = new Task();
+		$task3->name = 'Task 3';
+		$task3->started = true;
+		$task3->startingDate = new \Datetime;
+	
+		$emp1 = new Employee();
+		$emp1->firstname = 'Joe';
+		$emp1->lastname = 'Doe';
+		$emp1->department = 'Sales';
+		$emp1->tasks = [$task1, $task2];
+	
+		$emp2 = new Employee();
+		$emp2->firstname = 'Jane';
+		$emp2->lastname = 'Doe';
+		$emp2->department = 'IT';
+		$emp2->tasks = [$task1, $task3];
+	
+		$employeesManager->save($emp1);
+		$employeesManager->save($emp2);
+	
+		$employeesManager->delete($emp2);
+		
+		$related = $mapper->type('i')->query("SELECT COUNT(*) FROM emp_tasks");
+		$this->assertEquals(2, $related);
+	
 		$mapper->close();
 	}
 }

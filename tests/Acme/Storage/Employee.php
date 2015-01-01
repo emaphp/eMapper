@@ -30,6 +30,7 @@ class Employee {
 	/**
 	 * @ManyToMany Task
 	 * @Join(emp_id, task_id) emp_tasks
+	 * @Cascade
 	 */
 	public $tasks;
 }

@@ -108,6 +108,13 @@ abstract class AbstractQuery {
 	 * JOINS
 	 */
 	
+	/**
+	 * Appends an inner join to join list
+	 * @param string $table
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $alias_or_cond
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $cond
+	 * @return \eMapper\Fluent\Query\AbstractQuery
+	 */
 	public function innerJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
 			$this->joins[] = new JoinClause(JoinClause::INNER_JOIN, $table, null, $alias_or_cond);
@@ -116,6 +123,13 @@ abstract class AbstractQuery {
 		return $this;
 	}
 	
+	/**
+	 * Appends a left join to join list
+	 * @param string $table
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $alias_or_cond
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $cond
+	 * @return \eMapper\Fluent\Query\AbstractQuery
+	 */
 	public function leftJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
 			$this->joins[] = new JoinClause(JoinClause::LEFT_JOIN, $table, null, $alias_or_cond);
@@ -124,6 +138,13 @@ abstract class AbstractQuery {
 		return $this;
 	}
 	
+	/**
+	 * Appends a full outer join to join list
+	 * @param string $table
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $alias_or_cond
+	 * @param string | \eMapper\SQL\Predicate\SQLPredicate $cond
+	 * @return \eMapper\Fluent\Query\AbstractQuery
+	 */
 	public function fullOuterJoin($table, $alias_or_cond, $cond = null) {
 		if (is_null($cond))
 			$this->joins[] = new JoinClause(JoinClause::FULL_OUTER_JOIN, $table, null, $alias_or_cond);
@@ -153,6 +174,10 @@ abstract class AbstractQuery {
 	 * EXEC
 	 */
 	
+	/**
+	 * Executes the resulting query against current database
+	 * @return mixed
+	 */
 	public function exec() {
 		list($query, $args) = $this->build();
 		if (empty($this->config))
@@ -164,5 +189,9 @@ abstract class AbstractQuery {
 	 * ABSTRACT METHODS
 	 */
 	
+	/**
+	 * Builds query string + argument list
+	 * @return array
+	 */
 	public abstract function build();
 }

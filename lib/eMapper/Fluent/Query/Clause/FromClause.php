@@ -30,6 +30,7 @@ class FromClause {
 	/**
 	 * Returns a join expression as a string
 	 * @param \eMapper\Fluent\Query\Clause\JoinClause $join
+	 * @param \eMapper\Query\Schema $schema
 	 * @return string
 	 */
 	protected function translateJoin(JoinClause $join, Schema &$schema) {

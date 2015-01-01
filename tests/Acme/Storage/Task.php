@@ -19,6 +19,7 @@ class Task {
 	
 	/**
 	 * @Type timestamp
+	 * @Column starting_date
 	 */
 	public $startingDate;
 	
@@ -30,6 +31,7 @@ class Task {
 	/**
 	 * @ManyToMany Employee
 	 * @Join(task_id, emp_id) emp_tasks
+	 * @Cascade
 	 */
 	public $employees;
 }
