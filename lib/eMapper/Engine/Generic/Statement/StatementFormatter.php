@@ -147,7 +147,7 @@ abstract class StatementFormatter extends CacheKeyFormatter {
 		$expr = str_replace(self::SHORT_PREFIX, array_key_exists('db.prefix', $config) ? strval($config['db.prefix']) : '', $expr);
 	
 		//wrap argument (if any)
-		if (array_key_exists(0, $args) && (is_object($args[0]) || is_array($args[0])))
+		if (array_key_exists(0, $args) && (is_array($args[0]) || is_object($args[0])))
 			$this->wrappedArg = ArgumentWrapper::wrap($args[0]);
 	
 		//replace properties expressions

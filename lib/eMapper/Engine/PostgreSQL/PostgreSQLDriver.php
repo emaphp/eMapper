@@ -185,10 +185,6 @@ class PostgreSQLDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throwException($message, \Exception $previous = null) {
-		throw new PostgreSQLException($message, $previous);
-	}
-	
 	public function throwQueryException($query) {
 		throw new PostgreSQLQueryException(pg_last_error($this->connection), $query);
 	}

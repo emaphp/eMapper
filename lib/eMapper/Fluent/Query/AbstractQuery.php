@@ -41,7 +41,7 @@ abstract class AbstractQuery {
 		
 	/**
 	 * Join schema (table => JoinClause)
-	 * @var array[string]:\eMapper\Fluent\Query\Clause\JoinClause
+	 * @var array[]:\eMapper\Fluent\Query\Clause\JoinClause
 	 */
 	protected $joins = [];
 	

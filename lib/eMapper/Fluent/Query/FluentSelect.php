@@ -157,15 +157,13 @@ class FluentSelect extends AbstractQuery {
 					});
 				elseif (is_string($column))
 					$columns[] = $column;
+				else
+					throw new \RuntimeException("Columns must be specified using a Field instance or a non-empty string");
 			}
-			$select = implode(',', $columns);
+			$select = $this->selectDistinct ? 'DISTINCT ' . implode(',', $columns) : implode(',', $columns);
 		}
 		else
-			$select = '*';
-		
-		//distinct
-		if ($this->selectDistinct)
-			$select = 'DISTINCT ' . $select;
+			$select = $this->selectDistinct ? 'DISTINCT *' : '*';
 		
 		//WHERE clause
 		$where = '';
@@ -184,7 +182,7 @@ class FluentSelect extends AbstractQuery {
 				elseif ($group instanceof Field)
 					$groups[] = $schema->translate($group, $this->alias);
 				else
-					throw new \InvalidArgumentException("Groups must be specified using a string or a Field instance");
+					throw new \InvalidArgumentException("Groups must be specified using a Field instance or a non-empty string");
 			}
 			$clauses .= " GROUP BY " . implode(',', $groups);
 			
@@ -206,7 +204,7 @@ class FluentSelect extends AbstractQuery {
 						return $column;
 					});
 				else
-					throw new \InvalidArgumentException("Order must be specified using a string or a Field instance");
+					throw new \InvalidArgumentException("Order must be specified using a Field instance or a non-empty string");
 			}
 			$clauses .= (" ORDER BY " . implode(',', $order));
 		}
@@ -241,12 +239,9 @@ class FluentSelect extends AbstractQuery {
 		if (!empty($this->groupByClause) && isset($this->havingClause) && $this->havingClause->hasArguments())
 			$args = array_merge($args, $this->havingClause->getArguments());
 
-		//get generated arguments
-		$complexArg = $schema->getArguments();
-		
 		//append complexArg to argument list if necessary
-		if (!empty($complexArg))
-			array_unshift($args, $complexArg);
+		if ($schema->hasArguments())
+			array_unshift($args, $schema->getArguments());
 		
 		return [$query, $args];
 	}
@@ -266,11 +261,7 @@ class FluentSelect extends AbstractQuery {
 			$config = empty($this->config) ? ['map.type' => $mappingType] : array_merge($this->config, ['map.type' => $mappingType]);
 			$mapper = $this->fluent->getMapper()->merge($config);
 		}
-				
-		if (empty($args))
-			return $mapper->query($query);
 		
-		//append query to argument list
-		return $mapper->execute($query, $args);
+		return empty($args) ? $mapper->query($query) : $mapper->execute($query, $args);
 	}
 }

@@ -225,10 +225,6 @@ class MySQLDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throwException($message, \Exception $previous = null) {
-		throw new MySQLException($message, null, $previous);
-	}
-	
 	public function throwQueryException($query) {
 		throw new MySQLQueryException(mysqli_error($this->connection), $query);
 	}

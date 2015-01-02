@@ -15,6 +15,7 @@ use eMapper\Result\Mapper\ScalarTypeMapper;
 use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
+use eMapper\Cache\CacheStorage;
 use eMapper\Procedure\StoredProcedure;
 use eMapper\Fluent\FluentQuery;
 use eMapper\ORM\Manager;
@@ -27,6 +28,7 @@ use SimpleCache\CacheProvider;
  */
 class Mapper {
 	use StatementConfiguration;
+	use CacheStorage;
 	
 	//mapping expression regex
 	const OBJECT_TYPE_REGEX = '@^(?:object|obj+)(?::([A-z]{1}[\w|\\\\]*))?(?:<(\w+)(?::([A-z]{1}[\w]*))?>)?(\[\]|\[(\w+)(?::([A-z]{1}[\w]*))?\])?$@';
@@ -216,51 +218,6 @@ class Mapper {
 	 */
 	public function getCacheProvider() {
 		return $this->cacheProvider;
-	}
-	
-	/**
-	 * Injects cache metadata on the given value
-	 * @param array | object $value
-	 * @param string $class
-	 * @param string $method
-	 * @param array $groups
-	 * @param string $resultMap
-	 */
-	protected function injectCacheMetadata(&$value, $class, $method, $groups, $resultMap) {
-		$metadata = new \stdClass();
-		$metadata->class = $class;
-		$metadata->method = $method;
-		$metadata->groups = empty($groups) ? null : $groups;
-		$metadata->resultMap = $resultMap;
-		
-		$metakey = $this->config['cache.metakey'];
-		if (is_array($value) || $value instanceof \ArrayObject)
-			$value[$metakey] = $metadata;
-		else
-			$value->$metakey = $metadata;
-	}
-	
-	/**
-	 * Extracts cache metadata from the given value
-	 * @param array | object $value
-	 * @return NULL | \stdClass
-	 */
-	protected function extractCacheMetadata($value) {
-		$metakey = $this->config['cache.metakey'];
-		if (is_array($value) || $value instanceof \ArrayObject) {
-			if (!array_key_exists($metakey, $value))
-				return null;
-			
-			return $value[$metakey];
-		}
-		elseif (is_object($value)) {
-			if (!property_exists($value, $metakey))
-				return null;
-			
-			return $value->$metakey;
-		}
-		
-		return null;
 	}
 	
 	/**

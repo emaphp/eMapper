@@ -34,12 +34,9 @@ class FluentDelete extends AbstractQuery {
 		if (isset($this->whereClause) && $this->whereClause->hasArguments())
 			$args = $this->whereClause->getArguments();
 		
-		//get generated arguments
-		$complexArg = $schema->getArguments();
-		
-		//append complexArg to argument list if necessary
-		if (!empty($complexArg))
-			array_unshift($args, $complexArg);
+		//append additional argument to argument list if necessary
+		if ($schema->hasArguments())
+			array_unshift($args, $schema->getArguments());
 		
 		return [$query, $args];
 	}

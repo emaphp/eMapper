@@ -151,10 +151,6 @@ class SQLiteDriver extends Driver {
 	 * EXCEPTION METHODS
 	 */
 	
-	public function throwException($message, \Exception $previous = null) {
-		throw new SQLiteException($message, $previous);
-	}
-	
 	public function throwQueryException($query) {
 		throw new SQLiteQueryException($this->connection->lastErrorMsg(), $query);
 	}

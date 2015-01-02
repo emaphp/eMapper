@@ -78,6 +78,32 @@ class Schema {
 	}
 	
 	/**
+	 * Adds an argument to argument list
+	 * @param string $index
+	 * @param mixed $value
+	 */
+	public function addArgument($index, $value) {
+		$this->arguments[$index] = $value;
+	}
+	
+	/**
+	 * Finds if any argument has been added
+	 * @return boolean
+	 */
+	public function hasArguments() {
+		return !empty($this->arguments);
+	}
+	
+	/**
+	 * Generates a join alias for a founded association
+	 * @return string
+	 */
+	protected function getJoinAlias() {
+		static $counter = 0;
+		return self::DEFAULT_ALIAS . $counter++;
+	}
+	
+	/**
 	 * Translates a Field instance to the corresponding column
 	 * @param \eMapper\Query\Field $field
 	 * @param string $alias
@@ -133,16 +159,13 @@ class Schema {
 			return !empty($funcAlias) ? $field->getName() . '(' . implode(',', $list) . ') AS ' . $funcAlias : $field->getName() . '(' . implode(',', $list) . ')';
 		}
 	}
-		
-	public function addArgument($index, $value) {
-		$this->arguments[$index] = $value;
-	}
 	
-	protected function getJoinAlias() {
-		static $counter = 0;
-		return self::DEFAULT_ALIAS . $counter++;
-	}
-	
+	/**
+	 * Obtains an alias for a given Attr instance used in a sql predicate
+	 * @param \eMapper\Query\Attr $attr
+	 * @throws \RuntimeException
+	 * @return array
+	 */
 	protected function getAttrAlias(Attr $attr) {
 		//check if join is already created
 		$stringPath = $attr->getStringPath();

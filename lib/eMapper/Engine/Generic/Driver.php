@@ -124,13 +124,6 @@ abstract class Driver {
 	public abstract function buildCall($procedure, $tokens, $config);
 	
 	/**
-	 * Throws a generic exception
-	 * @param string $message
-	 * @param \Exception $previous
-	 */
-	public abstract function throwException($message, \Exception $previous = null);
-	
-	/**
 	 * Throws a query exception
 	 * @param string $query
 	 */

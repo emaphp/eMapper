@@ -118,7 +118,8 @@ class FluentUpdate extends AbstractQuery {
 			$args = array_merge($args, $this->whereClause->getArguments());
 			
 		//get generated arguments
-		$complexArg = array_merge($complexArg, $schema->getArguments());
+		if ($schema->hasArguments())
+			$complexArg = array_merge($complexArg, $schema->getArguments());
 		
 		//append complexArg to argument list if necessary
 		if (!empty($complexArg))
