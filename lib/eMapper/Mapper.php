@@ -255,7 +255,7 @@ class Mapper {
 				
 				if (is_array($cachedValue) || is_object($cachedValue)) {
 					//get cache metadata
-					$cacheMeta = $this->extractCacheMetadata($cachedValue);
+					$cacheMeta = $this->extractCacheMetadata($this->config['cache.metakey'], $cachedValue);
 					
 					//no metadata, we didn't stored it
 					if (is_null($cacheMeta)) 
@@ -534,7 +534,7 @@ class Mapper {
 			if (isset($this->cacheProvider) && $cacheable) {
 				//build value wrapper
 				if ($mapper instanceof ComplexMapper)
-					$this->injectCacheMetadata($mappedResult, get_class($mapper), $mappingCallback[1], $mapper->getGroupKeys(), $resultMap);
+					$this->injectCacheMetadata($this->config['cache.metakey'], $mappedResult, get_class($mapper), $mappingCallback[1], $mapper->getGroupKeys(), $resultMap);
 				
 				//store value
 				if (array_key_exists('cache.ttl', $this->config))

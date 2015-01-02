@@ -79,6 +79,12 @@ class Manager {
 	 * CONFIG HELPERS
 	 */
 	
+	/**
+	 * Removes additional configuration keys from a list of values
+	 * @param array $values
+	 * @param boolean $reverse
+	 * @return array
+	 */
 	protected function clean($values, $reverse = true) {
 		$clean = array_diff_key($this->config, array_flip(self::$options));
 		return $reverse ? array_merge($values, $clean) : array_merge($clean, $values);
@@ -103,9 +109,8 @@ class Manager {
 		//obtain attributes from config
 		if ($this->hasOption('query.attrs')) {
 			$columns = [];
-			$attrs = $this->getOption('query.attrs');
 			
-			foreach ($attrs as $attr) {
+			foreach ($this->getOption('query.attrs') as $attr) {
 				if ($attr instanceof Attr)
 					$name = $attr->getName();				
 				elseif (is_string($attr))
@@ -132,7 +137,7 @@ class Manager {
 	 * @param object
 	 * @return array
 	 */
-	protected function entityToArray($entity) {
+	protected function castToArray($entity) {
 		$value = [];
 		foreach ($this->insertColumns as $column => $attr)
 			$value[$column] = $this->getPropertyValue($this->entityProfile, $entity, $attr);		
@@ -497,7 +502,7 @@ class Manager {
 				$query = $this->mapper->newQuery();
 				$query->insertInto($this->entityProfile->getEntityTable())
 				->columns(array_keys($this->insertColumns))
-				->valuesArray($this->entityToArray($entity))
+				->valuesArray($this->castToArray($entity))
 				->exec();
 				$pk = $this->mapper->getLastId();
 				
@@ -510,7 +515,7 @@ class Manager {
 			//build update query
 			$query = $this->mapper->newQuery();
 			$query->update($this->entityProfile->getEntityTable())
-			->setValue($this->entityToArray($entity))
+			->setValue($this->castToArray($entity))
 			->where(Column::__callstatic($this->entityProfile->getPrimaryKey(true))->eq($pk))
 			->exec();
 			$this->mapper->commit();
@@ -580,7 +585,7 @@ class Manager {
 			$query = $this->mapper->newQuery();
 			$query->insertInto($this->entityProfile->getEntityTable())
 			->columns(array_keys($this->insertColumns))
-			->valuesArray($this->entityToArray($entity))
+			->valuesArray($this->castToArray($entity))
 			->exec();
 			$pk = $this->mapper->getLastId();
 			
@@ -591,7 +596,7 @@ class Manager {
 			//update value
 			$query = $this->mapper->newQuery();
 			$query->update($this->entityProfile->getEntityTable())
-			->setValue($this->entityToArray($entity))
+			->setValue($this->castToArray($entity))
 			->where(Column::__callstatic($this->entityProfile->getPrimaryKey(true))->eq($pk))
 			->exec();
 		}
@@ -734,6 +739,7 @@ class Manager {
 	}
 	
 	/**
+	 * Counts the number of rows
 	 * @return int
 	 */
 	public function count() {
@@ -741,6 +747,7 @@ class Manager {
 	}
 	
 	/**
+	 * Calculates the average value for the given attribute
 	 * @param Attr | string $attr
 	 * @return float
 	 */
@@ -749,6 +756,7 @@ class Manager {
 	}
 	
 	/**
+	 * Calculates the sum of the given attribute
 	 * @param Attr | string $attr
 	 * @return float
 	 */
@@ -757,6 +765,7 @@ class Manager {
 	}
 	
 	/**
+	 * Calculates the minimum value for the given attribute
 	 * @param Attr | string $attr
 	 * @return float
 	 */
@@ -765,6 +774,7 @@ class Manager {
 	}
 	
 	/**
+	 * Calculates the maximum value for the given attribute
 	 * @param Attr | string $attr
 	 * @return float
 	 */

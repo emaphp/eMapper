@@ -8,20 +8,20 @@ namespace eMapper\Cache;
 trait CacheStorage {
 	/**
 	 * Injects cache metadata on the given value
+	 * @param string $metakey
 	 * @param array | object $value
 	 * @param string $class
 	 * @param string $method
 	 * @param array $groups
 	 * @param string $resultMap
 	 */
-	protected function injectCacheMetadata(&$value, $class, $method, $groups, $resultMap) {
+	protected function injectCacheMetadata($metakey, &$value, $class, $method, $groups, $resultMap) {
 		$metadata = new \stdClass();
 		$metadata->class = $class;
 		$metadata->method = $method;
 		$metadata->groups = empty($groups) ? null : $groups;
 		$metadata->resultMap = $resultMap;
 	
-		$metakey = $this->config['cache.metakey'];
 		if (is_array($value) || $value instanceof \ArrayObject)
 			$value[$metakey] = $metadata;
 		else
@@ -30,11 +30,11 @@ trait CacheStorage {
 	
 	/**
 	 * Extracts cache metadata from the given value
+	 * @param string $metakey
 	 * @param array | object $value
 	 * @return NULL | \stdClass
 	 */
-	protected function extractCacheMetadata($value) {
-		$metakey = $this->config['cache.metakey'];
+	protected function extractCacheMetadata($metakey, $value) {
 		if (is_array($value) || $value instanceof \ArrayObject) {
 			if (!array_key_exists($metakey, $value))
 				return null;
