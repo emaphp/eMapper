@@ -191,7 +191,7 @@ class Schema {
 			$related = Profiler::getClassProfile($association->getEntityClass());
 			
 			if (!array_key_exists($name, $this->joins))
-				$this->joins[$name] = new Join($association, $related, $path, $this->getJoinAlias(), $parent);
+				$this->joins[$name] = new Join($association, $related, $this->getJoinAlias(), $parent);
 			
 			//prepare next iteration
 			$current = $related;

@@ -155,9 +155,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\Equal
 	 */
 	public function eq($expression, $condition = true) {
-		$eq = new Equal($this, !$condition);
-		$eq->setExpression($expression);
-		return $eq;
+		return new Equal($this, !$condition, $expression);
 	}
 	
 	/**
@@ -167,9 +165,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\Contains
 	 */
 	public function contains($expression, $condition = true) {
-		$contains = new Contains($this, true, !$condition);
-		$contains->setExpression($expression);
-		return $contains;
+		return new Contains($this, true, !$condition, $expression);
 	}
 	
 	/**
@@ -179,9 +175,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\Contains
 	 */
 	public function icontains($expression, $condition = true) {
-		$icontains = new Contains($this, false, !$condition);
-		$icontains->setExpression($expression);
-		return $icontains;
+		return new Contains($this, false, !$condition, $expression);
 	}
 	
 	/**
@@ -191,9 +185,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\In
 	 */
 	public function in($expression, $condition = true) {
-		$in = new In($this, !$condition);
-		$in->setExpression($expression);
-		return $in;
+		return new In($this, !$condition, $expression);
 	}
 	
 	/**
@@ -203,9 +195,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\GreaterThan
 	 */
 	public function gt($expression, $condition = true) {
-		$gt = new GreaterThan($this, !$condition);
-		$gt->setExpression($expression);
-		return $gt;
+		return new GreaterThan($this, !$condition, $expression);
 	}
 	
 	/**
@@ -215,9 +205,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\GreaterThanEqual
 	 */
 	public function gte($expression, $condition = true) {
-		$gte = new GreaterThanEqual($this, !$condition);
-		$gte->setExpression($expression);
-		return $gte;
+		return new GreaterThanEqual($this, !$condition, $expression);
 	}
 	
 	/**
@@ -227,9 +215,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\LessThan
 	 */
 	public function lt($expression, $condition = true) {
-		$lt = new LessThan($this, !$condition);
-		$lt->setExpression($expression);
-		return $lt;
+		return new LessThan($this, !$condition, $expression);
 	}
 	
 	/**
@@ -239,9 +225,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\LessThanEqual
 	 */
 	public function lte($expression, $condition = true) {
-		$lte = new LessThanEqual($this, !$condition);
-		$lte->setExpression($expression);
-		return $lte;
+		return new LessThanEqual($this, !$condition, $expression);
 	}
 	
 	/**
@@ -251,9 +235,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\StartsWith
 	 */
 	public function startswith($expression, $condition = true) {
-		$startswith = new StartsWith($this, true, !$condition);
-		$startswith->setExpression($expression);
-		return $startswith;
+		return new StartsWith($this, true, !$condition, $expression);
 	}
 	
 	/**
@@ -263,9 +245,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\StartsWith
 	 */
 	public function istartswith($expression, $condition = true) {
-		$istartswith = new StartsWith($this, false, !$condition);
-		$istartswith->setExpression($expression);
-		return $istartswith;
+		return new StartsWith($this, false, !$condition, $expression);
 	}
 	
 	/**
@@ -275,9 +255,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\EndsWith
 	 */
 	public function endswith($expression, $condition = true) {
-		$endswith = new EndsWith($this, true, !$condition);
-		$endswith->setExpression($expression);
-		return $endswith;
+		return new EndsWith($this, true, !$condition, $expression);
 	}
 	
 	/**
@@ -287,9 +265,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\EndsWith
 	 */
 	public function iendswith($expression, $condition = true) {
-		$iendswith = new EndsWith($this, false, !$condition);
-		$iendswith->setExpression($expression);
-		return $iendswith;
+		return new EndsWith($this, false, !$condition, $expression);
 	}
 	
 	/**
@@ -313,9 +289,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\Regex
 	 */
 	public function matches($expression, $condition = true) {
-		$matches = new Regex($this, true, !$condition);
-		$matches->setExpression($expression);
-		return $matches;
+		return new Regex($this, true, !$condition, $expression);
 	}
 	
 	/**
@@ -325,9 +299,7 @@ abstract class Field {
 	 * @return \eMapper\SQL\Predicate\Regex
 	 */
 	public function imatches($expression, $condition = true) {
-		$imatches = new Regex($this, false, !$condition);
-		$imatches->setExpression($expression);
-		return $imatches;
+		return new Regex($this, false, !$condition, $expression);
 	}
 	
 	/**

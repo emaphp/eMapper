@@ -15,7 +15,12 @@ abstract class ComparisonPredicate extends SQLPredicate {
 	 * @var mixed
 	 */
 	protected $expression;
-		
+
+	public function __construct(Field $field, $negate = false, $expression = null) {
+		parent::__construct($field, $negate);
+		$this->expression = $expression;
+	}
+	
 	public function setExpression($expression) {
 		$this->expression = $expression;
 	}

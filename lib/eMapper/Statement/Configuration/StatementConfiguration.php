@@ -42,23 +42,6 @@ trait StatementConfiguration {
 	}
 	
 	/**
-	 * Sets the paramter map class to apply to given parameter
-	 * @param mixed $parameter_map
-	 * @throws \InvalidArgumentException
-	 * @return \eMapper\Statement\Configuration\StatementConfiguration
-	 */
-	public function parameterMap($parameter_map) {
-		if (!is_string($parameter_map)) {
-			if (is_object($parameter_map))
-				$parameter_map = get_class($parameter_map);
-			else
-				throw new \InvalidArgumentException("Method 'parameterMap' expects a string or valid a parameter map instance.");
-		}
-		
-		return $this->merge(['map.parameter' => $parameter_map]);
-	}
-	
-	/**
 	 * Sets the callback to invoke for each obtained row
 	 * @param callable $callable
 	 * @throws \InvalidArgumentException

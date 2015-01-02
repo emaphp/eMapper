@@ -19,13 +19,13 @@ use eMapper\Type\Handler\JSONTypeHandler;
 class TypeManager {
 	/**
 	 * Type handlers list
-	 * @var array
+	 * @var array[string]:\eMapper\Type\TypeHandler
 	 */
 	protected $typeHandlers;
 	
 	/**
 	 * Aliases list
-	 * @var array
+	 * @var array[string]:string
 	 */
 	protected $aliases;
 	
@@ -66,7 +66,7 @@ class TypeManager {
 	
 	/**
 	 * Obtains the list of typehandlers defined
-	 * @return array
+	 * @return array[string]:\eMapper\Type\TypeHandler
 	 */
 	public function getTypeHandlers() {
 		return $this->typeHandlers;
@@ -74,7 +74,7 @@ class TypeManager {
 	
 	/**
 	 * Obtains the aliases list defined
-	 * @return array
+	 * @return array[string]:string
 	 */
 	public function getAliases() {
 		return $this->aliases;
@@ -83,7 +83,7 @@ class TypeManager {
 	/**
 	 * Associates a type handler to a given type
 	 * @param string $type
-	 * @param TypeHandler $typeHandler
+	 * @param \eMapper\Type\TypeHandler $typeHandler
 	 * @throws \InvalidArgumentException
 	 */
 	public function setTypeHandler($type, TypeHandler $typeHandler) {
@@ -111,7 +111,7 @@ class TypeManager {
 	/**
 	 * Obtains the type handler assigned to a type
 	 * @param string $type_or_alias
-	 * @return boolean | TypeHandler
+	 * @return boolean | \eMapper\Type\TypeHandler
 	 */
 	public function getTypeHandler($type_or_alias) {		
 		//verify if its an alias

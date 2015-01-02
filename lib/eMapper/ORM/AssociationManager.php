@@ -36,21 +36,6 @@ class AssociationManager extends Manager {
 			$this->selectColumns[] = new Column($this->entityProfile->getProperty($attr)->getColumn());
 		
 		$this->preserveInstance = true;
-		
-		//store additional options
-		$index = $association->getIndex();
-		if (!empty($index))
-			$this->setOption('query.index', $index);
-		
-		$order = $association->getOrder();
-		if (!empty($order))
-			$this->setOption('query.orderBy', $order);
-		
-		$cache = $association->getCache();
-		if (!empty($cache)) {
-			$this->setOption('cache.ttl', intval($cache->getArgument()));
-			$this->setOption('cache.key', $cache->getValue());
-		}
 	}
 	
 	/**
@@ -73,21 +58,31 @@ class AssociationManager extends Manager {
 		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
 		
 		//set condition		
-		$args = func_get_args();
-		if (empty($args) && $this->hasOption('query.filter'))
-			$query->where($this->getFilter(), $this->predicate);
-		elseif (isset($condition))
-			$query->where(new Filter($args), $this->predicate);
-		else
-			$query->where($this->predicate);
+		$query->where($this->predicate);
+		
+		//index
+		$index = $this->association->getIndex();
+		if (!empty($index))
+			$this->setOption('query.index', $index);
 		
 		//order by
-		if ($this->hasOption('query.order'))
+		$order = $this->association->getOrder();
+		if (!empty($order)) {
+			$this->setOption('query.orderBy', $order);
 			$query->orderBy($this->getOrderBy());
+		}
+		
+		//build mapper configuration
+		$config = $this->clean(['map.type' => $this->getListMappingExpression()]);
+		$cache = $this->association->getCache();
+		if (!empty($cache)) {
+			$config['cache.key'] = $cache->getValue();
+			$config['cache.ttl'] = intval($cache->getArgument());
+		}
 		
 		//build query
 		list($sql, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $this->getListMappingExpression()]))->execute($sql, $args);
+		return $this->mapper->merge($config)->execute($sql, $args);
 	}
 	
 	public function get(SQLPredicate $condition = null) {
@@ -103,20 +98,25 @@ class AssociationManager extends Manager {
 		$this->association->appendContextJoin($query, Schema::DEFAULT_ALIAS, Schema::CONTEXT_ALIAS);
 	
 		//set condition		
-		$args = func_get_args();
-		if (empty($args) && $this->hasOption('query.filter'))
-			$query->where($this->getFilter(), $this->predicate);
-		elseif (isset($condition))
-			$query->where(new Filter($args), $this->predicate);
-		else
-			$query->where($this->predicate);
+		$query->where($this->predicate);
 	
 		//order by
-		if ($this->hasOption('query.order'))
+		$order = $this->association->getOrder();
+		if (!empty($order)) {
+			$this->setOption('query.orderBy', $order);
 			$query->orderBy($this->getOrderBy());
+		}
+		
+		//build mapper configuration
+		$config = $this->clean(['map.type' => $this->buildExpression($this->entityProfile)]);
+		$cache = $this->association->getCache();
+		if (!empty($cache)) {
+			$config['cache.key'] = $cache->getValue();
+			$config['cache.ttl'] = intval($cache->getArgument());
+		}
 		
 		//build query
 		list($sql, $args) = $query->build();
-		return $this->mapper->merge($this->clean(['map.type' => $this->buildExpression($this->entityProfile)]))->execute($sql, $args);
+		return $this->mapper->merge($config)->execute($sql, $args);
 	}
 }

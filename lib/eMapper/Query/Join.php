@@ -22,12 +22,6 @@ class Join {
 	protected $profile;
 	
 	/**
-	 * Association route
-	 * @var array
-	 */
-	protected $path;
-	
-	/**
 	 * Join table alias
 	 * @var string
 	 */
@@ -39,10 +33,9 @@ class Join {
 	 */
 	protected $parent;
 	
-	public function __construct(Association $association, ClassProfile $profile, $path, $alias, $parent) {
+	public function __construct(Association $association, ClassProfile $profile, $alias, $parent) {
 		$this->association = $association;
 		$this->profile = $profile;
-		$this->path = $path;
 		$this->alias = $alias;
 		$this->parent = $parent;
 	}
@@ -55,21 +48,11 @@ class Join {
 		return $this->profile;
 	}
 	
-	public function getPath() {
-		return $this->path;
-	}
-	
 	public function getAlias() {
 		return $this->alias;
 	}
 	
 	public function getParent() {
 		return $this->parent;
-	}
-	
-	public function getName() {
-		if (empty($this->path))
-			return null;
-		return implode('__', $this->path);
 	}
 }

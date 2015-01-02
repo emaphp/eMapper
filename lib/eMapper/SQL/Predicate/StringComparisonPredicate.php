@@ -14,8 +14,8 @@ abstract class StringComparisonPredicate extends ComparisonPredicate {
 	 */
 	protected $caseSensitive;
 	
-	public function __construct(Field $field, $caseSensitive, $negate) {
-		parent::__construct($field, $negate);
+	public function __construct(Field $field, $caseSensitive, $negate, $expression) {
+		parent::__construct($field, $negate, $expression);
 		$this->caseSensitive = $caseSensitive;
 	}
 	

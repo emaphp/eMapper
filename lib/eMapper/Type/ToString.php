@@ -22,8 +22,7 @@ trait ToString {
 			return false;
 		elseif (is_object($value)) {
 			if (method_exists($value, '__toString')) {
-				$rc = new \ReflectionClass($value);
-				$rm = $rc->getMethod('__toString');
+				$rm = (new \ReflectionClass($value))->getMethod('__toString');
 				if ($rm->isPublic())
 					return $value->__toString();
 				return false;
