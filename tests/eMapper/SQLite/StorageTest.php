@@ -12,6 +12,8 @@ use Acme\Storage\Driver;
 use Acme\Storage\Car;
 use Acme\Storage\Task;
 use Acme\Storage\Employee;
+use Acme\Storage\Person;
+use Acme\Storage\Address;
 
 /**
  * 
@@ -240,6 +242,38 @@ class StorageTest extends MapperTest {
 		$profilesManager->delete($profile);
 		$this->assertEquals(0, $profilesManager->count());
 		$this->assertEquals(1, $usersManager->count());
+		$mapper->close();
+	}
+	
+	public function testOneToOneDeleteAddress() {
+		$this->truncateTable('people');
+		$this->truncateTable('addresses');
+		
+		$mapper = $this->getMapper();
+		$personsManager = $mapper->newManager('Acme\Storage\Person');
+		$addressManager = $mapper->newManager('Acme\Storage\Address');
+		
+		$person = new Person();
+		$person->name = 'Lazaro';
+		$person->lastname = 'Baez';
+		
+		$address = new Address();
+		$address->street = 'Balcarce';
+		$address->number = 54;
+		$address->city = 'Capital Federal';
+		
+		$person->address = $address;
+		
+		$personId = $personsManager->save($person);
+		$this->assertInternalType('integer', $personId);
+		$this->assertEquals(1, $addressManager->count());
+		$addressManager->delete($address);
+		$this->assertEquals(0, $addressManager->count());
+		$person = $personsManager->findByPk($personId);
+		$this->assertNull($person->addressId);
+		$this->assertNull($person->address);
+		
+		$mapper->close();
 	}
 	
 	/*

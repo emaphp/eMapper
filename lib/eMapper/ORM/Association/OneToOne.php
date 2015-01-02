@@ -209,11 +209,12 @@ class OneToOne extends Association {
 		$property = $entityProfile->getProperty($attr);
 		
 		if ($property->isNullable()) {
+			$column = $property->getColumn();
 			//update foreign key
 			$query = $mapper->newQuery()
 			->update($entityProfile->getEntityTable())
 			->set($column, null)
-			->where(Column::__callstatic($property->getColumn())->eq($foreignKey));
+			->where(Column::__callstatic($column)->eq($foreignKey));
 			
 			$query->exec();
 		}
