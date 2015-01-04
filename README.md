@@ -1132,7 +1132,7 @@ use emapper\Query\Attr;
 
 $manager = $mapper->newManager('Acme\Pet');
 
-//get all pets of Joe Doe
+//get all pets of Joe
 $pets = $manager->find(Attr::owner__name()->eq('Joe'));
 ```
 
@@ -1214,7 +1214,6 @@ class Category {
     /**
      * @Column parent_id
      * @Type integer
-     * @Nullable
      */
     private $parentId;
     
@@ -1249,8 +1248,97 @@ $manager = $mapper->newManager('Acme\Category');
 //get all subcategories of 'Technology'
 $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
 ```
-You may have noticed that the *parentId* attribute has an additional annotation. The *@Nullable* annotation specifies that the *parent_id* column can also accept null values. It is important to add this annotation when having *Many-To-One* associations related to that attribute as it determines if an entity must be deleted if a foreing key is not properly set. This small detail allows the existence of entities without a parent category.
 
+
+<br/>
+#####SQLite
+
+Most RDBMS provide a way to keep reference integrity through some event/trigger facility. This is not the case for SQLite. In order to keep reference integrity 2 special annotations are provided: @Cascade and @Nullable. This example illustrates the relationship between the *User* and *Profile* class.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity profiles
+ */
+class Profile {
+    /**
+     * @Id
+     * @Type int
+     * @Column profile_id
+     */
+    public $id;
+    
+    /**
+     * @Type int
+     * @Column user_id
+     */
+    public $userId;
+    
+    /**
+     * @Type string
+     */
+    public $firstname;
+    
+    /**
+     * @Type string
+     */
+    public $lastname;
+}
+```
+
+When defining the *User* entity we'll append a *@Cascade* annotation to its *$profile* attribute.
+
+```php
+namespace Acme;
+
+/**
+ * @Entity users
+ */
+class User {
+    /**
+     * @Id
+     * @Type int
+     * @Column user_id
+     */
+    public $id;
+    
+    /**
+     * @Type string
+     */
+    public $name;
+    
+    /*
+     * @Type string
+     * @Unique
+     */
+    public $email;
+    
+    /**
+     * @OneToOne Profile
+     * @Attr userId
+     * @Cascade
+     */
+    public $profile;
+}
+```
+By using the *@Cascade* annotation we instruct the manager to delete the related profile once a user is removed from database.
+
+```php
+use eMapper\Mapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+
+$mapper = new Mapper(new SQLiteDriver('data.db'));
+
+//delete user, profile is removed as well
+$manager = $mapper->newManager('Acme\User');
+$user = $manager->findByPk(1);
+$manager->delete($user);
+
+$mapper->close();
+```
+
+But what if we don't want to remove a profile? In that case the *userId* attribute in the *Profile* class must include the *@Nullable* annotation. The manager checks if this annotation is present in the related entity in order to determine which action must be taken. If present then only an update query is executed.
 
 <br/>
 #####Configuration
@@ -2023,6 +2111,261 @@ class Car {
 ```
 
 <br/>
+Appendix I: Additional features
+------------
+
+<br/>
+#####Query debugging
+
+The *debug* method receives a Closure instance which can be used to inspect a query before being sent to the database.
+
+```php
+use eMapper\Mapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+
+$mapper = new Mapper(new SQLiteDriver('data.db'));
+
+//append call to debug method
+$result = $mapper->debug(function($query) {
+    //print query
+    echo $query. "\n";
+})->type('obj')->query('SELECT * FROM products WHERE code = %{i}', 'WER745');
+
+$mapper->close();
+```
+This syntax is supported by fluent queries and manager instances as well.
+
+<br/>
+#####Resultmaps
+
+Resultmaps are a convenient way of mapping objects and arrays without relying on entities. We declare a resultmap as a class using the appropiate annotations for each property.
+
+```php
+namespace Acme;
+
+class UserResultMap {
+    /**
+     * @Type int
+     */
+    public $id;
+    
+    /**
+     * @Type string
+     * @Column firstname
+     */
+    public $name;
+    
+    /**
+     * @Column last_login
+     */
+    public $lastLogin;
+}
+```
+
+We instruct a mapper instance to use a resultmap by appending a call to the *resultmap* method. This method espects the resultmap class fullname as an argument.
+
+```php
+use eMapper\Mapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+
+$mapper = new Mapper(new SQLiteDriver('data.db'));
+
+//the obtained array has the 'id', 'name' and 'lastLogin' keys defined
+$user = $mapper
+->resultmap('Acme\UserResultMap')
+->type('arr')
+->query("SELECT * FROM users WHERE id = %{i}", 7);
+
+$mapper->close();
+```
+
+<br/>
+Appendix II: Annotations
+------------
+
+<br/>
+#####Class annotations
+
+<table>
+    <tr>
+        <th>Annotation</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>@Entity</td>
+        <td>Used to indicate that a class is an entity. Value must declare the associated table name.</td>
+        <td>@Entity users</td>
+    </tr>
+</table>
+
+<br/>
+#####Property annotations
+
+<table>
+    <tr>
+        <th>Annotation</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>@Id</td>
+        <td>Indicates that a property is a primary key.</td>
+        <td>-</td>
+    </tr>
+     <tr>
+        <td>@Type</td>
+        <td>Indicates the type of the current property.</td>
+        <td>@Type string</td>
+    </tr>
+     <tr>
+        <td>@Column</td>
+        <td>Indicates the column that is referenced by the property.</td>
+        <td>@Column user_id</td>
+    </tr>
+     <tr>
+        <td>@Unique</td>
+        <td>Indicates that a property is unique.</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>@Nullable</td>
+        <td>Indicates that a property can store NULL values.</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>@ReadOnly</td>
+        <td>Indicates that a property is read-only and therefore will not be used for INSERT queries.</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>@OnDuplicate</td>
+        <td>Checks if the value for the current property is already present. Value must indicate which action to take if the value is found, being "ignore" or "update" the possible options.</td>
+        <td>@OnDuplicate ignore</td>
+    </tr>
+</table>
+
+<br/>
+#####Associations
+<br/>
+<table>
+    <tr>
+        <th>Annotation</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>@OneToOne</td>
+        <td>Indicates that a property is a one-to-one association. Must indicate which entity class is referenced. Requires @Attr.</td>
+        <td>@OneToOne Profile</td>
+    </tr>
+    <tr>
+        <td>@OneToMany</td>
+        <td>Indicates that a property is a one-to-many association. Must indicate which entity class is referenced. Requires @Attr.</td>
+        <td>@OneToMany Post</td>
+    </tr>
+    <tr>
+        <td>@ManyToOne</td>
+        <td>Indicates that a property is a many-to-one association. Must indicate which entity class is referenced. Requires @Attr.</td>
+        <td>@ManyToOne Group</td>
+    </tr>
+    <tr>
+        <td>@ManyToMany</td>
+        <td>Indicates that a property is a many-to-many association. Must indicate which entity class is referenced. Requires @Join.</td>
+        <td>@ManyToMany Product</td>
+    </tr>
+     <tr>
+        <td>@Attr</td>
+        <td>Indicates which property is used for an association. If the property is declared within the same class then it must be expressed between parentheses.</td>
+        <td>@Attr(clientId)<br/>@Attr userId</td>
+    </tr>
+    <tr>
+        <td>@Join</td>
+        <td>Indicates the join table used for a many-to-many association. It also must declare the column names used for joining, first being the one that references current entity.</td>
+        <td>@Join(user_id,task_id) users_tasks</td>
+    </tr>
+    <tr>
+        <td>@Index</td>
+        <td>Indicates which property is used for indexation.</td>
+        <td>@Index productId</td>
+    </tr>
+     <tr>
+        <td>@OrderBy</td>
+        <td>Indicates which property is used for order. Multiple annotations could be included.</td>
+        <td>@OrderBy price<br/>@OrderBy countryId ASC</td>
+    </tr>
+     <tr>
+        <td>@Cache</td>
+        <td>Indicates if the associated value is stored in cache. Must include a string key. It also can include an amount of time between parentheses.</td>
+        <td>@Cache(120) USER_%{i}</td>
+    </tr>
+     <tr>
+        <td>@Cascade</td>
+        <td>Indicates that associated values must be updated accordingly once an entity is deleted. Used to keep reference integrity in SQLite.</td>
+        <td></td>
+    </tr>
+</table>
+
+<br/>
+#####Dynamic attributes
+<br/>
+<table>
+    <tr>
+        <th>Annotation</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>@Query</td>
+        <td>Used to bind an attribute with the value returned by a query.</td>
+        <td>@Query "SELECT * FROM users"</td>
+    </tr>
+    <tr>
+        <td>@Statement</td>
+        <td>Binds an attribute to a statement execution. Value must indicate the entity class and a statement id separated by a "." character.</td>
+        <td>@Statement Product.findByCode</td>
+    </tr>
+    <tr>
+        <td>@Procedure</td>
+        <td>Binds an attribute to a stored procedure execution.</td>
+        <td>@Procedure Products_FindByCategory</td>
+    </tr>
+    <tr>
+        <td>@Eval</td>
+        <td>Binds an attribute to a S-expression (macro). Does not support @Param. @Cacheable by default.</td>
+        <td>@Eval (. (#surname) ', ' (#firstname))</td>
+    </tr>
+    <tr>
+        <td>@Param</td>
+        <td>Adds an argument to a dynamic attribute. The special form @Param(self) indicates that the whole instance is used as an argument. Attribute values must be expressed between parentheses.</td>
+        <td>@Param 100<br/>@Param(userId)</td>
+    </tr>
+    <tr>
+        <td>@Type</td>
+        <td>Indicates the mapping expression for @Query, @Statement and @Procedure.</td>
+        <td>@Type int<br/>@Type obj:Acme\Vehicle[id]</td>
+    </tr>
+    <tr>
+        <td>@Cache</td>
+        <td>Indicates the cache options for the given result. Must include a string key and the amount of time to keep in cache between parentheses.</td>
+        <td>@Cache(120) PRODUCT_%{s}</td>
+    </tr>
+    <tr>
+        <td>@Option</td>
+        <td>Includes a custom option. Must indicate the option name between parentheses.</td>
+        <td>@Option(order) 'category'</td>
+    </tr>
+    <tr>
+        <td>@Cacheable</td>
+        <td>Indicates that the value returned by a dynamic attribute can be stored in cache.</td>
+        <td>-</td>
+    </tr>
+     <tr>
+        <td>@If, @IfNot, @IfNotNull</td>
+        <td>Used to indicate that a dynamic attribute must only be evaluated if a condition evaluates to true. @If and @IfNot evaluates a macro against current instance while @IfNotNull checks whether an attribute is not NULL.</td>
+        <td>@If (== (#category) 'laptops')<br/>@IfNot (== (#status) 'ready')<br/>@IfNotNull(userId)</td>
+    </tr>
+</table>
 License
 --------------
 <br/>
