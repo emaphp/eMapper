@@ -58,7 +58,7 @@ About
 *eMapper* is a PHP library aimed to provide a simple, powerful and highly customizable data mapping tool. It comes with some interesting features like:
 
 - **Customized mapping**: Results can be mapped to a desired type through mapping expressions.
-- **Indexation and Grouping**: Lists can be indexed or grouped together by a column value.
+- **Indexation and Grouping**: Lists can be indexed or grouped together by a column/attribute name.
 - **Custom types**: Developers can design their own types and custom type handlers.
 - **Cache providers**: Obtained data can be stored in cache using APC or Memcache.
 - **Dynamic SQL**: Queries can contain Dynamic SQL clauses.
@@ -200,7 +200,7 @@ class Book {
     //...
 }
 
-$book = $mapper->type('obj:Acme\Library\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "9788437604183");
+$book = $mapper->type('obj:Acme\Library\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "978-987-566-647-4");
 ```
 
 *Note*: One important thing to remember when mapping to a structure is that values contained in columns declared using the DATE or DATETIME types are converted to instances of [DateTime](http://ar2.php.net/manual/en/class.datetime.php "").
@@ -213,7 +213,7 @@ Lists
 #####Simple types
 
 ```php
-//just add brackets at the end of the expression and you're done
+//we obtain lists by adding brackets at the end of the expression
 $id_list = $mapper->type('int[]')->query("SELECT id FROM users");
 
 $prices = $mapper->type('float[]')->query("SELECT price FROM products");
@@ -286,7 +286,7 @@ $products = $mapper->type('array[]')
 })
 ->query("SELECT * FROM products");
 
-// a group callback does what you expect
+//a group callback does what you expect
 //it can also be combined with indexes if needed
 $products = $mapper->type('obj[id]')
 ->groupCallback(function ($product) {
@@ -724,71 +724,35 @@ class Product {
      * @Id
      * @Type integer
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
-     * @Column pcod
+     * @Column pcode
      */
-    private $code;
+    public $code;
 
     /**
      * @Type string
      */
-    private $description;
+    public $description;
 
     /**
      * @Type string
      */
-    private $category;
+    public $category;
     
     /**
      * @Type float
      */
-    private $price;
-    
-    public function getId() {
-        return $this->id;
-    }
-    
-    public function setCode($code) {
-        $this->code = $code;
-    }
-    
-    public function getCode()  {
-        return $this->code;
-    }
-    
-    public function setDescription($description) {
-        $this->description = $description;
-    }
-
-    public function getDescription() {
-        return $this->description;
-    }
-    
-    public function setCategory($category) {
-        $this->category = $category;
-    }
-
-    public function getCategory(){
-        return $this->category;
-    }
-    
-    public function setPrice($price) {
-        $this->price = $price;
-    }
-
-    public function getPrice() {
-        return $this->price;
-    }
+    public $price;
 }
 ```
 Managers are created through the *newManager* method in the *Mapper* class. This method expects the entity class full name. Managers are capable of getting results using filters without having to write SQL manually. Notice that conditional expressions are now created using the *Attr* class instead of *Column*.
 
 ```php
 //create a products manager
-$products = $mapper->newManager('Acme\\Factory\\Product');
+$products = $mapper->newManager('Acme\Factory\Product');
 
 //get by id
 $product = $products->findByPk(4);
@@ -841,7 +805,7 @@ $list = $products
 })
 ->find();
 
-//order and limit clauses
+//set the amount of objects to obtain
 $list = $products
 ->orderBy(Attr::id())
 ->limit(15)
@@ -849,7 +813,7 @@ $list = $products
 
 //setting the order type
 $list = $products
-->orderBy(Attr::id('ASC'), Attr::category())
+->orderBy(Attr::id(), Attr::category()->type('ASC'))
 ->limit(10, 20)
 ->find();
 
@@ -866,7 +830,8 @@ $avg = $products
 //max price (returns as integer)
 $max = $products
 ->filter(Attr::code()->startswith('SONY'))
-->max(Attr::price(), 'int');
+->type('int')
+->max(Attr::price());
 ```
 
 <br/>
@@ -879,17 +844,17 @@ use Acme\Factory\Product;
 $products = $mapper->newManager('Acme\Factory\Product');
 
 $product = new Product;
-$product->setCode('ACM001');
-$product->setDescription('Test product');
-$product->setCategory('Explosives');
-$product->setPrice(149.90);
+$product->code = 'ACM001';
+$product->description = 'Test product';
+$product->category = 'Explosives';
+$product->price = 149.90;
 
 //save object
 $products->save($product);
 
 //if the entity already has an id, 'save' produces an UPDATE query
 $product = $products->get(Attr::code()->eq('ACM001'));
-$product->setPrice(129.90);
+$product->price = 129.90;
 $products->save($product);
 ```
 
@@ -936,22 +901,22 @@ class Profile {
      * @Id
      * @Type integer
      */
-    private $id;
+    public $id;
     
     /**
      * @Column user_id
      */
-    private $userId;
+    public $userId;
     
     /**
      * @Type string
      */
-    private $firstname;
+    public $firstname;
     
     /**
      * @Type string
      */
-    private $surname;
+    public $surname;
     
     /*
      * ASSOCIATIONS
@@ -962,11 +927,9 @@ class Profile {
      * @Attr(userId)
      */
     private $user;
-    
-    //...
 }
 ```
-In this example, the *Profile* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join.
+In this example, the *Profile* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join. When an attribute is declared on the current class then it must be expressed between parentheses right after the annotation.
 
 ```php
 namespace Acme;
@@ -979,12 +942,17 @@ class User {
      * @Id
      * @Type integer
      */
-    private $id;
+    public $id;
     
     /**
      * @Column username
      */
-    private $name;
+    public $name;
+    
+    /**
+     * @Type string
+     */
+    public $email;
     
     /*
      * ASSOCIATIONS
@@ -995,12 +963,10 @@ class User {
      * @Attr userId
      * @Lazy
      */
-    private $profile;
-    
-    //...
+    public $profile;
 }
 ```
-The *User* class defines the **profile** property as a one-to-one association with the *Profile* class. Notice that this time the *@Attr* annotation defines the property name as a value, not as an argument. Also, this association is declared as **lazy**, which means that is not evaluated right away. The following example shows how to obtain a *Profile* instance and its associated user.
+The *User* class defines the *profile* property as a one-to-one association with the *Profile* class. Notice that this time the *@Attr* annotation defines the property name without parentheses, meaning that the required attribute is not declared in the current class. Also, this association is declared as **lazy**, which means that is not evaluated right away. The following example shows how to obtain a *Profile* instance and its associated user.
 
 ```php
 //obtain the profile with ID = 100
@@ -1009,7 +975,7 @@ $profile = $manager->findByPk(100); // returns a Profile instance
 $user = $profile->getUser(); // returns the associated User instance
 ```
 
-Lazy associations returns an instance of *eMapper\ORM\AssociationManager*. This means that invoking the *getProfile* method will return a manager instance. In order to get the referred value we append a call to the *fetch* method.
+Lazy associations returns an instance of *eMapper\ORM\AssociationManager*. This means that invoking the *getProfile* method will return a manager instance, not an entity. In order to get the referred value we append a call to the *fetch* method.
 
 ```php
 //obtain the user with ID = 100
@@ -1033,7 +999,7 @@ $profile = $manager->get(Attr::user__name()->eq('jdoe'));
 <br/>
 #####One-To-Many and Many-To-One
 
-Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a One-To-Many association to the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation. This annotation references the attribute in the *Pet* class that stores the client identifier.
+Suppose we need to design a pet shop database to store data from a list of clients and their respective pets. The first step after creating the database will be implementing the *Client* and *Pet* entity classes. The *Client* class has a one-to-many association with the *Pet* class provided through the **pets** property. The required attribute (**clientId**) is specified as a value of the *@Attr* annotation. This annotation references the attribute in the *Pet* class that stores the client identifier.
 ```php
 namespace Acme;
 
@@ -1044,17 +1010,17 @@ class Client {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $name;
+    public $name;
     
     /**
      * @Type string
      */
-    private $surname;
+    public $surname;
 
     /*
      * ASSOCIATIONS
@@ -1064,12 +1030,10 @@ class Client {
      * @OneToMany Pet
      * @Attr clientId
      */   
-    private $pets;
-    
-    //...
+    public $pets;
 }
 ```
-From the point of view of the *Pet* class this is a Many-To-One association. The **owner** association is resolved through the **clientId** attribute of the current class, meaning that in this case it has to be specified as an argument of the *@Attr* annotation.
+From the point of view of the *Pet* class this is a many-to-one association. The **owner** association is resolved through the **clientId** attribute , meaning that in this case it has to be specified between parentheses.
 
 ```php
 namespace Acme;
@@ -1081,28 +1045,28 @@ class Pet {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Column client_id
      */
-    private $clientId;
+    public $clientId;
     
     /**
      * @Type string
      */
-    private $name;
+    public $name;
     
     /**
      * @Type string
      */
-    private $type;
+    public $type;
     
     /**
      * @Column birth_date
      * @Type string
      */
-    private $birthDate;
+    public $birthDate;
     
     /*
      * ASSOCIATIONS
@@ -1112,9 +1076,7 @@ class Pet {
      * @ManyToOne Client
      * @Attr(clientId)
      */
-    private $owner;
-    
-    //...
+    public $owner;
 }
 ```
 This small example obtains all clients that have dogs.
@@ -1152,17 +1114,17 @@ class User {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Column username
      */
-    private $name;
+    public $name;
     
     /**
      * @Type string
      */
-    private $mail;
+    public $email;
     
     /*
      * ASSOCIATIONS
@@ -1173,9 +1135,7 @@ class User {
      * @Join(user_id,prod_id) favorites
      * @Lazy
      */
-    private $favorites;
-    
-    //...
+    public $favorites;
 }
 ```
 The *@Join* annotation must indicate which columns are used to perform the join along with the table name. Columns must be specified in the right order; first being the one that references the current entity. The following code shows an example using this association.
@@ -1203,19 +1163,20 @@ namespace Acme;
 class Category {
     /**
      * @Id
+     * @Type int
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $name;
+    public $name;
     
     /**
      * @Column parent_id
      * @Type integer
      */
-    private $parentId;
+    public $parentId;
     
     /*
      * ASSOCIATIONS
@@ -1225,15 +1186,13 @@ class Category {
      * @ManyToOne Category
      * @Attr(parentId)
      */
-    private $parent;
+    public $parent;
     
     /**
      * @OneToMany Category
      * @Attr parentId
      */
-    private $subcategories;
-    
-    //...
+    public $subcategories;
 }
 ```
 
@@ -1253,7 +1212,7 @@ $categories = $mapper->find(Attr::parent__name()->eq('Technology'));
 <br/>
 #####SQLite
 
-Most RDBMS provide a way to keep reference integrity through some event/trigger facility. This is not the case for SQLite. In order to keep reference integrity 2 special annotations are provided: @Cascade and @Nullable. This example illustrates the relationship between the *User* and *Profile* class.
+Most RDBMS provide a way to keep reference integrity through some event/trigger facility. This is not the case for SQLite. In order to keep reference integrity 2 special annotations are provided: *@Cascade* and *@Nullable*. This example illustrates the relationship between the *User* and *Profile* class.
 
 ```php
 namespace Acme;
@@ -1287,7 +1246,7 @@ class Profile {
 }
 ```
 
-When defining the *User* entity we'll append a *@Cascade* annotation to its *$profile* attribute.
+When defining the *User* entity we'll append a *@Cascade* annotation to its *profile* attribute.
 
 ```php
 namespace Acme;
@@ -1340,6 +1299,24 @@ $mapper->close();
 
 But what if we don't want to remove a profile? In that case the *userId* attribute in the *Profile* class must include the *@Nullable* annotation. The manager checks if this annotation is present in the related entity in order to determine which action must be taken. If present then only an update query is executed.
 
+```php
+namespace Acme;
+
+/**
+ * @Entity profiles
+ */
+class Profile {
+    //...
+    
+    /**
+     * @Type int
+     * @Column user_id
+     * @Nullable
+     */
+    public $userId;
+}
+```
+
 <br/>
 #####Configuration
 
@@ -1351,13 +1328,22 @@ One-To-Many and Many-To-Many associations support two additional configuration a
 For example, the **subcategories** association in the *Category* class could be redefined to obtain a list of categories indexed by name and ordered by id. We can achieve this with the following declaration:
 
 ```php
+namespace Acme;
+
 /**
- * @OneToMany Category
- * @Attr parentId
- * @Index name
- * @OrderBy id DESC
+ * @Entity categories
  */
-private $subcategories:
+class Category {
+    //...
+   
+     /**
+     * @OneToMany Category
+     * @Attr parentId
+     * @Index name
+     * @OrderBy id DESC
+     */
+    public $subcategories:   
+}
 ```
 
 <br/>
@@ -1374,9 +1360,9 @@ $manager = $mapper->newManager('Acme\Product');
 
 //create product instance
 $product = new Product();
-$product->setDescription('Android phone');
-$product->setCode('PHN087');
-$product->setPrice(178.99);
+$product->description = 'Android phone';
+$product->code = 'PHN087';
+$product->price = 178.99;
 
 //store and obtain generated id
 $id = $manager->save($product);
@@ -1392,17 +1378,17 @@ $manager = $mapper->newManager('Acme\User');
 
 //create user instance
 $user = new User();
-$user->setName('emaphp');
-$user->setEmail('emaphp@localhost.com');
+$user->name = 'emaphp');
+$user->email = 'emaphp@localhost.com';
 
 //create profile instance
 $profile = new Profile();
-$profile->setFirstName('Emmanuel');
-$profile->setLastName('Antico');
+$profile->firstName = 'Emmanuel';
+$profile->lastName'Antico';
 $profile->setGender('M');
 
 //assign profile and store
-$user->setProfile($profile);
+$user->profile = $profile;
 $manager->save($user);
 ```
 
@@ -1417,7 +1403,7 @@ $manager = $mapper->newManager('Acme\Product');
 
 //update product price and store
 $product = $manager->get(Attr::code()->eq('PHN087'));
-$product->setPrice(149.99);
+$product->price = 149.99;
 $manager->save($product);
 ```
 
@@ -1429,7 +1415,7 @@ use eMapper\Query\Attr;
 $manager = $mapper->newManager('Acme\Profile');
 
 $profile = $manager->findByPk(100);
-$profile->setFirstName('Ishmael');
+$profile->firstName = 'Ishmael';
 
 //save profile along with the related user
 $manager->save($profile);
@@ -1447,9 +1433,9 @@ will return a NULL value. The *save* method also expects a depth parameter (defa
 
 ```php
 $manager = $mapper->newManager('Acme\Profile');
-$profile = $manager->depth(0)->findByPk(100);
-$profile->setFirstName('Ishmael');
-$manager->save($profile, 0); //save only the profile data
+$profile = $manager->depth(0)->findByPk(100); //get profile
+$profile->firstName = 'Ishmael'; //apply changes
+$manager->save($profile, 0); //save
 ```
 
 <br/>
@@ -1458,12 +1444,10 @@ Dynamic SQL
 
 <br/>
 #####Introduction
-Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on [lisphp](https://github.com/lisphp/lisphp ""). Dynamic expressions are included between the delimiters *[?* and *?]*. The next example shows a query that sets the condition dynamically according to the argument type.
-```sql
-SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]
-```
+Queries could also contain logic expressions which are evaluated againts current arguments. These expressions (or S-expressions) are written in [eMacros](https://github.com/emaphp/eMacros ""), a language based on [lisphp](https://github.com/lisphp/lisphp ""). Dynamic expressions are included between the delimiters *[?* and *?]*. The next example shows a query that sets the condition dynamically by checking the argument type.
 
 ```php
+//dynamic query
 $query = "SELECT * FROM users WHERE [? (if (int? (%0)) 'id = %{i}' 'name = %{s}') ?]";
 
 //find by id
@@ -1512,9 +1496,6 @@ Just to give you a basic approach of how S-expressions work here's a list of sma
 #####Configuration values
 
 This example adds an ORDER clause if the configuration key 'order' is set.
-```sql
-SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]
-```
 
 ```php
 $query = "SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]";
@@ -1530,9 +1511,6 @@ $mapper->type('obj[]')->option('order', 'last_login')->query($query);
 <br/>
 #####Typed expressions
 A value returned by a dynamic SQL expression can be associated to a type by adding the type identifier right after the first delimiter. This example simulates a search using the LIKE operator with the value returned by a dynamic expression that returns a string.
-```sql
-SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]
-```
 
 ```php
 $query = "SELECT * FROM users WHERE name LIKE [?string (. '%' (%0) '%') ?]";
@@ -1564,20 +1542,18 @@ class Sale {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Column product_id
      */
-    private $productId;
+    public $productId;
     
     /**
      * @Query "SELECT * FROM products WHERE id = #{productId}"
      * @Type obj:Acme\Factory\Product
      */
-    private $product;
-    
-    //...
+    public $product;
 }
 ```
 When used along with *@Query*, the *@Type* annotation specifies the mapping expression to use.
@@ -1588,26 +1564,44 @@ When used along with *@Query*, the *@Type* annotation specifies the mapping expr
 The *@Param* annotation can be used to define a list of arguments for a dynamic attribute. These arguments can be either a property of the current entity or a constant value. The annotation *@Param(self)* indicates that the current instance is used as first argument. If no additional parameters are added then it can be ignored. Knowing this we can redefine the product property in two ways.
 
 ```php
+namespace Acme\Factory;
+
 /**
- * Using Param(self) to send current entity as argument
- * 
- * @Query "SELECT * FROM products WHERE id = #{productId}"
- * @Param(self)
- * @Type obj:Acme\Factory\Product
+ * @Entity sales
  */
-private $product;
+class Sale {
+    //...
+    
+    /**
+     * Using Param(self) to send current entity as argument
+     * 
+     * @Query "SELECT * FROM products WHERE id = #{productId}"
+     * @Param(self)
+     * @Type obj:Acme\Factory\Product
+     */
+    public $product;
+}
 ```
 Or the alternative syntax specifying the attribute name to use.
 
-```php            
+```php
+namespace Acme\Factory;
+
 /**
- * Using the attribute name as argument of Param
- * 
- * @Query "SELECT * FROM products WHERE id = %{i}"
- * @Param(productId)
- * @Type obj:Acme\Factory\Product
+ * @Entity sales
  */
-private $product;
+class Sale {
+    //...
+    
+    /**
+     * Using the attribute name as argument of Param
+     * 
+     * @Query "SELECT * FROM products WHERE id = %{i}"
+     * @Param(productId)
+     * @Type obj:Acme\Factory\Product
+     */
+    public $product;
+}
 ```
 
 The next example adds a **relatedProducts** property in the *Product* class that includes 2 arguments: the current partial instance and a integer value that sets the amount of objects to return.
@@ -1622,12 +1616,12 @@ class Product {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $category;
+    public $category;
     
     /**
      * @Query "SELECT * FROM products WHERE category = #{category} LIMIT %{i}"
@@ -1635,7 +1629,7 @@ class Product {
      * @Param 10
      * @Type obj::Acme\Factory\Product[id]
      */
-    private $relatedProducts;
+    public $relatedProducts;
 }
 ```
 
@@ -1655,20 +1649,18 @@ class Sale {
     /**
      * @Id
      */
-    private $id;
+    public $id;
     
     /**
      * @Column product_id
      */
-    private $productId;
+    public $productId;
     
     /**
      * @Statement Product.findByPk
      * @Param(productId)
      */
-    private $product;
-    
-    //...
+    public $product;
 }
 ```
 
@@ -1799,71 +1791,73 @@ In order to bind an attribute to a procedure execution we add a *@Procedure* ann
 
 
 ```php
+namespace Acme\Factory;
+
 /**
  * @Entity products
  */
 class Product {
     /**
      * @Id
+     * @Type int
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $category;
+    public $category;
     
     /**
      * @Procedure Products_AvgPriceByCategory
      * @Param(category)
      * @Type float
      */
-    private $averagePrice;
-    
-    //...
+    public $averagePrice;
 }
 ```
 
 <br/>
 #####Macros
-*@Eval* evaluates a S-expression against current entity. This powerful feature can be used to obtains a person's age and fullname.
+*@Eval* evaluates a S-expression against current entity. This powerful feature can be used to obtain a person's age and fullname.
 ```php
+namespace Acme;
+
 /**
  * @Entity people
  */
 class Person {
     /**
      * @Id
+     * @Type int
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $name;
+    public $name;
     
     /**
      * @Column surname
      */
-    private $lastname;
+    public $lastname;
     
     /**
      * @Column birth_date
      * @Type dt
      */
-    private $birthDate;
+    public $birthDate;
     
     /**
      * @Eval (. (#name) ' ' (#lastname))
      */
-    private $fullname; //build person's full name
+    public $fullname;
     
     /**
      * @Eval (as-int (diff-format (#birthDate) (now) "%y"))
      */
-    private $age; //calculate person's age
-    
-    //...
+    public $age;
 }
 ```
 
@@ -1873,67 +1867,67 @@ class Person {
 The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must also be expressed as macros.
 
 ```php
+namespace Acme;
+
 /**
- * @Entity users
+ * @Entity posts
  */
-class User {
+class Post {
     /**
      * @Id
+     * @Type int
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $type;
+    public $type;
 
     /**
-     * Get login history if user is a member
-     * 
-     * @If (== (#type) 'member')
-     * @Query "..."
-     * @Param(id)
+     * @Type string
      */
-    private $loginHistory;
+    public $body;
     
     /**
-     * Get admin notifications if not a member nor guest
-     * 
-     * @IfNot (or (== (#type) 'member') (== (#type) 'guest'))
-     * @Query "..."
+     * @If (== (#type) 'pool')
+     * @Statement Option.findByPostId
      * @Param(id)
      */
-    private $abuseNotifications;
+    public $options;
 }
 ```
 Additionally, the *@IfNotNull* annotation evaluates a dynamic attribute if the specified attribute is not null.
 ```php
+namespace Acme;
+
 /**
  * @Entity categories
  */
 class Category {
     /**
      * @Id
+     * @Typs int
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $name;
+    public $name;
     
     /**
      * @Type int
      * @Column parent_id
      */
-    private $parentId;
+    public $parentId;
     
     /**
      * @IfNotNull(parentId)
      * @Statement Category.findByPk
      * @Param(parentId)
      */
-    private $parent;
+    public $parent;
 }
 ```
 
@@ -1941,23 +1935,34 @@ class Category {
 #####Options
 The *@Option* annotation set a custom option value for the current attribute. An option must define its name by setting it between parentheses just before the value.
 ```php
+namespace Acme;
+
 /**
  * @Entity users
  */
 class User {
     /**
      * @Id
+     * @Type int
      */
-    private $id;
+    public $id;
     
+    /**
+     * @Type string
+     */
+    public $name;
+    
+    /**
+     * @Type string
+     */
+    public $email;
+
     /**
      * @Query "SELECT * FROM contacts WHERE user_id = %{i} [? (. 'ORDER BY ' (@order)) ?]"
      * @Param(id)
      * @Option(order) 'contact_type'
      */
-    private $contacts;
-    
-    //...
+    public $contacts;
 }
 ```
 
@@ -1967,7 +1972,7 @@ Cache
 
 <br/>
 #####Introduction
-eMapper provides value caching through [SimpleCache](https://github.com/emaphp/simplecache ""), a small PHP library that supports APC and Memcache. Before setting a cache provider make sure the required extension is correctly installed.
+eMapper provides value caching through [SimpleCache](https://github.com/emaphp/simplecache ""), a small PHP library supporing Memcache adn APC cache providers. Before setting a cache provider make sure the required extension is correctly installed.
 
 <br/>
 #####Providers
@@ -2067,8 +2072,9 @@ class RGBColorTypeHandler extends TypeHandler {
 <br/>
 #####Types and aliases
 ```php
-//add type
 use Acme\RGBColorTypeHandler;
+
+//add type
 $mapper->addType('Acme\RGBColor', new RGBColorTypeHandler());
 
 //mapping to RGBColor
@@ -2085,6 +2091,8 @@ $color = $mapper->type('rgb')->query("SELECT color FROM palette WHERE id = 1");
 #####Using custom types
 
 ```php
+namespace Acme;
+
 /**
  * @Entity vehicles
  */
@@ -2093,21 +2101,18 @@ class Car {
      * @Id
      * @Type integer
      */
-    private $id;
+    public $id;
     
     /**
      * @Type string
      */
-    private $manufacturer;
+    public $manufacturer;
     
     /**
      * @Type rgb
      */
-    private $color;
-    
-    //...
+    public $color;
 }
-
 ```
 
 <br/>
@@ -2302,7 +2307,7 @@ Appendix II: Annotations
      <tr>
         <td>@Cascade</td>
         <td>Indicates that associated values must be updated accordingly once an entity is deleted. Used to keep reference integrity in SQLite.</td>
-        <td></td>
+        <td>-</td>
     </tr>
 </table>
 
@@ -2362,7 +2367,7 @@ Appendix II: Annotations
     </tr>
      <tr>
         <td>@If, @IfNot, @IfNotNull</td>
-        <td>Used to indicate that a dynamic attribute must only be evaluated if a condition evaluates to true. @If and @IfNot evaluates a macro against current instance while @IfNotNull checks whether an attribute is not NULL.</td>
+        <td>Used to indicate that a dynamic attribute must only be evaluated if a condition evaluates to true. @If and @IfNot evaluates a macro against current instance while @IfNotNull verifies that an attribute is not NULL.</td>
         <td>@If (== (#category) 'laptops')<br/>@IfNot (== (#status) 'ready')<br/>@IfNotNull(userId)</td>
     </tr>
 </table>
