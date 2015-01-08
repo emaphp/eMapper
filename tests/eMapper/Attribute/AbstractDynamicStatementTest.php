@@ -330,4 +330,30 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertCount(4, $sale->notLessThanEqual);
 		$this->assertInstanceOf('Acme\Statement\Product', $sale->notLessThanEqual[0]);
 	}
+	
+	/*
+	 * BETWEEN
+	 */
+	
+	public function testBetween() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\BetweenResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->between);
+		$this->assertCount(3, $sale->between);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->between[0]);
+	}
+	
+	public function testNotBetween() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\BetweenResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notBetween);
+		$this->assertCount(5, $sale->notBetween);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notBetween[0]);
+	}
 }
