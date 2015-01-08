@@ -12,20 +12,9 @@ eMapper
 Changelog
 ------------------
 <br/>
-2015-01-01 - Version 4.0
+2015-01-09 - Version 4.0.1
 
-  * Deprecated: Named Queries
-  * Added: Fluent Queries
-  * Deprecated: Calling stored procedures through method overloading.
-  * Added: StoredProcedure class.
-  * Added: Methods newManager, newQuery and newProcedure in Mapper class.
-  * Modified: @StatementId renamed to @Statement. It only accepts expressions containing an entity class and a statement id.
-  * Modified: @Scalar renamed to @Cacheable.
-  * Modified: @Parameter renamed to @Param.
-  * Deprecated: @JoinWith and @ForeignKey annotations.
-  * Added: @Join annotation.
-  * Modified: @OrderBy syntax.
-  * Modified: Library is now distributed under the terms of the MIT license.
+  * Extended documentation.
 
 <br/>
 Dependencies
@@ -145,7 +134,7 @@ Mapping 101
 
 ```php
 //mapping to an integer ('i', 'int', 'integer')
-$total = $mapper->type('i')->query("SELECT COUNT(*) FROM users WHERE sex = %{s}", 'F');
+$total = $mapper->type('i')->query("SELECT COUNT(*) FROM users WHERE gender = %{s}", 'F');
 
 //mapping to a boolean ('b', 'bool', 'boolean')
 $subscribed = $mapper->type('b')->query("SELECT is_subscribed FROM users WHERE id = %{i}", 99);
@@ -185,7 +174,9 @@ $movie = $mapper->type('array', ArrayType::ASSOC)->query("SELECT * FROM movies W
 
 ```php
 //mapping to a stdClass instance ('obj', 'object')
-$book = $mapper->type('obj')->query("SELECT * FROM books WHERE isbn = %{s}", "9789507315428");
+$book = $mapper
+->type('obj')
+->query("SELECT * FROM books WHERE isbn = %{s}", "9789507315428");
 
 //using a custom class
 namespace Acme\Library;
@@ -195,12 +186,14 @@ class Book {
     public $title;
     public $author;
     public $ISBN;
-    public $genre;
-    
-    //...
+    public $genre;    
 }
 
-$book = $mapper->type('obj:Acme\Library\Book')->query("SELECT * FROM books WHERE isbn = %{s}", "978-987-566-647-4");
+//...
+
+$book = $mapper
+->type('obj:Acme\Library\Book')
+->query("SELECT * FROM books WHERE isbn = %{s}", "978-987-566-647-4");
 ```
 
 *Note*: One important thing to remember when mapping to a structure is that values contained in columns declared using the DATE or DATETIME types are converted to instances of [DateTime](http://ar2.php.net/manual/en/class.datetime.php "").
@@ -220,7 +213,7 @@ $prices = $mapper->type('float[]')->query("SELECT price FROM products");
 
 $isbn_list = $mapper->type('string[]')->query("SELECT isbn FROM books");
 
-$creation_dates = $mapper->type('dt[]')->query("SELECT created_at FROM posts");
+$dates = $mapper->type('dt[]')->query("SELECT created_at FROM posts");
 
 //again, a second argument could be provided to define which column to fetch
 $refurbished = $mapper->type('bool[]', 'refurbished')->query("SELECT * FROM products");
@@ -335,10 +328,10 @@ $mapper->query(
 use Acme\CMS\Comment;
 
 $comment = new Comment();
-$comment->setUserId(100);
-$comment->setBody("Hello World");
+$comment->userId = 100;
+$comment->body = "Hello World";
 
-$mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body});", $comment);
+$mapper->query("INSERT INTO comments (user_id, body) VALUES (#{userId}, #{body})", $comment);
 ```
 *Note*: The syntax for array/object attributes work as long as you provide the array/object as the first argument.
 
@@ -697,10 +690,27 @@ $mapper->setPrefix('ACME_');
 $proc = $mapper->newProcedure('Backup_Orders');
 $proc->call(100);
 
-//CALL Users_Create(...)
-$proc = $mapper->newProcedure('Users_Create');
+//don't append prefix
+$proc = $mapper->newProcedure('Get_Order');
+$proc->usePrefix(false)->call(1);
+
 //if a procedure returns a value it can also be mapped
-$id = $proc->usePrefix(false)->type('i')->call('emaphp', '1984-07-05', 'M');
+$proc = $mapper->newProcedure('Users_Create');
+$id = $proc->type('i')->call('emaphp', '1984-07-05', 'M');
+
+//specifyng argument types
+$proc = $mapper->newProcedure('Product_Save');
+$proc->types();
+
+//wrap procedure name
+$proc = $mapper->newProcedure('User_Find');
+//CALL `ACME_User_Find`(199)
+$user = $proc->call(199);
+
+//PostgreSQL: return set
+$proc = $mapper->newProcedure('Profile_GetByEmail');
+//SELECT * FROM Profile_GetByEmail
+$profile = $proc->returnSet(true)->call('emaphp@github.com')
 ```
 
 
@@ -827,7 +837,7 @@ $avg = $products
 ->exclude(Attr::category()->eq('Laptops'))
 ->avg(Attr::price());
 
-//max price (returns as integer)
+//max price (return as integer)
 $max = $products
 ->filter(Attr::code()->startswith('SONY'))
 ->type('int')
@@ -926,7 +936,7 @@ class Profile {
      * @OneToOne User
      * @Attr(userId)
      */
-    private $user;
+    public $user;
 }
 ```
 In this example, the *Profile* class declares a **user** property which defines a one-to-one association with the *User* class. The *@Attr* annotation specifies which property is used to perform the required join. When an attribute is declared on the current class then it must be expressed between parentheses right after the annotation.
@@ -1297,7 +1307,7 @@ $manager->delete($user);
 $mapper->close();
 ```
 
-But what if we don't want to remove a profile? In that case the *userId* attribute in the *Profile* class must include the *@Nullable* annotation. The manager checks if this annotation is present in the related entity in order to determine which action must be taken. If present then only an update query is executed.
+But what if we don't want to remove a profile? In that case the *userId* attribute in the *Profile* class must include the *@Nullable* annotation. The manager checks if this annotation is present in the related entity in order to determine which action must be taken. When *@Nullable* is found then only an update query is executed.
 
 ```php
 namespace Acme;
@@ -1318,7 +1328,7 @@ class Profile {
 ```
 
 <br/>
-#####Configuration
+#####Addtional options
 
 One-To-Many and Many-To-Many associations support two additional configuration annotations:
 
@@ -1461,7 +1471,7 @@ $user = $mapper->type('obj')->query($query, 'emaphp');
 #####eMacros 101
 
 Just to give you a basic approach of how S-expressions work here's a list of small examples. Refer to *eMacros* documentation for more.
-```lisp
+```scheme
 ; simple math
 (+ 4 10) ; 14
 (- 10 4) ; 6
@@ -1482,14 +1492,20 @@ Just to give you a basic approach of how S-expressions work here's a list of sma
 ; cast to float
 (as-float "65.32")
 
-; get property value
+; check if argument has attribute
+(#name?)
+
+; obtain attribute value
 (#description)
 
+; check if configuration key exists
+(@limit?)
+
 ; get configuration value
-(@default_order)
+(@order)
 
 ; if then else
-(if (null? (#id)) "No id found!" (#id)) ; returns id when not null
+(if (null? (#id)) 'WHERE 1' 'WHERE id=#{id}')
 ```
 
 <br/>
@@ -1503,7 +1519,7 @@ $query = "SELECT * FROM users [? (if (@order?) (. 'ORDER BY ' (@order))) ?]";
 //get all users
 $mapper->type('obj[]')->query($query);
 
-//the option method creates an instance with an additional configuration value
+//the option method returns an instance with an additional configuration value
 //get ordered users
 $mapper->type('obj[]')->option('order', 'last_login')->query($query);
 ```
@@ -1525,7 +1541,7 @@ Dynamic Attributes
 
 <br/>
 #####Introduction
-Dynamic attributes provide us with an alternate method for fetching related data.
+Dynamic attributes provide us with an alternate method for fetching related data from an entity instance.
 
 <br/>
 #####Queries
@@ -1573,7 +1589,7 @@ class Sale {
     //...
     
     /**
-     * Using Param(self) to send current entity as argument
+     * Using Param(self) to send current entity as argument...
      * 
      * @Query "SELECT * FROM products WHERE id = #{productId}"
      * @Param(self)
@@ -1594,7 +1610,7 @@ class Sale {
     //...
     
     /**
-     * Using the attribute name as argument of Param
+     * ...or using the attribute name as an argument of Param.
      * 
      * @Query "SELECT * FROM products WHERE id = %{i}"
      * @Param(productId)
@@ -1636,7 +1652,7 @@ class Product {
 <br/>
 #####Statements
 
-Statements provide a more generic way to obtain values by using a special syntax including an entity class name plus a statement id. The statement id defines a search criteria according to a list of supported expressions. For example, *User.findByPk* obtains a *User* entity by primary key. The required argument is provided through the *@Param* annotation.
+Statements provide a more generic way to obtain values by using a special syntax that includes an entity class plus a statement id separated by a dot. The statement id defines a search criteria according to a list of supported expressions. For example, *User.findByPk* obtains a *User* entity by primary key. The required argument is provided through the *@Param* annotation.
 
 
 ```php
@@ -1864,7 +1880,7 @@ class Person {
 <br/>
 #####Conditional attributes
 
-The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with @If and false with *@IfNot*. Conditions must also be expressed as macros.
+The *@If* and *@IfNot* annotations are used to define conditional attributes. These attributes are evaluated if the given expression evaluates to true with *@If* and false with *@IfNot*. Conditions must also be expressed as macros.
 
 ```php
 namespace Acme;
@@ -2138,7 +2154,7 @@ $result = $mapper->debug(function($query) {
 
 $mapper->close();
 ```
-This syntax is supported by fluent queries and manager instances as well.
+This method is supported by fluent queries and manager instances as well.
 
 <br/>
 #####Resultmaps
@@ -2371,6 +2387,90 @@ Appendix II: Annotations
         <td>@If (== (#category) 'laptops')<br/>@IfNot (== (#status) 'ready')<br/>@IfNotNull(userId)</td>
     </tr>
 </table>
+
+<br/>
+Appendix III: Configuration keys
+------------
+
+<br/>
+Methods like *type*, *indexCallback* and *resultmap* define a list of internal options that are later interpreted by a *Mapper* instance. Here is the full list of these internal options along with their corresponding methods.
+
+<table>
+    <tr>
+        <th>Option</th>
+        <th>Method</th>
+        <th>Description</th>
+        <th>Expected value</th>
+    </tr>
+    <tr>
+        <td>map.type</td>
+        <td>type</td>
+        <td>Sets mapping expression.</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>map.params</td>
+        <td>type (second argument)</td>
+        <td>Additional mapping arguments (used only to define a column name when mapping to a simple type).</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>map.result</td>
+        <td>resultmap</td>
+        <td>Sets the resultmap.</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>callback.each</td>
+        <td>each</td>
+        <td>Sets a callback that iterates over the obtained results.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>callback.filter</td>
+        <td>filterCallback</td>
+        <td>Sets the filter callback to apply to the obtained results.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>callback.empty</td>
+        <td>emptyCallback</td>
+        <td>Sets the callback to execute if no results are found.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>callback.debug</td>
+        <td>debug</td>
+        <td>Sets the debugging callback.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>callback.index</td>
+        <td>indexCallback</td>
+        <td>Sets the indexation callback.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>callback.group</td>
+        <td>groupCallback</td>
+        <td>Sets the grouping callback.</td>
+        <td>Closure</td>
+    </tr>
+    <tr>
+        <td>cache.key</td>
+        <td>cache</td>
+        <td>Sets the cache key.</td>
+        <td>string</td>
+    </tr>
+    <tr>
+        <td>cache.ttl</td>
+        <td>cache (second argument)</td>
+        <td>Cache TTL (time to live) in seconds.</td>
+        <td>integer</td>
+    </tr>
+</table>
+
+<br/>
 License
 --------------
 <br/>

@@ -103,15 +103,18 @@ class Statement extends DynamicAttribute {
 		elseif ($this->statementId == 'findByPk')
 			$this->saveStatement((new FindByPkStatementBuilder($entity))->build($driver), $entity, false);
 		elseif (preg_match('/^findBy([\w]+)/', $this->statementId, $matches)) {
-			$property = strtolower($matches[1]);
+			$property = lcfirst($matches[1]);
+			if (!$entity->hasProperty($property))
+				throw new \RuntimeException(sprintf("Property '%s' not found in class '%s'", $property, $entity->getReflectionClass()->getName()));
 			$propertyProfile = $entity->getProperty($property);
 			$asList = !($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique());
-			$this->saveStatement((new FindByStatementBuilder($entity))->build($driver, $matches), $entity, $asList);
+			$this->saveStatement((new FindByStatementBuilder($entity))->build($driver, $property), $entity, $asList);
 		}
 		elseif (preg_match('/^(\w+?)(Not)?Equals$/', $this->statementId, $matches)) {
-			$property = strtolower($matches[1]);
+			$property = lcfirst($matches[1]);
+			if (!$entity->hasProperty($property))
+				throw new \RuntimeException(sprintf("Property '%s' not found in class '%s'", $property, $entity->getReflectionClass()->getName()));
 			$propertyProfile = $entity->getProperty($property);
-			
 			if ($propertyProfile->isPrimaryKey() || $propertyProfile->isUnique())
 				$asList = array_key_exists(2, $matches);
 			else
