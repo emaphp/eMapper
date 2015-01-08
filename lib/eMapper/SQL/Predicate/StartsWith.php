@@ -9,7 +9,7 @@ use eMapper\Engine\Generic\Regex\GenericRegex;
  * @author emaphp
  */
 class StartsWith extends StringComparisonPredicate {
-	public function render(Driver $driver) {
+	public function generate(Driver $driver) {
 		$regex = $driver->getRegex();
 		$regex->setOptions($this->caseSensitive, $this->negate);
 		return $regex->getDynamicExpression(GenericRegex::STARTS_WITH);

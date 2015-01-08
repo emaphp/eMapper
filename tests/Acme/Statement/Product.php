@@ -21,6 +21,11 @@ class Product {
 	/**
 	 * @Type string
 	 */
+	public $category;
+	
+	/**
+	 * @Type string
+	 */
 	public $description;
 	
 	/**

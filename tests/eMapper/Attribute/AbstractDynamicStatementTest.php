@@ -60,6 +60,10 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertCount(7, $sale->otherProducts);
 	}
 	
+	/*
+	 * CONTAINS
+	 */
+	
 	public function testContains() {
 		$sale = $this->mapper
 		->resultMap('Acme\Statement\ContainsResultMap')
@@ -104,5 +108,101 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertEquals(1, $sale->saleId);
 		$this->assertInternalType('array', $sale->notIContains);
 		$this->assertCount(5, $sale->notIContains);
+	}
+	
+	/*
+	 * STARTSWITH 
+	 */
+	
+	public function testStartsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\StartsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->startsWith);
+		$this->assertCount(3, $sale->startsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->startsWith[0]);
+	}
+	
+	public function testNotStartsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\StartsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notStartsWith);
+		$this->assertCount(5, $sale->notStartsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notStartsWith[0]);
+	}
+	
+	public function testIStartsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\StartsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->istartsWith);
+		$this->assertCount(1, $sale->istartsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->istartsWith[0]);
+	}
+	
+	public function testNotIStartsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\StartsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notIStartsWith);
+		$this->assertCount(7, $sale->notIStartsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notIStartsWith[0]);
+	}
+	
+	/*
+	 * ENDSWITH
+	 */
+	
+	public function testEndsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\EndsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->endsWith);
+		$this->assertCount(2, $sale->endsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->endsWith[0]);
+	}
+	
+	public function testNotEndsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\EndsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notEndsWith);
+		$this->assertCount(3, $sale->notEndsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notEndsWith[0]);
+	}
+	
+	public function testIEndsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\EndsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->iendsWith);
+		$this->assertCount(2, $sale->iendsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->iendsWith[0]);
+	}
+	
+	public function testNotIEndsWith() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\EndsWithResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notIEndsWith);
+		$this->assertCount(6, $sale->notIEndsWith);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notIEndsWith[0]);
 	}
 }
