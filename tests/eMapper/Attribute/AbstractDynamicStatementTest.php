@@ -356,4 +356,52 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertCount(5, $sale->notBetween);
 		$this->assertInstanceOf('Acme\Statement\Product', $sale->notBetween[0]);
 	}
+	
+	/*
+	 * MATCHES
+	 */
+	
+	public function testMatches() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\MatchesResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->matches);
+		$this->assertCount(3, $sale->matches);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->matches[0]);
+	}
+	
+	public function testNotMatches() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\MatchesResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notMatches);
+		$this->assertCount(5, $sale->notMatches);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notMatches[0]);
+	}
+	
+	public function testIMatches() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\MatchesResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->imatches);
+		$this->assertCount(2, $sale->imatches);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->imatches[0]);
+	}
+	
+	public function testNotIMatches() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\MatchesResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertInternalType('array', $sale->notIMatches);
+		$this->assertCount(6, $sale->notIMatches);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notIMatches[0]);
+	}
 }

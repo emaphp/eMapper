@@ -92,10 +92,7 @@ class Statement extends DynamicAttribute {
 	 * @param \eMapper\Engine\Generic\Driver $driver
 	 * @throws \UnexpectedValueException
 	 */
-	protected function buildStatement(Driver $driver) {
-		if (isset($this->statement))
-			return;
-			
+	protected function buildStatement(Driver $driver) {	
 		$entity = Profiler::getClassProfile($this->entity);
 		
 		if ($this->statementId == 'findAll')

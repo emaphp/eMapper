@@ -6,6 +6,7 @@ use eMapper\SQLite\SQLiteConfig;
 
 /**
  * @group attribute
+ * @group sqlite
  */
 class DynamicStatemenTest extends AbstractDynamicStatementTest {
 	use SQLiteConfig;

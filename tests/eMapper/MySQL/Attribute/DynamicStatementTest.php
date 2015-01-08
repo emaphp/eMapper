@@ -6,6 +6,7 @@ use eMapper\MySQL\MySQLConfig;
 
 /**
  * @group attribute
+ * @group mysql
  */
 class DynamicStatementTest extends AbstractDynamicStatementTest {
 	use MySQLConfig;
