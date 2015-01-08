@@ -2,6 +2,7 @@
 namespace eMapper\Attribute;
 
 use eMapper\MapperTest;
+use eMapper\Engine\MySQL\MySQLDriver;
 
 abstract class AbstractDynamicStatementTest extends MapperTest {
 	public function testfindByPk() {
@@ -204,5 +205,129 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertInternalType('array', $sale->notIEndsWith);
 		$this->assertCount(6, $sale->notIEndsWith);
 		$this->assertInstanceOf('Acme\Statement\Product', $sale->notIEndsWith[0]);
+	}
+	
+	/*
+	 * ISNULL
+	 */
+	
+	public function testIsNull() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\IsNullResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->isNull);
+		$this->assertCount(3, $sale->isNull);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->isNull[0]);
+	}
+	
+	public function testIsNotNull() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\IsNullResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->isNotNull);
+		$this->assertCount(5, $sale->isNotNull);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->isNotNull[0]);
+	}
+	
+	/*
+	 * GREATERTHAN
+	 */
+	
+	public function testGreaterThan() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\GreaterThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->greaterThan);
+		$this->assertCount(4, $sale->greaterThan);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->greaterThan[0]);
+	}
+	
+	public function testNotGreaterThan() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\GreaterThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->notGreaterThan);
+		$this->assertCount(3, $sale->notGreaterThan);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notGreaterThan[0]);
+	}
+	
+	public function testGreaterThanEqual() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\GreaterThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->greaterThanEqual);
+		$this->assertCount(1, $sale->greaterThanEqual);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->greaterThanEqual[0]);
+	}
+	
+	public function testNotGreaterThanEqual() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\GreaterThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->notGreaterThanEqual);
+		//KNOWN ISSUE: MYSQL + FLOAT type column (DECIMAL does not have this behaviour)
+		$this->assertCount($this->mapper->getDriver() instanceof MySQLDriver ? 3 : 2, $sale->notGreaterThanEqual);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notGreaterThanEqual[0]);
+	}
+	
+	/*
+	 * LESSTHAN
+	 */
+	
+	public function testLessThan() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\LessThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->lessThan);
+		//KNOWN ISSUE: MYSQL + FLOAT type column (DECIMAL does not have this behaviour)
+		$this->assertCount($this->mapper->getDriver() instanceof MySQLDriver ? 3 : 2, $sale->lessThan);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->lessThan[0]);
+	}
+	
+	public function testNotLessThan() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\LessThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->notLessThan);
+		$this->assertCount(1, $sale->notLessThan);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notLessThan[0]);
+	}
+	
+	public function testLessThanEqual() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\LessThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->lessThanEqual);
+		$this->assertCount(3, $sale->lessThanEqual);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->lessThanEqual[0]);
+	}
+	
+	public function testNotLessThanEqual() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\LessThanResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertInternalType('array', $sale->notLessThanEqual);
+		$this->assertCount(4, $sale->notLessThanEqual);
+		$this->assertInstanceOf('Acme\Statement\Product', $sale->notLessThanEqual[0]);
 	}
 }

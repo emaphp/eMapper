@@ -129,7 +129,7 @@ class Statement extends DynamicAttribute {
 		elseif (preg_match('/^(\w+?)(Not)?GreaterThan(Equal)?$/', $this->statementId, $matches))
 			$this->saveStatement((new GreaterThanStatementBuilder($entity))->build($driver, $matches), $entity);
 		elseif (preg_match('/^(\w+?)(Not)?LessThan(Equal)?$/', $this->statementId, $matches))
-			$this->setStatement((new LessThanStatementBuilder($entity))->build($driver, $matches), $entity);
+			$this->saveStatement((new LessThanStatementBuilder($entity))->build($driver, $matches), $entity);
 		elseif (preg_match('/^(\w+?)(Not)?(I)?StartsWith$/', $this->statementId, $matches))
 			$this->saveStatement((new StartsWithStatementBuilder($entity))->build($driver, $matches), $entity);
 		elseif (preg_match('/^(\w+?)(Not)?(I)?EndsWith$/', $this->statementId, $matches))

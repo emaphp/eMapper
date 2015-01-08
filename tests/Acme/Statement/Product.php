@@ -29,6 +29,16 @@ class Product {
 	public $description;
 	
 	/**
+	 * @Type float
+	 */
+	public $price;
+	
+	/**
+	 * @Type string
+	 */
+	public $color;
+	
+	/**
 	 * @Statement Category.findAll
 	 */
 	public $categories;
