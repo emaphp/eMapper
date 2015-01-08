@@ -2164,6 +2164,9 @@ Resultmaps are a convenient way of mapping objects and arrays without relying on
 ```php
 namespace Acme;
 
+/**
+ * @ResultMap
+ */
 class UserResultMap {
     /**
      * @Type int

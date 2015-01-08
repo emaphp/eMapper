@@ -59,4 +59,50 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$this->assertInternalType('array', $sale->otherProducts);
 		$this->assertCount(7, $sale->otherProducts);
 	}
+	
+	public function testContains() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\ContainsResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertEquals(1, $sale->saleId);
+		
+		$this->assertInternalType('array', $sale->contains);
+		$this->assertCount(1, $sale->contains);
+	}
+	
+	public function testNotContains() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\ContainsResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertEquals(1, $sale->saleId);
+	
+		$this->assertInternalType('array', $sale->notContains);
+		$this->assertCount(5, $sale->notContains);
+	}
+	
+	public function testIContains() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\ContainsResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+		
+		$this->assertEquals(1, $sale->saleId);
+		$this->assertInternalType('array', $sale->icontains);
+		$this->assertCount(3, $sale->icontains);
+	}
+	
+	public function testNotIContains() {
+		$sale = $this->mapper
+		->resultMap('Acme\Statement\ContainsResultMap')
+		->type('obj')
+		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
+	
+		$this->assertEquals(1, $sale->saleId);
+		$this->assertInternalType('array', $sale->notIContains);
+		$this->assertCount(5, $sale->notIContains);
+	}
 }

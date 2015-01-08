@@ -19,6 +19,11 @@ class Product {
 	public $code;
 	
 	/**
+	 * @Type string
+	 */
+	public $description;
+	
+	/**
 	 * @Statement Category.findAll
 	 */
 	public $categories;

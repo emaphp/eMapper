@@ -547,7 +547,7 @@ class Mapper {
 		/*
 		 * DYNAMIC ATTRIBUTES
 		 */
-		
+
 		if (!empty($resultMap) && $this->config['depth.limit'] > $this->config['depth.current']) {
 			$icopy = $this->__icopy();			
 			

@@ -207,7 +207,7 @@ class ClassProfile {
 			$propertyName = $reflectionProperty->getName();
 			$propertyAnnotations = Omocha::getAnnotations($reflectionProperty);
 			
-			if ($this->isEntity() && $this->isDynamicAttribute($propertyAnnotations))
+			if (($this->isEntity() || $this->isResultMap()) && $this->isDynamicAttribute($propertyAnnotations))
 				$this->parseDynamicAttribute($propertyName, $reflectionProperty, $propertyAnnotations);
 			elseif ($this->isEntity() && $this->isAssociation($propertyAnnotations))
 				$this->parseAssociation($propertyName, $reflectionProperty, $propertyAnnotations);
@@ -283,6 +283,14 @@ class ClassProfile {
 	 */
 	public function isEntity() {
 		return $this->classAnnotations->has('Entity');
+	}
+	
+	/**
+	 * Finds whether current class is a valid result map
+	 * @return boolean
+	 */
+	public function isResultMap() {
+		return $this->classAnnotations->has('ResultMap');
 	}
 	
 	/**

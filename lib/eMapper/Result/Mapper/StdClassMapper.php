@@ -33,7 +33,7 @@ class StdClassMapper extends ObjectMapper {
 			$row->$name = $attribute->evaluate($row, $mapper);
 	}
 	
-	public function evaluateSecondOrderAttributes(&$row, $mapper) {
+	public function evaluateDynamicAttributes(&$row, $mapper) {
 		foreach ($this->resultMap->getDynamicAttributes() as $name => $attribute)
 			$row->$name = $attribute->evaluate($row, $mapper);
 	}
