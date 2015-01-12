@@ -19,6 +19,7 @@ use eMapper\SQL\Aggregate\SQLSum;
 use eMapper\SQL\Aggregate\SQLMin;
 use eMapper\SQL\Aggregate\SQLMax;
 use eMapper\Mapper;
+use eMapper\Query\Field;
 
 
 /**
@@ -220,7 +221,7 @@ class Manager {
 			throw new \InvalidArgumentException("Index must be specified through an Attr instance or a valid property name");
 			
 		//get custom type (if any)
-		$type = $index->getType();	
+		$type = ($index instanceof Field) ? $index->getType() : null;	
 		if (isset($type))
 			return $this->merge(['query.index' => $name. ':' . $type]);
 		return $this->merge(['query.index' => $name]);

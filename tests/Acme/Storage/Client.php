@@ -25,6 +25,7 @@ class Client {
 	/**
 	 * @OneToMany Pet
 	 * @Attr clientId
+	 * @Index name
 	 * @Cascade
 	 */
 	public $pets;
