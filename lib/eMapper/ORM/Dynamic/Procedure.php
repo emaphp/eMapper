@@ -6,6 +6,7 @@ use eMapper\Reflection\Argument\ArgumentWrapper;
 use eMapper\Query\Attr;
 use Omocha\AnnotationBag;
 use eMapper\Mapper;
+use eMapper\Engine\PostgreSQL\Procedure\PostgreSQLStoredProcedure;
 
 /**
  * The Procedure class invokes a procedure with the arguments specified in a given property.
@@ -23,7 +24,31 @@ class Procedure extends DynamicAttribute {
 	 * @var string
 	 */
 	protected $procedureName;
-		
+	
+	/**
+	 * Value indicated through @UsePrefix
+	 * @var boolean
+	 */
+	protected $usePrefix;
+	
+	/**
+	 * Value indicated through @ArgTypes
+	 * @var boolean
+	 */
+	protected $argumentTypes;
+	
+	/**
+	 * Value indicated through @ReturnSet (only PostgreSQL)
+	 * @var boolean
+	 */
+	protected $returnSet;
+	
+	/**
+	 * Value indicated through @EscapeName (only PostgreSQL)
+	 * @var boolean
+	 */
+	protected $escapeName;
+	
 	protected function parseMetadata(AnnotationBag $propertyAnnotations) {
 		//obtain procedure name
 		$this->procedureName = $propertyAnnotations->get('Procedure')->getValue();
@@ -32,18 +57,18 @@ class Procedure extends DynamicAttribute {
 	protected function parseConfig(AnnotationBag $propertyAnnotations) {
 		parent::parseConfig($propertyAnnotations);
 		
-		if ($propertyAnnotations->has('ReturnSet'))
-			$this->config['proc.returnSet'] = (bool) $propertyAnnotations->get('ReturnSet')->getValue();
-		
 		if ($propertyAnnotations->has('UsePrefix'))
-			$this->config['proc.usePrefix'] = (bool) $propertyAnnotations->get('UsePrefix')->getValue();
+			$this->usePrefix = (bool) $propertyAnnotations->get('UsePrefix')->getValue();
+		
+		if ($propertyAnnotations->has('ArgTypes'))
+			$this->argumentTypes = explode(',', $propertyAnnotations->get('ArgTypes')->getArgument());
+		
+		//PostgreSQL options
+		if ($propertyAnnotations->has('ReturnSet'))
+			$this->returnSet = (bool) $propertyAnnotations->get('ReturnSet')->getValue();
 		
 		if ($propertyAnnotations->has('EscapeName'))
-			$this->config['proc.escapeName'] = (bool) $propertyAnnotations->get('EscapeName')->getValue();
-		
-		if ($propertyAnnotations->has('Types')) {
-			$this->config['proc.types'] = explode(',', $propertyAnnotations->get('Types')->getArgument());
-		}
+			$this->escapeName = (bool) $propertyAnnotations->get('EscapeName')->getValue();
 	}
 	
 	protected function evaluateArguments($row) {
@@ -68,7 +93,22 @@ class Procedure extends DynamicAttribute {
 	 */
 	protected function buildProcedure(Mapper $mapper) {
 		//create procedure instance
-		$this->procedure = $mapper->newProcedureCall($this->procedureName);
+		$this->procedure = $mapper->newProcedure($this->procedureName);
+		
+		if (isset($this->usePrefix))
+			$this->procedure->usePrefix($this->usePrefix);
+		
+		if (!empty($this->argumentTypes))
+			$this->procedure->argTypes($this->argumentTypes);
+		
+		//PostgreSQL options
+		if ($this->procedure instanceof PostgreSQLStoredProcedure) {
+			if (isset($this->returnSet))
+				$this->procedure->returnSet($this->returnSet);
+			
+			if (isset($this->escapeName))
+				$this->procedure->escapeName($this->escapeName);
+		}
 		
 		//configure procedure
 		$this->procedure->merge($this->config);

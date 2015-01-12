@@ -10,6 +10,7 @@ use eMapper\Engine\SQLite\Exception\SQLiteException;
 use eMapper\Engine\SQLite\Exception\SQLiteConnectionException;
 use eMapper\Engine\SQLite\Regex\SQLiteRegex;
 use eMapper\Type\TypeManager;
+use eMapper\Mapper;
 
 /**
  * The SQLDriver class provides connection to SQLite database engines.
@@ -143,7 +144,7 @@ class SQLiteDriver extends Driver {
 		return new SQLiteResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $options) {
+	public function buildProcedureCall(Mapper $mapper, $procedure) {
 		throw new SQLiteException("SQLite driver does not support stored procedures");
 	}
 	

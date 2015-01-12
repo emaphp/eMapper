@@ -8,7 +8,7 @@ use eMapper\Mapper;
  * The StoredProcedure class is an abstraction of a database stored procedure that also provides a fluent configuration interface. 
  * @author emaphp
  */
-class StoredProcedure {
+abstract class StoredProcedure {
 	use StatementConfiguration;
 	
 	/**
@@ -29,18 +29,30 @@ class StoredProcedure {
 	 */
 	protected $expression;
 	
+	/**
+	 * Database prefix
+	 * @var string
+	 */
+	protected $prefix;
+	
+	/**
+	 * Determines if database prefix is appended to procedure name
+	 * @var bool
+	 */
+	protected $usePrefixOption;
+	
+	/**
+	 * Argument types
+	 * @var srray
+	 */
+	protected $argumentTypes;
+	
 	public function __construct(Mapper $mapper, $name) {
 		$this->mapper = $mapper;
 		$this->name = $name;
+		$this->prefix = $mapper->getOption('db.prefix');
+		$this->usePrefixOption = true;
 		$this->preserveInstance = true;
-		
-		//apply default config
-		$this->config = [
-			'proc.returnSet'  => true,
-			'proc.escapeName' => false,
-			'proc.usePrefix'  => true,
-			'proc.prefix'     => $mapper->getOption('db.prefix')
-		];
 	}
 	
 	public function getMapper() {
@@ -51,27 +63,11 @@ class StoredProcedure {
 		return $this->name;
 	}
 	
-	public function build($args) {
-		if (isset($this->expression))
-			return;
-		
-		$tokens = [];
-		$types = $this->getOption('proc.types');
-			
-		if (!empty($types)) {
-			foreach ($types as $type)
-				$tokens[] = '%{' . $type . '}';
-		}
-		
-		for ($i = count($tokens), $n = count($args); $i < $n; $i++)
-			$tokens[] = '%{' . $i . '}';
-						
-		//remove additional expressions
-		if (count($tokens) > count($args))
-			$tokens = array_slice($tokens, 0, count($args));
-		
-		$this->expression = $this->mapper->getDriver()->buildCall($this->name, $tokens, $this->config);
-	}
+	/**
+	 * Builds stored procedure expression
+	 * @param array $args
+	 */
+	public abstract function build($args);
 	
 	/**
 	 * Invokes a stored procedure with the given list of arguments
@@ -97,19 +93,23 @@ class StoredProcedure {
 	 * CONFIGURATION
 	 */
 	
-	public function returnSet($returnSet = true) {
-		return $this->option('proc.returnSet', $returnSet);
-	}
-	
-	public function escapeName($escapeName = true) {
-		return $this->option('proc.escapeName', $escapeName);
-	}
-	
+	/**
+	 * Configures if database prefix is appended to procedure name
+	 * @param bool $usePrefix
+	 * @return \eMapper\Procedure\StoredProcedure
+	 */
 	public function usePrefix($usePrefix = true) {
-		return $this->option('proc.usePrefix', $usePrefix);
+		$this->usePrefixOption = $usePrefix;
+		return $this;
 	}
 	
-	public function types($types) {
-		return is_array($types) ? $this->option('proc.types', $types) : $this->option('proc.types', func_get_args());
+	/**
+	 * Configures argument types
+	 * @param array $types
+	 * @return \eMapper\Procedure\StoredProcedure
+	 */
+	public function argTypes($types) {
+		is_array($types) ? $this->argumentTypes = $types : $this->argumentTypes = func_get_args();
+		return $this;
 	}
 }

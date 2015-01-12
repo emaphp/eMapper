@@ -3,6 +3,7 @@ namespace eMapper\Engine\Generic;
 
 use eMapper\Engine\Generic\Regex\GenericRegex;
 use eMapper\Type\TypeManager;
+use eMapper\Mapper;
 
 /**
  * The Driver class constains all methods used to manage a database connection.
@@ -116,12 +117,12 @@ abstract class Driver {
 	public abstract function buildResultIterator($result);
 	
 	/**
-	 * Builds a procedure call
+	 * Returns a new stored procedure instance
+	 * @param \eMapper\Mapper $mapper
 	 * @param string $procedure
-	 * @param array $tokens
-	 * @param array $config
+	 * @return \eMapper\Procedure\StoredProcedure
 	 */
-	public abstract function buildCall($procedure, $tokens, $config);
+	public abstract function buildProcedureCall(Mapper $mapper, $procedure);
 	
 	/**
 	 * Throws a query exception

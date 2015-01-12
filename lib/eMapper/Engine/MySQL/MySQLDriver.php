@@ -10,6 +10,8 @@ use eMapper\Engine\MySQL\Exception\MySQLConnectionException;
 use eMapper\Engine\MySQL\Exception\MySQLQueryException;
 use eMapper\Engine\MySQL\Regex\MySQLRegex;
 use eMapper\Type\TypeManager;
+use eMapper\Engine\MySQL\Procedure\MySQLStoredProcedure;
+use eMapper\Mapper;
 
 /**
  * The MySQLDriver class provides access to MySQL database engines.
@@ -212,13 +214,9 @@ class MySQLDriver extends Driver {
 	public function buildResultIterator($result) {
 		return new MySQLResultIterator($result);
 	}
-	
-	public function buildCall($procedure, $tokens, $config) {
-		//append prefix
-		if ($config['proc.usePrefix'])
-			$procedure = $config['proc.prefix'] . $procedure;
-		
-		return "CALL $procedure(" . implode(',', $tokens) . ')';
+
+	public function buildProcedureCall(Mapper $mapper, $procedure) {
+		return new MySQLStoredProcedure($mapper, $procedure);
 	}
 	
 	/*

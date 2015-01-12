@@ -10,6 +10,8 @@ use eMapper\Engine\PostgreSQL\Exception\PostgreSQLConnectionException;
 use eMapper\Engine\PostgreSQL\Exception\PostgreSQLQueryException;
 use eMapper\Engine\PostgreSQL\Regex\PostgreSQLRegex;
 use eMapper\Type\TypeManager;
+use eMapper\Mapper;
+use eMapper\Engine\PostgreSQL\Procedure\PostgreSQLStoredProcedure;
 
 /**
  * The PostgreSQLDriver class provides access to a PostgreSQL database engine.
@@ -165,20 +167,8 @@ class PostgreSQLDriver extends Driver {
 		return new PostgreSQLResultIterator($result);
 	}
 	
-	public function buildCall($procedure, $tokens, $config) {
-		//append prefix
-		if ($config['proc.usePrefix'])
-			$procedure = $config['proc.prefix'] . $procedure;
-		
-		//wrap procedure name
-		if ($config['proc.escapeName'])
-			$procedure = "\"$procedure\"";
-		
-		//procedure returns a set
-		if ($config['proc.returnSet'])
-			return "SELECT * FROM $procedure(" . implode(',', $tokens) . ')';
-		
-		return "SELECT $procedure(" . implode(',', $tokens) . ')';
+	public function buildProcedureCall(Mapper $mapper, $procedure) {
+		return new PostgreSQLStoredProcedure($mapper, $procedure);
 	}
 	
 	/*

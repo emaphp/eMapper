@@ -16,7 +16,6 @@ use eMapper\Type\TypeManager;
 use eMapper\Type\TypeHandler;
 use eMapper\Cache\Key\CacheKeyFormatter;
 use eMapper\Cache\CacheStorage;
-use eMapper\Procedure\StoredProcedure;
 use eMapper\Fluent\FluentQuery;
 use eMapper\ORM\Manager;
 use eMapper\Reflection\ClassProfile;
@@ -784,8 +783,8 @@ class Mapper {
 	 * @param string $name
 	 * @return \eMapper\Procedure\StoredProcedure
 	 */
-	public function newProcedureCall($name) {
-		return new StoredProcedure($this, $name);
+	public function newProcedure($name) {
+		return $this->driver->buildProcedureCall($this, $name);
 	}
 	
 	/**
