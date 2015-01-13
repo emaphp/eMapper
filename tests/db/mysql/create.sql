@@ -29,7 +29,7 @@ CREATE TABLE `categories` (
   PRIMARY KEY (`category_id`),
   KEY `fk_categories_1_idx` (`parent_id`),
   CONSTRAINT `fk_categories_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`category_id`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=17 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -59,7 +59,7 @@ CREATE TABLE `favorites` (
   KEY `fk_favorites_2_idx` (`prd_id`),
   CONSTRAINT `fk_favorites_1` FOREIGN KEY (`usr_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_favorites_2` FOREIGN KEY (`prd_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=6 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,7 +91,7 @@ CREATE TABLE `products` (
   `manufacture_year` year(4) DEFAULT NULL,
   PRIMARY KEY (`product_id`),
   UNIQUE KEY `Índice 2` (`product_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -120,7 +120,7 @@ CREATE TABLE `profiles` (
   PRIMARY KEY (`profile_id`),
   UNIQUE KEY `user_id_UNIQUE` (`user_id`),
   CONSTRAINT `fk_profiles_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=6 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,7 +151,7 @@ CREATE TABLE `sales` (
   KEY `FK_sales_products` (`product_id`),
   CONSTRAINT `FK_sales_products` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_sales_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=5 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +180,7 @@ CREATE TABLE `users` (
   `avatar` blob,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Índice 2` (`user_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
