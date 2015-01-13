@@ -43,13 +43,7 @@ abstract class Driver {
 	public function getRegex() {
 		return $this->regex;
 	}
-	
-	/**
-	 * Builds a driver from a configuration array
-	 * @param array $config
-	 */
-	public static abstract function build($config);
-	
+		
 	/**
 	 * Connects to database
 	 */
