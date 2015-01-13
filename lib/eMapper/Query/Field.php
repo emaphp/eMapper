@@ -59,14 +59,7 @@ abstract class Field {
 		 
 		$this->columnType = $type;
 	}
-	
-	/**
-	 * Initializes a new Field instance
-	 * @param string $method
-	 * @param null $args
-	 */
-	public abstract static function __callstatic($method, $args = null);
-	
+		
 	/**
 	 * Obtains the referenced column of this field
 	 * @param \eMapper\Reflection\ClassProfile $profile
