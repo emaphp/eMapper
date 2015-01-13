@@ -12,8 +12,12 @@ eMapper
 Changelog
 ------------------
 <br/>
-2015-01-09 - Version 4.0.1
+2015-01-13 - Version 4.0.1
 
+  * Deprecated: Method throwException in Driver class.
+  * Fix: Cache option not being used in AssociationManager.
+  * Fix: Generating dynamic statements for Matches, StartsWith, GreaterThan.
+  * Fix: Getting index type only when receivin a Field instance in Manager class.
   * Extended documentation.
 
 <br/>
@@ -676,7 +680,7 @@ Stored procedures
 -----------------
 
 <br/>
-In order to call a stored procedure we create a *StoredProcedure* instance by calling the *newProcedure* method in the *Mapper* class. The procedure is then invoked through the *call* method.
+In order to call a stored procedure we create a *StoredProcedure* instance by calling the *newProcedure* method in the *Mapper* class. The procedure is then invoked using the *call* method.
 <br/>
 ```php
 //CALL Users_Clean
@@ -700,14 +704,14 @@ $id = $proc->type('i')->call('emaphp', '1984-07-05', 'M');
 
 //specifyng argument types
 $proc = $mapper->newProcedure('Product_Save');
-$proc->types();
+$proc->argTypes('s', 'i', 's')->call('XY789', 150, 'Laptops');
 
-//wrap procedure name
+//wrap procedure name (PostgreSQL)
 $proc = $mapper->newProcedure('User_Find');
 //CALL `ACME_User_Find`(199)
 $user = $proc->call(199);
 
-//PostgreSQL: return set
+//return set (PostgreSQL)
 $proc = $mapper->newProcedure('Profile_GetByEmail');
 //SELECT * FROM Profile_GetByEmail
 $profile = $proc->returnSet(true)->call('emaphp@github.com')
@@ -1394,8 +1398,8 @@ $user->email = 'emaphp@localhost.com';
 //create profile instance
 $profile = new Profile();
 $profile->firstName = 'Emmanuel';
-$profile->lastName'Antico';
-$profile->setGender('M');
+$profile->lastName = 'Antico';
+$profile->gender = 'M';
 
 //assign profile and store
 $user->profile = $profile;
@@ -2204,6 +2208,31 @@ $mapper->close();
 ```
 
 <br/>
+#####Transactions
+
+Mapper instances do support transactions through the methods *beginTransaction*, *commit* and *rollback*.
+```php
+use eMapper\Mapper;
+use eMapper\Engine\SQLite\SQLiteDriver;
+
+$mapper = new Mapper(new SQLiteDriver('data.db'));
+
+//begin transaction
+$mapper->beginTransaction();
+
+//run query
+$query = $mapper->newQuery();
+$query->insertInto('users')
+->values('emaphp', sha1('qwerty'), 'emaphp@github.com')
+->exec();
+
+//commit
+$mapper->commit();
+
+$mapper->close();
+```
+
+<br/>
 Appendix II: Annotations
 ------------
 
@@ -2383,6 +2412,26 @@ Appendix II: Annotations
         <td>@Cacheable</td>
         <td>Indicates that the value returned by a dynamic attribute can be stored in cache.</td>
         <td>-</td>
+    </tr>
+     <tr>
+        <td>@ArgTypes</td>
+        <td>Defines a procedure's argument types. Types should be expressed between parentheses.</td>
+        <td>@ArgTypes(s. i, date)</td>
+    </tr>
+    <tr>
+        <td>@UsePrefix</td>
+        <td>Determines if the stored procedure name is declared using the database prefix</td>
+        <td>@UsePrefix true</td>
+    </tr>
+    <tr>
+        <td>@ReturnSet</td>
+        <td>Only PostgreSQL. Tells procedure that a column set is returned.</td>
+        <td>@ReturnSet true</td>
+    </tr>
+    <tr>
+        <td>@EscapeName</td>
+        <td>Only PostgreSQL. Escapes procedure name using quotes.</td>
+        <td>@EscapeName true</td>
     </tr>
      <tr>
         <td>@If, @IfNot, @IfNotNull</td>

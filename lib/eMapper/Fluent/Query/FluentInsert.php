@@ -38,7 +38,10 @@ class FluentInsert extends AbstractQuery {
 	 * @return \eMapper\Fluent\Query\FluentInsert
 	 */
 	public function values($values) {
-		$this->valueList = func_get_args();
+		if (is_array($values))
+			$this->value = $values;
+		else
+			$this->valueList = func_get_args();
 		return $this;
 	}
 	

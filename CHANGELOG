@@ -1,3 +1,10 @@
+2015-01-13 - Version 4.0.1
+
+  Deprecated: Method throwException in Driver class.
+  Fix: Cache option not being used in AssociationManager.
+  Fix: Generating dynamic statements for Matches, StartsWith, GreaterThan.
+  Fix: Getting index type only when receivin a Field instance in Manager class.
+
 2015-01-01 - Version 4.0
 
   Deprecated: Named Queries
