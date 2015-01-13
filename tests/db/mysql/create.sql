@@ -32,6 +32,8 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+ALTER TABLE `categories` convert to character set utf8 collate utf8_general_ci;
+
 --
 -- Dumping data for table `categories`
 --
@@ -61,6 +63,8 @@ CREATE TABLE `favorites` (
   CONSTRAINT `fk_favorites_2` FOREIGN KEY (`prd_id`) REFERENCES `products` (`product_id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+ALTER TABLE `favorites` convert to character set utf8 collate utf8_general_ci;
 
 --
 -- Dumping data for table `favorites`
@@ -94,6 +98,8 @@ CREATE TABLE `products` (
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+ALTER TABLE `products` convert to character set utf8 collate utf8_general_ci;
+
 --
 -- Dumping data for table `products`
 --
@@ -122,6 +128,8 @@ CREATE TABLE `profiles` (
   CONSTRAINT `fk_profiles_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+ALTER TABLE `profiles` convert to character set utf8 collate utf8_general_ci;
 
 --
 -- Dumping data for table `profiles`
@@ -154,6 +162,8 @@ CREATE TABLE `sales` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+ALTER TABLE `sales` convert to character set utf8 collate utf8_general_ci;
+
 --
 -- Dumping data for table `sales`
 --
@@ -182,6 +192,8 @@ CREATE TABLE `users` (
   UNIQUE KEY `Índice 2` (`user_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+ALTER TABLE `users` convert to character set utf8 collate utf8_general_ci;
 
 --
 -- Dumping data for table `users`
