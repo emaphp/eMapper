@@ -2074,7 +2074,7 @@ class RGBColorTypeHandler extends TypeHandler {
     public function setParameter(RGBColor $color) {
         $red = ($color->red < 16) ? '0' . dechex($color->red) : dechex($color->red % 256);
 		$green = ($color->green < 16) ? '0' . dechex($color->green % 256) : dechex($color->green);
-		$blue = ($color->blue < 15) ? '0' . dechex($color->blue) : dechex($color->blue % 256);
+		$blue = ($color->blue < 16) ? '0' . dechex($color->blue) : dechex($color->blue % 256);
 		return $red . $green . $blue;
     }
     
@@ -2190,7 +2190,7 @@ class UserResultMap {
 }
 ```
 
-We instruct a mapper instance to use a resultmap by appending a call to the *resultmap* method. This method espects the resultmap class fullname as an argument.
+We instruct a mapper instance to use a resultmap by appending a call to the *resultmap* method. This method expects the resultmap class fullname as an argument.
 
 ```php
 use eMapper\Mapper;

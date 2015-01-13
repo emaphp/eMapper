@@ -1,0 +1,16 @@
+language: php
+install:
+  - composer install
+before_script:
+  - phpenv config-add tests/travis.ini
+  - mysql -e "create database emapper_testing;"
+  - mysql emapper_testing < tests/db/mysql/create.sql
+  - psql -c "create database emapper_testing WITH ENCODING = 'UTF8';" -U postgres
+  - psql -d emapper_testing -a -f tests/db/postgre/create.sql -U postgres
+services:
+  - memcached
+addons:
+  postgresql: "9.3"
+php:
+  - "5.5"
+  - "5.4"

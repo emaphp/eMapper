@@ -43,13 +43,10 @@ class MySQLDriver extends Driver {
 					
 				$this->config['user'] = $user;
 			}
-				
-			if (isset($password)) {
-				if (!is_string($password) || empty($password))
-					throw new \InvalidArgumentException("Invalid password specified");
-					
-				$this->config['password'] = $password;
-			}
+			
+			//allow empty passwords for testing
+			if (isset($password))
+				$this->config['password'] = (string) $password;
 				
 			if (isset($port)) {
 				if (!is_string($port) || !is_integer($port) || empty($port))

@@ -9,7 +9,7 @@ use eMapper\Mapper;
 use eMapper\Engine\PostgreSQL\Result\PostgreSQLResultIterator;
 
 trait PostgreSQLConfig {
-	protected $conn_string = 'host=localhost port=5432 dbname=emapper_testing user=postgres password=c4lpurn14';
+	protected $conn_string = 'host=127.0.0.1 port=5432 dbname=emapper_testing user=postgres';
 	
 	protected function getConnection() {
 		return pg_connect($this->conn_string);

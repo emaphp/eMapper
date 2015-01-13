@@ -13,16 +13,14 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-DROP DATABASE emapper_testing;
 --
 -- TOC entry 2093 (class 1262 OID 16393)
 -- Name: emapper_testing; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE emapper_testing WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'es_AR.UTF-8' LC_CTYPE = 'es_AR.UTF-8';
-
-
-ALTER DATABASE emapper_testing OWNER TO postgres;
+-- DROP DATABASE emapper_testing;
+-- CREATE DATABASE emapper_testing WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'es_AR.UTF-8' LC_CTYPE = 'es_AR.UTF-8';
+-- ALTER DATABASE emapper_testing OWNER TO postgres;
 
 \connect emapper_testing
 

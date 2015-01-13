@@ -9,7 +9,7 @@ use eMapper\Engine\MySQL\Type\MySQLTypeManager;
 use eMapper\Engine\MySQL\Result\MySQLResultIterator;
 
 trait MySQLConfig {
-	protected $config = ['host' => 'localhost', 'user' => 'root', 'password' => 'c4lpurn14', 'database' => 'emapper_testing'];
+	protected $config = ['host' => '127.0.0.1', 'user' => 'root', 'password' => '', 'database' => 'emapper_testing'];
 	
 	protected function getConnection() {
 		return new \mysqli($this->config['host'], $this->config['user'], $this->config['password'], $this->config['database']);
