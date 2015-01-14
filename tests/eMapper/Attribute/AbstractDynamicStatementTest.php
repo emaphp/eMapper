@@ -70,7 +70,7 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		->resultMap('Acme\Statement\ContainsResultMap')
 		->type('obj')
 		->debug(function($query) {
-			echo $debug . "\n";
+			echo $query . "\n";
 		})
 		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
 		
