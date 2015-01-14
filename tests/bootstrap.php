@@ -4,4 +4,4 @@ $loader->add('eMapper', __DIR__);
 $loader->add('Acme',    __DIR__);
 
 //set default timezone
-date_default_timezone_set('Etc/GMT+3');
+date_default_timezone_set('America/New_York');
