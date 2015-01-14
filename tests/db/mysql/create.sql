@@ -230,7 +230,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = '' */ ;
 DELIMITER ;;
-CREATE  PROCEDURE `Products_FindAvgPriceByCategory`(IN _category VARCHAR(16))
+CREATE  PROCEDURE `Products_FindAvgPriceByCategory`(IN _category VARCHAR(16) charset utf8)
 BEGIN
 
 SELECT AVG(price)
@@ -340,4 +340,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-01-13 22:42:58
+-- Dump completed on 2015-01-13 23:14:55
