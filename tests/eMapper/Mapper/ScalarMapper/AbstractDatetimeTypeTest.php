@@ -19,7 +19,7 @@ abstract class AbstractDatetimeTypeTest extends MapperTest {
 	
 		$result = $this->mapper->type('timestamp')->query("SELECT sale_date FROM sales WHERE sale_id = 1");
 		$this->assertInstanceOf('DateTime', $result);
-		$this->assertEquals('2013-08-10 23:37:18', $result->format('Y-m-d H:i:s'));
+		$this->assertEquals('2013-08-10 20:37:18', $result->format('Y-m-d H:i:s'));
 	
 		///WARNING!!!!!! 2011 -> 20:11
 		$result = $this->mapper->type('DateTime')->query("SELECT manufacture_year FROM products WHERE product_id = 1");
@@ -35,7 +35,7 @@ abstract class AbstractDatetimeTypeTest extends MapperTest {
 		$value = $this->mapper->type('DateTime', 'sale_date')->query("SELECT * FROM sales WHERE sale_id = 2");
 	
 		$this->assertInstanceOf('\DateTime', $value);
-		$this->assertEquals('2013-05-17 17:22:50', $value->format('Y-m-d H:i:s'));
+		$this->assertEquals('2013-05-17 14:22:50', $value->format('Y-m-d H:i:s'));
 	}
 	
 	public function testDatetimeList() {
