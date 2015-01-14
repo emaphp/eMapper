@@ -2,6 +2,7 @@
 namespace eMapper\Attribute;
 
 use eMapper\MapperTest;
+use eMapper\Engine\MySQL\Exception\MySQLQueryException;
 
 abstract class AbstractEntityMappingTest extends MapperTest {
 	public function testMacroAttribute() {
@@ -87,7 +88,13 @@ abstract class AbstractEntityMappingTest extends MapperTest {
 	}
 	
 	public function testStatementAttribute() {
-		$sale = $this->mapper->type('obj:Acme\Result\Attribute\ExtraSale')->query("SELECT * FROM sales WHERE sale_id = 3");
+		try {
+			$sale = $this->mapper->type('obj:Acme\Result\Attribute\ExtraSale')->query("SELECT * FROM sales WHERE sale_id = 3");
+		}
+		catch (MySQLQueryException $myex) {
+			echo $myex->getQuery() . "\n";
+		}
+		
 		$this->assertInstanceOf('Acme\Result\Attribute\ExtraSale', $sale);
 	
 		//productId
