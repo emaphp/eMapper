@@ -88,13 +88,7 @@ abstract class AbstractEntityMappingTest extends MapperTest {
 	}
 	
 	public function testStatementAttribute() {
-		try {
-			$sale = $this->mapper->type('obj:Acme\Result\Attribute\ExtraSale')->query("SELECT * FROM sales WHERE sale_id = 3");
-		}
-		catch (MySQLQueryException $myex) {
-			echo $myex->getQuery() . "\n";
-		}
-		
+		$sale = $this->mapper->type('obj:Acme\Result\Attribute\ExtraSale')->query("SELECT * FROM sales WHERE sale_id = 3");
 		$this->assertInstanceOf('Acme\Result\Attribute\ExtraSale', $sale);
 	
 		//productId
