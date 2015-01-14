@@ -12,25 +12,25 @@ class StartsWithResultMap {
 	
 	/**
 	 * @Statement Product.codeStartsWith
-	 * @Param 'IND'
+	 * @Param IND
 	 */
 	public $startsWith;
 	
 	/**
 	 * @Statement Product.codeNotStartsWith
-	 * @Param 'IND'
+	 * @Param IND
 	 */
 	public $notStartsWith;
 	
 	/**
 	 * @Statement Product.codeIStartsWith
-	 * @Param 'SOFT'
+	 * @Param SOFT
 	 */
 	public $istartsWith;
 	
 	/**
 	 * @Statement Product.codeNotIStartsWith
-	 * @Param 'SOFT'
+	 * @Param SOFT
 	 */
 	public $notIStartsWith;
 }

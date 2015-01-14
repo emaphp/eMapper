@@ -12,25 +12,25 @@ class ContainsResultMap {
 	
 	/**
 	 * @Statement Product.descriptionContains
-	 * @Param 'Android'
+	 * @Param Android
 	 */
 	public $contains;
 	
 	/**
 	 * @Statement Product.codeNotContains
-	 * @Param 'IND'
+	 * @Param IND
 	 */
 	public $notContains;
 	
 	/**
 	 * @Statement Product.descriptionIContains
-	 * @Param 're'
+	 * @Param re
 	 */
 	public $icontains;
 	
 	/**
 	 * @Statement Product.descriptionNotIContains
-	 * @Param 're'
+	 * @Param re
 	 */
 	public $notIContains;
 }

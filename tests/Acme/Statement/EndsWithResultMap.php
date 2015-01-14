@@ -12,25 +12,25 @@ class EndsWithResultMap {
 	
 	/**
 	 * @Statement Product.codeEndsWith
-	 * @Param '3'
+	 * @Param 3
 	 */
 	public $endsWith;
 	
 	/**
 	 * @Statement Product.categoryNotEndsWith
-	 * @Param 'es'
+	 * @Param es
 	 */
 	public $notEndsWith;
 	
 	/**
 	 * @Statement Product.categoryIEndsWith
-	 * @Param 'RE'
+	 * @Param RE
 	 */
 	public $iendsWith;
 	
 	/**
 	 * @Statement Product.descriptionNotIEndsWith
-	 * @Param 'NE'
+	 * @Param NE
 	 */
 	public $notIEndsWith;
 }

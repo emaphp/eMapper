@@ -12,25 +12,25 @@ class MatchesResultMap {
 	
 	/**
 	 * @Statement Product.codeMatches
-	 * @Param '^IND0+'
+	 * @Param ^IND0+
 	 */
 	public $matches;
 	
 	/**
 	 * @Statement Product.codeNotMatches
-	 * @Param '^IND0+'
+	 * @Param ^IND0+
 	 */
 	public $notMatches;
 	
 	/**
 	 * @Statement Product.codeIMatches
-	 * @Param '^phn0+'
+	 * @Param ^phn0+
 	 */
 	public $imatches;
 	
 	/**
 	 * @Statement Product.codeNotIMatches
-	 * @Param '^phn0+'
+	 * @Param ^phn0+
 	 */
 	public $notIMatches;
 }

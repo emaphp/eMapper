@@ -69,9 +69,6 @@ abstract class AbstractDynamicStatementTest extends MapperTest {
 		$sale = $this->mapper
 		->resultMap('Acme\Statement\ContainsResultMap')
 		->type('obj')
-		->debug(function($query) {
-			echo $query . "\n";
-		})
 		->query("SELECT sale_id FROM sales WHERE sale_id = %{i}", 1);
 		
 		$this->assertEquals(1, $sale->saleId);
