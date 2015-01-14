@@ -4,4 +4,4 @@ $loader->add('eMapper', __DIR__);
 $loader->add('Acme',    __DIR__);
 
 //set default timezone
-date_default_timezone_set('GMT+0');
+date_default_timezone_set('UTC');
