@@ -8,6 +8,8 @@ eMapper
 <br/>
 **Version**: 4.0
 
+[![Build Status](https://travis-ci.org/emaphp/eMapper.svg?branch=master)](https://travis-ci.org/emaphp/eMapper)
+
 <br/>
 Changelog
 ------------------
